@@ -1,0 +1,228 @@
+/* Dark Css */
+
+.about-serction.style_two {
+    background: #f3f8f1;
+}
+.about_shape img {
+    filter: brightness(0.1);
+}
+.hotelhub-section-title.style_five h4 {
+    color: #52614e;
+}
+.hotelhub-section-title.style_five h1 {
+    color: #161616;
+}
+.hotelhub-section-title.style_five p {
+    color: #616161;
+}
+.abou_list ul li {
+    color: #616161;
+}
+.abou_list ul li img {
+    filter: brightness(0.5);
+}
+.about_shape3 img {
+    filter: brightness(0.5);
+}
+.why-choose-us-section.style_two {
+    background: var(--light-color);
+}
+.style_light {
+    background: var(--light-color) !important;
+}
+.style_light_two {
+    background: #fff !important;
+}
+.single-service-box.style_two {
+    background: #fff;
+}
+.single-service-box.style_two .service-content h3 {
+    color: #161616;
+    transition: 0.5s;
+}
+.single-service-box.style_two .service-content p {
+    color: #161616;
+    transition: 0.5s;
+}
+.single-service-box.style_two .service-icon img {
+    filter: brightness(0.4);
+    transition: 0.5s;
+}
+.single-service-box.style_two:hover .service-icon img {
+    filter: brightness(0) invert(1);
+}
+.single-service-box.style_two:hover .service-content h3,
+.single-service-box.style_two:hover .service-content p {
+    color: #ffff;
+}
+.contact-infos.style_dark h3 {
+    color: #161616;
+}
+.contact-infos.style_dark span i {
+    border: 2px solid #52614e;
+    color: #52614e;
+}
+
+/* Service Section  */
+
+.service-section.style_light .single-service-boxs .service-content {
+    background: #fff;
+    transition: 0.5s;
+}
+.service-section.style_light .single-service-boxs .service-content h3{
+    color: #161616;
+    transition: 0.5s;
+}
+.service-section.style_light .single-service-boxs .service-content span {
+    color: #52614e;
+    padding: 0;
+    border: none;
+    transition: 0.5s;
+}
+.service-section.style_light .single-service-boxs ul.service_list li {
+    color: #52614e;
+    transition: 0.5s;
+}
+.service-section.style_light .single-service-boxs ul.service_list li i {
+    color: #52614e;
+    transition: 0.5s;
+}
+.service-section.style_light .single-service-boxs .hotelhub-btn2 a {
+    color: #161616;
+    background: #f3f8f1;
+    transition: 0.5s;
+}
+.service-section.style_light .single-service-boxs:hover .service-content {
+    background: #222222;
+}
+.service-section.style_light .single-service-boxs:hover .service-content h3{
+    color: #ffff;
+}
+.service-section.style_light .single-service-boxs:hover .service-content span {
+    color: #d5e5d1;
+}
+.service-section.style_light .single-service-boxs:hover .service-content span {
+    color: #ffffff82;
+}
+.service-section.style_light .single-service-boxs:hover ul.service_list li {
+    color: #ffffff82;
+}
+.service-section.style_light .single-service-boxs:hover ul.service_list li i {
+    color: #fff;
+}
+.service-section.style_light .single-service-boxs:hover .hotelhub-btn2 a {
+    color: #fff;
+}
+
+
+.blog-section.style_light .blog-single-box .blog-content {
+    background-color: #fff;
+    transition: 0.5s;
+}
+.blog-section.style_light .blog-single-box:hover .blog-content {
+    background-color: #161616;
+}
+.blog-section.style_light .blog-single-box .blog-content h3 a {
+    color: #161616;
+}
+.blog-section.style_light .blog-single-box span.category {
+    border: 1px solid rgba(22,22,22,0.1);
+    color: #161616;
+    transition: 0.5s;
+}
+.blog-section.style_light .blog-single-box .blog_button {
+    border-top: 1px solid #a998984a;
+}
+.blog-section.style_light .blog-single-box:hover span.category {
+    border: 1px solid rgba(158, 139, 139, 0.1);
+    color: #fff;
+}
+.blog-section.style_light .blog-single-box .blog_admin ul li {
+    color: #161616;
+}
+.blog-section.style_light .blog-single-box:hover .blog_admin ul li {
+    color: #ffff;
+}
+.blog-section.style_light .blog-single-box:hover .blog-content h3 a {
+    color: #fff;
+}
+
+/* Start Home Hotel booking Light css */
+
+
+.choose-single-bx2.style_three .choose_contents {
+    background-color: #ffff;
+}
+.choose-single-bx2.style_three .choose_contents span.chosse-price {
+    border: 1px solid #52614e;
+    color: #52614e;
+}
+.choose-single-bx2.style_three .choose_contents h4 {
+    color: #161616;
+}
+.choose-single-bx2.style_three .choose_contents p {
+    color: #616161;
+}
+.choose-single-bx2.style_three .choose-infos ul li {
+    color: #616161;
+}
+.choose-infos ul li img {
+    filter: brightness(0.5);
+}
+.choose-single-bx2.style_three .choose_contents .hotelhub-btn a {
+    padding: 10px 26px;
+    border: 1px solid #52614e;
+}
+.choose-single-bx2.style_three .choose_contents .hotelhub-btn a:hover {
+    border: 1px solid var(--body-color);
+}
+
+/* Team dark */
+.team-section.style_three {
+    background: #ffff !important;
+    padding: 120px 70px 75px;
+}
+.team-section.style_three .team-single-box {
+    background-color: var(--light-color);
+}
+.team-section.style_three .team-single-box .team-content h2 {
+    color: #161616;
+}
+.team-section.style_three .team-single-box .team-content h5 {
+    color: #616161;
+}
+.team-section.style_three .team-single-box .social-icon {
+    border-top: 1px solid #52614e4f;
+}
+.team-section.style_three .team-single-box .social-icon ul li a {
+    color: #52614e;
+    border: 1px solid #52614e7a;
+}
+.team-section.style_three .team-single-box .social-icon ul li a:hover {
+    color: #fff;
+}
+.choose-sections.style_three {
+    background: #ffff;
+    padding: 0 0 90px;
+}
+.choose-sections.style_three .row.choose-border:before {
+    display: none;
+}
+
+/* Start Home Three */
+
+.about-serction.style-tow.style_three.style_four {
+    background: #fff !important;
+}
+.hotelhub-section-title.style_five h1 span {
+    color: #52614E !important;
+}
+.about-serction.style_four .counter-single-boxs .counter-number h1 {
+    color: #52614E !important;
+}
+.about-shapes img {
+    filter: brightness(0.3);
+}
+.service-section.style_four {
+    background: #ffff;
+}

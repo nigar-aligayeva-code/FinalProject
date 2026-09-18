@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Modules/" />
+  <Folder Name="/src/">
+    <Project Path="HotelTravel.API/HotelTravel.API.csproj" />
+    <Project Path="HotelTravel.Application/HotelTravel.Application.csproj" />
+    <Project Path="HotelTravel.Domain/HotelTravel.Domain.csproj" />
+    <Project Path="HotelTravel.Infrastructure/HotelTravel.Infrastructure.csproj" />
+    <Project Path="HotelTravel.Web/HotelTravel.Web.csproj" />
+  </Folder>
+</Solution>
