@@ -348,15 +348,15 @@ p.sidebar_info {
 <!-- ============================================================== -->*/
 
 .hero-section {
-  background: url(../images/slider/banner.jpg);
-  background-position: center;
-  background-repeat: no-repeat;
-  height: 820px;
-  background-size: cover;
-  position: relative;
-  z-index: 1;
+    background: url(../images/slider/hotel1.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 820px;
+    background-size: cover;
+    position: relative;
+    z-index: 1;
 }
-
+}
 .row.hero_upper {
   padding: 112px 0 107px;
 }
@@ -3753,7 +3753,7 @@ span.wood-animation img {
 <!-- ============================================================== -->*/
 
 .hero-section.style-three {
-  background: url(../images/home-three/banner.jpg);
+  background: url(../images/home-three/hotel1.jpg);
   background-position: center;
   background-repeat: no-repeat;
   height: 900px;
