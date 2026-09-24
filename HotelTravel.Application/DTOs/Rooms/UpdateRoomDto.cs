@@ -1,8 +1,8 @@
 ﻿using HotelTravel.Domain.Enums;
 
-namespace HotelTravel.Domain.Entities;
+namespace HotelTravel.Application.DTOs.Rooms;
 
-public class Room : BaseEntity
+public class UpdateRoomDto
 {
     public string RoomNumber { get; set; }
     public string Name { get; set; }
@@ -16,7 +16,4 @@ public class Room : BaseEntity
     public RoomType RoomType { get; set; }
 
     public int HotelId { get; set; }
-    public Hotel Hotel { get; set; }
-
-    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 }
