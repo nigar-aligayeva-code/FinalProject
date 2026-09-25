@@ -1,0 +1,88 @@
+﻿@model List<HotelTravel.Application.DTOs.Hotels.GetHotelDto>
+
+@{
+    ViewData["Title"] = "Hotels";
+}
+
+<div class="container mt-5 mb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Hotels</h2>
+
+        <a asp-controller="Hotels"
+           asp-action="Create"
+           class="btn btn-primary">
+            Add New Hotel
+        </a>
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            No hotels have been added yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped">
+
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>City</th>
+                    <th>Country</th>
+                    <th>Stars</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var hotel in Model)
+                {
+                    <tr>
+                        <td>
+                            @if (!string.IsNullOrEmpty(hotel.MainImage))
+                            {
+                                <img src="@hotel.MainImage"
+                                     alt="@hotel.Name"
+                                     width="100" />
+                            }
+                        </td>
+
+                        <td>@hotel.Name</td>
+                        <td>@hotel.City</td>
+                        <td>@hotel.Country</td>
+                        <td>@hotel.StarRating ⭐</td>
+                        <td>@hotel.Phone</td>
+
+                        <td>
+                            <a asp-action="Details"
+                               asp-route-id="@hotel.Id"
+                               class="btn btn-info btn-sm">
+                                Details
+                            </a>
+
+                            <a asp-action="Edit"
+                               asp-route-id="@hotel.Id"
+                               class="btn btn-warning btn-sm">
+                                Edit
+                            </a>
+
+                            <a asp-action="Delete"
+                               asp-route-id="@hotel.Id"
+                               class="btn btn-danger btn-sm">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+
+</div>

@@ -1,0 +1,109 @@
+﻿@model HotelTravel.Application.DTOs.Rooms.CreateRoomDto
+
+@{
+    ViewData["Title"] = "Create Room";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Create Room</h2>
+
+    <form asp-controller="Rooms"
+          asp-action="Create"
+          method="post">
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3">
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="RoomNumber" class="form-label"></label>
+            <input asp-for="RoomNumber" class="form-control" />
+            <span asp-validation-for="RoomNumber"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description"
+                      class="form-control"
+                      rows="4"></textarea>
+            <span asp-validation-for="Description"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PricePerNight" class="form-label"></label>
+            <input asp-for="PricePerNight"
+                   class="form-control" />
+            <span asp-validation-for="PricePerNight"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Capacity" class="form-label"></label>
+            <input asp-for="Capacity"
+                   class="form-control" />
+            <span asp-validation-for="Capacity"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="MainImage" class="form-label"></label>
+            <input asp-for="MainImage"
+                   class="form-control"
+                   placeholder="/assets/images/room/example.jpg" />
+            <span asp-validation-for="MainImage"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="RoomType" class="form-label"></label>
+
+            <select asp-for="RoomType"
+                    asp-items="Html.GetEnumSelectList<HotelTravel.Domain.Enums.RoomType>()"
+                    class="form-select">
+
+                <option value="">Select Room Type</option>
+
+            </select>
+
+            <span asp-validation-for="RoomType"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="HotelId" class="form-label"></label>
+            <input asp-for="HotelId"
+                   class="form-control" />
+            <span asp-validation-for="HotelId"
+                  class="text-danger"></span>
+        </div>
+
+        <button type="submit"
+                class="btn btn-success">
+            Create
+        </button>
+
+        <a asp-controller="Rooms"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Back
+        </a>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

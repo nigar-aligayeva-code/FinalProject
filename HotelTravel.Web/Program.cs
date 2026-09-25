@@ -1,3 +1,5 @@
+using HotelTravel.Application.Interfaces;
+using HotelTravel.Application.Services;
 using HotelTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,10 +13,17 @@ namespace HotelTravel.Web
 
             builder.Services.AddControllersWithViews();
 
+            // Database
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            // Dependency Injection
+            builder.Services.AddScoped<IAppDbContext>(provider =>
+                provider.GetRequiredService<AppDbContext>());
+
+            builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<IHotelService, HotelService>();
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())
