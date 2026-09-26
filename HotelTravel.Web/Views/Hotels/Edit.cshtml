@@ -1,0 +1,140 @@
+﻿@model HotelTravel.Application.DTOs.Hotels.UpdateHotelDto
+
+@{
+    ViewData["Title"] = "Edit Hotel";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Edit Hotel</h2>
+
+    <form method="post">
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3">
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+
+            <textarea asp-for="Description"
+                      class="form-control"
+                      rows="4"></textarea>
+
+            <span asp-validation-for="Description"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label"></label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="City" class="form-label"></label>
+            <input asp-for="City" class="form-control" />
+            <span asp-validation-for="City"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Country" class="form-label"></label>
+            <input asp-for="Country" class="form-control" />
+            <span asp-validation-for="Country"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+
+            <input asp-for="Email"
+                   type="email"
+                   class="form-control" />
+
+            <span asp-validation-for="Email"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="MainImage" class="form-label"></label>
+            <input asp-for="MainImage" class="form-control" />
+            <span asp-validation-for="MainImage"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Latitude" class="form-label"></label>
+            <input asp-for="Latitude" class="form-control" />
+            <span asp-validation-for="Latitude"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Longitude" class="form-label"></label>
+            <input asp-for="Longitude" class="form-control" />
+            <span asp-validation-for="Longitude"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="StarRating" class="form-label"></label>
+
+            <select asp-for="StarRating" class="form-select">
+                <option value="1">1 Star</option>
+                <option value="2">2 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="5">5 Stars</option>
+            </select>
+
+            <span asp-validation-for="StarRating"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="HotelChainId" class="form-label">
+                Hotel Chain Id (Optional)
+            </label>
+
+            <input asp-for="HotelChainId"
+                   class="form-control" />
+
+            <span asp-validation-for="HotelChainId"
+                  class="text-danger"></span>
+        </div>
+
+        <button type="submit"
+                class="btn btn-success">
+            Save Changes
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Back
+        </a>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

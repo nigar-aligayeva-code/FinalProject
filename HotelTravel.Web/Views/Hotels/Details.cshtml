@@ -1,0 +1,87 @@
+﻿@model HotelTravel.Application.DTOs.Hotels.GetHotelDto
+
+@{
+    ViewData["Title"] = "Hotel Details";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Hotel Details</h2>
+
+    <div class="card">
+        <div class="card-body">
+
+            @if (!string.IsNullOrEmpty(Model.MainImage))
+            {
+                <div class="mb-4">
+                    <img src="@Model.MainImage"
+                         alt="@Model.Name"
+                         style="max-width: 400px; width: 100%;" />
+                </div>
+            }
+
+            <p>
+                <strong>Name:</strong>
+                @Model.Name
+            </p>
+
+            <p>
+                <strong>Description:</strong>
+                @Model.Description
+            </p>
+
+            <p>
+                <strong>Address:</strong>
+                @Model.Address
+            </p>
+
+            <p>
+                <strong>City:</strong>
+                @Model.City
+            </p>
+
+            <p>
+                <strong>Country:</strong>
+                @Model.Country
+            </p>
+
+            <p>
+                <strong>Phone:</strong>
+                @Model.Phone
+            </p>
+
+            <p>
+                <strong>Email:</strong>
+                @Model.Email
+            </p>
+
+            <p>
+                <strong>Star Rating:</strong>
+                @Model.StarRating ⭐
+            </p>
+
+            <p>
+                <strong>Latitude:</strong>
+                @Model.Latitude
+            </p>
+
+            <p>
+                <strong>Longitude:</strong>
+                @Model.Longitude
+            </p>
+
+            <a asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="btn btn-warning">
+                Edit
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Back
+            </a>
+
+        </div>
+    </div>
+
+</div>

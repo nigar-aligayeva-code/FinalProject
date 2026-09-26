@@ -1,0 +1,72 @@
+﻿@model HotelTravel.Application.DTOs.Rooms.GetRoomDto
+
+@{
+    ViewData["Title"] = "Room Details";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Room Details</h2>
+
+    <div class="card">
+        <div class="card-body">
+
+            @if (!string.IsNullOrEmpty(Model.MainImage))
+            {
+                <div class="mb-4">
+                    <img src="@Model.MainImage"
+                         alt="@Model.Name"
+                         style="max-width: 400px; width: 100%;" />
+                </div>
+            }
+
+            <p>
+                <strong>Room Number:</strong>
+                @Model.RoomNumber
+            </p>
+
+            <p>
+                <strong>Name:</strong>
+                @Model.Name
+            </p>
+
+            <p>
+                <strong>Description:</strong>
+                @Model.Description
+            </p>
+
+            <p>
+                <strong>Room Type:</strong>
+                @Model.RoomType
+            </p>
+
+            <p>
+                <strong>Capacity:</strong>
+                @Model.Capacity
+            </p>
+
+            <p>
+                <strong>Price Per Night:</strong>
+                @Model.PricePerNight.ToString("0.00")
+            </p>
+
+            <p>
+                <strong>Hotel Id:</strong>
+                @Model.HotelId
+            </p>
+
+            <a asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="btn btn-warning">
+                Edit
+            </a>
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Back
+            </a>
+
+        </div>
+    </div>
+
+</div>

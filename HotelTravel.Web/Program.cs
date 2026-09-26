@@ -24,6 +24,7 @@ namespace HotelTravel.Web
 
             builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<IHotelService, HotelService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())

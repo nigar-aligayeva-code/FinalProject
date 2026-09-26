@@ -1,16 +1,21 @@
 ﻿using HotelTravel.Application.DTOs.Rooms;
 using HotelTravel.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HotelTravel.Web.Controllers;
 
 public class RoomsController : Controller
 {
     private readonly IRoomService _roomService;
+    private readonly IHotelService _hotelService;
 
-    public RoomsController(IRoomService roomService)
+    public RoomsController(
+        IRoomService roomService,
+        IHotelService hotelService)
     {
         _roomService = roomService;
+        _hotelService = hotelService;
     }
 
     // GET: /Rooms
@@ -34,8 +39,10 @@ public class RoomsController : Controller
 
     // GET: /Rooms/Create
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        await LoadHotelsAsync();
+
         return View();
     }
 
@@ -45,7 +52,11 @@ public class RoomsController : Controller
     public async Task<IActionResult> Create(CreateRoomDto dto)
     {
         if (!ModelState.IsValid)
+        {
+            await LoadHotelsAsync(dto.HotelId);
+
             return View(dto);
+        }
 
         await _roomService.CreateAsync(dto);
 
@@ -73,6 +84,8 @@ public class RoomsController : Controller
             HotelId = room.HotelId
         };
 
+        await LoadHotelsAsync(dto.HotelId);
+
         return View(dto);
     }
 
@@ -82,7 +95,11 @@ public class RoomsController : Controller
     public async Task<IActionResult> Edit(int id, UpdateRoomDto dto)
     {
         if (!ModelState.IsValid)
+        {
+            await LoadHotelsAsync(dto.HotelId);
+
             return View(dto);
+        }
 
         var result = await _roomService.UpdateAsync(id, dto);
 
@@ -115,5 +132,16 @@ public class RoomsController : Controller
             return NotFound();
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task LoadHotelsAsync(int? selectedHotelId = null)
+    {
+        var hotels = await _hotelService.GetAllAsync();
+
+        ViewBag.Hotels = new SelectList(
+            hotels,
+            "Id",
+            "Name",
+            selectedHotelId);
     }
 }

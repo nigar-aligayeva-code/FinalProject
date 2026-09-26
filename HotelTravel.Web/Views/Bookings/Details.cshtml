@@ -1,0 +1,85 @@
+﻿@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
+
+@{
+    ViewData["Title"] = "Booking Details";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Booking Details</h2>
+
+    <div class="card">
+        <div class="card-body">
+
+            <h4 class="card-title mb-4">
+                Confirmation: @Model.ConfirmationCode
+            </h4>
+
+            <hr />
+
+            <h5>Guest Information</h5>
+
+            <p>
+                <strong>Name:</strong>
+                @Model.GuestName
+            </p>
+
+            <p>
+                <strong>Email:</strong>
+                @Model.GuestEmail
+            </p>
+
+            <hr />
+
+            <h5>Room Information</h5>
+
+            <p>
+                <strong>Room:</strong>
+                @Model.RoomNumber - @Model.RoomName
+            </p>
+
+            <hr />
+
+            <h5>Booking Information</h5>
+
+            <p>
+                <strong>Check-in:</strong>
+                @Model.CheckInDate.ToString("dd.MM.yyyy")
+            </p>
+
+            <p>
+                <strong>Check-out:</strong>
+                @Model.CheckOutDate.ToString("dd.MM.yyyy")
+            </p>
+
+            <p>
+                <strong>Adults:</strong>
+                @Model.AdultCount
+            </p>
+
+            <p>
+                <strong>Children:</strong>
+                @Model.ChildrenCount
+            </p>
+
+            <p>
+                <strong>Total Price:</strong>
+                @Model.TotalPrice.ToString("0.00") AZN
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                @Model.Status
+            </p>
+
+            <hr />
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Back to Bookings
+            </a>
+
+        </div>
+    </div>
+
+</div>
