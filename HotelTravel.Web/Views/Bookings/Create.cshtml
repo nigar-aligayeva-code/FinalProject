@@ -6,7 +6,7 @@
 
 <div class="container mt-5 mb-5">
 
-    <h2 class="mb-4">Create Booking</h2>
+    <h2 class="mb-4">Complete Your Booking</h2>
 
     <form asp-controller="Bookings"
           asp-action="Create"
@@ -16,89 +16,65 @@
              class="alert alert-danger">
         </div>
 
-        <h4 class="mb-3">Room & Dates</h4>
+        <!-- Seçilmiş booking məlumatları -->
+        <div class="card mb-4">
 
-        <div class="mb-3">
-            <label asp-for="RoomId"
-                   class="form-label">
-                Room
-            </label>
+            <div class="card-header">
+                <h4 class="mb-0">
+                    Your Reservation
+                </h4>
+            </div>
 
-            <select asp-for="RoomId"
-                    asp-items="ViewBag.Rooms"
-                    class="form-select">
+            <div class="card-body">
 
-                <option value="">Select Room</option>
+                <p>
+                    <strong>Check-in:</strong>
+                    @Model.CheckInDate.ToString("dd.MM.yyyy")
+                </p>
 
-            </select>
+                <p>
+                    <strong>Check-out:</strong>
+                    @Model.CheckOutDate.ToString("dd.MM.yyyy")
+                </p>
 
-            <span asp-validation-for="RoomId"
-                  class="text-danger"></span>
+                <p>
+                    <strong>Adults:</strong>
+                    @Model.AdultCount
+                </p>
+
+                <p>
+                    <strong>Children:</strong>
+                    @Model.ChildrenCount
+                </p>
+
+            </div>
+
         </div>
 
-        <div class="mb-3">
-            <label asp-for="CheckInDate"
-                   class="form-label">
-                Check-in Date
-            </label>
+        <!-- Bunlar görünmür, amma backend-ə göndərilir -->
 
-            <input asp-for="CheckInDate"
-                   type="date"
-                   class="form-control" />
+        <input asp-for="RoomId"
+               type="hidden" />
 
-            <span asp-validation-for="CheckInDate"
-                  class="text-danger"></span>
-        </div>
+        <input asp-for="CheckInDate"
+               type="hidden" />
 
-        <div class="mb-3">
-            <label asp-for="CheckOutDate"
-                   class="form-label">
-                Check-out Date
-            </label>
+        <input asp-for="CheckOutDate"
+               type="hidden" />
 
-            <input asp-for="CheckOutDate"
-                   type="date"
-                   class="form-control" />
+        <input asp-for="AdultCount"
+               type="hidden" />
 
-            <span asp-validation-for="CheckOutDate"
-                  class="text-danger"></span>
-        </div>
+        <input asp-for="ChildrenCount"
+               type="hidden" />
+
+
+        <h4 class="mb-3">
+            Guest Information
+        </h4>
 
         <div class="mb-3">
-            <label asp-for="AdultCount"
-                   class="form-label">
-                Adults
-            </label>
 
-            <input asp-for="AdultCount"
-                   type="number"
-                   min="1"
-                   class="form-control" />
-
-            <span asp-validation-for="AdultCount"
-                  class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="ChildrenCount"
-                   class="form-label">
-                Children
-            </label>
-
-            <input asp-for="ChildrenCount"
-                   type="number"
-                   min="0"
-                   class="form-control" />
-
-            <span asp-validation-for="ChildrenCount"
-                  class="text-danger"></span>
-        </div>
-
-        <hr />
-
-        <h4 class="mb-3">Guest Information</h4>
-
-        <div class="mb-3">
             <label asp-for="FirstName"
                    class="form-label">
                 First Name
@@ -108,10 +84,14 @@
                    class="form-control" />
 
             <span asp-validation-for="FirstName"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
+
         </div>
 
+
         <div class="mb-3">
+
             <label asp-for="LastName"
                    class="form-label">
                 Last Name
@@ -121,10 +101,14 @@
                    class="form-control" />
 
             <span asp-validation-for="LastName"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
+
         </div>
 
+
         <div class="mb-3">
+
             <label asp-for="Email"
                    class="form-label">
                 Email
@@ -135,10 +119,14 @@
                    class="form-control" />
 
             <span asp-validation-for="Email"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
+
         </div>
 
+
         <div class="mb-3">
+
             <label asp-for="Phone"
                    class="form-label">
                 Phone
@@ -148,18 +136,16 @@
                    class="form-control" />
 
             <span asp-validation-for="Phone"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
+
         </div>
+
 
         <button type="submit"
                 class="btn btn-success">
-            Create Booking
+            Confirm Booking
         </button>
-
-        <a asp-action="Index"
-           class="btn btn-secondary">
-            Back
-        </a>
 
     </form>
 

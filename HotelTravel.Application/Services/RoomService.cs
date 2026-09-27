@@ -112,4 +112,44 @@ public class RoomService : IRoomService
 
         return true;
     }
+    public async Task<List<GetRoomDto>> SearchAvailableRoomsAsync(
+    RoomSearchDto search)
+    {
+        if (search.CheckInDate.Date >= search.CheckOutDate.Date)
+            return new List<GetRoomDto>();
+
+        var totalGuests =
+            search.AdultCount + search.ChildrenCount;
+
+        if (search.AdultCount <= 0 ||
+            search.ChildrenCount < 0)
+            return new List<GetRoomDto>();
+
+        return await _context.Rooms
+            .Where(r =>
+                !r.IsDeleted &&
+
+                r.Capacity >= totalGuests &&
+
+                !r.Bookings.Any(b =>
+                    !b.IsDeleted &&
+                    b.Status != HotelTravel.Domain.Enums.BookingStatus.Cancelled &&
+                    search.CheckInDate.Date < b.CheckOutDate.Date &&
+                    search.CheckOutDate.Date > b.CheckInDate.Date
+                )
+            )
+            .Select(r => new GetRoomDto
+            {
+                Id = r.Id,
+                RoomNumber = r.RoomNumber,
+                Name = r.Name,
+                Description = r.Description,
+                PricePerNight = r.PricePerNight,
+                Capacity = r.Capacity,
+                MainImage = r.MainImage,
+                RoomType = r.RoomType,
+                HotelId = r.HotelId
+            })
+            .ToListAsync();
+    }
 }

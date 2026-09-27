@@ -52,11 +52,25 @@ public class BookingsController : Controller
     }
     // GET: /Bookings/Create
     [HttpGet]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(
+     int? roomId,
+     DateTime? checkInDate,
+     DateTime? checkOutDate,
+     int? adultCount,
+     int? childrenCount)
     {
-        await LoadRoomsAsync();
+        await LoadRoomsAsync(roomId);
 
-        return View();
+        var dto = new CreateBookingDto
+        {
+            RoomId = roomId ?? 0,
+            CheckInDate = checkInDate ?? DateTime.Today,
+            CheckOutDate = checkOutDate ?? DateTime.Today.AddDays(1),
+            AdultCount = adultCount ?? 1,
+            ChildrenCount = childrenCount ?? 0
+        };
+
+        return View(dto);
     }
 
     // POST: /Bookings/Create

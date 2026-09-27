@@ -1,0 +1,106 @@
+﻿@model HotelTravel.Application.DTOs.Rooms.RoomSearchDto
+
+@{
+    ViewData["Title"] = "Search Rooms";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Search Available Rooms</h2>
+
+    <form asp-controller="Rooms"
+          asp-action="Search"
+          method="post">
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CheckInDate" class="form-label">
+                Check-in Date
+            </label>
+
+            <input asp-for="CheckInDate"
+                   id="checkInDate"
+                   type="date"
+                   min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CheckOutDate" class="form-label">
+                Check-out Date
+            </label>
+
+            <input asp-for="CheckOutDate"
+                   id="checkOutDate"
+                   type="date"
+                   min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AdultCount" class="form-label">
+                Adults
+            </label>
+
+            <input asp-for="AdultCount"
+                   type="number"
+                   min="1"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ChildrenCount" class="form-label">
+                Children
+            </label>
+
+            <input asp-for="ChildrenCount"
+                   type="number"
+                   min="0"
+                   class="form-control" />
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary">
+            Search Rooms
+        </button>
+
+    </form>
+
+</div>
+@section Scripts {
+
+    <script>
+        const checkIn = document.getElementById("checkInDate");
+        const checkOut = document.getElementById("checkOutDate");
+
+        checkIn.addEventListener("change", function () {
+
+            if (!checkIn.value) {
+                return;
+            }
+
+            const selectedDate = new Date(checkIn.value + "T00:00:00");
+
+            selectedDate.setDate(selectedDate.getDate() + 1);
+
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+            const day = String(selectedDate.getDate()).padStart(2, "0");
+
+            const minimumCheckOut =
+                `${year}-${month}-${day}`;
+
+            checkOut.min = minimumCheckOut;
+
+            if (!checkOut.value ||
+                checkOut.value < minimumCheckOut) {
+
+                checkOut.value = minimumCheckOut;
+            }
+        });
+    </script>
+
+}

@@ -133,7 +133,53 @@ public class RoomsController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    [HttpGet]
+    public IActionResult Search()
+    {
+        return View(new RoomSearchDto());
+    }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Search(RoomSearchDto search)
+    {
+        if (search.CheckInDate.Date < DateTime.Today)
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                "Check-in date cannot be in the past.");
+
+            return View(search);
+        }
+
+        if (search.CheckInDate.Date >= search.CheckOutDate.Date)
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                "Check-out date must be after check-in date.");
+
+            return View(search);
+        }
+
+        if (search.AdultCount <= 0 || search.ChildrenCount < 0)
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                "Guest count is not valid.");
+
+            return View(search);
+        }
+
+        var rooms =
+            await _roomService.SearchAvailableRoomsAsync(search);
+
+        ViewBag.CheckInDate = search.CheckInDate;
+        ViewBag.CheckOutDate = search.CheckOutDate;
+        ViewBag.AdultCount = search.AdultCount;
+        ViewBag.ChildrenCount = search.ChildrenCount;
+
+        return View("AvailableRooms", rooms);
+    }
     private async Task LoadHotelsAsync(int? selectedHotelId = null)
     {
         var hotels = await _hotelService.GetAllAsync();

@@ -1,0 +1,116 @@
+﻿@model List<HotelTravel.Application.DTOs.Rooms.GetRoomDto>
+
+@{
+    ViewData["Title"] = "Available Rooms";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Available Rooms</h2>
+
+    <div class="alert alert-info">
+
+        <strong>Check-in:</strong>
+        @(((DateTime)ViewBag.CheckInDate).ToString("dd.MM.yyyy"))
+
+        <br />
+
+        <strong>Check-out:</strong>
+        @(((DateTime)ViewBag.CheckOutDate).ToString("dd.MM.yyyy"))
+
+        <br />
+
+        <strong>Guests:</strong>
+        @ViewBag.AdultCount Adult(s),
+        @ViewBag.ChildrenCount Child(ren)
+
+    </div>
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-warning">
+            No available rooms were found for the selected dates.
+        </div>
+
+        <a asp-controller="Rooms"
+           asp-action="Search"
+           class="btn btn-secondary">
+            Search Again
+        </a>
+    }
+    else
+    {
+        <div class="row">
+
+            @foreach (var room in Model)
+            {
+                <div class="col-md-4 mb-4">
+
+                    <div class="card h-100">
+
+                        @if (!string.IsNullOrWhiteSpace(room.MainImage))
+                        {
+                            <img src="@room.MainImage"
+                                 class="card-img-top"
+                                 alt="@room.Name"
+                                 style="height:220px; object-fit:cover;" />
+                        }
+
+                        <div class="card-body">
+
+                            <h4 class="card-title">
+                                @room.Name
+                            </h4>
+
+                            <p>
+                                <strong>Room:</strong>
+                                @room.RoomNumber
+                            </p>
+
+                            <p>
+                                <strong>Type:</strong>
+                                @room.RoomType
+                            </p>
+
+                            <p>
+                                <strong>Capacity:</strong>
+                                @room.Capacity
+                            </p>
+
+                            <p>
+                                <strong>Price:</strong>
+                                @room.PricePerNight.ToString("0.00") AZN / night
+                            </p>
+
+                            <p>
+                                @room.Description
+                            </p>
+
+                            <a asp-controller="Bookings"
+                               asp-action="Create"
+                               asp-route-roomId="@room.Id"
+                               asp-route-checkInDate="@(((DateTime)ViewBag.CheckInDate).ToString("yyyy-MM-dd"))"
+                               asp-route-checkOutDate="@(((DateTime)ViewBag.CheckOutDate).ToString("yyyy-MM-dd"))"
+                               asp-route-adultCount="@ViewBag.AdultCount"
+                               asp-route-childrenCount="@ViewBag.ChildrenCount"
+                               class="btn btn-success">
+                                Book Now
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+        <a asp-controller="Rooms"
+           asp-action="Search"
+           class="btn btn-secondary">
+            Search Again
+        </a>
+    }
+
+</div>

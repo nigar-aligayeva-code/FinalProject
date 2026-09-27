@@ -73,71 +73,80 @@
                     <div class="booking-bx">
                         <div class="containers">
                             <h1>Booking Online</h1>
-                            <form id="bookingForm">
-                                <div class="booking-input-box">
-                                    <i class="bi bi-shield-check"></i>
-                                    <input type="text"
-                                           id="checkin"
-                                           name="checkin"
-                                           placeholder="Check In"
-                                           required />
-                                </div>
-                                <div class="booking-input-box">
-                                    <i class="bi bi-shield-check"></i>
-                                    <input type="text"
-                                           id="checkout"
-                                           name="checkout"
-                                           placeholder="Check Out"
-                                           required />
-                                </div>
-                                <div class="booking-input-box">
-                                    <i class="bi bi-house-door"></i>
-                                    <select name="place"
-                                            id="place">
-                                        <option value="saab">01</option>
-                                        <option value="opel">02</option>
-                                        <option value="audi">03</option>
-                                        <option value="audi">04</option>
-                                        <option value="audi"
-                                                selected="">
-                                            Rooms
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="booking-input-box">
-                                    <i class="bi bi-person"></i>
-                                    <select name="place"
-                                            id="place2">
-                                        <option value="saab">01</option>
-                                        <option value="opel">02</option>
-                                        <option value="audi">03</option>
-                                        <option value="audi">04</option>
-                                        <option value="audi"
-                                                selected="">
-                                            Adult
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="booking-input-box upper">
-                                    <i class="bi bi-person"></i>
-                                    <select name="place"
-                                            id="place3">
-                                        <option value="saab">01</option>
-                                        <option value="opel">02</option>
-                                        <option value="audi">02</option>
-                                        <option value="audi">02</option>
-                                        <option value="audi"
-                                                selected="">
-                                            Children
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="booking-button">
-                                    <button type="submit">
-                                        Book Now<i class="flaticon flaticon-right-arrow"></i>
-                                    </button>
-                                </div>
-                            </form>
+                        <form asp-controller="Rooms"
+                              asp-action="Search"
+                              method="post"
+                              id="bookingForm">
+
+                            @Html.AntiForgeryToken()
+
+                            <div class="booking-input-box">
+                                <i class="bi bi-calendar-check"></i>
+
+                                <input type="text"
+                                       id="homeCheckIn"
+                                       name="CheckInDate"
+                                       placeholder="Check In"
+                                       autocomplete="off"
+                                       required />
+                            </div>
+
+                            <div class="booking-input-box">
+                                <i class="bi bi-calendar-check"></i>
+
+                                <input type="text"
+                                       id="homeCheckOut"
+                                       name="CheckOutDate"
+                                       placeholder="Check Out"
+                                       autocomplete="off"
+                                       required />
+                            </div>
+
+                            <div class="booking-input-box">
+                                <i class="bi bi-house-door"></i>
+
+                                <select id="roomCount">
+                                    <option value="1" selected>1 Room</option>
+                                    <option value="2">2 Rooms</option>
+                                    <option value="3">3 Rooms</option>
+                                    <option value="4">4 Rooms</option>
+                                </select>
+                            </div>
+
+                            <div class="booking-input-box">
+                                <i class="bi bi-person"></i>
+
+                                <select name="AdultCount"
+                                        id="adultCount"
+                                        required>
+                                    <option value="1" selected>1 Adult</option>
+                                    <option value="2">2 Adults</option>
+                                    <option value="3">3 Adults</option>
+                                    <option value="4">4 Adults</option>
+                                </select>
+                            </div>
+
+                            <div class="booking-input-box upper">
+                                <i class="bi bi-person"></i>
+
+                                <select name="ChildrenCount"
+                                        id="childrenCount">
+                                    <option value="0" selected>0 Children</option>
+                                    <option value="1">1 Child</option>
+                                    <option value="2">2 Children</option>
+                                    <option value="3">3 Children</option>
+                                    <option value="4">4 Children</option>
+                                </select>
+                            </div>
+
+                            <div class="booking-button">
+                                <button type="submit">
+                                    Search Rooms
+                                    <i class="flaticon flaticon-right-arrow"></i>
+                                </button>
+                            </div>
+
+                        </form>
                             <div id="confirmation"></div>
                         </div>
                         <div class="line-shape">
@@ -1686,3 +1695,60 @@
     <!--==================================================-->
     <!-- End hotelhub Appoinment Section  -->
     <!--==================================================-->
+@section Scripts {
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const checkOutCalendar = flatpickr("#homeCheckOut", {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d F Y",
+                minDate: new Date().fp_incr(1),
+                allowInput: false
+            });
+
+            flatpickr("#homeCheckIn", {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d F Y",
+                minDate: "today",
+                allowInput: false,
+
+                onChange: function(selectedDates) {
+
+                    if (selectedDates.length === 0) {
+                        return;
+                    }
+
+                    const minimumCheckOut =
+                        new Date(selectedDates[0]);
+
+                    minimumCheckOut.setDate(
+                        minimumCheckOut.getDate() + 1
+                    );
+
+                    checkOutCalendar.set(
+                        "minDate",
+                        minimumCheckOut
+                    );
+
+                    checkOutCalendar.setDate(
+                        minimumCheckOut,
+                        false
+                    );
+
+                    checkOutCalendar.open();
+                }
+            });
+
+           
+
+        });
+    </script>
+}
