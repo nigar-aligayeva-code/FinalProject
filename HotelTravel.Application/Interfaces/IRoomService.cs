@@ -16,4 +16,10 @@ public interface IRoomService
 
     Task<List<GetRoomDto>> SearchAvailableRoomsAsync(
         RoomSearchDto search);
+
+    // Calendar üçün:
+    // bütün otaqların dolu olduğu günləri qaytarır
+    Task<List<DateTime>> GetFullyBookedDatesAsync(
+        DateTime startDate,
+        DateTime endDate);
 }

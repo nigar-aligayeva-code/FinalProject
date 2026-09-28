@@ -216,4 +216,80 @@ public class BookingService : IBookingService
 
         return true;
     }
+    public async Task<List<OccupancyCalendarDto>>
+    GetOccupancyCalendarAsync()
+    {
+        return await _context.Bookings
+            .Where(b =>
+                !b.IsDeleted &&
+                b.Status != BookingStatus.Cancelled)
+            .OrderBy(b => b.CheckInDate)
+            .Select(b => new OccupancyCalendarDto
+            {
+                BookingId = b.Id,
+
+                RoomId = b.RoomId,
+
+                RoomNumber = b.Room.RoomNumber,
+
+                RoomName = b.Room.Name,
+
+                CheckInDate = b.CheckInDate,
+
+                CheckOutDate = b.CheckOutDate,
+
+                GuestName =
+                    b.Guest.FirstName + " " + b.Guest.LastName,
+
+                ConfirmationCode = b.ConfirmationCode,
+
+                Status = b.Status.ToString()
+            })
+            .ToListAsync();
+    }
+    public async Task<GetBookingDto?> GetByConfirmationCodeAsync(
+    string confirmationCode)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationCode))
+            return null;
+
+        confirmationCode = confirmationCode.Trim().ToUpper();
+
+        return await _context.Bookings
+            .Where(b =>
+                !b.IsDeleted &&
+                b.ConfirmationCode.ToUpper() == confirmationCode)
+            .Select(b => new GetBookingDto
+            {
+                Id = b.Id,
+
+                ConfirmationCode = b.ConfirmationCode,
+
+                CheckInDate = b.CheckInDate,
+
+                CheckOutDate = b.CheckOutDate,
+
+                AdultCount = b.AdultCount,
+
+                ChildrenCount = b.ChildrenCount,
+
+                TotalPrice = b.TotalPrice,
+
+                Status = b.Status,
+
+                RoomId = b.RoomId,
+
+                RoomName = b.Room.Name,
+
+                RoomNumber = b.Room.RoomNumber,
+
+                GuestId = b.GuestId,
+
+                GuestName =
+                    b.Guest.FirstName + " " + b.Guest.LastName,
+
+                GuestEmail = b.Guest.Email
+            })
+            .FirstOrDefaultAsync();
+    }
 }

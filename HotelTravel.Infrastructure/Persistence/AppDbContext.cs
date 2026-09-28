@@ -1,11 +1,12 @@
-﻿using HotelTravel.Domain.Entities;
+﻿using HotelTravel.Application.Interfaces;
+using HotelTravel.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
-using HotelTravel.Application.Interfaces;
 
 namespace HotelTravel.Infrastructure.Persistence;
 
-public class AppDbContext : DbContext, IAppDbContext
+public class AppDbContext
+    : IdentityDbContext<AppUser>, IAppDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -20,6 +21,8 @@ public class AppDbContext : DbContext, IAppDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // ÇOX VACİB:
+        // Identity cədvəllərinin konfiqurasiyasını yaradır
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<HotelChain>()

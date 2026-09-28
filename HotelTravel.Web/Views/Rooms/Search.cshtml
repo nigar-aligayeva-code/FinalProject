@@ -1,7 +1,12 @@
 ﻿@model HotelTravel.Application.DTOs.Rooms.RoomSearchDto
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "Search Rooms";
+
+    var fullyBookedDates =
+        ViewBag.FullyBookedDates as List<string>
+        ?? new List<string>();
 }
 
 <div class="container mt-5 mb-5">
@@ -12,54 +17,89 @@
           asp-action="Search"
           method="post">
 
+        @Html.AntiForgeryToken()
+
         <div asp-validation-summary="ModelOnly"
              class="alert alert-danger">
         </div>
 
+        <!-- CHECK IN -->
         <div class="mb-3">
-            <label asp-for="CheckInDate" class="form-label">
+
+            <label class="form-label">
                 Check-in Date
             </label>
 
-            <input asp-for="CheckInDate"
+            <input type="text"
                    id="checkInDate"
-                   type="date"
-                   min="@DateTime.Today.ToString("yyyy-MM-dd")"
-                   class="form-control" />
+                   name="CheckInDate"
+                   class="form-control"
+                   placeholder="Select check-in date"
+                   autocomplete="off"
+                   required />
+            <div class="calendar-info">
+                <span></span>
+                Fully booked dates cannot be selected.
+            </div>
+
         </div>
 
+        <!-- CHECK OUT -->
         <div class="mb-3">
-            <label asp-for="CheckOutDate" class="form-label">
+
+            <label class="form-label">
                 Check-out Date
             </label>
 
-            <input asp-for="CheckOutDate"
+            <input type="text"
                    id="checkOutDate"
-                   type="date"
-                   min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
-                   class="form-control" />
+                   name="CheckOutDate"
+                   class="form-control"
+                   placeholder="Select check-out date"
+                   autocomplete="off"
+                   required />
+
         </div>
 
+        <!-- ADULTS -->
         <div class="mb-3">
-            <label asp-for="AdultCount" class="form-label">
+
+            <label asp-for="AdultCount"
+                   class="form-label">
                 Adults
             </label>
 
-            <input asp-for="AdultCount"
-                   type="number"
-                   min="1"
-                   class="form-control" />
+            <select asp-for="AdultCount"
+                    class="form-control">
+
+                <option value="1">1 Adult</option>
+                <option value="2">2 Adults</option>
+                <option value="3">3 Adults</option>
+                <option value="4">4 Adults</option>
+
+            </select>
+
         </div>
 
+        <!-- CHILDREN -->
         <div class="mb-3">
-            <label asp-for="ChildrenCount" class="form-label">
+
+            <label asp-for="ChildrenCount"
+                   class="form-label">
                 Children
             </label>
 
-            <input asp-for="ChildrenCount"
-                   type="number"
-                   min="0"
-                   class="form-control" />
+            <select asp-for="ChildrenCount"
+                    class="form-control">
+
+                <option value="0">0 Children</option>
+                <option value="1">1 Child</option>
+                <option value="2">2 Children</option>
+                <option value="3">3 Children</option>
+                <option value="4">4 Children</option>
+
+            </select>
+
         </div>
 
         <button type="submit"
@@ -70,37 +110,112 @@
     </form>
 
 </div>
+
+<style>
+    /* Fully booked / disabled days */
+    .flatpickr-day.flatpickr-disabled {
+        color: #999 !important;
+        background-color: #eeeeee !important;
+        text-decoration: line-through;
+        cursor: not-allowed !important;
+    }
+
+        .flatpickr-day.flatpickr-disabled:hover {
+            background-color: #eeeeee !important;
+        }
+
+    .calendar-info {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #aaa;
+    }
+
+        .calendar-info span {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background-color: #eeeeee;
+            border: 1px solid #999;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+</style>
 @section Scripts {
 
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <script>
-        const checkIn = document.getElementById("checkInDate");
-        const checkOut = document.getElementById("checkOutDate");
 
-        checkIn.addEventListener("change", function () {
+        document.addEventListener("DOMContentLoaded", function() {
 
-            if (!checkIn.value) {
-                return;
-            }
+            // Backend-dən gələn tam dolu tarixlər
+            const fullyBookedDates =
+                        @Html.Raw(JsonSerializer.Serialize(fullyBookedDates));
 
-            const selectedDate = new Date(checkIn.value + "T00:00:00");
 
-            selectedDate.setDate(selectedDate.getDate() + 1);
+            // CHECK OUT
+            const checkOutCalendar =
+                flatpickr("#checkOutDate", {
 
-            const year = selectedDate.getFullYear();
-            const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
-            const day = String(selectedDate.getDate()).padStart(2, "0");
+                    dateFormat: "Y-m-d",
 
-            const minimumCheckOut =
-                `${year}-${month}-${day}`;
+                    altInput: true,
 
-            checkOut.min = minimumCheckOut;
+                    altFormat: "d F Y",
 
-            if (!checkOut.value ||
-                checkOut.value < minimumCheckOut) {
+                    minDate: new Date().fp_incr(1),
 
-                checkOut.value = minimumCheckOut;
-            }
+                    disable: fullyBookedDates,
+
+                    allowInput: false
+
+                });
+
+
+            // CHECK IN
+            flatpickr("#checkInDate", {
+
+                dateFormat: "Y-m-d",
+
+                altInput: true,
+
+                altFormat: "d F Y",
+
+                minDate: "today",
+
+                disable: fullyBookedDates,
+
+                allowInput: false,
+
+                onChange: function(selectedDates) {
+
+                    if (selectedDates.length === 0) {
+                        return;
+                    }
+
+                    const minimumCheckOut =
+                        new Date(selectedDates[0]);
+
+                    minimumCheckOut.setDate(
+                        minimumCheckOut.getDate() + 1
+                    );
+
+                    checkOutCalendar.set(
+                        "minDate",
+                        minimumCheckOut
+                    );
+
+                    checkOutCalendar.clear();
+
+                    checkOutCalendar.open();
+                }
+
+            });
+
         });
-    </script>
 
+    </script>
 }

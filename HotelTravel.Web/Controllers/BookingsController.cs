@@ -36,6 +36,77 @@ public class BookingsController : Controller
 
         return View(booking);
     }
+    // FIND MY BOOKING - səhifəni açır
+    [HttpGet]
+    public IActionResult Find()
+    {
+        return View();
+    }
+
+
+    // FIND MY BOOKING - confirmation code ilə axtarır
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Find(string confirmationCode)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationCode))
+        {
+            ViewBag.ErrorMessage =
+                "Please enter your confirmation code.";
+
+            return View();
+        }
+
+        var booking =
+            await _bookingService
+                .GetByConfirmationCodeAsync(confirmationCode);
+
+        if (booking is null)
+        {
+            ViewBag.ErrorMessage =
+                "Booking was not found. Please check your confirmation code.";
+
+            return View();
+        }
+
+        return View("FindResult", booking);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Calendar(
+      int? year,
+      int? month)
+    {
+        var today = DateTime.Today;
+
+        int selectedYear = year ?? today.Year;
+        int selectedMonth = month ?? today.Month;
+
+        // Yanlış month gəlsə
+        if (selectedMonth < 1 || selectedMonth > 12)
+        {
+            selectedYear = today.Year;
+            selectedMonth = today.Month;
+        }
+
+        var rooms =
+            await _roomService.GetAllAsync();
+
+        var bookings =
+            await _bookingService.GetOccupancyCalendarAsync();
+
+        var viewModel =
+            new HotelTravel.Web.ViewModels.OccupancyCalendarViewModel
+            {
+                Year = selectedYear,
+                Month = selectedMonth,
+                Rooms = rooms,
+                Bookings = bookings
+            };
+
+        return View(viewModel);
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateStatus(
@@ -53,24 +124,39 @@ public class BookingsController : Controller
     // GET: /Bookings/Create
     [HttpGet]
     public async Task<IActionResult> Create(
-     int? roomId,
-     DateTime? checkInDate,
-     DateTime? checkOutDate,
-     int? adultCount,
-     int? childrenCount)
+    int? roomId,
+    DateTime? checkInDate,
+    DateTime? checkOutDate,
+    int? adultCount,
+    int? childrenCount)
     {
-        await LoadRoomsAsync(roomId);
-
-        var dto = new CreateBookingDto
+        // Search Rooms -> Book Now ilə gəlmişik
+        if (roomId.HasValue &&
+            checkInDate.HasValue &&
+            checkOutDate.HasValue)
         {
-            RoomId = roomId ?? 0,
-            CheckInDate = checkInDate ?? DateTime.Today,
-            CheckOutDate = checkOutDate ?? DateTime.Today.AddDays(1),
-            AdultCount = adultCount ?? 1,
-            ChildrenCount = childrenCount ?? 0
-        };
+            await LoadRoomsAsync(roomId);
 
-        return View(dto);
+            var dto = new CreateBookingDto
+            {
+                RoomId = roomId.Value,
+                CheckInDate = checkInDate.Value,
+                CheckOutDate = checkOutDate.Value,
+                AdultCount = adultCount ?? 1,
+                ChildrenCount = childrenCount ?? 0
+            };
+
+            ViewBag.FromSearch = true;
+
+            return View(dto);
+        }
+
+        // Birbaşa New Booking basılıb
+        // Əvvəl otaq və tarix seçilməlidir
+        return RedirectToAction(
+            "Search",
+            "Rooms"
+        );
     }
 
     // POST: /Bookings/Create

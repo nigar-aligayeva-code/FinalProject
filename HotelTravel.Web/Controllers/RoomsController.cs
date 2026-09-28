@@ -134,8 +134,23 @@ public class RoomsController : Controller
         return RedirectToAction(nameof(Index));
     }
     [HttpGet]
-    public IActionResult Search()
+    public async Task<IActionResult> Search()
     {
+        var startDate = DateTime.Today;
+
+        // Calendar üçün qarşıdakı 1 ili yoxlayırıq
+        var endDate = DateTime.Today.AddYears(1);
+
+        var fullyBookedDates =
+            await _roomService.GetFullyBookedDatesAsync(
+                startDate,
+                endDate);
+
+        ViewBag.FullyBookedDates =
+            fullyBookedDates
+                .Select(d => d.ToString("yyyy-MM-dd"))
+                .ToList();
+
         return View(new RoomSearchDto());
     }
 

@@ -1,0 +1,246 @@
+﻿@model HotelTravel.Web.ViewModels.OccupancyCalendarViewModel
+
+@{
+    ViewData["Title"] = "Occupancy Calendar";
+
+    var firstDay = new DateTime(Model.Year, Model.Month, 1);
+    var daysInMonth = DateTime.DaysInMonth(Model.Year, Model.Month);
+
+    var previousMonth = firstDay.AddMonths(-1);
+    var nextMonth = firstDay.AddMonths(1);
+}
+
+<div class="container-fluid mt-5 mb-5 px-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="mb-1">Occupancy Calendar</h2>
+
+            <p class="text-muted mb-0">
+                Room availability for
+                <strong>@firstDay.ToString("MMMM yyyy")</strong>
+            </p>
+        </div>
+
+        <a asp-controller="Bookings"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Back to Bookings
+        </a>
+
+    </div>
+
+
+    <!-- PREVIOUS / NEXT MONTH -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <a asp-controller="Bookings"
+           asp-action="Calendar"
+           asp-route-year="@previousMonth.Year"
+           asp-route-month="@previousMonth.Month"
+           class="btn btn-outline-dark">
+            ← Previous Month
+        </a>
+
+        <h3 class="mb-0">
+            @firstDay.ToString("MMMM yyyy")
+        </h3>
+
+        <a asp-controller="Bookings"
+           asp-action="Calendar"
+           asp-route-year="@nextMonth.Year"
+           asp-route-month="@nextMonth.Month"
+           class="btn btn-outline-dark">
+            Next Month →
+        </a>
+
+    </div>
+
+
+    <!-- LEGEND -->
+    <div class="mb-3">
+
+        <span class="badge bg-success me-2">
+            Available
+        </span>
+
+        <span class="badge bg-danger">
+            Booked
+        </span>
+
+    </div>
+
+
+    @if (Model.Rooms == null || Model.Rooms.Count == 0)
+    {
+        <div class="alert alert-warning">
+            No rooms were found.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table table-bordered text-center align-middle occupancy-table">
+
+                <!-- DAYS -->
+                <thead class="table-dark">
+
+                    <tr>
+
+                        <th class="room-column">
+                            Room
+                        </th>
+
+                        @for (int day = 1; day <= daysInMonth; day++)
+                        {
+                            var currentDate =
+                                new DateTime(
+                                    Model.Year,
+                                    Model.Month,
+                                    day);
+
+                            <th class="day-column">
+
+                                <div>
+                                    @day
+                                </div>
+
+                                <small>
+                                    @currentDate.ToString("ddd")
+                                </small>
+
+                            </th>
+                        }
+
+                    </tr>
+
+                </thead>
+
+
+                <!-- ROOMS -->
+                <tbody>
+
+                    @foreach (var room in Model.Rooms)
+                    {
+                        <tr>
+
+                            <!-- ROOM INFO -->
+                            <td class="text-start room-info">
+
+                                <strong>
+                                    @room.RoomNumber
+                                </strong>
+
+                                <br />
+
+                                <small>
+                                    @room.Name
+                                </small>
+
+                            </td>
+
+
+                            <!-- DAYS -->
+                            @for (int day = 1; day <= daysInMonth; day++)
+                            {
+                                var currentDate =
+                                    new DateTime(
+                                        Model.Year,
+                                        Model.Month,
+                                        day);
+
+                                var booking =
+                                    Model.Bookings.FirstOrDefault(b =>
+                                        b.RoomId == room.Id &&
+                                        currentDate.Date >= b.CheckInDate.Date &&
+                                        currentDate.Date < b.CheckOutDate.Date);
+
+                                if (booking != null)
+                                {
+                                    <!-- BOOKED -->
+
+                                    <td class="bg-danger text-white booking-day"
+                                        title="Guest: @booking.GuestName
+                                        Confirmation: @booking.ConfirmationCode
+                                        Check-in: @booking.CheckInDate.ToString("dd.MM.yyyy")
+                                        Check-out: @booking.CheckOutDate.ToString("dd.MM.yyyy")">
+
+                                        <strong>
+                                            X
+                                        </strong>
+
+                                    </td>
+                                }
+                                else
+                                {
+                                    <!-- AVAILABLE -->
+
+                                    <td class="bg-success text-white available-day"
+                                        title="Available">
+
+                                        ✓
+
+                                    </td>
+                                }
+                            }
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+</div>
+
+
+<style>
+
+    .occupancy-table {
+        min-width: 1200px;
+    }
+
+        .occupancy-table th,
+        .occupancy-table td {
+            padding: 8px;
+            vertical-align: middle;
+        }
+
+    .room-column {
+        min-width: 150px;
+        position: sticky;
+        left: 0;
+        z-index: 3;
+    }
+
+    .room-info {
+        min-width: 150px;
+        background-color: white !important;
+        position: sticky;
+        left: 0;
+        z-index: 2;
+    }
+
+    .day-column {
+        min-width: 55px;
+    }
+
+    .booking-day,
+    .available-day {
+        cursor: pointer;
+        min-width: 55px;
+        height: 55px;
+    }
+
+        .booking-day:hover,
+        .available-day:hover {
+            opacity: 0.8;
+        }
+
+</style>

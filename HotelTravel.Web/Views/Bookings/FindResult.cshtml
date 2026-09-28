@@ -1,0 +1,134 @@
+﻿@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
+
+@{
+    ViewData["Title"] = "My Booking";
+}
+
+<div class="container mt-5 mb-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-8">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+                    <h3 class="mb-0">
+                        Booking Details
+                    </h3>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="alert alert-success">
+                        Booking found successfully.
+                    </div>
+
+                    <table class="table table-bordered">
+
+                        <tbody>
+
+                            <tr>
+                                <th>Confirmation Code</th>
+                                <td>
+                                    <strong>
+                                        @Model.ConfirmationCode
+                                    </strong>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Guest</th>
+                                <td>@Model.GuestName</td>
+                            </tr>
+
+                            <tr>
+                                <th>Room</th>
+                                <td>
+                                    @Model.RoomNumber - @Model.RoomName
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Check-in</th>
+                                <td>
+                                    @Model.CheckInDate.ToString("dd.MM.yyyy")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Check-out</th>
+                                <td>
+                                    @Model.CheckOutDate.ToString("dd.MM.yyyy")
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Adults</th>
+                                <td>@Model.AdultCount</td>
+                            </tr>
+
+                            <tr>
+                                <th>Children</th>
+                                <td>@Model.ChildrenCount</td>
+                            </tr>
+
+                            <tr>
+                                <th>Total Price</th>
+                                <td>
+                                    <strong>
+                                        @Model.TotalPrice.ToString("0.00") AZN
+                                    </strong>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Status</th>
+
+                                <td>
+                                    @if (Model.Status.ToString() == "Confirmed")
+                                    {
+                                        <span class="badge bg-success">
+                                            Confirmed
+                                        </span>
+                                    }
+                                    else if (Model.Status.ToString() == "CheckedIn")
+                                    {
+                                        <span class="badge bg-primary">
+                                            Checked In
+                                        </span>
+                                    }
+                                    else if (Model.Status.ToString() == "CheckedOut")
+                                    {
+                                        <span class="badge bg-secondary">
+                                            Checked Out
+                                        </span>
+                                    }
+                                    else if (Model.Status.ToString() == "Cancelled")
+                                    {
+                                        <span class="badge bg-danger">
+                                            Cancelled
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                    <a asp-controller="Bookings"
+                       asp-action="Find"
+                       class="btn btn-outline-secondary">
+                        Search Another Booking
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

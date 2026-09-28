@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "Find My Booking";
+}
+
+<div class="container mt-5 mb-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-6">
+
+            <div class="card shadow-sm">
+
+                <div class="card-body p-4">
+
+                    <h2 class="text-center mb-3">
+                        Find My Booking
+                    </h2>
+
+                    <p class="text-muted text-center mb-4">
+                        Enter your confirmation code to view your reservation.
+                    </p>
+
+                    @if (ViewBag.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">
+                            @ViewBag.ErrorMessage
+                        </div>
+                    }
+
+                    <form asp-controller="Bookings"
+                          asp-action="Find"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Confirmation Code
+                            </label>
+
+                            <input type="text"
+                                   name="confirmationCode"
+                                   class="form-control"
+                                   placeholder="Example: BK-B6430474"
+                                   autocomplete="off"
+                                   required />
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Find Booking
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

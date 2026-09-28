@@ -12,5 +12,14 @@ public interface IBookingService
     Task<(bool Success, string Message, string? ConfirmationCode)>
         CreateAsync(CreateBookingDto dto);
 
-    Task<bool> UpdateStatusAsync(int id, BookingStatus status);
+    Task<bool> UpdateStatusAsync(
+        int id,
+        BookingStatus status);
+
+    Task<List<OccupancyCalendarDto>>
+        GetOccupancyCalendarAsync();
+
+    // Find My Booking
+    Task<GetBookingDto?> GetByConfirmationCodeAsync(
+        string confirmationCode);
 }

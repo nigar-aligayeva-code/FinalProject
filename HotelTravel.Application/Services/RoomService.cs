@@ -152,4 +152,45 @@ public class RoomService : IRoomService
             })
             .ToListAsync();
     }
+    public async Task<List<DateTime>> GetFullyBookedDatesAsync(
+    DateTime startDate,
+    DateTime endDate)
+    {
+        var fullyBookedDates = new List<DateTime>();
+
+        var rooms = await _context.Rooms
+            .Where(r => !r.IsDeleted)
+            .ToListAsync();
+
+        if (rooms.Count == 0)
+            return fullyBookedDates;
+
+        var bookings = await _context.Bookings
+            .Where(b =>
+                !b.IsDeleted &&
+                b.Status != HotelTravel.Domain.Enums.BookingStatus.Cancelled &&
+                b.CheckInDate < endDate &&
+                b.CheckOutDate > startDate)
+            .ToListAsync();
+
+        for (var date = startDate.Date;
+             date <= endDate.Date;
+             date = date.AddDays(1))
+        {
+            var bookedRoomCount = bookings
+                .Where(b =>
+                    date >= b.CheckInDate.Date &&
+                    date < b.CheckOutDate.Date)
+                .Select(b => b.RoomId)
+                .Distinct()
+                .Count();
+
+            if (bookedRoomCount >= rooms.Count)
+            {
+                fullyBookedDates.Add(date);
+            }
+        }
+
+        return fullyBookedDates;
+    }
 }
