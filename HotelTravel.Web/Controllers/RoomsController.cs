@@ -1,5 +1,6 @@
 ﻿using HotelTravel.Application.DTOs.Rooms;
 using HotelTravel.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -18,7 +19,12 @@ public class RoomsController : Controller
         _hotelService = hotelService;
     }
 
-    // GET: /Rooms
+
+    // =========================
+    // ADMIN - ROOM LIST
+    // =========================
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var rooms = await _roomService.GetAllAsync();
@@ -26,7 +32,11 @@ public class RoomsController : Controller
         return View(rooms);
     }
 
-    // GET: /Rooms/Details/5
+
+    // =========================
+    // PUBLIC - ROOM DETAILS
+    // =========================
+    [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
         var room = await _roomService.GetByIdAsync(id);
@@ -37,7 +47,11 @@ public class RoomsController : Controller
         return View(room);
     }
 
-    // GET: /Rooms/Create
+
+    // =========================
+    // ADMIN - CREATE ROOM
+    // =========================
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> Create()
     {
@@ -46,7 +60,8 @@ public class RoomsController : Controller
         return View();
     }
 
-    // POST: /Rooms/Create
+
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateRoomDto dto)
@@ -63,7 +78,11 @@ public class RoomsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: /Rooms/Edit/5
+
+    // =========================
+    // ADMIN - EDIT ROOM
+    // =========================
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -89,10 +108,13 @@ public class RoomsController : Controller
         return View(dto);
     }
 
-    // POST: /Rooms/Edit/5
+
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, UpdateRoomDto dto)
+    public async Task<IActionResult> Edit(
+        int id,
+        UpdateRoomDto dto)
     {
         if (!ModelState.IsValid)
         {
@@ -101,7 +123,8 @@ public class RoomsController : Controller
             return View(dto);
         }
 
-        var result = await _roomService.UpdateAsync(id, dto);
+        var result =
+            await _roomService.UpdateAsync(id, dto);
 
         if (!result)
             return NotFound();
@@ -109,7 +132,11 @@ public class RoomsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: /Rooms/Delete/5
+
+    // =========================
+    // ADMIN - DELETE ROOM
+    // =========================
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
@@ -121,42 +148,38 @@ public class RoomsController : Controller
         return View(room);
     }
 
-    // POST: /Rooms/Delete/5
+
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var result = await _roomService.DeleteAsync(id);
+        var result =
+            await _roomService.DeleteAsync(id);
 
         if (!result)
             return NotFound();
 
         return RedirectToAction(nameof(Index));
     }
+
+
+    // =========================
+    // PUBLIC - SEARCH ROOMS
+    // =========================
     [HttpGet]
     public async Task<IActionResult> Search()
     {
-        var startDate = DateTime.Today;
-
-        // Calendar üçün qarşıdakı 1 ili yoxlayırıq
-        var endDate = DateTime.Today.AddYears(1);
-
-        var fullyBookedDates =
-            await _roomService.GetFullyBookedDatesAsync(
-                startDate,
-                endDate);
-
-        ViewBag.FullyBookedDates =
-            fullyBookedDates
-                .Select(d => d.ToString("yyyy-MM-dd"))
-                .ToList();
+        await LoadFullyBookedDatesAsync();
 
         return View(new RoomSearchDto());
     }
 
+
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Search(RoomSearchDto search)
+    public async Task<IActionResult> Search(
+        RoomSearchDto search)
     {
         if (search.CheckInDate.Date < DateTime.Today)
         {
@@ -164,45 +187,93 @@ public class RoomsController : Controller
                 string.Empty,
                 "Check-in date cannot be in the past.");
 
+            await LoadFullyBookedDatesAsync();
+
             return View(search);
         }
 
-        if (search.CheckInDate.Date >= search.CheckOutDate.Date)
+        if (search.CheckInDate.Date >=
+            search.CheckOutDate.Date)
         {
             ModelState.AddModelError(
                 string.Empty,
                 "Check-out date must be after check-in date.");
 
+            await LoadFullyBookedDatesAsync();
+
             return View(search);
         }
 
-        if (search.AdultCount <= 0 || search.ChildrenCount < 0)
+        if (search.AdultCount <= 0 ||
+            search.ChildrenCount < 0)
         {
             ModelState.AddModelError(
                 string.Empty,
                 "Guest count is not valid.");
 
+            await LoadFullyBookedDatesAsync();
+
             return View(search);
         }
 
         var rooms =
-            await _roomService.SearchAvailableRoomsAsync(search);
+            await _roomService
+                .SearchAvailableRoomsAsync(search);
 
-        ViewBag.CheckInDate = search.CheckInDate;
-        ViewBag.CheckOutDate = search.CheckOutDate;
-        ViewBag.AdultCount = search.AdultCount;
-        ViewBag.ChildrenCount = search.ChildrenCount;
+        ViewBag.CheckInDate =
+            search.CheckInDate;
 
-        return View("AvailableRooms", rooms);
+        ViewBag.CheckOutDate =
+            search.CheckOutDate;
+
+        ViewBag.AdultCount =
+            search.AdultCount;
+
+        ViewBag.ChildrenCount =
+            search.ChildrenCount;
+
+        return View(
+            "AvailableRooms",
+            rooms);
     }
-    private async Task LoadHotelsAsync(int? selectedHotelId = null)
-    {
-        var hotels = await _hotelService.GetAllAsync();
 
-        ViewBag.Hotels = new SelectList(
-            hotels,
-            "Id",
-            "Name",
-            selectedHotelId);
+
+    // =========================
+    // PRIVATE HELPERS
+    // =========================
+    private async Task LoadHotelsAsync(
+        int? selectedHotelId = null)
+    {
+        var hotels =
+            await _hotelService.GetAllAsync();
+
+        ViewBag.Hotels =
+            new SelectList(
+                hotels,
+                "Id",
+                "Name",
+                selectedHotelId);
+    }
+
+
+    private async Task LoadFullyBookedDatesAsync()
+    {
+        var startDate =
+            DateTime.Today;
+
+        var endDate =
+            DateTime.Today.AddYears(1);
+
+        var fullyBookedDates =
+            await _roomService
+                .GetFullyBookedDatesAsync(
+                    startDate,
+                    endDate);
+
+        ViewBag.FullyBookedDates =
+            fullyBookedDates
+                .Select(d =>
+                    d.ToString("yyyy-MM-dd"))
+                .ToList();
     }
 }

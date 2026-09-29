@@ -4,12 +4,12 @@ using HotelTravel.Domain.Entities;
 using HotelTravel.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
+using HotelTravel.Infrastructure.Seed;
 namespace HotelTravel.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +19,7 @@ namespace HotelTravel.Web
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
-
+            
             // Identity
             builder.Services
                 .AddIdentity<AppUser, IdentityRole>(options =>
@@ -53,6 +53,20 @@ namespace HotelTravel.Web
             builder.Services.AddScoped<IBookingService, BookingService>();
 
             var app = builder.Build();
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager =
+                    scope.ServiceProvider
+                        .GetRequiredService<RoleManager<IdentityRole>>();
+
+                var userManager =
+                    scope.ServiceProvider
+                        .GetRequiredService<UserManager<AppUser>>();
+                await IdentitySeeder.SeedAsync(
+                    roleManager,
+                    userManager,
+                    builder.Configuration);
+            }
 
             if (!app.Environment.IsDevelopment())
             {

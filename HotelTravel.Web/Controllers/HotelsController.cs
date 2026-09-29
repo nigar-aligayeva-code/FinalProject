@@ -1,5 +1,6 @@
 ﻿using HotelTravel.Application.DTOs.Hotels;
 using HotelTravel.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.Web.Controllers;
@@ -13,18 +14,28 @@ public class HotelsController : Controller
         _hotelService = hotelService;
     }
 
-    // GET: /Hotels
+
+    // =========================
+    // PUBLIC - HOTEL LIST
+    // =========================
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var hotels = await _hotelService.GetAllAsync();
+        var hotels =
+            await _hotelService.GetAllAsync();
 
         return View(hotels);
     }
 
-    // GET: /Hotels/Details/5
+
+    // =========================
+    // PUBLIC - HOTEL DETAILS
+    // =========================
+    [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var hotel = await _hotelService.GetByIdAsync(id);
+        var hotel =
+            await _hotelService.GetByIdAsync(id);
 
         if (hotel is null)
             return NotFound();
@@ -32,17 +43,23 @@ public class HotelsController : Controller
         return View(hotel);
     }
 
-    // GET: /Hotels/Create
+
+    // =========================
+    // ADMIN - CREATE HOTEL
+    // =========================
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public IActionResult Create()
     {
         return View();
     }
 
-    // POST: /Hotels/Create
+
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateHotelDto dto)
+    public async Task<IActionResult> Create(
+        CreateHotelDto dto)
     {
         if (!ModelState.IsValid)
             return View(dto);
@@ -52,11 +69,16 @@ public class HotelsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: /Hotels/Edit/5
+
+    // =========================
+    // ADMIN - EDIT HOTEL
+    // =========================
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var hotel = await _hotelService.GetByIdAsync(id);
+        var hotel =
+            await _hotelService.GetByIdAsync(id);
 
         if (hotel is null)
             return NotFound();
@@ -80,15 +102,19 @@ public class HotelsController : Controller
         return View(dto);
     }
 
-    // POST: /Hotels/Edit/5
+
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, UpdateHotelDto dto)
+    public async Task<IActionResult> Edit(
+        int id,
+        UpdateHotelDto dto)
     {
         if (!ModelState.IsValid)
             return View(dto);
 
-        var result = await _hotelService.UpdateAsync(id, dto);
+        var result =
+            await _hotelService.UpdateAsync(id, dto);
 
         if (!result)
             return NotFound();
@@ -96,11 +122,16 @@ public class HotelsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: /Hotels/Delete/5
+
+    // =========================
+    // ADMIN - DELETE HOTEL
+    // =========================
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
     {
-        var hotel = await _hotelService.GetByIdAsync(id);
+        var hotel =
+            await _hotelService.GetByIdAsync(id);
 
         if (hotel is null)
             return NotFound();
@@ -108,12 +139,14 @@ public class HotelsController : Controller
         return View(hotel);
     }
 
-    // POST: /Hotels/Delete/5
+
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var result = await _hotelService.DeleteAsync(id);
+        var result =
+            await _hotelService.DeleteAsync(id);
 
         if (!result)
             return NotFound();

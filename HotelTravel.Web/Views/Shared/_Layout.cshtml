@@ -52,7 +52,44 @@
 
     <script src="~/assets/js/vendor/modernizr-3.5.0.min.js"></script>
 </head>
+<style>
+    .header-account {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-right: 20px;
+        white-space: nowrap;
+    }
 
+    .account-user {
+        color: white;
+        font-size: 14px;
+    }
+
+    .account-link {
+        color: white;
+        background: transparent;
+        border: none;
+        padding: 0;
+        font-size: 14px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .account-link:hover {
+        color: #d6c6a5;
+    }
+
+    .account-separator {
+        color: white;
+    }
+
+    .logout-form {
+        margin: 0;
+        padding: 0;
+        display: inline;
+    }
+</style>
 <body>
 
     <div id="sticky-header"
@@ -89,23 +126,60 @@
                                 </ul>
                             </li>
                             <li>
-                                <a class="mdy-hover"
-                                   href="#">
+                                <a class="mdy-hover" href="#">
                                     Rooms <i class="fas fa-angle-down"></i>
                                 </a>
+
                                 <ul class="sub-menu">
-                                    <li><a href="rooms.html">Rooms</a></li>
-                                    <li><a href="rooms-details.html">Rooms Details</a></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a class="mdy-hover"
-                                   href="#">
-                                    Service <i class="fas fa-angle-down"></i>
-                                </a>
-                                <ul class="sub-menu">
-                                    <li><a href="service.html">Our Service</a></li>
-                                    <li><a href="service-details.html">Service Details</a></li>
+
+                                    <!-- Hamı otaq axtara bilər -->
+                                    <li>
+                                        <a asp-controller="Rooms"
+                                           asp-action="Search">
+                                            Search Rooms
+                                        </a>
+                                    </li>
+
+                                    <!-- Hamı booking kodu ilə rezervasiyasını tapa bilər -->
+                                    <li>
+                                        <a asp-controller="Bookings"
+                                           asp-action="Find">
+                                            Find My Booking
+                                        </a>
+                                    </li>
+
+                                    <!-- Yalnız Admin -->
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <a asp-controller="Rooms"
+                                               asp-action="Index">
+                                                Manage Rooms
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="Hotels"
+                                               asp-action="Index">
+                                                Manage Hotels
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="Bookings"
+                                               asp-action="Index">
+                                                Manage Bookings
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="Bookings"
+                                               asp-action="Calendar">
+                                                Occupancy Calendar
+                                            </a>
+                                        </li>
+                                    }
+
                                 </ul>
                             </li>
                             <li>
@@ -178,20 +252,76 @@
                         </ul>
                         <div class="hotelhub-right-side">
                             <!-- header button -->
-                            <div class="header-button">
-                                <p class="sidebar_info">Call us : 123 (4567) 890</p>
-                                <a asp-controller="Bookings"
-                                   asp-action="Create">
-                                    book now
-                                    <i class="flaticon flaticon-right-arrow"></i>
+                            <div class="hotelhub-right-side">
 
-                                    <div class="hotelhub-hover-btn hover-btn"></div>
-                                    <div class="hotelhub-hover-btn hover-btn2"></div>
-                                    <div class="hotelhub-hover-btn hover-btn3"></div>
-                                    <div class="hotelhub-hover-btn hover-btn4"></div>
-                                </a>
+                                <!-- Account -->
+                                <div class="header-account">
+
+                                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                    {
+                                        <span class="account-user">
+                                            <i class="bi bi-person-circle"></i>
+                                            @User.Identity.Name
+                                        </span>
+
+                                        <form asp-controller="Account"
+                                              asp-action="Logout"
+                                              method="post"
+                                              class="logout-form"
+                                              onsubmit="return confirm('Are you sure you want to log out?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="account-link">
+                                                Logout
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="Account"
+                                           asp-action="Login"
+                                           class="account-link">
+                                            Login
+                                        </a>
+
+                                        <span class="account-separator">|</span>
+
+                                        <a asp-controller="Account"
+                                           asp-action="Register"
+                                           class="account-link">
+                                            Register
+                                        </a>
+                                    }
+
+                                </div>
+
+
+                                <!-- header button -->
+                                <div class="header-button">
+
+                                    <p class="sidebar_info">
+                                        Call us : 123 (4567) 890
+                                    </p>
+
+                                    <a asp-controller="Bookings"
+                                       asp-action="Create">
+
+                                        book now
+
+                                        <i class="flaticon flaticon-right-arrow"></i>
+
+                                        <div class="hotelhub-hover-btn hover-btn"></div>
+                                        <div class="hotelhub-hover-btn hover-btn2"></div>
+                                        <div class="hotelhub-hover-btn hover-btn3"></div>
+                                        <div class="hotelhub-hover-btn hover-btn4"></div>
+
+                                    </a>
+
+                                </div>
+
                             </div>
-                        </div>
                     </nav>
                 </div>
             </div>
