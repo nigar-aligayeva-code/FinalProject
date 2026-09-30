@@ -56,25 +56,31 @@ public class BookingsController : Controller
     // =========================
     // PUBLIC - FIND MY BOOKING
     // =========================
+
+
     [HttpGet]
-    public IActionResult Find()
-    {
-        return View();
-    }
-
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Find(
-        string confirmationCode)
+    public async Task<IActionResult> Confirmation(
+    string confirmationCode)
     {
         if (string.IsNullOrWhiteSpace(confirmationCode))
-        {
-            ViewBag.ErrorMessage =
-                "Please enter your confirmation code.";
+            return RedirectToAction(nameof(Find));
 
+        var booking =
+            await _bookingService
+                .GetByConfirmationCodeAsync(
+                    confirmationCode);
+
+        if (booking is null)
+            return NotFound();
+
+        return View(booking);
+    }
+    [HttpGet]
+    public async Task<IActionResult> Find(
+     string? confirmationCode)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationCode))
             return View();
-        }
 
         var booking =
             await _bookingService
@@ -92,6 +98,69 @@ public class BookingsController : Controller
         return View("FindResult", booking);
     }
 
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> FindBooking(
+     string confirmationCode)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationCode))
+        {
+            ViewBag.ErrorMessage =
+                "Please enter your confirmation code.";
+
+            return View("Find");
+        }
+
+        var booking =
+            await _bookingService
+                .GetByConfirmationCodeAsync(
+                    confirmationCode);
+
+        if (booking is null)
+        {
+            ViewBag.ErrorMessage =
+                "Booking was not found. Please check your confirmation code.";
+
+            return View("Find");
+        }
+
+        return View("FindResult", booking);
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CancelByGuest(
+    string confirmationCode,
+    string email)
+    {
+        var result =
+            await _bookingService.CancelByGuestAsync(
+                confirmationCode,
+                email);
+
+        if (!result.Success)
+        {
+            TempData["ErrorMessage"] =
+                result.Message;
+
+            return RedirectToAction(
+                nameof(Find),
+                new
+                {
+                    confirmationCode
+                });
+        }
+
+        TempData["SuccessMessage"] =
+            result.Message;
+
+        return RedirectToAction(
+            nameof(Find),
+            new
+            {
+                confirmationCode
+            });
+    }
 
     // =========================
     // ADMIN - OCCUPANCY CALENDAR
@@ -224,16 +293,13 @@ public class BookingsController : Controller
             return View(dto);
         }
 
-        TempData["SuccessMessage"] =
-            $"Booking created successfully. Confirmation Code: {result.ConfirmationCode}";
-
         return RedirectToAction(
-            nameof(Find),
-            new
-            {
-                confirmationCode =
-                    result.ConfirmationCode
-            });
+    nameof(Confirmation),
+    new
+    {
+        confirmationCode =
+            result.ConfirmationCode
+    });
     }
 
 

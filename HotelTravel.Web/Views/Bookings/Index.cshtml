@@ -24,6 +24,13 @@
         </div>
     }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
     @if (Model == null || Model.Count == 0)
     {
         <div class="alert alert-info">
@@ -52,6 +59,7 @@
                 @foreach (var booking in Model)
                 {
                     <tr>
+
                         <td>
                             @booking.ConfirmationCode
                         </td>
@@ -76,53 +84,122 @@
                         <td>
                             @booking.TotalPrice.ToString("0.00") AZN
                         </td>
+
                         <td>
 
-                            <form asp-action="UpdateStatus"
-                                  method="post"
-                                  class="d-flex gap-2">
+                            @if (booking.Status ==
+                                 HotelTravel.Domain.Enums.BookingStatus.Confirmed)
+                            {
+                                <div class="d-flex align-items-center gap-2">
 
-                                <input type="hidden"
-                                       name="id"
-                                       value="@booking.Id" />
+                                    <span class="badge bg-primary">
+                                        Confirmed
+                                    </span>
 
-                                <select name="status"
-                                        class="form-select form-select-sm">
+                                    <form asp-action="UpdateStatus"
+                                          method="post"
+                                          class="d-inline">
 
-                                    @foreach (var status in
-                                        Enum.GetValues<HotelTravel.Domain.Enums.BookingStatus>())
-                                    {
-                                        if (status == booking.Status)
-                                        {
-                                            <option value="@status" selected>
-                                                @status
-                                            </option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@status">
-                                                @status
-                                            </option>
-                                        }
-                                    }
+                                        @Html.AntiForgeryToken()
 
-                                </select>
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@booking.Id" />
 
-                                <button type="submit"
-                                        class="btn btn-warning btn-sm">
-                                    Update
-                                </button>
+                                        <input type="hidden"
+                                               name="status"
+                                               value="CheckedIn" />
 
-                            </form>
+                                        <button type="submit"
+                                                class="btn btn-success btn-sm">
+                                            Check In
+                                        </button>
+
+                                    </form>
+
+                                    <form asp-action="UpdateStatus"
+                                          method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@booking.Id" />
+
+                                        <input type="hidden"
+                                               name="status"
+                                               value="Cancelled" />
+
+                                        <button type="submit"
+                                                class="btn btn-danger btn-sm">
+                                            Cancel
+                                        </button>
+
+                                    </form>
+
+                                </div>
+                            }
+                            else if (booking.Status ==
+                                     HotelTravel.Domain.Enums.BookingStatus.CheckedIn)
+                            {
+                                <div class="d-flex align-items-center gap-2">
+
+                                    <span class="badge bg-success">
+                                        Checked In
+                                    </span>
+
+                                    <form asp-action="UpdateStatus"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@booking.Id" />
+
+                                        <input type="hidden"
+                                               name="status"
+                                               value="CheckedOut" />
+
+                                        <button type="submit"
+                                                class="btn btn-warning btn-sm">
+                                            Check Out
+                                        </button>
+
+                                    </form>
+
+                                </div>
+                            }
+                            else if (booking.Status ==
+                                     HotelTravel.Domain.Enums.BookingStatus.CheckedOut)
+                            {
+                                <span class="badge bg-secondary">
+                                    Checked Out
+                                </span>
+                            }
+                            else if (booking.Status ==
+                                     HotelTravel.Domain.Enums.BookingStatus.Cancelled)
+                            {
+                                <span class="badge bg-danger">
+                                    Cancelled
+                                </span>
+                            }
 
                         </td>
+
                         <td>
+
                             <a asp-action="Details"
                                asp-route-id="@booking.Id"
                                class="btn btn-info btn-sm">
                                 Details
                             </a>
+
                         </td>
+
                     </tr>
                 }
 

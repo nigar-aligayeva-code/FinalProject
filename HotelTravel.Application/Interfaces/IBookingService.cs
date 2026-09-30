@@ -21,5 +21,9 @@ public interface IBookingService
 
     // Find My Booking
     Task<GetBookingDto?> GetByConfirmationCodeAsync(
-        string confirmationCode);
+     string confirmationCode);
+
+    Task<(bool Success, string Message)> CancelByGuestAsync(
+        string confirmationCode,
+        string email);
 }

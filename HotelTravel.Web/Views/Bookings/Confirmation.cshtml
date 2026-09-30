@@ -1,0 +1,136 @@
+﻿@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
+
+@{
+    ViewData["Title"] = "Booking Confirmation";
+}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow border-0">
+
+                <div class="card-body p-5">
+
+                    <div class="text-center mb-4">
+
+                        <h2 class="text-success">
+                            Booking Confirmed
+                        </h2>
+
+                        <p class="text-muted">
+                            Your reservation has been created successfully.
+                        </p>
+
+                    </div>
+
+                    <div class="alert alert-success text-center">
+
+                        <strong>Confirmation Code</strong>
+
+                        <h3 class="mt-2 mb-0">
+                            @Model.ConfirmationCode
+                        </h3>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Guest</strong>
+                            <p>
+                                @Model.GuestName
+                            </p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Email</strong>
+                            <p>
+                                @Model.GuestEmail
+                            </p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Room</strong>
+                            <p>
+                                @Model.RoomNumber -
+                                @Model.RoomName
+                            </p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Status</strong>
+                            <p>
+                                <span class="badge bg-success">
+                                    @Model.Status
+                                </span>
+                            </p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Check-in</strong>
+                            <p>
+                                @Model.CheckInDate.ToString("dd MMMM yyyy")
+                            </p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Check-out</strong>
+                            <p>
+                                @Model.CheckOutDate.ToString("dd MMMM yyyy")
+                            </p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Guests</strong>
+                            <p>
+                                Adults: @Model.AdultCount
+                                <br />
+                                Children: @Model.ChildrenCount
+                            </p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>Total Price</strong>
+
+                            <h4 class="text-dark">
+                                @Model.TotalPrice.ToString("0.00") AZN
+                            </h4>
+                        </div>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="alert alert-warning">
+                        Please save your confirmation code.
+                        You can use it later to find your booking.
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Back to Home
+                        </a>
+
+                        <a asp-controller="Bookings"
+                           asp-action="Find"
+                           class="btn btn-primary">
+                            Find My Booking
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>

@@ -117,11 +117,90 @@
 
                     </table>
 
-                    <a asp-controller="Bookings"
-                       asp-action="Find"
-                       class="btn btn-outline-secondary">
-                        Search Another Booking
-                    </a>
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success mt-3">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger mt-3">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <div class="d-flex gap-2 mt-3">
+
+                        <a asp-controller="Bookings"
+                           asp-action="Find"
+                           class="btn btn-outline-secondary">
+                            Search Another Booking
+                        </a>
+
+                        @if (Model.Status ==
+                             HotelTravel.Domain.Enums.BookingStatus.Confirmed)
+                        {
+                            <button type="button"
+                                    class="btn btn-danger"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#cancelBookingForm">
+                                Cancel Booking
+                            </button>
+                        }
+
+                    </div>
+
+                    @if (Model.Status ==
+                         HotelTravel.Domain.Enums.BookingStatus.Confirmed)
+                    {
+                        <div class="collapse mt-3"
+                             id="cancelBookingForm">
+
+                            <div class="card card-body">
+
+                                <h5>Cancel Booking</h5>
+
+                                <p class="text-muted">
+                                    Enter the email address used when making
+                                    this reservation.
+                                </p>
+
+                                <form asp-controller="Bookings"
+                                      asp-action="CancelByGuest"
+                                      method="post"
+                                      onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="confirmationCode"
+                                           value="@Model.ConfirmationCode" />
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+                                            Email
+                                        </label>
+
+                                        <input type="email"
+                                               name="email"
+                                               class="form-control"
+                                               required />
+
+                                    </div>
+
+                                    <button type="submit"
+                                            class="btn btn-danger">
+                                        Confirm Cancellation
+                                    </button>
+
+                                </form>
+
+                            </div>
+                        </div>
+                    }
 
                 </div>
 

@@ -78,9 +78,17 @@ public class BookingService : IBookingService
     }
 
     public async Task<(bool Success, string Message, string? ConfirmationCode)>
-        CreateAsync(CreateBookingDto dto)
+     CreateAsync(CreateBookingDto dto)
     {
-        // 1. Tarix yoxlaması
+        if (dto.CheckInDate.Date < DateTime.Today)
+        {
+            return (
+                false,
+                "Check-in date cannot be in the past.",
+                null
+            );
+        }
+
         if (dto.CheckInDate.Date >= dto.CheckOutDate.Date)
         {
             return (
@@ -89,6 +97,8 @@ public class BookingService : IBookingService
                 null
             );
         }
+
+        // aşağıdakı mövcud kodların olduğu kimi davam edir...
 
         // 2. Room mövcuddur?
         var room = await _context.Rooms
@@ -198,8 +208,8 @@ public class BookingService : IBookingService
         );
     }
     public async Task<bool> UpdateStatusAsync(
-    int id,
-    BookingStatus status)
+     int id,
+     BookingStatus status)
     {
         var booking = await _context.Bookings
             .FirstOrDefaultAsync(b =>
@@ -207,6 +217,17 @@ public class BookingService : IBookingService
                 !b.IsDeleted);
 
         if (booking is null)
+            return false;
+
+        bool isValidTransition =
+            (booking.Status == BookingStatus.Confirmed &&
+                (status == BookingStatus.CheckedIn ||
+                 status == BookingStatus.Cancelled))
+            ||
+            (booking.Status == BookingStatus.CheckedIn &&
+                status == BookingStatus.CheckedOut);
+
+        if (!isValidTransition)
             return false;
 
         booking.Status = status;
@@ -291,5 +312,80 @@ public class BookingService : IBookingService
                 GuestEmail = b.Guest.Email
             })
             .FirstOrDefaultAsync();
+    }
+    public async Task<(bool Success, string Message)>
+    CancelByGuestAsync(
+        string confirmationCode,
+        string email)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationCode) ||
+            string.IsNullOrWhiteSpace(email))
+        {
+            return (
+                false,
+                "Confirmation code and email are required."
+            );
+        }
+
+        confirmationCode =
+            confirmationCode.Trim().ToUpper();
+
+        email =
+            email.Trim().ToLower();
+
+        var booking =
+            await _context.Bookings
+                .FirstOrDefaultAsync(b =>
+                    !b.IsDeleted &&
+                    b.ConfirmationCode.ToUpper() ==
+                        confirmationCode &&
+                    b.Guest.Email.ToLower() ==
+                        email);
+
+        if (booking is null)
+        {
+            return (
+                false,
+                "The email address is incorrect."
+            );
+        }
+
+        if (booking.Status == BookingStatus.Cancelled)
+        {
+            return (
+                false,
+                "This booking is already cancelled."
+            );
+        }
+
+        if (booking.Status == BookingStatus.CheckedIn ||
+            booking.Status == BookingStatus.CheckedOut)
+        {
+            return (
+                false,
+                "This booking can no longer be cancelled."
+            );
+        }
+
+        if (booking.CheckInDate.Date <= DateTime.Today)
+        {
+            return (
+                false,
+                "This booking can no longer be cancelled."
+            );
+        }
+
+        booking.Status =
+            BookingStatus.Cancelled;
+
+        booking.UpdatedAt =
+            DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return (
+            true,
+            "Booking cancelled successfully."
+        );
     }
 }
