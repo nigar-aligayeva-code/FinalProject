@@ -1,0 +1,111 @@
+﻿@model List<HotelTravel.Application.DTOs.HotelChains.GetHotelChainDto>
+
+@{
+    ViewData["Title"] = "Hotel Chains";
+}
+
+<div class="container mt-5 mb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Hotel Chains</h2>
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+            Add Hotel Chain
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            No hotel chains have been created yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped">
+
+            <thead>
+                <tr>
+                    <th>Logo</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var chain in Model)
+                {
+                    <tr>
+
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(chain.Logo))
+                            {
+                                <img src="@chain.Logo"
+                                     alt="@chain.Name"
+                                     style="width:80px;height:50px;object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <span>No logo</span>
+                            }
+                        </td>
+
+                        <td>
+                            @chain.Name
+                        </td>
+
+                        <td>
+                            @chain.Description
+                        </td>
+
+                        <td>
+                            <div class="d-flex gap-2">
+
+                                <a asp-action="Details"
+                                   asp-route-id="@chain.Id"
+                                   class="btn btn-info btn-sm">
+                                    Details
+                                </a>
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@chain.Id"
+                                   class="btn btn-warning btn-sm">
+                                    Edit
+                                </a>
+
+                                <form asp-action="Delete"
+                                      asp-route-id="@chain.Id"
+                                      method="post"
+                                      onsubmit="return confirm('Are you sure you want to delete this hotel chain?');">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+
+</div>

@@ -1,0 +1,60 @@
+﻿@model HotelTravel.Application.DTOs.HotelChains.GetHotelChainDto
+
+@{
+    ViewData["Title"] = "Hotel Chain Details";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Hotel Chain Details</h2>
+
+    <div class="card">
+
+        <div class="card-body">
+
+            @if (!string.IsNullOrWhiteSpace(Model.Logo))
+            {
+                <div class="mb-4">
+
+                    <img src="@Model.Logo"
+                         alt="@Model.Name"
+                         style="max-width:200px;max-height:120px;object-fit:contain;" />
+
+                </div>
+            }
+
+            <h4 class="card-title text-dark">
+                @Model.Name
+            </h4>
+
+            <p class="card-text">
+                @Model.Description
+            </p>
+
+            <hr />
+
+            <p>
+                <strong>ID:</strong>
+                @Model.Id
+            </p>
+
+            <div class="mt-4">
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-warning">
+                    Edit
+                </a>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+                    Back
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

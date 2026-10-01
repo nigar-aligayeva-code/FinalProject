@@ -8,10 +8,14 @@ namespace HotelTravel.Web.Controllers;
 public class HotelsController : Controller
 {
     private readonly IHotelService _hotelService;
+    private readonly IHotelChainService _hotelChainService;
 
-    public HotelsController(IHotelService hotelService)
+    public HotelsController(
+        IHotelService hotelService,
+        IHotelChainService hotelChainService)
     {
         _hotelService = hotelService;
+        _hotelChainService = hotelChainService;
     }
 
 
@@ -49,8 +53,10 @@ public class HotelsController : Controller
     // =========================
     [Authorize(Roles = "Admin")]
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        await LoadHotelChainsAsync();
+
         return View();
     }
 
@@ -62,9 +68,16 @@ public class HotelsController : Controller
         CreateHotelDto dto)
     {
         if (!ModelState.IsValid)
+        {
+            await LoadHotelChainsAsync();
+
             return View(dto);
+        }
 
         await _hotelService.CreateAsync(dto);
+
+        TempData["SuccessMessage"] =
+            "Hotel created successfully.";
 
         return RedirectToAction(nameof(Index));
     }
@@ -99,6 +112,8 @@ public class HotelsController : Controller
             HotelChainId = hotel.HotelChainId
         };
 
+        await LoadHotelChainsAsync();
+
         return View(dto);
     }
 
@@ -111,13 +126,22 @@ public class HotelsController : Controller
         UpdateHotelDto dto)
     {
         if (!ModelState.IsValid)
+        {
+            await LoadHotelChainsAsync();
+
             return View(dto);
+        }
 
         var result =
-            await _hotelService.UpdateAsync(id, dto);
+            await _hotelService.UpdateAsync(
+                id,
+                dto);
 
         if (!result)
             return NotFound();
+
+        TempData["SuccessMessage"] =
+            "Hotel updated successfully.";
 
         return RedirectToAction(nameof(Index));
     }
@@ -151,6 +175,19 @@ public class HotelsController : Controller
         if (!result)
             return NotFound();
 
+        TempData["SuccessMessage"] =
+            "Hotel deleted successfully.";
+
         return RedirectToAction(nameof(Index));
+    }
+
+
+    // =========================
+    // LOAD HOTEL CHAINS
+    // =========================
+    private async Task LoadHotelChainsAsync()
+    {
+        ViewBag.HotelChains =
+            await _hotelChainService.GetAllAsync();
     }
 }

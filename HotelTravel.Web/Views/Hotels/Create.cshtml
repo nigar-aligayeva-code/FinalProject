@@ -108,17 +108,36 @@
         </div>
 
         <div class="mb-3">
-            <label asp-for="HotelChainId" class="form-label">
-                Hotel Chain Id (Optional)
+
+            <label asp-for="HotelChainId"
+                   class="form-label">
+                Hotel Chain
             </label>
 
-            <input asp-for="HotelChainId"
-                   class="form-control" />
+            <select asp-for="HotelChainId"
+                    class="form-select">
+
+                <option value="">
+                    Independent Hotel
+                </option>
+
+                @if (ViewBag.HotelChains != null)
+                {
+                    foreach (var chain in ViewBag.HotelChains)
+                    {
+                        <option value="@chain.Id">
+                            @chain.Name
+                        </option>
+                    }
+                }
+
+            </select>
 
             <span asp-validation-for="HotelChainId"
-                  class="text-danger"></span>
-        </div>
+                  class="text-danger">
+            </span>
 
+        </div>
         <button type="submit"
                 class="btn btn-success">
             Create
