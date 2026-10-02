@@ -28,7 +28,17 @@ public class RoomService : IRoomService
                 Capacity = r.Capacity,
                 MainImage = r.MainImage,
                 RoomType = r.RoomType,
-                HotelId = r.HotelId
+                HotelId = r.HotelId,
+
+                AmenityIds = r.Amenities
+                    .Where(a => !a.IsDeleted)
+                    .Select(a => a.Id)
+                    .ToList(),
+
+                AmenityNames = r.Amenities
+                    .Where(a => !a.IsDeleted)
+                    .Select(a => a.Name)
+                    .ToList()
             })
             .ToListAsync();
     }
@@ -36,7 +46,9 @@ public class RoomService : IRoomService
     public async Task<GetRoomDto?> GetByIdAsync(int id)
     {
         return await _context.Rooms
-            .Where(r => r.Id == id && !r.IsDeleted)
+            .Where(r =>
+                r.Id == id &&
+                !r.IsDeleted)
             .Select(r => new GetRoomDto
             {
                 Id = r.Id,
@@ -47,13 +59,29 @@ public class RoomService : IRoomService
                 Capacity = r.Capacity,
                 MainImage = r.MainImage,
                 RoomType = r.RoomType,
-                HotelId = r.HotelId
+                HotelId = r.HotelId,
+
+                AmenityIds = r.Amenities
+                    .Where(a => !a.IsDeleted)
+                    .Select(a => a.Id)
+                    .ToList(),
+
+                AmenityNames = r.Amenities
+                    .Where(a => !a.IsDeleted)
+                    .Select(a => a.Name)
+                    .ToList()
             })
             .FirstOrDefaultAsync();
     }
 
     public async Task CreateAsync(CreateRoomDto dto)
     {
+        var amenities = await _context.Amenities
+            .Where(a =>
+                dto.AmenityIds.Contains(a.Id) &&
+                !a.IsDeleted)
+            .ToListAsync();
+
         var room = new Room
         {
             RoomNumber = dto.RoomNumber,
@@ -65,6 +93,8 @@ public class RoomService : IRoomService
             RoomType = dto.RoomType,
             HotelId = dto.HotelId,
 
+            Amenities = amenities,
+
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             IsDeleted = false
@@ -74,13 +104,24 @@ public class RoomService : IRoomService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> UpdateAsync(int id, UpdateRoomDto dto)
+    public async Task<bool> UpdateAsync(
+        int id,
+        UpdateRoomDto dto)
     {
         var room = await _context.Rooms
-            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+            .Include(r => r.Amenities)
+            .FirstOrDefaultAsync(r =>
+                r.Id == id &&
+                !r.IsDeleted);
 
         if (room is null)
             return false;
+
+        var amenities = await _context.Amenities
+            .Where(a =>
+                dto.AmenityIds.Contains(a.Id) &&
+                !a.IsDeleted)
+            .ToListAsync();
 
         room.RoomNumber = dto.RoomNumber;
         room.Name = dto.Name;
@@ -90,6 +131,14 @@ public class RoomService : IRoomService
         room.MainImage = dto.MainImage;
         room.RoomType = dto.RoomType;
         room.HotelId = dto.HotelId;
+
+        room.Amenities.Clear();
+
+        foreach (var amenity in amenities)
+        {
+            room.Amenities.Add(amenity);
+        }
+
         room.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
@@ -100,7 +149,9 @@ public class RoomService : IRoomService
     public async Task<bool> DeleteAsync(int id)
     {
         var room = await _context.Rooms
-            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+            .FirstOrDefaultAsync(r =>
+                r.Id == id &&
+                !r.IsDeleted);
 
         if (room is null)
             return false;
@@ -112,8 +163,9 @@ public class RoomService : IRoomService
 
         return true;
     }
+
     public async Task<List<GetRoomDto>> SearchAvailableRoomsAsync(
-    RoomSearchDto search)
+        RoomSearchDto search)
     {
         if (search.CheckInDate.Date >= search.CheckOutDate.Date)
             return new List<GetRoomDto>();
@@ -148,13 +200,24 @@ public class RoomService : IRoomService
                 Capacity = r.Capacity,
                 MainImage = r.MainImage,
                 RoomType = r.RoomType,
-                HotelId = r.HotelId
+                HotelId = r.HotelId,
+
+                AmenityIds = r.Amenities
+                    .Where(a => !a.IsDeleted)
+                    .Select(a => a.Id)
+                    .ToList(),
+
+                AmenityNames = r.Amenities
+                    .Where(a => !a.IsDeleted)
+                    .Select(a => a.Name)
+                    .ToList()
             })
             .ToListAsync();
     }
+
     public async Task<List<DateTime>> GetFullyBookedDatesAsync(
-    DateTime startDate,
-    DateTime endDate)
+        DateTime startDate,
+        DateTime endDate)
     {
         var fullyBookedDates = new List<DateTime>();
 

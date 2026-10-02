@@ -14,5 +14,5 @@ public interface IHotelChainService
         int id,
         UpdateHotelChainDto dto);
 
-    Task<bool> DeleteAsync(int id);
+    Task<(bool Success, string Message)> DeleteAsync(int id);
 }

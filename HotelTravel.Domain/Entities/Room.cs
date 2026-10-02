@@ -18,5 +18,9 @@ public class Room : BaseEntity
     public int HotelId { get; set; }
     public Hotel Hotel { get; set; }
 
-    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public ICollection<Booking> Bookings { get; set; }
+        = new List<Booking>();
+
+    public ICollection<Amenity> Amenities { get; set; }
+        = new List<Amenity>();
 }

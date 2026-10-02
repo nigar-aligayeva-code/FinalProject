@@ -16,4 +16,6 @@ public class UpdateRoomDto
     public RoomType RoomType { get; set; }
 
     public int HotelId { get; set; }
+
+    public List<int> AmenityIds { get; set; } = new();
 }

@@ -148,7 +148,6 @@
                                         </a>
                                     </li>
 
-                                    <!-- Yalnız Admin -->
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <li>
@@ -162,6 +161,20 @@
                                             <a asp-controller="Hotels"
                                                asp-action="Index">
                                                 Manage Hotels
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="HotelChains"
+                                               asp-action="Index">
+                                                Manage Hotel Chains
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="Amenities"
+                                               asp-action="Index">
+                                                Manage Amenities
                                             </a>
                                         </li>
 

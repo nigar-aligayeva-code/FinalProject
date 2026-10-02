@@ -9,10 +9,8 @@ public class GetHotelDto
     public string Address { get; set; }
     public string City { get; set; }
     public string Country { get; set; }
-
     public string Phone { get; set; }
     public string Email { get; set; }
-
     public string MainImage { get; set; }
 
     public double Latitude { get; set; }
@@ -21,4 +19,6 @@ public class GetHotelDto
     public int StarRating { get; set; }
 
     public int? HotelChainId { get; set; }
+
+    public string? HotelChainName { get; set; }
 }

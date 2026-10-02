@@ -32,7 +32,11 @@ public class HotelService : IHotelService
                 Latitude = h.Latitude,
                 Longitude = h.Longitude,
                 StarRating = h.StarRating,
-                HotelChainId = h.HotelChainId
+                HotelChainId = h.HotelChainId,
+
+                HotelChainName = h.HotelChain != null
+                    ? h.HotelChain.Name
+                    : null
             })
             .ToListAsync();
     }
@@ -55,7 +59,11 @@ public class HotelService : IHotelService
                 Latitude = h.Latitude,
                 Longitude = h.Longitude,
                 StarRating = h.StarRating,
-                HotelChainId = h.HotelChainId
+                HotelChainId = h.HotelChainId,
+
+                HotelChainName = h.HotelChain != null
+                    ? h.HotelChain.Name
+                    : null
             })
             .FirstOrDefaultAsync();
     }

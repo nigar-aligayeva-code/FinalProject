@@ -86,6 +86,43 @@
                                 @room.Description
                             </p>
 
+
+                            <!-- AMENITIES -->
+                            <div class="mb-3">
+
+                                <strong>Amenities:</strong>
+
+                                @if (room.AmenityNames != null &&
+                                     room.AmenityNames.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+
+                                        @foreach (var amenity in room.AmenityNames)
+                                        {
+                                            <span class="badge bg-light text-dark border p-2">
+                                                ✓ @amenity
+                                            </span>
+                                        }
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-muted mt-2">
+                                        No amenities available.
+                                    </div>
+                                }
+
+                            </div>
+
+
+                            <a asp-controller="Rooms"
+                               asp-action="Details"
+                               asp-route-id="@room.Id"
+                               class="btn btn-outline-secondary">
+                                Details
+                            </a>
+
                             <a asp-controller="Bookings"
                                asp-action="Create"
                                asp-route-roomId="@room.Id"

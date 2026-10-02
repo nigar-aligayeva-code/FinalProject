@@ -1,0 +1,110 @@
+﻿@model List<HotelTravel.Application.DTOs.Amenities.GetAmenityDto>
+
+@{
+    ViewData["Title"] = "Amenities";
+}
+
+<div class="container mt-5 mb-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Amenities</h2>
+
+        <a asp-controller="Amenities"
+           asp-action="Create"
+           class="btn btn-primary">
+            Add Amenity
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            No amenities have been added yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Icon</th>
+                    <th style="width: 280px;">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var amenity in Model)
+                {
+                    <tr>
+                        <td>@amenity.Id</td>
+
+                        <td>@amenity.Name</td>
+
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(amenity.Icon))
+                            {
+                                <i class="@amenity.Icon"></i>
+                                <span class="ms-2">
+                                    @amenity.Icon
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    No icon
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <a asp-controller="Amenities"
+                               asp-action="Details"
+                               asp-route-id="@amenity.Id"
+                               class="btn btn-info btn-sm">
+                                Details
+                            </a>
+
+                            <a asp-controller="Amenities"
+                               asp-action="Edit"
+                               asp-route-id="@amenity.Id"
+                               class="btn btn-warning btn-sm">
+                                Edit
+                            </a>
+
+                            <form asp-controller="Amenities"
+                                  asp-action="Delete"
+                                  asp-route-id="@amenity.Id"
+                                  method="post"
+                                  class="d-inline">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure you want to delete this amenity?');">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

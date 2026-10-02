@@ -1,0 +1,63 @@
+﻿@model HotelTravel.Application.DTOs.Amenities.GetAmenityDto
+
+@{
+    ViewData["Title"] = "Amenity Details";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Amenity Details</h2>
+
+    <div class="card">
+        <div class="card-body">
+
+            <p>
+                <strong>Id:</strong>
+                @Model.Id
+            </p>
+
+            <p>
+                <strong>Name:</strong>
+                @Model.Name
+            </p>
+
+            <p>
+                <strong>Icon:</strong>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Icon))
+                {
+                    <i class="@Model.Icon"></i>
+
+                    <span class="ms-2">
+                        @Model.Icon
+                    </span>
+                }
+                else
+                {
+                    <span class="text-muted">
+                        No icon
+                    </span>
+                }
+            </p>
+
+        </div>
+    </div>
+
+    <div class="mt-3">
+
+        <a asp-controller="Amenities"
+           asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-warning">
+            Edit
+        </a>
+
+        <a asp-controller="Amenities"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Back
+        </a>
+
+    </div>
+
+</div>

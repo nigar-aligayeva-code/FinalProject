@@ -26,6 +26,21 @@
             </p>
 
             <p>
+                <strong>Hotel Chain:</strong>
+
+                @if (!string.IsNullOrEmpty(Model.HotelChainName))
+                {
+                    @Model.HotelChainName
+                }
+                else
+                {
+                    <span class="text-muted">
+                        Independent Hotel
+                    </span>
+                }
+            </p>
+
+            <p>
                 <strong>Description:</strong>
                 @Model.Description
             </p>

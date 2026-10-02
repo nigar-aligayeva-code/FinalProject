@@ -1,4 +1,4 @@
-﻿using HotelTravel.Application.DTOs.HotelChains;
+﻿using HotelTravel.Application.DTOs.Amenities;
 using HotelTravel.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,35 +6,33 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelTravel.Web.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class HotelChainsController : Controller
+public class AmenitiesController : Controller
 {
-    private readonly IHotelChainService _hotelChainService;
+    private readonly IAmenityService _amenityService;
 
-    public HotelChainsController(
-        IHotelChainService hotelChainService)
+    public AmenitiesController(
+        IAmenityService amenityService)
     {
-        _hotelChainService = hotelChainService;
+        _amenityService = amenityService;
     }
 
-    [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var hotelChains =
-            await _hotelChainService.GetAllAsync();
+        var amenities =
+            await _amenityService.GetAllAsync();
 
-        return View(hotelChains);
+        return View(amenities);
     }
 
-    [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
-        var hotelChain =
-            await _hotelChainService.GetByIdAsync(id);
+        var amenity =
+            await _amenityService.GetByIdAsync(id);
 
-        if (hotelChain is null)
+        if (amenity is null)
             return NotFound();
 
-        return View(hotelChain);
+        return View(amenity);
     }
 
     [HttpGet]
@@ -46,15 +44,15 @@ public class HotelChainsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        CreateHotelChainDto dto)
+        CreateAmenityDto dto)
     {
         if (!ModelState.IsValid)
             return View(dto);
 
-        await _hotelChainService.CreateAsync(dto);
+        await _amenityService.CreateAsync(dto);
 
         TempData["SuccessMessage"] =
-            "Hotel chain created successfully.";
+            "Amenity created successfully.";
 
         return RedirectToAction(nameof(Index));
     }
@@ -62,17 +60,16 @@ public class HotelChainsController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var hotelChain =
-            await _hotelChainService.GetByIdAsync(id);
+        var amenity =
+            await _amenityService.GetByIdAsync(id);
 
-        if (hotelChain is null)
+        if (amenity is null)
             return NotFound();
 
-        var dto = new UpdateHotelChainDto
+        var dto = new UpdateAmenityDto
         {
-            Name = hotelChain.Name,
-            Description = hotelChain.Description,
-            Logo = hotelChain.Logo
+            Name = amenity.Name,
+            Icon = amenity.Icon
         };
 
         return View(dto);
@@ -82,21 +79,19 @@ public class HotelChainsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
         int id,
-        UpdateHotelChainDto dto)
+        UpdateAmenityDto dto)
     {
         if (!ModelState.IsValid)
             return View(dto);
 
         var result =
-            await _hotelChainService.UpdateAsync(
-                id,
-                dto);
+            await _amenityService.UpdateAsync(id, dto);
 
         if (!result)
             return NotFound();
 
         TempData["SuccessMessage"] =
-            "Hotel chain updated successfully.";
+            "Amenity updated successfully.";
 
         return RedirectToAction(nameof(Index));
     }
@@ -106,7 +101,7 @@ public class HotelChainsController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var result =
-            await _hotelChainService.DeleteAsync(id);
+            await _amenityService.DeleteAsync(id);
 
         if (!result.Success)
         {

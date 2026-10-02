@@ -12,87 +12,185 @@
           asp-action="Create"
           method="post">
 
+        @Html.AntiForgeryToken()
+
         <div asp-validation-summary="ModelOnly"
              class="text-danger mb-3">
         </div>
 
         <div class="mb-3">
-            <label asp-for="RoomNumber" class="form-label"></label>
-            <input asp-for="RoomNumber" class="form-control" />
+            <label asp-for="RoomNumber"
+                   class="form-label">
+            </label>
+
+            <input asp-for="RoomNumber"
+                   class="form-control" />
+
             <span asp-validation-for="RoomNumber"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" />
+            <label asp-for="Name"
+                   class="form-label">
+            </label>
+
+            <input asp-for="Name"
+                   class="form-control" />
+
             <span asp-validation-for="Name"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Description" class="form-label"></label>
+            <label asp-for="Description"
+                   class="form-label">
+            </label>
+
             <textarea asp-for="Description"
                       class="form-control"
-                      rows="4"></textarea>
+                      rows="4">
+            </textarea>
+
             <span asp-validation-for="Description"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="PricePerNight" class="form-label"></label>
+            <label asp-for="PricePerNight"
+                   class="form-label">
+            </label>
+
             <input asp-for="PricePerNight"
                    class="form-control" />
+
             <span asp-validation-for="PricePerNight"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Capacity" class="form-label"></label>
+            <label asp-for="Capacity"
+                   class="form-label">
+            </label>
+
             <input asp-for="Capacity"
                    class="form-control" />
+
             <span asp-validation-for="Capacity"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="MainImage" class="form-label"></label>
+            <label asp-for="MainImage"
+                   class="form-label">
+            </label>
+
             <input asp-for="MainImage"
                    class="form-control"
                    placeholder="/assets/images/room/example.jpg" />
+
             <span asp-validation-for="MainImage"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="RoomType" class="form-label"></label>
+            <label asp-for="RoomType"
+                   class="form-label">
+            </label>
 
             <select asp-for="RoomType"
                     asp-items="Html.GetEnumSelectList<HotelTravel.Domain.Enums.RoomType>()"
                     class="form-select">
 
-                <option value="">Select Room Type</option>
+                <option value="">
+                    Select Room Type
+                </option>
 
             </select>
 
             <span asp-validation-for="RoomType"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="HotelId" class="form-label">Hotel</label>
+            <label asp-for="HotelId"
+                   class="form-label">
+                Hotel
+            </label>
 
             <select asp-for="HotelId"
                     asp-items="ViewBag.Hotels"
                     class="form-select">
 
-                <option value="">Select Hotel</option>
+                <option value="">
+                    Select Hotel
+                </option>
 
             </select>
 
             <span asp-validation-for="HotelId"
-                  class="text-danger"></span>
+                  class="text-danger">
+            </span>
         </div>
+
+
+        <!-- ========================= -->
+        <!-- AMENITIES -->
+        <!-- ========================= -->
+        <div class="mb-4">
+
+            <label class="form-label">
+                Amenities
+            </label>
+
+            <div class="border rounded p-3">
+
+                @if (ViewBag.Amenities != null)
+                {
+                    foreach (var amenity in ViewBag.Amenities)
+                    {
+                        <div class="form-check mb-2">
+
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="AmenityIds"
+                                   value="@amenity.Id"
+                                   id="amenity-@amenity.Id"
+                                   checked="@Model?.AmenityIds.Contains(amenity.Id)" />
+
+                            <label class="form-check-label"
+                                   for="amenity-@amenity.Id">
+
+                                @if (!string.IsNullOrWhiteSpace(amenity.Icon))
+                                {
+                                    <i class="@amenity.Icon"></i>
+                                }
+
+                                @amenity.Name
+
+                            </label>
+
+                        </div>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">
+                        No amenities available.
+                    </span>
+                }
+
+            </div>
+
+        </div>
+
 
         <button type="submit"
                 class="btn btn-success">

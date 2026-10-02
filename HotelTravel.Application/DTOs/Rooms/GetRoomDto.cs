@@ -18,4 +18,8 @@ public class GetRoomDto
     public RoomType RoomType { get; set; }
 
     public int HotelId { get; set; }
+
+    public List<int> AmenityIds { get; set; } = new();
+
+    public List<string> AmenityNames { get; set; } = new();
 }

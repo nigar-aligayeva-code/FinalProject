@@ -30,6 +30,7 @@
                 <tr>
                     <th>Image</th>
                     <th>Name</th>
+                    <th>Hotel Chain</th>
                     <th>City</th>
                     <th>Country</th>
                     <th>Stars</th>
@@ -53,9 +54,26 @@
                         </td>
 
                         <td>@hotel.Name</td>
+
+                        <td>
+                            @if (!string.IsNullOrEmpty(hotel.HotelChainName))
+                            {
+                                @hotel.HotelChainName
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Independent Hotel
+                                </span>
+                            }
+                        </td>
+
                         <td>@hotel.City</td>
+
                         <td>@hotel.Country</td>
+
                         <td>@hotel.StarRating ⭐</td>
+
                         <td>@hotel.Phone</td>
 
                         <td>

@@ -1,0 +1,72 @@
+﻿@model HotelTravel.Application.DTOs.Amenities.CreateAmenityDto
+
+@{
+    ViewData["Title"] = "Create Amenity";
+}
+
+<div class="container mt-5 mb-5">
+
+    <h2 class="mb-4">Create Amenity</h2>
+
+    <form asp-controller="Amenities"
+          asp-action="Create"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3">
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Name"
+                   class="form-label">
+                Name
+            </label>
+
+            <input asp-for="Name"
+                   class="form-control"
+                   placeholder="Example: Free Wi-Fi" />
+
+            <span asp-validation-for="Name"
+                  class="text-danger">
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Icon"
+                   class="form-label">
+                Icon
+            </label>
+
+            <input asp-for="Icon"
+                   class="form-control"
+                   placeholder="Example: flaticon-wifi" />
+
+            <span asp-validation-for="Icon"
+                  class="text-danger">
+            </span>
+
+            <small class="text-muted">
+                Enter the CSS class of the icon.
+            </small>
+        </div>
+
+        <button type="submit"
+                class="btn btn-success">
+            Create
+        </button>
+
+        <a asp-controller="Amenities"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Back
+        </a>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

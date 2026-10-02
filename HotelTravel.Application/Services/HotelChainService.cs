@@ -85,7 +85,7 @@ public class HotelChainService : IHotelChainService
         return true;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<(bool Success, string Message)> DeleteAsync(int id)
     {
         var hotelChain =
             await _context.HotelChains
@@ -94,13 +94,35 @@ public class HotelChainService : IHotelChainService
                     !hc.IsDeleted);
 
         if (hotelChain is null)
-            return false;
+        {
+            return (
+                false,
+                "Hotel chain not found."
+            );
+        }
+
+        var hasActiveHotels =
+            await _context.Hotels
+                .AnyAsync(h =>
+                    h.HotelChainId == id &&
+                    !h.IsDeleted);
+
+        if (hasActiveHotels)
+        {
+            return (
+                false,
+                "This hotel chain cannot be deleted because it has active hotels."
+            );
+        }
 
         hotelChain.IsDeleted = true;
         hotelChain.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 
-        return true;
+        return (
+            true,
+            "Hotel chain deleted successfully."
+        );
     }
 }

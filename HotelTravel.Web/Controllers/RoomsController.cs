@@ -10,13 +10,16 @@ public class RoomsController : Controller
 {
     private readonly IRoomService _roomService;
     private readonly IHotelService _hotelService;
+    private readonly IAmenityService _amenityService;
 
     public RoomsController(
         IRoomService roomService,
-        IHotelService hotelService)
+        IHotelService hotelService,
+        IAmenityService amenityService)
     {
         _roomService = roomService;
         _hotelService = hotelService;
+        _amenityService = amenityService;
     }
 
 
@@ -56,6 +59,7 @@ public class RoomsController : Controller
     public async Task<IActionResult> Create()
     {
         await LoadHotelsAsync();
+        await LoadAmenitiesAsync();
 
         return View();
     }
@@ -69,6 +73,7 @@ public class RoomsController : Controller
         if (!ModelState.IsValid)
         {
             await LoadHotelsAsync(dto.HotelId);
+            await LoadAmenitiesAsync();
 
             return View(dto);
         }
@@ -100,10 +105,13 @@ public class RoomsController : Controller
             Capacity = room.Capacity,
             MainImage = room.MainImage,
             RoomType = room.RoomType,
-            HotelId = room.HotelId
+            HotelId = room.HotelId,
+
+            AmenityIds = room.AmenityIds
         };
 
         await LoadHotelsAsync(dto.HotelId);
+        await LoadAmenitiesAsync();
 
         return View(dto);
     }
@@ -119,6 +127,7 @@ public class RoomsController : Controller
         if (!ModelState.IsValid)
         {
             await LoadHotelsAsync(dto.HotelId);
+            await LoadAmenitiesAsync();
 
             return View(dto);
         }
@@ -253,6 +262,13 @@ public class RoomsController : Controller
                 "Id",
                 "Name",
                 selectedHotelId);
+    }
+
+
+    private async Task LoadAmenitiesAsync()
+    {
+        ViewBag.Amenities =
+            await _amenityService.GetAllAsync();
     }
 
 
