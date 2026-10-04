@@ -8,13 +8,15 @@
 
     <h2 class="mb-4">Edit Room</h2>
 
-    <form method="post">
+    <form method="post"
+          enctype="multipart/form-data">
 
         @Html.AntiForgeryToken()
 
         <div asp-validation-summary="ModelOnly"
              class="text-danger mb-3">
         </div>
+
 
         <div class="mb-3">
             <label asp-for="RoomNumber"
@@ -29,6 +31,7 @@
             </span>
         </div>
 
+
         <div class="mb-3">
             <label asp-for="Name"
                    class="form-label">
@@ -41,6 +44,7 @@
                   class="text-danger">
             </span>
         </div>
+
 
         <div class="mb-3">
             <label asp-for="Description"
@@ -57,6 +61,7 @@
             </span>
         </div>
 
+
         <div class="mb-3">
             <label asp-for="PricePerNight"
                    class="form-label">
@@ -69,6 +74,7 @@
                   class="text-danger">
             </span>
         </div>
+
 
         <div class="mb-3">
             <label asp-for="Capacity"
@@ -83,20 +89,127 @@
             </span>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="MainImage"
-                   class="form-label">
+
+        <!-- ========================= -->
+        <!-- MAIN IMAGE -->
+        <!-- ========================= -->
+        <div class="mb-4">
+
+            <label class="form-label">
+                Main Image
             </label>
 
-            <input asp-for="MainImage"
-                   class="form-control" />
+            @if (!string.IsNullOrWhiteSpace(Model.MainImage))
+            {
+                <div class="mb-3">
 
-            <span asp-validation-for="MainImage"
-                  class="text-danger">
-            </span>
+                    <p class="mb-2">
+                        <strong>Current Main Image:</strong>
+                    </p>
+
+                    <img src="@Model.MainImage"
+                         alt="Main Room Image"
+                         style="width: 260px;
+                    height: 170px;
+                    object-fit: cover;
+                    border-radius: 6px;
+                    border: 1px solid #ccc;" />
+
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">
+                    No main image has been added yet.
+                </p>
+            }
+
+            <label class="form-label">
+                Change Main Image
+            </label>
+
+            <input type="file"
+                   name="mainImage"
+                   class="form-control"
+                   accept=".jpg,.jpeg,.png,.webp" />
+
+            <small class="text-muted">
+                Leave this empty if you want to keep the current image.
+                Maximum 5 MB.
+            </small>
+
         </div>
 
+        <!-- ========================= -->
+        <!-- CURRENT GALLERY -->
+        <!-- ========================= -->
+        <div class="mb-4">
+
+            <label class="form-label">
+                Current Gallery Images
+            </label>
+
+            @if (Model.ImageUrls != null &&
+                 Model.ImageUrls.Any())
+            {
+                <div class="row">
+
+                    @foreach (var imageUrl in Model.ImageUrls)
+                    {
+                        <div class="col-md-3 mb-3">
+
+                            <div class="border rounded p-2">
+
+                                <img src="@imageUrl"
+                                     alt="Room Gallery Image"
+                                     style="width: 100%;
+                                height: 150px;
+                                object-fit: cover;
+                                border-radius: 5px;" />
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="text-muted">
+                    No gallery images have been added yet.
+                </div>
+            }
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- ADD NEW GALLERY IMAGES -->
+        <!-- ========================= -->
+        <div class="mb-4">
+
+            <label class="form-label">
+                Add New Gallery Images
+            </label>
+
+            <input type="file"
+                   name="galleryImages"
+                   class="form-control"
+                   accept=".jpg,.jpeg,.png,.webp"
+                   multiple />
+
+            <small class="text-muted">
+                You can select multiple new images.
+                Existing images will remain.
+                Maximum 5 MB per image.
+            </small>
+
+        </div>
+
+
         <div class="mb-3">
+
             <label asp-for="RoomType"
                    class="form-label">
             </label>
@@ -109,9 +222,12 @@
             <span asp-validation-for="RoomType"
                   class="text-danger">
             </span>
+
         </div>
 
+
         <div class="mb-3">
+
             <label asp-for="HotelId"
                    class="form-label">
                 Hotel
@@ -130,6 +246,7 @@
             <span asp-validation-for="HotelId"
                   class="text-danger">
             </span>
+
         </div>
 
 
@@ -200,6 +317,7 @@
     </form>
 
 </div>
+
 
 @section Scripts {
     @{

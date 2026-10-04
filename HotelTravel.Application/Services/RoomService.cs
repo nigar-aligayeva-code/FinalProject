@@ -38,6 +38,11 @@ public class RoomService : IRoomService
                 AmenityNames = r.Amenities
                     .Where(a => !a.IsDeleted)
                     .Select(a => a.Name)
+                    .ToList(),
+
+                ImageUrls = r.Images
+                    .Where(i => !i.IsDeleted)
+                    .Select(i => i.ImageUrl)
                     .ToList()
             })
             .ToListAsync();
@@ -69,6 +74,11 @@ public class RoomService : IRoomService
                 AmenityNames = r.Amenities
                     .Where(a => !a.IsDeleted)
                     .Select(a => a.Name)
+                    .ToList(),
+
+                ImageUrls = r.Images
+                    .Where(i => !i.IsDeleted)
+                    .Select(i => i.ImageUrl)
                     .ToList()
             })
             .FirstOrDefaultAsync();
@@ -95,6 +105,16 @@ public class RoomService : IRoomService
 
             Amenities = amenities,
 
+            Images = dto.ImageUrls
+                .Select(imageUrl => new RoomImage
+                {
+                    ImageUrl = imageUrl,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsDeleted = false
+                })
+                .ToList(),
+
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             IsDeleted = false
@@ -110,6 +130,7 @@ public class RoomService : IRoomService
     {
         var room = await _context.Rooms
             .Include(r => r.Amenities)
+            .Include(r => r.Images)
             .FirstOrDefaultAsync(r =>
                 r.Id == id &&
                 !r.IsDeleted);
@@ -132,11 +153,31 @@ public class RoomService : IRoomService
         room.RoomType = dto.RoomType;
         room.HotelId = dto.HotelId;
 
+        // AMENITIES
         room.Amenities.Clear();
 
         foreach (var amenity in amenities)
         {
             room.Amenities.Add(amenity);
+        }
+
+        // NEW GALLERY IMAGES
+        foreach (var imageUrl in dto.ImageUrls)
+        {
+            var imageExists = room.Images.Any(i =>
+                !i.IsDeleted &&
+                i.ImageUrl == imageUrl);
+
+            if (!imageExists)
+            {
+                room.Images.Add(new RoomImage
+                {
+                    ImageUrl = imageUrl,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsDeleted = false
+                });
+            }
         }
 
         room.UpdatedAt = DateTime.UtcNow;
@@ -210,6 +251,11 @@ public class RoomService : IRoomService
                 AmenityNames = r.Amenities
                     .Where(a => !a.IsDeleted)
                     .Select(a => a.Name)
+                    .ToList(),
+
+                ImageUrls = r.Images
+                    .Where(i => !i.IsDeleted)
+                    .Select(i => i.ImageUrl)
                     .ToList()
             })
             .ToListAsync();

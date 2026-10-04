@@ -18,4 +18,5 @@ public class UpdateRoomDto
     public int HotelId { get; set; }
 
     public List<int> AmenityIds { get; set; } = new();
+        public List<string> ImageUrls { get; set; } = new();
 }

@@ -10,13 +10,15 @@
 
     <form asp-controller="Rooms"
           asp-action="Create"
-          method="post">
+          method="post"
+          enctype="multipart/form-data">
 
         @Html.AntiForgeryToken()
 
         <div asp-validation-summary="ModelOnly"
              class="text-danger mb-3">
         </div>
+
 
         <div class="mb-3">
             <label asp-for="RoomNumber"
@@ -31,6 +33,7 @@
             </span>
         </div>
 
+
         <div class="mb-3">
             <label asp-for="Name"
                    class="form-label">
@@ -43,6 +46,7 @@
                   class="text-danger">
             </span>
         </div>
+
 
         <div class="mb-3">
             <label asp-for="Description"
@@ -59,6 +63,7 @@
             </span>
         </div>
 
+
         <div class="mb-3">
             <label asp-for="PricePerNight"
                    class="form-label">
@@ -71,6 +76,7 @@
                   class="text-danger">
             </span>
         </div>
+
 
         <div class="mb-3">
             <label asp-for="Capacity"
@@ -85,21 +91,56 @@
             </span>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="MainImage"
-                   class="form-label">
+
+        <!-- ========================= -->
+        <!-- MAIN IMAGE -->
+        <!-- ========================= -->
+        <div class="mb-4">
+
+            <label class="form-label">
+                Main Image
             </label>
 
-            <input asp-for="MainImage"
+            <input type="file"
+                   name="mainImage"
                    class="form-control"
-                   placeholder="/assets/images/room/example.jpg" />
+                   accept=".jpg,.jpeg,.png,.webp" />
 
-            <span asp-validation-for="MainImage"
-                  class="text-danger">
-            </span>
+            <small class="text-muted">
+                Select the main image for the room.
+                JPG, JPEG, PNG and WEBP are supported.
+                Maximum 5 MB.
+            </small>
+
         </div>
 
+
+        <!-- ========================= -->
+        <!-- GALLERY IMAGES -->
+        <!-- ========================= -->
+        <div class="mb-4">
+
+            <label class="form-label">
+                Gallery Images
+            </label>
+
+            <input type="file"
+                   name="galleryImages"
+                   class="form-control"
+                   accept=".jpg,.jpeg,.png,.webp"
+                   multiple />
+
+            <small class="text-muted">
+                You can select multiple images.
+                JPG, JPEG, PNG and WEBP files are supported.
+                Maximum 5 MB per image.
+            </small>
+
+        </div>
+
+
         <div class="mb-3">
+
             <label asp-for="RoomType"
                    class="form-label">
             </label>
@@ -117,9 +158,12 @@
             <span asp-validation-for="RoomType"
                   class="text-danger">
             </span>
+
         </div>
 
+
         <div class="mb-3">
+
             <label asp-for="HotelId"
                    class="form-label">
                 Hotel
@@ -138,6 +182,7 @@
             <span asp-validation-for="HotelId"
                   class="text-danger">
             </span>
+
         </div>
 
 
@@ -206,6 +251,7 @@
     </form>
 
 </div>
+
 
 @section Scripts {
     @{

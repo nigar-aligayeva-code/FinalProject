@@ -22,4 +22,7 @@ public class GetRoomDto
     public List<int> AmenityIds { get; set; } = new();
 
     public List<string> AmenityNames { get; set; } = new();
+
+    // GALLERY IMAGES
+    public List<string> ImageUrls { get; set; } = new();
 }

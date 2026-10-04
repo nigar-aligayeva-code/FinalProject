@@ -18,4 +18,7 @@ public class CreateRoomDto
     public int HotelId { get; set; }
 
     public List<int> AmenityIds { get; set; } = new();
+
+    // GALLERY IMAGE PATHS
+    public List<string> ImageUrls { get; set; } = new();
 }
