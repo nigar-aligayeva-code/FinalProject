@@ -14,11 +14,32 @@ public interface IRoomService
 
     Task<bool> DeleteAsync(int id);
 
+
+    // =========================
+    // ROOM GALLERY
+    // =========================
+
+    Task<GetRoomImageDto?> GetImageByIdAsync(int imageId);
+
+    Task<bool> DeleteImageAsync(int imageId);
+
+    // =========================
+    // MAIN IMAGE
+    // =========================
+    Task<bool> DeleteMainImageAsync(int roomId);
+    // =========================
+    // SEARCH
+    // =========================
+
     Task<List<GetRoomDto>> SearchAvailableRoomsAsync(
         RoomSearchDto search);
 
-    // Calendar üçün:
-    // bütün otaqların dolu olduğu günləri qaytarır
+
+    // =========================
+    // CALENDAR
+    // =========================
+
+    // Bütün otaqların dolu olduğu günləri qaytarır
     Task<List<DateTime>> GetFullyBookedDatesAsync(
         DateTime startDate,
         DateTime endDate);

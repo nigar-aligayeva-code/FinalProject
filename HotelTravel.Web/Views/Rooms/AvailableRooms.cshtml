@@ -2,44 +2,74 @@
 
 @{
     ViewData["Title"] = "Available Rooms";
+
+    var checkInDate = (DateTime)ViewBag.CheckInDate;
+    var checkOutDate = (DateTime)ViewBag.CheckOutDate;
+
+    string? destination = ViewBag.Destination as string;
+    int adultCount = (int)ViewBag.AdultCount;
+    int childrenCount = (int)ViewBag.ChildrenCount;
 }
 
 <div class="container mt-5 mb-5">
 
     <h2 class="mb-4">Available Rooms</h2>
 
+    <!-- SEARCH INFORMATION -->
     <div class="alert alert-info">
 
-        <strong>Check-in:</strong>
-        @(((DateTime)ViewBag.CheckInDate).ToString("dd.MM.yyyy"))
+        @if (!string.IsNullOrWhiteSpace(destination))
+        {
+            <div>
+                <strong>Destination:</strong>
+                @destination
+            </div>
+        }
 
-        <br />
+        <div>
+            <strong>Check-in:</strong>
+            @checkInDate.ToString("dd.MM.yyyy")
+        </div>
 
-        <strong>Check-out:</strong>
-        @(((DateTime)ViewBag.CheckOutDate).ToString("dd.MM.yyyy"))
+        <div>
+            <strong>Check-out:</strong>
+            @checkOutDate.ToString("dd.MM.yyyy")
+        </div>
 
-        <br />
-
-        <strong>Guests:</strong>
-        @ViewBag.AdultCount Adult(s),
-        @ViewBag.ChildrenCount Child(ren)
+        <div>
+            <strong>Guests:</strong>
+            @adultCount Adult(s),
+            @childrenCount Child(ren)
+        </div>
 
     </div>
 
+
     @if (Model == null || Model.Count == 0)
     {
+        <!-- NO AVAILABLE ROOMS -->
         <div class="alert alert-warning">
             No available rooms were found for the selected dates.
         </div>
 
-        <a asp-controller="Rooms"
-           asp-action="Search"
+        <a asp-controller="Home"
+           asp-action="Index"
+           asp-fragment="booking-search"
+           asp-route-destination="@destination"
+           asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
+           asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
+           asp-route-adultCount="@adultCount"
+           asp-route-childrenCount="@childrenCount"
            class="btn btn-secondary">
+
+            <i class="bi bi-arrow-left"></i>
             Search Again
+
         </a>
     }
     else
     {
+        <!-- AVAILABLE ROOMS -->
         <div class="row">
 
             @foreach (var room in Model)
@@ -79,7 +109,8 @@
 
                             <p>
                                 <strong>Price:</strong>
-                                @room.PricePerNight.ToString("0.00") AZN / night
+                                @room.PricePerNight.ToString("0.00")
+                                AZN / night
                             </p>
 
                             <p>
@@ -116,22 +147,33 @@
                             </div>
 
 
+                            <!-- DETAILS -->
                             <a asp-controller="Rooms"
                                asp-action="Details"
                                asp-route-id="@room.Id"
+                               asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
+                               asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
+                               asp-route-adultCount="@adultCount"
+                               asp-route-childrenCount="@childrenCount"
                                class="btn btn-outline-secondary">
+
                                 Details
+
                             </a>
 
+
+                            <!-- BOOK NOW -->
                             <a asp-controller="Bookings"
                                asp-action="Create"
                                asp-route-roomId="@room.Id"
-                               asp-route-checkInDate="@(((DateTime)ViewBag.CheckInDate).ToString("yyyy-MM-dd"))"
-                               asp-route-checkOutDate="@(((DateTime)ViewBag.CheckOutDate).ToString("yyyy-MM-dd"))"
-                               asp-route-adultCount="@ViewBag.AdultCount"
-                               asp-route-childrenCount="@ViewBag.ChildrenCount"
+                               asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
+                               asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
+                               asp-route-adultCount="@adultCount"
+                               asp-route-childrenCount="@childrenCount"
                                class="btn btn-success">
+
                                 Book Now
+
                             </a>
 
                         </div>
@@ -143,10 +185,21 @@
 
         </div>
 
-        <a asp-controller="Rooms"
-           asp-action="Search"
+
+        <!-- SEARCH AGAIN -->
+        <a asp-controller="Home"
+           asp-action="Index"
+           asp-fragment="booking-search"
+           asp-route-destination="@destination"
+           asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
+           asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
+           asp-route-adultCount="@adultCount"
+           asp-route-childrenCount="@childrenCount"
            class="btn btn-secondary">
+
+            <i class="bi bi-arrow-left"></i>
             Search Again
+
         </a>
     }
 

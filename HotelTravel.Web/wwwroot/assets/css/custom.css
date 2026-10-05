@@ -1,0 +1,284 @@
+﻿/* ========================================= */
+/* HOME HERO */
+/* ========================================= */
+
+.hero-section {
+    position: relative;
+    background: #F3EEE5 !important;
+    background-image: none !important;
+    min-height: 360px !important;
+    height: auto !important;
+    padding-top: 55px !important;
+    padding-bottom: 100px !important;
+    overflow: visible !important;
+}
+
+    .hero-section::before,
+    .hero-section::after {
+        background: none !important;
+        background-image: none !important;
+    }
+
+
+    /* ========================================= */
+    /* HERO TEXT */
+    /* ========================================= */
+
+    .hero-section .hero-content h4 {
+        color: #1F2421 !important;
+    }
+
+        .hero-section .hero-content h4 i {
+            color: #C69B45 !important;
+        }
+
+    .hero-section .hero-content h1 {
+        color: #1F2421 !important;
+    }
+
+        .hero-section .hero-content h1 span {
+            color: #C69B45 !important;
+        }
+
+    .hero-section .hero-right_content p {
+        color: #555A56 !important;
+    }
+
+
+/* ========================================= */
+/* HOME SEARCH POSITION */
+/* ========================================= */
+
+.hotel-search-section {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -40px;
+    width: 100%;
+    z-index: 100;
+    margin: 0;
+}
+
+    .hotel-search-section .container {
+        position: relative;
+        z-index: 100;
+    }
+
+
+/* ========================================= */
+/* SEARCH FORM */
+/* ========================================= */
+
+.hotel-search-form {
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    background: #ffffff;
+    border: 4px solid #C69B45;
+    border-radius: 10px;
+    padding: 0;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.20);
+    overflow: hidden;
+}
+
+
+/* ========================================= */
+/* SEARCH ITEMS */
+/* ========================================= */
+
+.hotel-search-item {
+    flex: 1;
+    min-width: 0;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    background: #ffffff;
+    border-right: 1px solid #dddddd;
+}
+
+    .hotel-search-item > i {
+        font-size: 23px;
+        color: #C69B45;
+        flex-shrink: 0;
+    }
+
+
+/* ========================================= */
+/* SEARCH CONTENT */
+/* ========================================= */
+
+.hotel-search-content {
+    width: 100%;
+    min-width: 0;
+}
+
+    .hotel-search-content label {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 11px;
+        font-weight: 500;
+        color: #666666;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+
+    /* ========================================= */
+    /* INPUTS + SELECTS */
+    /* ========================================= */
+
+    .hotel-search-content input,
+    .hotel-search-content select {
+        width: 100%;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #222222;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 0;
+        box-shadow: none;
+    }
+
+        .hotel-search-content input:focus,
+        .hotel-search-content select:focus {
+            border: none;
+            outline: none;
+            box-shadow: none;
+        }
+
+        .hotel-search-content input::placeholder {
+            color: #555555;
+            opacity: 1;
+        }
+
+
+/* ========================================= */
+/* DESTINATION */
+/* ========================================= */
+
+.destination-item {
+    flex: 1.4;
+}
+
+
+/* ========================================= */
+/* GUEST ITEMS */
+/* ========================================= */
+
+.guest-item {
+    flex: 0.85;
+}
+
+
+/* ========================================= */
+/* SEARCH BUTTON */
+/* ========================================= */
+
+.hotel-search-button {
+    min-width: 150px;
+    border: none;
+    outline: none;
+    border-radius: 0;
+    padding: 0 28px;
+    background: #C69B45;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+    .hotel-search-button:hover {
+        background: #A77D31;
+        color: #ffffff;
+    }
+
+    .hotel-search-button i {
+        font-size: 18px;
+    }
+
+
+
+/* ========================================= */
+/* TABLET */
+/* ========================================= */
+
+@media (max-width: 1199px) {
+
+    .hero-section {
+        min-height: 450px !important;
+        padding-top: 50px !important;
+        padding-bottom: 100px !important;
+    }
+
+    .hotel-search-section {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        margin-top: 25px;
+    }
+
+    .hotel-search-form {
+        flex-wrap: wrap;
+    }
+
+    .hotel-search-item {
+        flex: 1 1 33%;
+        border-bottom: 1px solid #dddddd;
+    }
+
+    .hotel-search-button {
+        min-height: 70px;
+        flex: 1 1 33%;
+    }
+}
+
+
+/* ========================================= */
+/* MOBILE */
+/* ========================================= */
+
+@media (max-width: 767px) {
+
+    .hero-section {
+        min-height: auto !important;
+        padding-top: 40px !important;
+        padding-bottom: 40px !important;
+    }
+
+    .hotel-search-section {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        margin-top: 30px;
+    }
+
+    .hotel-search-form {
+        display: block;
+        border-width: 3px;
+        border-radius: 10px;
+    }
+
+    .hotel-search-item {
+        width: 100%;
+        min-height: 65px;
+        border-right: none;
+        border-bottom: 1px solid #dddddd;
+        padding: 12px 15px;
+    }
+
+    .hotel-search-button {
+        width: 100%;
+        min-height: 60px;
+        padding: 15px;
+    }
+}

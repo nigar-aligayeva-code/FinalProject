@@ -101,7 +101,7 @@
 
             @if (!string.IsNullOrWhiteSpace(Model.MainImage))
             {
-                <div class="mb-3">
+                <div class="mb-3" id="mainImageContainer">
 
                     <p class="mb-2">
                         <strong>Current Main Image:</strong>
@@ -115,6 +115,14 @@
                     border-radius: 6px;
                     border: 1px solid #ccc;" />
 
+                    <div>
+                        <button type="button"
+                                class="btn btn-danger btn-sm mt-2"
+                                onclick="markMainImageForDelete()">
+                            Delete Main Image
+                        </button>
+                    </div>
+
                 </div>
             }
             else
@@ -123,6 +131,11 @@
                     No main image has been added yet.
                 </p>
             }
+
+            <input asp-for="RemoveMainImage"
+                   type="hidden"
+                   id="removeMainImage" />
+           
 
             <label class="form-label">
                 Change Main Image
@@ -149,23 +162,28 @@
                 Current Gallery Images
             </label>
 
-            @if (Model.ImageUrls != null &&
-                 Model.ImageUrls.Any())
+            @if (Model.Images != null && Model.Images.Any())
             {
                 <div class="row">
 
-                    @foreach (var imageUrl in Model.ImageUrls)
+                    @foreach (var image in Model.Images)
                     {
                         <div class="col-md-3 mb-3">
 
                             <div class="border rounded p-2">
 
-                                <img src="@imageUrl"
+                                <img src="@image.ImageUrl"
                                      alt="Room Gallery Image"
                                      style="width: 100%;
                                 height: 150px;
                                 object-fit: cover;
                                 border-radius: 5px;" />
+
+                                <button type="button"
+                                        class="btn btn-danger btn-sm w-100 mt-2"
+                                        onclick="markGalleryImageForDelete(@image.Id, this)">
+                                    Delete Image
+                                </button>
 
                             </div>
 
@@ -181,8 +199,10 @@
                 </div>
             }
 
-        </div>
+            <!-- Silinəcək şəkillərin Id-ləri burada saxlanacaq -->
+            <div id="deletedImagesContainer"></div>
 
+        </div>
 
         <!-- ========================= -->
         <!-- ADD NEW GALLERY IMAGES -->
@@ -324,3 +344,40 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
+<script>
+    function markMainImageForDelete() {
+
+        const input =
+            document.getElementById("removeMainImage");
+
+        const container =
+            document.getElementById("mainImageContainer");
+
+        input.value = "true";
+
+        container.style.display = "none";
+    }
+
+
+    function markGalleryImageForDelete(imageId, button) {
+
+        const deletedImagesContainer =
+            document.getElementById("deletedImagesContainer");
+
+        const input =
+            document.createElement("input");
+
+        input.type = "hidden";
+        input.name = "DeletedImageIds";
+        input.value = imageId;
+
+        deletedImagesContainer.appendChild(input);
+
+        const imageCard =
+            button.closest(".col-md-3");
+
+        if (imageCard) {
+            imageCard.style.display = "none";
+        }
+    }
+</script>

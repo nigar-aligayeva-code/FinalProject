@@ -19,10 +19,26 @@ public class GetRoomDto
 
     public int HotelId { get; set; }
 
+    // =========================
+    // AMENITIES
+    // =========================
     public List<int> AmenityIds { get; set; } = new();
 
     public List<string> AmenityNames { get; set; } = new();
 
-    // GALLERY IMAGES
+
+    // =========================
+    // GALLERY IMAGE URLS
+    // =========================
+    // Bunu hələ saxlayırıq, çünki Details və
+    // digər mövcud View-lar bundan istifadə edir.
     public List<string> ImageUrls { get; set; } = new();
+
+
+    // =========================
+    // GALLERY IMAGES WITH ID
+    // =========================
+    // Admin Edit səhifəsində şəkli Id ilə
+    // silmək üçün istifadə edəcəyik.
+    public List<GetRoomImageDto> Images { get; set; } = new();
 }

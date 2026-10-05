@@ -30,13 +30,16 @@
                 Check-in Date
             </label>
 
-            <input type="text"
+            <input asp-for="CheckInDate"
+                   type="text"
                    id="checkInDate"
-                   name="CheckInDate"
                    class="form-control"
                    placeholder="Select check-in date"
-                   autocomplete="off"
-                   required />
+                   autocomplete="off" />
+
+            <span asp-validation-for="CheckInDate"
+                  class="text-danger">
+            </span>
 
             <div class="calendar-info">
 
@@ -61,13 +64,16 @@
                 Check-out Date
             </label>
 
-            <input type="text"
+            <input asp-for="CheckOutDate"
+                   type="text"
                    id="checkOutDate"
-                   name="CheckOutDate"
                    class="form-control"
                    placeholder="Select check-out date"
-                   autocomplete="off"
-                   required />
+                   autocomplete="off" />
+
+            <span asp-validation-for="CheckOutDate"
+                  class="text-danger">
+            </span>
 
         </div>
 

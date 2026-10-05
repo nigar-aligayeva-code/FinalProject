@@ -1,161 +1,151 @@
-﻿@{
+﻿@model HotelTravel.Application.DTOs.Rooms.RoomSearchDto
+
+@{
     ViewData["Title"] = "Home Page";
 }
-<div class="hero-section"
-     style="background-image: url('/assets/images/slider/hotel1.jpg') !important;">
-        <div class="container">
-            <div class="row hero_upper align-items-center">
-                <div class="col-lg-6">
-                    <div class="hero-content">
-                        <h4>
-                            <i class="bi bi-check-circle-fill"></i> Luxury Hotel in
-                            California
-                        </h4>
-                        <h1 class="hotelhub-style cursor-scale">Discover Your Next</h1>
-                        <h1 class="hotelhub-style cursor-scale">
-                            Luxurious <span>Escapes</span>
-                        </h1>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="hero-right_content">
-                        <p>
-                            Credibly generate collaborative synergy before backward room
-                            empower revolutionary infomediaries magnetic
-                        </p>
-                        <div class="hotelhub-btn cursor-scale small">
-                            <a href="booking.html">
-                                Book Now <i class="flaticon flaticon-right-arrow"></i>
-                            </a>
-                        </div>
-                    </div>
+<div class="hero-section">
+    <div class="container">
+        <div class="row hero_upper align-items-center">
+
+            <div class="col-lg-6">
+                <div class="hero-content">
+
+                    <h4>
+                        <i class="bi bi-check-circle-fill"></i>
+                        Find Your Perfect Stay
+                    </h4>
+
+                    <h1 class="hotelhub-style cursor-scale">
+                        Discover Your Next
+                    </h1>
+
+                    <h1 class="hotelhub-style cursor-scale">
+                        Luxurious <span>Escape</span>
+                    </h1>
+
                 </div>
             </div>
+
+            <div class="col-lg-6">
+                <div class="hero-right_content">
+                    <p>
+                        Find the perfect hotel for your next journey.
+                        Search destinations, choose your dates and book your stay.
+                    </p>
+                </div>
+            </div>
+
         </div>
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-lg-8 pl-0">
-                    <div class="solider-banner">
-                        <div class="swiper slider-banner">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
-                                    <div class="slider-img">
-                                       <img src="~/assets/images/slider/hotel1.jpg" alt="Luxury Hotel" />
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="slider-img">
-                                     <img src="~/assets/images/slider/hotel2.jpg" alt="Luxury Hotel" />
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="slider-img">
-                                    <img src="~/assets/images/slider/hotel3.jpg" alt="Luxury Hotel" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="slider-arrow-box">
-                                <button class="sliders-prev"
-                                        tabindex="0"
-                                        aria-label="Previous slide">
-                                    <i class="fa-solid fa-arrow-left"></i>
-                                </button>
-                                <button class="sliders-next"
-                                        tabindex="0"
-                                        aria-label="Next slide">
-                                    <i class="fa-solid fa-arrow-right"></i>
-                                </button>
-                            </div>
-                        </div>
+    </div>
+       
+               <!-- ============================= -->
+<!-- MODERN HOTEL SEARCH -->
+<!-- ============================= -->
+    <div class="hotel-search-section" id="booking-search">
+        <div class="container">
+
+            <form asp-controller="Home"
+                  asp-action="Search"
+                  method="post"
+                  class="hotel-search-form">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Destination -->
+                <div class="hotel-search-item destination-item">
+                    <i class="bi bi-geo-alt-fill"></i>
+
+                    <div class="hotel-search-content">
+                        <label asp-for="Destination">Destination</label>
+
+                        <input asp-for="Destination"
+                               type="text"
+                               placeholder="City, country or hotel" />
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="booking-bx">
-                        <div class="containers">
-                            <h1>Booking Online</h1>
-                        <form asp-controller="Rooms"
-                              asp-action="Search"
-                              method="post"
-                              id="bookingForm">
 
-                            @Html.AntiForgeryToken()
 
-                            <div class="booking-input-box">
-                                <i class="bi bi-calendar-check"></i>
+                <!-- Check In -->
+                <div class="hotel-search-item">
+                    <i class="bi bi-calendar-event"></i>
 
-                                <input type="text"
-                                       id="homeCheckIn"
-                                       name="CheckInDate"
-                                       placeholder="Check In"
-                                       autocomplete="off"
-                                       required />
-                            </div>
+                    <div class="hotel-search-content">
+                        <label asp-for="CheckInDate">Check In</label>
 
-                            <div class="booking-input-box">
-                                <i class="bi bi-calendar-check"></i>
-
-                                <input type="text"
-                                       id="homeCheckOut"
-                                       name="CheckOutDate"
-                                       placeholder="Check Out"
-                                       autocomplete="off"
-                                       required />
-                            </div>
-
-                            <div class="booking-input-box">
-                                <i class="bi bi-house-door"></i>
-
-                                <select id="roomCount">
-                                    <option value="1" selected>1 Room</option>
-                                    <option value="2">2 Rooms</option>
-                                    <option value="3">3 Rooms</option>
-                                    <option value="4">4 Rooms</option>
-                                </select>
-                            </div>
-
-                            <div class="booking-input-box">
-                                <i class="bi bi-person"></i>
-
-                                <select name="AdultCount"
-                                        id="adultCount"
-                                        required>
-                                    <option value="1" selected>1 Adult</option>
-                                    <option value="2">2 Adults</option>
-                                    <option value="3">3 Adults</option>
-                                    <option value="4">4 Adults</option>
-                                </select>
-                            </div>
-
-                            <div class="booking-input-box upper">
-                                <i class="bi bi-person"></i>
-
-                                <select name="ChildrenCount"
-                                        id="childrenCount">
-                                    <option value="0" selected>0 Children</option>
-                                    <option value="1">1 Child</option>
-                                    <option value="2">2 Children</option>
-                                    <option value="3">3 Children</option>
-                                    <option value="4">4 Children</option>
-                                </select>
-                            </div>
-
-                            <div class="booking-button">
-                                <button type="submit">
-                                    Search Rooms
-                                    <i class="flaticon flaticon-right-arrow"></i>
-                                </button>
-                            </div>
-
-                        </form>
-                            <div id="confirmation"></div>
-                        </div>
-                        <div class="line-shape">
-                            <img src="~/assets/images/main-home/line-shape.png"
-                                 alt="image" />
-                        </div>
+                        <input asp-for="CheckInDate"
+                               type="text"
+                               id="homeCheckIn"
+                               placeholder="Select date"
+                               autocomplete="off" />
                     </div>
                 </div>
-            </div>
+
+
+                <!-- Check Out -->
+                <div class="hotel-search-item">
+                    <i class="bi bi-calendar-check"></i>
+
+                    <div class="hotel-search-content">
+                        <label asp-for="CheckOutDate">Check Out</label>
+
+                        <input asp-for="CheckOutDate"
+                               type="text"
+                               id="homeCheckOut"
+                               placeholder="Select date"
+                               autocomplete="off" />
+                    </div>
+                </div>
+
+
+                <!-- Adults -->
+                <div class="hotel-search-item guest-item">
+                    <i class="bi bi-person-fill"></i>
+
+                    <div class="hotel-search-content">
+                        <label asp-for="AdultCount">Adults</label>
+
+                        <select asp-for="AdultCount">
+                            <option value="1">1 Adult</option>
+                            <option value="2">2 Adults</option>
+                            <option value="3">3 Adults</option>
+                            <option value="4">4 Adults</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <!-- Children -->
+                <div class="hotel-search-item guest-item">
+                    <i class="bi bi-people-fill"></i>
+
+                    <div class="hotel-search-content">
+                        <label asp-for="ChildrenCount">Children</label>
+
+                        <select asp-for="ChildrenCount">
+                            <option value="0">0 Children</option>
+                            <option value="1">1 Child</option>
+                            <option value="2">2 Children</option>
+                            <option value="3">3 Children</option>
+                            <option value="4">4 Children</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <!-- Search -->
+                <button type="submit"
+                        class="hotel-search-button">
+
+                    <i class="bi bi-search"></i>
+                    <span>Search</span>
+
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
         </div>
     </div>
     <!--==================================================-->
@@ -1752,3 +1742,252 @@
         });
     </script>
 }
+<style>
+   
+@using System.Text.Json
+
+@{
+    var homeFullyBookedDates =
+        ViewBag.FullyBookedDates as List<string> ?? new List<string>();
+
+    var homeFullyBookedDatesJson =
+        JsonSerializer.Serialize(homeFullyBookedDates);
+}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const fullyBookedDates = @Html.Raw(homeFullyBookedDatesJson);
+
+        const checkInInput = document.getElementById("homeCheckIn");
+        const checkOutInput = document.getElementById("homeCheckOut");
+
+        if (!checkInInput || !checkOutInput) {
+            return;
+        }
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+
+            return `${year}-${month}-${day}`;
+        }
+
+        function markFullyBookedDays(dObj, dStr, fp, dayElem) {
+
+            const dateString = formatDate(dayElem.dateObj);
+
+            if (fullyBookedDates.includes(dateString)) {
+                dayElem.classList.add("fully-booked-date");
+                dayElem.setAttribute("title", "Fully Booked");
+            }
+        }
+
+        const checkOutPicker = flatpickr(checkOutInput, {
+            dateFormat: "Y-m-d",
+            minDate: new Date().fp_incr(1),
+
+            disable: fullyBookedDates,
+
+            onDayCreate: markFullyBookedDays
+        });
+
+        const checkInPicker = flatpickr(checkInInput, {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+
+            disable: fullyBookedDates,
+
+            onDayCreate: markFullyBookedDays,
+
+            onChange: function(selectedDates) {
+
+                if (selectedDates.length === 0) {
+                    return;
+                }
+
+                const selectedCheckIn = selectedDates[0];
+
+                const minimumCheckOut = new Date(selectedCheckIn);
+                minimumCheckOut.setDate(
+                    minimumCheckOut.getDate() + 1
+                );
+
+                checkOutPicker.set(
+                    "minDate",
+                    minimumCheckOut
+                );
+
+                const currentCheckOut =
+                    checkOutPicker.selectedDates[0];
+
+                if (
+                    currentCheckOut &&
+                    currentCheckOut <= selectedCheckIn
+                ) {
+                    checkOutPicker.clear();
+                }
+            }
+        });
+
+    });
+</script>
+
+<style>
+    /* Fully booked calendar dates */
+
+    .flatpickr-day.fully-booked-date,
+    .flatpickr-day.fully-booked-date.flatpickr-disabled {
+        background: #dc3545 !important;
+        color: #ffffff !important;
+        border-color: #dc3545 !important;
+        opacity: 0.65;
+        cursor: not-allowed !important;
+        text-decoration: line-through;
+    }
+
+        .flatpickr-day.fully-booked-date:hover {
+            background: #dc3545 !important;
+            color: #ffffff !important;
+        }
+</style>
+  <script>
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const checkInInput =
+                document.getElementById(
+                    "homeCheckIn");
+
+            const checkOutInput =
+                document.getElementById(
+                    "homeCheckOut");
+
+            if (!checkInInput ||
+                !checkOutInput) {
+                return;
+            }
+
+
+            // =====================================
+            // EXISTING VALUES
+            // Search Again zamanı saxlanılır
+            // =====================================
+
+            const existingCheckIn =
+                checkInInput.value;
+
+            const existingCheckOut =
+                checkOutInput.value;
+
+
+            // =====================================
+            // CHECK OUT
+            // =====================================
+
+            const checkOutPicker =
+                flatpickr(
+                    checkOutInput,
+                    {
+                        dateFormat: "Y-m-d",
+
+                        minDate:
+                            new Date()
+                                .fp_incr(1),
+
+                        defaultDate:
+                            existingCheckOut || null
+                    });
+
+
+            // =====================================
+            // CHECK IN
+            // =====================================
+
+            const checkInPicker =
+                flatpickr(
+                    checkInInput,
+                    {
+                        dateFormat: "Y-m-d",
+
+                        minDate: "today",
+
+                        defaultDate:
+                            existingCheckIn || null,
+
+                        onChange:
+                            function (
+                                selectedDates) {
+
+                                if (
+                                    selectedDates.length === 0
+                                ) {
+                                    return;
+                                }
+
+                                const selectedCheckIn =
+                                    selectedDates[0];
+
+                                const minimumCheckOut =
+                                    new Date(
+                                        selectedCheckIn);
+
+                                minimumCheckOut.setDate(
+                                    minimumCheckOut
+                                        .getDate() + 1);
+
+
+                                // Checkout check-in-dən
+                                // sonra olmalıdır
+                                checkOutPicker.set(
+                                    "minDate",
+                                    minimumCheckOut);
+
+
+                                // Köhnə checkout artıq
+                                // uyğun deyilsə təmizlə
+                                const currentCheckOut =
+                                    checkOutPicker
+                                        .selectedDates[0];
+
+                                if (
+                                    currentCheckOut &&
+                                    currentCheckOut <=
+                                    selectedCheckIn
+                                ) {
+                                    checkOutPicker.clear();
+                                }
+                            }
+                    });
+
+
+            // =====================================
+            // SEARCH AGAIN
+            // əvvəlki check-in varsa
+            // checkout minDate düzəlsin
+            // =====================================
+
+            if (
+                checkInPicker
+                    .selectedDates.length > 0
+            ) {
+                const selectedCheckIn =
+                    checkInPicker
+                        .selectedDates[0];
+
+                const minimumCheckOut =
+                    new Date(
+                        selectedCheckIn);
+
+                minimumCheckOut.setDate(
+                    minimumCheckOut
+                        .getDate() + 1);
+
+                checkOutPicker.set(
+                    "minDate",
+                    minimumCheckOut);
+            }
+        });
+</script>

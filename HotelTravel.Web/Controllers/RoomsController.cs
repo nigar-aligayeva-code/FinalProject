@@ -44,13 +44,25 @@ public class RoomsController : Controller
     // PUBLIC - ROOM DETAILS
     // =========================
     [HttpGet]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(
+     int id,
+     DateTime? checkInDate,
+     DateTime? checkOutDate,
+     int? adultCount,
+     int? childrenCount)
     {
         var room =
             await _roomService.GetByIdAsync(id);
 
         if (room is null)
             return NotFound();
+
+        // Search-dən gələn məlumatları
+        // Details səhifəsinə ötürürük
+        ViewBag.CheckInDate = checkInDate;
+        ViewBag.CheckOutDate = checkOutDate;
+        ViewBag.AdultCount = adultCount;
+        ViewBag.ChildrenCount = childrenCount;
 
         return View(room);
     }
@@ -135,6 +147,7 @@ public class RoomsController : Controller
 
         var dto = new UpdateRoomDto
         {
+            Id = room.Id,
             RoomNumber = room.RoomNumber,
             Name = room.Name,
             Description = room.Description,
@@ -144,11 +157,11 @@ public class RoomsController : Controller
             RoomType = room.RoomType,
             HotelId = room.HotelId,
 
-            AmenityIds =
-                room.AmenityIds,
+            AmenityIds = room.AmenityIds,
 
-            ImageUrls =
-                room.ImageUrls
+            ImageUrls = room.ImageUrls,
+
+            Images = room.Images
         };
 
         await LoadHotelsAsync(dto.HotelId);
@@ -156,7 +169,6 @@ public class RoomsController : Controller
 
         return View(dto);
     }
-
 
     [Authorize(Roles = "Admin")]
     [HttpPost]
@@ -195,18 +207,17 @@ public class RoomsController : Controller
         // =========================
         if (!ModelState.IsValid)
         {
-            // Validation error olarsa
-            // mövcud gallery şəkillərini yenidən
-            // View-a göndəririk.
             dto.ImageUrls =
                 currentRoom.ImageUrls;
+
+            dto.Images =
+                currentRoom.Images;
 
             await LoadHotelsAsync(dto.HotelId);
             await LoadAmenitiesAsync();
 
             return View(dto);
         }
-
 
         // =========================
         // CHANGE MAIN IMAGE
@@ -236,8 +247,102 @@ public class RoomsController : Controller
 
         dto.ImageUrls =
             newImageUrls;
+        // =========================
+        // DELETE MAIN IMAGE ON SAVE
+        // =========================
+        if (dto.RemoveMainImage &&
+            !string.IsNullOrWhiteSpace(currentRoom.MainImage))
+        {
+            var oldMainImage =
+                currentRoom.MainImage;
 
+            // Eyni fayl gallery-də istifadə olunursa,
+            // fiziki faylı silmirik.
+            var isUsedInGallery =
+                currentRoom.ImageUrls != null &&
+                currentRoom.ImageUrls.Any(x =>
+                    string.Equals(
+                        x,
+                        oldMainImage,
+                        StringComparison.OrdinalIgnoreCase));
 
+            var deleted =
+                await _roomService.DeleteMainImageAsync(id);
+
+            if (deleted &&
+                !isUsedInGallery &&
+                oldMainImage.StartsWith(
+                    "/uploads/rooms/",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                var fileName =
+                    Path.GetFileName(oldMainImage);
+
+                var filePath =
+                    Path.Combine(
+                        _webHostEnvironment.WebRootPath,
+                        "uploads",
+                        "rooms",
+                        fileName);
+
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+
+            // UpdateAsync köhnə MainImage-i yenidən DB-yə
+            // yazmasın deyə DTO-nu da boşaldırıq.
+            dto.MainImage = string.Empty;
+        }
+        // =========================
+        // DELETE SELECTED GALLERY IMAGES
+        // =========================
+        if (dto.DeletedImageIds != null &&
+            dto.DeletedImageIds.Any())
+        {
+            foreach (var imageId in dto.DeletedImageIds)
+            {
+                // Şəklin məlumatını silməzdən əvvəl götürürük
+                var image =
+                    await _roomService.GetImageByIdAsync(
+                        imageId);
+
+                if (image is null)
+                    continue;
+
+                // Database-də soft delete
+                var deleted =
+                    await _roomService.DeleteImageAsync(
+                        imageId);
+
+                if (!deleted)
+                    continue;
+
+                // Fiziki faylı sil
+                if (!string.IsNullOrWhiteSpace(image.ImageUrl) &&
+                    image.ImageUrl.StartsWith(
+                        "/uploads/rooms/",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    var fileName =
+                        Path.GetFileName(
+                            image.ImageUrl);
+
+                    var filePath =
+                        Path.Combine(
+                            _webHostEnvironment.WebRootPath,
+                            "uploads",
+                            "rooms",
+                            fileName);
+
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+            }
+        }
         // =========================
         // UPDATE ROOM
         // =========================
@@ -284,8 +389,163 @@ public class RoomsController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+    // =========================
+    // ADMIN - DELETE GALLERY IMAGE
+    // =========================
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteGalleryImage(
+        int roomId,
+        int imageId)
+    {
+        // =========================
+        // FIND IMAGE
+        // =========================
+        var image =
+            await _roomService.GetImageByIdAsync(
+                imageId);
+
+        if (image is null)
+            return NotFound();
 
 
+        // =========================
+        // SOFT DELETE FROM DATABASE
+        // =========================
+        var result =
+            await _roomService.DeleteImageAsync(
+                imageId);
+
+        if (!result)
+            return NotFound();
+
+
+        // =========================
+        // DELETE PHYSICAL FILE
+        // =========================
+        if (!string.IsNullOrWhiteSpace(image.ImageUrl) &&
+            image.ImageUrl.StartsWith(
+                "/uploads/rooms/",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            var fileName =
+                Path.GetFileName(
+                    image.ImageUrl);
+
+            var filePath =
+                Path.Combine(
+                    _webHostEnvironment.WebRootPath,
+                    "uploads",
+                    "rooms",
+                    fileName);
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
+
+
+        // =========================
+        // BACK TO EDIT PAGE
+        // =========================
+        return RedirectToAction(
+            nameof(Edit),
+            new { id = roomId });
+    }
+
+
+    // =========================
+    // ADMIN - DELETE MAIN IMAGE
+    // =========================
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteMainImage(
+        int roomId)
+    {
+        // =========================
+        // FIND ROOM
+        // =========================
+        var room =
+            await _roomService.GetByIdAsync(
+                roomId);
+
+        if (room is null)
+            return NotFound();
+
+
+        // =========================
+        // KEEP OLD MAIN IMAGE URL
+        // =========================
+        var mainImageUrl =
+            room.MainImage;
+
+
+        // =========================
+        // CHECK IF SAME IMAGE IS
+        // USED IN GALLERY
+        // =========================
+        var isUsedInGallery =
+            room.ImageUrls != null &&
+            room.ImageUrls.Any(x =>
+                string.Equals(
+                    x,
+                    mainImageUrl,
+                    StringComparison.OrdinalIgnoreCase));
+
+
+        // =========================
+        // DELETE MAIN IMAGE FROM DB
+        // =========================
+        var result =
+            await _roomService.DeleteMainImageAsync(
+                roomId);
+
+        if (!result)
+            return NotFound();
+
+
+        // =========================
+        // DELETE PHYSICAL FILE
+        // =========================
+        // Əgər eyni file gallery-də də istifadə olunursa,
+        // fiziki faylı silmirik.
+        if (!isUsedInGallery &&
+            !string.IsNullOrWhiteSpace(mainImageUrl) &&
+            mainImageUrl.StartsWith(
+                "/uploads/rooms/",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            var fileName =
+                Path.GetFileName(
+                    mainImageUrl);
+
+            var filePath =
+                Path.Combine(
+                    _webHostEnvironment.WebRootPath,
+                    "uploads",
+                    "rooms",
+                    fileName);
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
+
+
+        // =========================
+        // BACK TO EDIT PAGE
+        // =========================
+        return RedirectToAction(
+            nameof(Edit),
+            new { id = roomId });
+    }
+
+
+    
     // =========================
     // PUBLIC - SEARCH ROOMS
     // =========================
@@ -298,16 +558,39 @@ public class RoomsController : Controller
     }
 
 
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Search(
-        RoomSearchDto search)
+     RoomSearchDto search)
     {
-        if (search.CheckInDate.Date <
-            DateTime.Today)
+        // =========================
+        // REQUIRED VALIDATION
+        // =========================
+        if (!ModelState.IsValid)
+        {
+            await LoadFullyBookedDatesAsync();
+
+            return View(search);
+        }
+
+
+        // Buradan sonra bilirik ki,
+        // hər iki tarix mütləq seçilib.
+        var checkInDate =
+            search.CheckInDate!.Value;
+
+        var checkOutDate =
+            search.CheckOutDate!.Value;
+
+
+        // =========================
+        // CHECK-IN CANNOT BE PAST
+        // =========================
+        if (checkInDate.Date < DateTime.Today)
         {
             ModelState.AddModelError(
-                string.Empty,
+                nameof(search.CheckInDate),
                 "Check-in date cannot be in the past.");
 
             await LoadFullyBookedDatesAsync();
@@ -316,11 +599,13 @@ public class RoomsController : Controller
         }
 
 
-        if (search.CheckInDate.Date >=
-            search.CheckOutDate.Date)
+        // =========================
+        // CHECK-OUT AFTER CHECK-IN
+        // =========================
+        if (checkInDate.Date >= checkOutDate.Date)
         {
             ModelState.AddModelError(
-                string.Empty,
+                nameof(search.CheckOutDate),
                 "Check-out date must be after check-in date.");
 
             await LoadFullyBookedDatesAsync();
@@ -329,29 +614,22 @@ public class RoomsController : Controller
         }
 
 
-        if (search.AdultCount <= 0 ||
-            search.ChildrenCount < 0)
-        {
-            ModelState.AddModelError(
-                string.Empty,
-                "Guest count is not valid.");
-
-            await LoadFullyBookedDatesAsync();
-
-            return View(search);
-        }
-
-
+        // =========================
+        // SEARCH AVAILABLE ROOMS
+        // =========================
         var rooms =
-            await _roomService
-                .SearchAvailableRoomsAsync(
-                    search);
+            await _roomService.SearchAvailableRoomsAsync(
+                search);
 
+
+        // =========================
+        // SEND SEARCH INFO TO VIEW
+        // =========================
         ViewBag.CheckInDate =
-            search.CheckInDate;
+            checkInDate;
 
         ViewBag.CheckOutDate =
-            search.CheckOutDate;
+            checkOutDate;
 
         ViewBag.AdultCount =
             search.AdultCount;
@@ -364,8 +642,6 @@ public class RoomsController : Controller
             "AvailableRooms",
             rooms);
     }
-
-
     // =========================
     // SAVE SINGLE ROOM IMAGE
     // =========================
