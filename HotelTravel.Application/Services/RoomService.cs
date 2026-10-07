@@ -31,6 +31,7 @@ public class RoomService : IRoomService
                 PricePerNight = r.PricePerNight,
                 Capacity = r.Capacity,
                 MainImage = r.MainImage,
+                PanoramaImage = r.PanoramaImage,
                 RoomType = r.RoomType,
                 HotelId = r.HotelId,
 
@@ -44,13 +45,11 @@ public class RoomService : IRoomService
                     .Select(a => a.Name)
                     .ToList(),
 
-                // Old gallery list
                 ImageUrls = r.Images
                     .Where(i => !i.IsDeleted)
                     .Select(i => i.ImageUrl)
                     .ToList(),
 
-                // Gallery with Id
                 Images = r.Images
                     .Where(i => !i.IsDeleted)
                     .Select(i => new GetRoomImageDto
@@ -82,6 +81,7 @@ public class RoomService : IRoomService
                 PricePerNight = r.PricePerNight,
                 Capacity = r.Capacity,
                 MainImage = r.MainImage,
+                PanoramaImage = r.PanoramaImage,
                 RoomType = r.RoomType,
                 HotelId = r.HotelId,
 
@@ -95,13 +95,11 @@ public class RoomService : IRoomService
                     .Select(a => a.Name)
                     .ToList(),
 
-                // Old gallery list
                 ImageUrls = r.Images
                     .Where(i => !i.IsDeleted)
                     .Select(i => i.ImageUrl)
                     .ToList(),
 
-                // Gallery with Id
                 Images = r.Images
                     .Where(i => !i.IsDeleted)
                     .Select(i => new GetRoomImageDto
@@ -133,7 +131,10 @@ public class RoomService : IRoomService
             Description = dto.Description,
             PricePerNight = dto.PricePerNight,
             Capacity = dto.Capacity,
+
             MainImage = dto.MainImage,
+            PanoramaImage = dto.PanoramaImage,
+
             RoomType = dto.RoomType,
             HotelId = dto.HotelId,
 
@@ -196,7 +197,10 @@ public class RoomService : IRoomService
         room.Description = dto.Description;
         room.PricePerNight = dto.PricePerNight;
         room.Capacity = dto.Capacity;
+
         room.MainImage = dto.MainImage;
+        room.PanoramaImage = dto.PanoramaImage;
+
         room.RoomType = dto.RoomType;
         room.HotelId = dto.HotelId;
 
@@ -236,8 +240,7 @@ public class RoomService : IRoomService
         }
 
 
-        room.UpdatedAt =
-            DateTime.UtcNow;
+        room.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 
@@ -265,6 +268,7 @@ public class RoomService : IRoomService
 
         return true;
     }
+
 
     // =========================
     // GET GALLERY IMAGE BY ID
@@ -304,6 +308,8 @@ public class RoomService : IRoomService
 
         return true;
     }
+
+
     // =========================
     // DELETE MAIN IMAGE
     // =========================
@@ -324,6 +330,8 @@ public class RoomService : IRoomService
 
         return true;
     }
+
+
     // =========================
     // SEARCH AVAILABLE ROOMS
     // =========================
@@ -345,6 +353,7 @@ public class RoomService : IRoomService
         var checkOutDate =
             search.CheckOutDate.Value.Date;
 
+
         // =========================
         // CHECK DATE RANGE
         // =========================
@@ -352,6 +361,7 @@ public class RoomService : IRoomService
         {
             return new List<GetRoomDto>();
         }
+
 
         // =========================
         // CHECK GUEST COUNT
@@ -365,6 +375,7 @@ public class RoomService : IRoomService
         {
             return new List<GetRoomDto>();
         }
+
 
         // =========================
         // BASE QUERY
@@ -390,6 +401,7 @@ public class RoomService : IRoomService
                 )
             );
 
+
         // =========================
         // DESTINATION FILTER
         // =========================
@@ -405,6 +417,7 @@ public class RoomService : IRoomService
                 r.Hotel.Name.Contains(destination));
         }
 
+
         // =========================
         // RESULT
         // =========================
@@ -417,7 +430,10 @@ public class RoomService : IRoomService
                 Description = r.Description,
                 PricePerNight = r.PricePerNight,
                 Capacity = r.Capacity,
+
                 MainImage = r.MainImage,
+                PanoramaImage = r.PanoramaImage,
+
                 RoomType = r.RoomType,
                 HotelId = r.HotelId,
 
@@ -447,7 +463,8 @@ public class RoomService : IRoomService
             })
             .ToListAsync();
     }
-       
+
+
     // =========================
     // FULLY BOOKED DATES
     // =========================
@@ -472,8 +489,8 @@ public class RoomService : IRoomService
                 !b.IsDeleted &&
 
                 b.Status !=
-                HotelTravel.Domain.Enums
-                    .BookingStatus.Cancelled &&
+                    HotelTravel.Domain.Enums
+                        .BookingStatus.Cancelled &&
 
                 b.CheckInDate < endDate &&
                 b.CheckOutDate > startDate)

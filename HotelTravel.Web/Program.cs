@@ -2,9 +2,10 @@ using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Infrastructure.Persistence;
+using HotelTravel.Infrastructure.Seed;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using HotelTravel.Infrastructure.Seed;
+
 namespace HotelTravel.Web
 {
     public class Program
@@ -15,64 +16,139 @@ namespace HotelTravel.Web
 
             builder.Services.AddControllersWithViews();
 
-            // Database
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection")));
-            
-            // Identity
-            builder.Services
-                .AddIdentity<AppUser, IdentityRole>(options =>
-                {
-                    // Password qaydaları
-                    options.Password.RequireDigit = true;
-                    options.Password.RequireLowercase = true;
-                    options.Password.RequireUppercase = true;
-                    options.Password.RequireNonAlphanumeric = false;
-                    options.Password.RequiredLength = 6;
 
-                    // Email
-                    options.User.RequireUniqueEmail = true;
-                })
+            // =========================================
+            // DATABASE
+            // =========================================
+
+            builder.Services.AddDbContext<AppDbContext>(
+                options =>
+                    options.UseSqlServer(
+                        builder.Configuration
+                            .GetConnectionString(
+                                "DefaultConnection")));
+
+
+            // =========================================
+            // IDENTITY
+            // =========================================
+
+            builder.Services
+                .AddIdentity<AppUser, IdentityRole>(
+                    options =>
+                    {
+                        // Password rules
+                        options.Password.RequireDigit = true;
+                        options.Password.RequireLowercase = true;
+                        options.Password.RequireUppercase = true;
+                        options.Password.RequireNonAlphanumeric = false;
+                        options.Password.RequiredLength = 6;
+
+                        // Email
+                        options.User.RequireUniqueEmail = true;
+                    })
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-            // Login olmayan user qorunan səhifəyə girəndə
-            builder.Services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = "/Account/Login";
-                options.AccessDeniedPath = "/Account/AccessDenied";
-            });
 
-            // Dependency Injection
-            builder.Services.AddScoped<IAppDbContext>(provider =>
-                provider.GetRequiredService<AppDbContext>());
+            // =========================================
+            // COOKIE SETTINGS
+            // =========================================
 
-            builder.Services.AddScoped<IRoomService, RoomService>();
-            builder.Services.AddScoped<IHotelService, HotelService>();
-            builder.Services.AddScoped<IBookingService, BookingService>();
-            builder.Services.AddScoped<IHotelChainService, HotelChainService>();
-            builder.Services.AddScoped<IAmenityService, AmenityService>();
+            builder.Services.ConfigureApplicationCookie(
+                options =>
+                {
+                    options.LoginPath =
+                        "/Account/Login";
+
+                    options.AccessDeniedPath =
+                        "/Account/AccessDenied";
+                });
+
+
+            // =========================================
+            // DEPENDENCY INJECTION
+            // =========================================
+
+            builder.Services.AddScoped<IAppDbContext>(
+                provider =>
+                    provider.GetRequiredService<AppDbContext>());
+
+            builder.Services.AddScoped<
+                IRoomService,
+                RoomService>();
+
+            builder.Services.AddScoped<
+                IHotelService,
+                HotelService>();
+
+            builder.Services.AddScoped<
+                IBookingService,
+                BookingService>();
+
+            builder.Services.AddScoped<
+                IHotelChainService,
+                HotelChainService>();
+
+            builder.Services.AddScoped<
+                IAmenityService,
+                AmenityService>();
+
 
             var app = builder.Build();
-            using (var scope = app.Services.CreateScope())
+
+
+            // =========================================
+            // SEED DATA
+            // =========================================
+
+            using (var scope =
+                   app.Services.CreateScope())
             {
+                var services =
+                    scope.ServiceProvider;
+
+
+                // -----------------------------
+                // IDENTITY SEED
+                // -----------------------------
+
                 var roleManager =
-                    scope.ServiceProvider
-                        .GetRequiredService<RoleManager<IdentityRole>>();
+                    services.GetRequiredService<
+                        RoleManager<IdentityRole>>();
 
                 var userManager =
-                    scope.ServiceProvider
-                        .GetRequiredService<UserManager<AppUser>>();
+                    services.GetRequiredService<
+                        UserManager<AppUser>>();
+
                 await IdentitySeeder.SeedAsync(
                     roleManager,
                     userManager,
                     builder.Configuration);
+
+
+                // -----------------------------
+                // HOTEL DATA SEED
+                // -----------------------------
+
+                var context =
+                    services.GetRequiredService<
+                        AppDbContext>();
+
+                await HotelDataSeeder.SeedAsync(
+                    context);
             }
+
+
+            // =========================================
+            // HTTP PIPELINE
+            // =========================================
 
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler(
+                    "/Home/Error");
+
                 app.UseHsts();
             }
 
@@ -82,13 +158,25 @@ namespace HotelTravel.Web
 
             app.UseRouting();
 
-            // Identity
+
+            // =========================================
+            // IDENTITY
+            // =========================================
+
             app.UseAuthentication();
+
             app.UseAuthorization();
+
+
+            // =========================================
+            // ROUTING
+            // =========================================
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern:
+                    "{controller=Home}/{action=Index}/{id?}");
+
 
             app.Run();
         }

@@ -15,7 +15,7 @@ public class Room : BaseEntity
     public int Capacity { get; set; }
 
     public string MainImage { get; set; }
-
+    public string? PanoramaImage { get; set; }
     public RoomType RoomType { get; set; }
 
     public int HotelId { get; set; }

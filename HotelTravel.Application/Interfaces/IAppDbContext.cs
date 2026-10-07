@@ -18,7 +18,7 @@ public interface IAppDbContext
     DbSet<Amenity> Amenities { get; set; }
 
     DbSet<RoomImage> RoomImages { get; set; }
-
+    DbSet<HotelImage> HotelImages { get; set; }
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
 }

@@ -63,7 +63,17 @@ public class HotelService : IHotelService
 
                 HotelChainName = h.HotelChain != null
                     ? h.HotelChain.Name
-                    : null
+                    : null,
+
+                Images = h.Images
+                    .Where(i => !i.IsDeleted)
+                    .Select(i => new GetHotelImageDto
+                    {
+                        Id = i.Id,
+                        ImageUrl = i.ImageUrl,
+                        Category = i.Category
+                    })
+                    .ToList()
             })
             .FirstOrDefaultAsync();
     }

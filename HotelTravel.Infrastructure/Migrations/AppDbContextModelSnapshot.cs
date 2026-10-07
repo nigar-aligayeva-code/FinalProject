@@ -338,6 +338,41 @@ namespace HotelTravel.Infrastructure.Migrations
                     b.ToTable("HotelChains");
                 });
 
+            modelBuilder.Entity("HotelTravel.Domain.Entities.HotelImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("HotelId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HotelId");
+
+                    b.ToTable("HotelImages");
+                });
+
             modelBuilder.Entity("HotelTravel.Domain.Entities.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -368,6 +403,9 @@ namespace HotelTravel.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PanoramaImage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("PricePerNight")
@@ -599,6 +637,17 @@ namespace HotelTravel.Infrastructure.Migrations
                     b.Navigation("HotelChain");
                 });
 
+            modelBuilder.Entity("HotelTravel.Domain.Entities.HotelImage", b =>
+                {
+                    b.HasOne("HotelTravel.Domain.Entities.Hotel", "Hotel")
+                        .WithMany("Images")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hotel");
+                });
+
             modelBuilder.Entity("HotelTravel.Domain.Entities.Room", b =>
                 {
                     b.HasOne("HotelTravel.Domain.Entities.Hotel", "Hotel")
@@ -679,6 +728,8 @@ namespace HotelTravel.Infrastructure.Migrations
 
             modelBuilder.Entity("HotelTravel.Domain.Entities.Hotel", b =>
                 {
+                    b.Navigation("Images");
+
                     b.Navigation("Rooms");
                 });
 

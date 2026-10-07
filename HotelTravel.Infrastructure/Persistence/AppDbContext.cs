@@ -26,7 +26,7 @@ public class AppDbContext
     public DbSet<Amenity> Amenities { get; set; }
 
     public DbSet<RoomImage> RoomImages { get; set; }
-
+    public DbSet<HotelImage> HotelImages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
