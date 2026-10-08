@@ -1,3 +1,4 @@
+
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
@@ -14,8 +15,11 @@ namespace HotelTravel.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllersWithViews();
+            // =========================================
+            // MVC
+            // =========================================
 
+            builder.Services.AddControllersWithViews();
 
             // =========================================
             // DATABASE
@@ -25,9 +29,7 @@ namespace HotelTravel.Web
                 options =>
                     options.UseSqlServer(
                         builder.Configuration
-                            .GetConnectionString(
-                                "DefaultConnection")));
-
+                            .GetConnectionString("DefaultConnection")));
 
             // =========================================
             // IDENTITY
@@ -37,19 +39,16 @@ namespace HotelTravel.Web
                 .AddIdentity<AppUser, IdentityRole>(
                     options =>
                     {
-                        // Password rules
                         options.Password.RequireDigit = true;
                         options.Password.RequireLowercase = true;
                         options.Password.RequireUppercase = true;
                         options.Password.RequireNonAlphanumeric = false;
                         options.Password.RequiredLength = 6;
 
-                        // Email
                         options.User.RequireUniqueEmail = true;
                     })
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
-
 
             // =========================================
             // COOKIE SETTINGS
@@ -58,13 +57,9 @@ namespace HotelTravel.Web
             builder.Services.ConfigureApplicationCookie(
                 options =>
                 {
-                    options.LoginPath =
-                        "/Account/Login";
-
-                    options.AccessDeniedPath =
-                        "/Account/AccessDenied";
+                    options.LoginPath = "/Account/Login";
+                    options.AccessDeniedPath = "/Account/AccessDenied";
                 });
-
 
             // =========================================
             // DEPENDENCY INJECTION
@@ -74,71 +69,40 @@ namespace HotelTravel.Web
                 provider =>
                     provider.GetRequiredService<AppDbContext>());
 
-            builder.Services.AddScoped<
-                IRoomService,
-                RoomService>();
-
-            builder.Services.AddScoped<
-                IHotelService,
-                HotelService>();
-
-            builder.Services.AddScoped<
-                IBookingService,
-                BookingService>();
-
-            builder.Services.AddScoped<
-                IHotelChainService,
-                HotelChainService>();
-
-            builder.Services.AddScoped<
-                IAmenityService,
-                AmenityService>();
-
+            builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<IHotelService, HotelService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IHotelChainService, HotelChainService>();
+            builder.Services.AddScoped<IAmenityService, AmenityService>();
 
             var app = builder.Build();
-
 
             // =========================================
             // SEED DATA
             // =========================================
 
-            using (var scope =
-                   app.Services.CreateScope())
+            using (var scope = app.Services.CreateScope())
             {
-                var services =
-                    scope.ServiceProvider;
+                var services = scope.ServiceProvider;
 
-
-                // -----------------------------
                 // IDENTITY SEED
-                // -----------------------------
-
                 var roleManager =
-                    services.GetRequiredService<
-                        RoleManager<IdentityRole>>();
+                    services.GetRequiredService<RoleManager<IdentityRole>>();
 
                 var userManager =
-                    services.GetRequiredService<
-                        UserManager<AppUser>>();
+                    services.GetRequiredService<UserManager<AppUser>>();
 
                 await IdentitySeeder.SeedAsync(
                     roleManager,
                     userManager,
                     builder.Configuration);
 
-
-                // -----------------------------
                 // HOTEL DATA SEED
-                // -----------------------------
-
                 var context =
-                    services.GetRequiredService<
-                        AppDbContext>();
+                    services.GetRequiredService<AppDbContext>();
 
-                await HotelDataSeeder.SeedAsync(
-                    context);
+                await HotelDataSeeder.SeedAsync(context);
             }
-
 
             // =========================================
             // HTTP PIPELINE
@@ -146,9 +110,7 @@ namespace HotelTravel.Web
 
             if (!app.Environment.IsDevelopment())
             {
-                app.UseExceptionHandler(
-                    "/Home/Error");
-
+                app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
 
@@ -158,25 +120,21 @@ namespace HotelTravel.Web
 
             app.UseRouting();
 
-
             // =========================================
-            // IDENTITY
+            // AUTHENTICATION & AUTHORIZATION
             // =========================================
 
             app.UseAuthentication();
-
             app.UseAuthorization();
 
-
             // =========================================
-            // ROUTING
+            // MVC ROUTING
+            // =========================================
             // =========================================
 
             app.MapControllerRoute(
                 name: "default",
-                pattern:
-                    "{controller=Home}/{action=Index}/{id?}");
-
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }

@@ -1,217 +1,621 @@
 ﻿@model HotelTravel.Application.DTOs.Rooms.GetRoomDto
 
 @{
-    ViewData["Title"] = "Room Details";
+    ViewData["Title"] = Model.Name + " | Room Details";
+
+    var galleryImages = new List<string>();
+
+    if (!string.IsNullOrWhiteSpace(Model.MainImage))
+    {
+        galleryImages.Add(Model.MainImage);
+    }
+
+    if (Model.ImageUrls != null)
+    {
+        galleryImages.AddRange(
+            Model.ImageUrls.Where(x => !string.IsNullOrWhiteSpace(x)));
+    }
+
+    galleryImages = galleryImages.Distinct().ToList();
+
+    var hasPanorama = !string.IsNullOrWhiteSpace(Model.PanoramaImage);
 }
 
-<div class="container mt-5 mb-5">
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-    <h2 class="mb-4">
-        @Model.Name
-    </h2>
+@if (hasPanorama)
+{
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
+}
 
-    <!-- ========================= -->
-    <!-- ROOM GALLERY -->
-    <!-- ========================= -->
-    <div class="row mb-5">
+<style>
+    .room-details-page {
+        background: #F3EEE5;
+        padding: 65px 0 90px;
+        color: #1F2421;
+    }
 
-        <!-- MAIN IMAGE -->
-        <div class="col-lg-8 mb-3">
+        .room-details-page .room-eyebrow {
+            color: #A47A30;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
 
-            @if (!string.IsNullOrWhiteSpace(Model.MainImage))
-            {
-                <img id="mainRoomImage"
-                     src="@Model.MainImage"
-                     alt="@Model.Name"
-                     class="img-fluid rounded"
-                     style="width: 100%;
-                height: 500px;
+        .room-details-page .room-title {
+            font-family: Georgia, serif;
+            font-size: clamp(32px, 4vw, 52px);
+            font-weight: 500;
+            margin: 12px 0;
+        }
+
+        .room-details-page .room-subtitle {
+            color: #77736B;
+            font-size: 15px;
+        }
+
+        .room-details-page .gallery-main {
+            position: relative;
+            height: 470px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #E7E0D5;
+        }
+
+            .room-details-page .gallery-main img {
+                width: 100%;
+                height: 100%;
                 object-fit: cover;
-                cursor: pointer;" />
-            }
-            else
-            {
-                <div class="border rounded d-flex align-items-center justify-content-center"
-                     style="height: 500px;">
-
-                    <span class="text-muted">
-                        No main image available.
-                    </span>
-
-                </div>
+                cursor: pointer;
+                transition: transform .35s ease;
             }
 
+                .room-details-page .gallery-main img:hover {
+                    transform: scale(1.025);
+                }
+
+        .room-details-page .gallery-placeholder {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #827C72;
+            gap: 12px;
+        }
+
+            .room-details-page .gallery-placeholder i {
+                font-size: 40px;
+            }
+
+        .room-details-page .gallery-count {
+            position: absolute;
+            bottom: 18px;
+            right: 18px;
+            background: rgba(31,36,33,.85);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+        }
+
+        .room-details-page .gallery-side {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            align-content: start;
+        }
+
+        .room-details-page .gallery-thumb {
+            height: 145px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            padding: 0;
+            background: #E7E0D5;
+            cursor: pointer;
+        }
+
+            .room-details-page .gallery-thumb.active {
+                border-color: #C69B45;
+            }
+
+            .room-details-page .gallery-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+
+        .room-details-page .gallery-empty {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            color: #77736B;
+            text-align: center;
+        }
+
+        .room-details-page .room-panel {
+            background: #FFFFFF;
+            border: 1px solid #E8E0D5;
+            border-radius: 16px;
+            padding: 32px;
+            margin-top: 26px;
+        }
+
+        .room-details-page .section-heading {
+            font-family: Georgia, serif;
+            font-size: 25px;
+            margin-bottom: 24px;
+        }
+
+        .room-details-page .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #F0EBE3;
+        }
+
+        .room-details-page .detail-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #F8F2E6;
+            color: #B68A39;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            flex-shrink: 0;
+        }
+
+        .room-details-page .detail-label {
+            display: block;
+            color: #89857E;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .room-details-page .detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2421;
+        }
+
+        .room-details-page .room-description {
+            color: #66635E;
+            font-size: 15px;
+            line-height: 1.9;
+            margin: 0;
+        }
+
+        .room-details-page .amenity-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .room-details-page .amenity-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: #F8F5EF;
+            border: 1px solid #EEE5D7;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #45443F;
+        }
+
+            .room-details-page .amenity-item i {
+                color: #B68A39;
+                font-size: 18px;
+            }
+
+        .room-details-page .room-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .room-details-page .room-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: .2s;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        .room-details-page .room-btn-gold {
+            background: #C69B45;
+            color: #1F2421;
+        }
+
+            .room-details-page .room-btn-gold:hover {
+                background: #B68A39;
+                color: #1F2421;
+            }
+
+        .room-details-page .room-btn-dark {
+            background: #1F2421;
+            color: white;
+        }
+
+            .room-details-page .room-btn-dark:hover {
+                background: #363D38;
+                color: white;
+            }
+
+        .room-details-page .room-btn-outline {
+            border-color: #D8C9AD;
+            background: transparent;
+            color: #1F2421;
+        }
+
+            .room-details-page .room-btn-outline:hover {
+                background: #EAE1D1;
+                color: #1F2421;
+            }
+
+        .room-details-page .panorama-section {
+            margin-top: 26px;
+            padding: 28px;
+            border-radius: 16px;
+            background: #1F2421;
+            color: white;
+        }
+
+            .room-details-page .panorama-section h3 {
+                font-family: Georgia, serif;
+                font-size: 25px;
+            }
+
+            .room-details-page .panorama-section p {
+                color: #C6C7C2;
+                font-size: 14px;
+            }
+
+    #roomPanoramaViewer {
+        width: 100%;
+        height: 460px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .room-details-page .panorama-viewer-container {
+        display: none;
+    }
+
+        .room-details-page .panorama-viewer-container.open {
+            display: block;
+        }
+
+    @@media (max-width: 991px) {
+        .room-details-page .gallery-main {
+            height: 350px;
+        }
+
+        .room-details-page .gallery-side {
+            margin-top: 12px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .room-details-page {
+            padding: 35px 0 60px;
+        }
+
+            .room-details-page .gallery-main {
+                height: 270px;
+            }
+
+            .room-details-page .gallery-thumb {
+                height: 105px;
+            }
+
+            .room-details-page .room-panel {
+                padding: 22px;
+            }
+
+            .room-details-page .room-actions .room-btn {
+                width: 100%;
+            }
+
+        #roomPanoramaViewer {
+            height: 320px;
+        }
+    }
+</style>
+
+<section class="room-details-page">
+    <div class="container">
+
+        <!-- PAGE HEADING -->
+        <div class="mb-4">
+            <div class="room-eyebrow">
+                <i class="bi bi-stars me-1"></i>
+                Premium Accommodation
+            </div>
+
+            <h1 class="room-title">@Model.Name</h1>
+
+            <p class="room-subtitle">
+                <i class="bi bi-geo-alt me-1"></i>
+                Room @Model.RoomNumber
+                <span class="mx-2">•</span>
+                @Model.RoomType
+                <span class="mx-2">•</span>
+                Up to @Model.Capacity guests
+            </p>
         </div>
-
 
         <!-- GALLERY -->
-        <div class="col-lg-4">
+        <div class="row g-3 mb-4">
 
-            @if (Model.ImageUrls != null &&
-                 Model.ImageUrls.Any())
-            {
-                <div class="row">
+            <div class="col-lg-8">
+                <div class="gallery-main">
 
-                    @foreach (var imageUrl in Model.ImageUrls)
+                    @if (galleryImages.Any())
                     {
-                        <div class="col-6 mb-3">
+                        <img id="mainRoomImage"
+                             src="@galleryImages.First()"
+                             alt="@Model.Name"
+                             onclick="openRoomImage()" />
 
-                            <img src="@imageUrl"
-                                 alt="@Model.Name"
-                                 class="img-fluid rounded room-thumbnail"
-                                 onclick="changeMainImage('@imageUrl')"
-                                 style="width: 100%;
-                            height: 150px;
-                            object-fit: cover;
-                            cursor: pointer;
-                            border: 2px solid transparent;" />
-
+                        <span class="gallery-count">
+                            <i class="bi bi-images me-1"></i>
+                            @galleryImages.Count Photos
+                        </span>
+                    }
+                    else
+                    {
+                        <div class="gallery-placeholder">
+                            <i class="bi bi-image"></i>
+                            No images available
                         </div>
                     }
-
                 </div>
-
-                <small class="text-muted">
-                    Click an image to view it larger.
-                </small>
-            }
-            else
-            {
-                <div class="border rounded p-4 text-center">
-
-                    <span class="text-muted">
-                        No gallery images available.
-                    </span>
-
-                </div>
-            }
-
-        </div>
-
-    </div>
-
-
-    <!-- ========================= -->
-    <!-- ROOM INFORMATION -->
-    <!-- ========================= -->
-    <div class="card">
-
-        <div class="card-body">
-
-            <h4 class="mb-4">
-                Room Information
-            </h4>
-
-
-            <div class="row">
-
-                <div class="col-md-6">
-
-                    <p>
-                        <strong>Room Number:</strong>
-                        @Model.RoomNumber
-                    </p>
-
-                    <p>
-                        <strong>Room Type:</strong>
-                        @Model.RoomType
-                    </p>
-
-                    <p>
-                        <strong>Capacity:</strong>
-                        @Model.Capacity guest(s)
-                    </p>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <p>
-                        <strong>Price Per Night:</strong>
-                        @Model.PricePerNight.ToString("0.00") AZN
-                    </p>
-
-                    <p>
-                        <strong>Hotel Id:</strong>
-                        @Model.HotelId
-                    </p>
-
-                </div>
-
             </div>
 
-
-            <!-- ========================= -->
-            <!-- DESCRIPTION -->
-            <!-- ========================= -->
-            <hr />
-
-            <div class="mt-4">
-
-                <h5>
-                    Description
-                </h5>
-
-                <p class="mt-3">
-                    @Model.Description
-                </p>
-
-            </div>
-
-
-            <!-- ========================= -->
-            <!-- AMENITIES -->
-            <!-- ========================= -->
-            <hr />
-
-            <div class="mt-4 mb-4">
-
-                <h5>
-                    Amenities
-                </h5>
-
-                @if (Model.AmenityNames != null &&
-                     Model.AmenityNames.Any())
+            <div class="col-lg-4">
+                @if (galleryImages.Count > 1)
                 {
-                    <div class="d-flex flex-wrap gap-2 mt-3">
-
-                        @foreach (var amenity in Model.AmenityNames)
+                    <div class="gallery-side">
+                        @for (int i = 0; i < galleryImages.Count; i++)
                         {
-                            <span class="badge bg-light text-dark border p-2">
-                                ✓ @amenity
-                            </span>
-                        }
+                            var imageUrl = galleryImages[i];
 
+                            <button type="button"
+                                    class="gallery-thumb @(i == 0 ? "active" : "")"
+                                    data-image="@imageUrl"
+                                    onclick="changeMainImage(this.dataset.image, this)"
+                                    aria-label="View room photo @(i + 1)">
+                                <img src="@imageUrl"
+                                     alt="Room photo @(i + 1)" />
+                            </button>
+                        }
                     </div>
                 }
                 else
                 {
-                    <p class="text-muted mt-2">
-                        No amenities available.
-                    </p>
+                    <div class="gallery-empty">
+                        <i class="bi bi-images fs-3 d-block mb-2"></i>
+                        No additional gallery images.
+                    </div>
                 }
-
             </div>
+        </div>
 
-            <!-- ========================= -->
-            <!-- ACTIONS -->
-            <!-- ========================= -->
-            <hr />
+        <!-- ROOM INFORMATION -->
+        <div class="room-panel">
 
-            <div class="mt-4">
+            <h2 class="section-heading">
+                Room Information
+            </h2>
+
+            <div class="row gx-5">
+
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-door-open"></i>
+                        </div>
+                        <div>
+                            <span class="detail-label">Room Number</span>
+                            <span class="detail-value">@Model.RoomNumber</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-house-door"></i>
+                        </div>
+                        <div>
+                            <span class="detail-label">Room Type</span>
+                            <span class="detail-value">@Model.RoomType</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div>
+                            <span class="detail-label">Capacity</span>
+                            <span class="detail-value">
+                                @Model.Capacity guests
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-cash-coin"></i>
+                        </div>
+                        <div>
+                            <span class="detail-label">Price Per Night</span>
+                            <span class="detail-value">
+                                @Model.PricePerNight.ToString("0.00") AZN
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div>
+                            <span class="detail-label">Hotel Reference</span>
+                            <span class="detail-value">
+                                Hotel #@Model.HotelId
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="room-panel">
+            <h2 class="section-heading">
+                <i class="bi bi-card-text me-2"
+                   style="color:#C69B45"></i>
+                About This Room
+            </h2>
+
+            <p class="room-description">
+                @(!string.IsNullOrWhiteSpace(Model.Description)
+                    ? Model.Description
+                    : "No description available for this room.")
+            </p>
+        </div>
+
+        <!-- AMENITIES -->
+        <div class="room-panel">
+            <h2 class="section-heading">
+                <i class="bi bi-check2-circle me-2"
+                   style="color:#C69B45"></i>
+                Room Amenities
+            </h2>
+
+            @if (Model.AmenityNames != null && Model.AmenityNames.Any())
+            {
+                <div class="amenity-list">
+                    @foreach (var amenity in Model.AmenityNames)
+                    {
+                        var iconClass = amenity.ToLowerInvariant() switch
+                        {
+                            var a when a.Contains("wi-fi") || a.Contains("wifi")
+                                => "bi-wifi",
+
+                            var a when a.Contains("air conditioning")
+                                => "bi-snow",
+
+                            var a when a.Contains("breakfast")
+                                => "bi-cup-hot",
+
+                            var a when a.Contains("parking")
+                                => "bi-p-circle",
+
+                            var a when a.Contains("pool")
+                                => "bi-water",
+
+                            var a when a.Contains("spa")
+                                => "bi-flower1",
+
+                            var a when a.Contains("gym")
+                                => "bi-activity",
+
+                            var a when a.Contains("balcony")
+                                => "bi-building",
+
+                            var a when a.Contains("tv")
+                                => "bi-tv",
+
+                            var a when a.Contains("room service")
+                                => "bi-bell",
+
+                            _ => "bi-check-circle"
+                        };
+
+                        <span class="amenity-item">
+                            <i class="bi @iconClass"></i>
+                            @amenity
+                        </span>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="room-description">
+                    No amenities available.
+                </p>
+            }
+        </div>
+
+        <!-- 360 VIEW -->
+        @if (hasPanorama)
+        {
+            <div class="panorama-section">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div>
+                        <h3>
+                            <i class="bi bi-badge-3d me-2"
+                               style="color:#C69B45"></i>
+                            Explore in 360°
+                        </h3>
+                        <p class="mb-0">
+                            Look around the room with an interactive panoramic view.
+                        </p>
+                    </div>
+
+                    <button type="button"
+                            id="toggleRoomPanorama"
+                            class="room-btn room-btn-gold">
+                        <i class="bi bi-arrows-fullscreen"></i>
+                        <span>360° Room View</span>
+                    </button>
+                </div>
+
+                <div id="roomPanoramaContainer"
+                     class="panorama-viewer-container">
+                    <div id="roomPanoramaViewer"></div>
+                </div>
+            </div>
+        }
+
+        <!-- ACTIONS -->
+        <div class="room-panel">
+            <div class="room-actions mt-0">
 
                 @if (User.IsInRole("Admin"))
                 {
-                    <a asp-action="Edit"
-                       asp-route-id="@Model.Id"
-                       class="btn btn-warning">
-                        Edit Room
+                    <a asp-action="Index"
+                       class="room-btn room-btn-outline">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to Rooms
                     </a>
 
-                    <a asp-action="Index"
-                       class="btn btn-secondary">
-                        Back
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="room-btn room-btn-gold">
+                        <i class="bi bi-pencil-square"></i>
+                        Edit Room
                     </a>
                 }
                 else
@@ -228,7 +632,8 @@
                            asp-route-checkOutDate="@(((DateTime)ViewBag.CheckOutDate).ToString("yyyy-MM-dd"))"
                            asp-route-adultCount="@ViewBag.AdultCount"
                            asp-route-childrenCount="@ViewBag.ChildrenCount"
-                           class="btn btn-success">
+                           class="room-btn room-btn-gold">
+                            <i class="bi bi-calendar-check"></i>
                             Book Now
                         </a>
                     }
@@ -237,34 +642,131 @@
                         <a asp-controller="Bookings"
                            asp-action="Create"
                            asp-route-roomId="@Model.Id"
-                           class="btn btn-success">
+                           class="room-btn room-btn-gold">
+                            <i class="bi bi-calendar-check"></i>
                             Book Now
                         </a>
                     }
 
                     <a asp-action="Search"
-                       class="btn btn-secondary">
+                       class="room-btn room-btn-outline">
+                        <i class="bi bi-arrow-left"></i>
                         Back to Search
                     </a>
                 }
+            </div>
+        </div>
 
+    </div>
+</section>
+
+<!-- IMAGE PREVIEW MODAL -->
+<div class="modal fade"
+     id="roomImageModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-dark border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white">
+                    Room Photo
+                </h5>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
             </div>
 
+            <div class="modal-body text-center">
+                <img id="roomModalImage"
+                     src=""
+                     alt="Room photo preview"
+                     class="img-fluid rounded"
+                     style="max-height:75vh;object-fit:contain;" />
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    @if (hasPanorama)
+    {
+        <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    }
 
     <script>
-
-        function changeMainImage(imageUrl) {
-
-            const mainImage =
-                document.getElementById("mainRoomImage");
+        function changeMainImage(imageUrl, button) {
+            const mainImage = document.getElementById("mainRoomImage");
 
             if (mainImage) {
                 mainImage.src = imageUrl;
             }
 
+            document.querySelectorAll(".gallery-thumb").forEach(x => {
+                x.classList.remove("active");
+            });
+
+            if (button) {
+                button.classList.add("active");
+            }
         }
 
-    </script>
+        function openRoomImage() {
+            const mainImage = document.getElementById("mainRoomImage");
+            const modalImage = document.getElementById("roomModalImage");
+            const modalElement = document.getElementById("roomImageModal");
 
+            if (!mainImage || !modalImage || !modalElement) {
+                return;
+            }
+
+            modalImage.src = mainImage.src;
+
+            if (window.bootstrap && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalElement).show();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const panoramaButton = document.getElementById("toggleRoomPanorama");
+            const panoramaContainer = document.getElementById("roomPanoramaContainer");
+
+            if (!panoramaButton || !panoramaContainer) {
+                return;
+            }
+
+            let panoramaInitialized = false;
+            let panoramaViewer = null;
+
+            panoramaButton.addEventListener("click", function() {
+                panoramaContainer.classList.toggle("open");
+
+                const isOpen = panoramaContainer.classList.contains("open");
+
+                panoramaButton.querySelector("span").textContent =
+                    isOpen ? "Hide 360° View" : "360° Room View";
+
+                if (isOpen && !panoramaInitialized && window.pannellum) {
+                    panoramaViewer = pannellum.viewer("roomPanoramaViewer", {
+                        type: "equirectangular",
+                        panorama: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PanoramaImage)),
+                        autoLoad: true,
+                        showFullscreenCtrl: true,
+                        showZoomCtrl: true,
+                        mouseZoom: true
+                    });
+
+                    panoramaInitialized = true;
+                }
+
+                if (isOpen && panoramaViewer) {
+                    setTimeout(function() {
+                        panoramaViewer.resize();
+                    }, 100);
+                }
+            });
+        });
+    </script>
 }
