@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
+using HotelTravel.Infrastructure.Services;
 namespace HotelTravel.API
 {
     public class Program
@@ -33,6 +33,11 @@ namespace HotelTravel.API
                     builder.Configuration.GetConnectionString(
                         "DefaultConnection")));
 
+            builder.Services.AddDbContextFactory<AppDbContext>(
+    options => options.UseSqlServer(
+        builder.Configuration.GetConnectionString(
+            "DefaultConnection")),
+    lifetime: ServiceLifetime.Scoped);
             // =========================================
             // IDENTITY
             // =========================================
@@ -62,6 +67,7 @@ namespace HotelTravel.API
             builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<IHotelService, HotelService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IBookingCreationService, BookingCreationService>();
             builder.Services.AddScoped<IHotelChainService, HotelChainService>();
             builder.Services.AddScoped<IAmenityService, AmenityService>();
 

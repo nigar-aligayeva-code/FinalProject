@@ -2,7 +2,8 @@
 using HotelTravel.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Data;
 namespace HotelTravel.Infrastructure.Persistence;
 
 public class AppDbContext
@@ -27,6 +28,14 @@ public class AppDbContext
 
     public DbSet<RoomImage> RoomImages { get; set; }
     public DbSet<HotelImage> HotelImages { get; set; }
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await Database.BeginTransactionAsync(
+            IsolationLevel.Serializable,
+            cancellationToken);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
