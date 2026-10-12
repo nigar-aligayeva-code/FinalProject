@@ -1,0 +1,438 @@
+﻿@model HotelTravel.Application.DTOs.Rooms.UpdateRoomDto
+@using HotelTravel.Domain.Enums
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Edit Room";
+}
+
+<style>
+    .edit-heading {
+        margin-bottom: 24px;
+    }
+
+        .edit-heading h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            color: #0f172a;
+        }
+
+        .edit-heading p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .edit-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .edit-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+        .edit-card h3 {
+            margin: 0 0 22px;
+            color: #0f172a;
+            font-size: 18px;
+        }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-sizing: border-box;
+        background: white;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .amenities-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .amenity-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+        .amenity-option input {
+            accent-color: #2563eb;
+        }
+
+    .main-preview {
+        width: 100%;
+        height: 190px;
+        object-fit: cover;
+        border-radius: 12px;
+        background: #f1f5f9;
+        margin-bottom: 15px;
+    }
+
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .gallery-item {
+        border: 1px solid #e2e8f0;
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+    .gallery-delete {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        font-size: 12px;
+        color: #dc2626;
+    }
+
+    .save-btn {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 13px 24px;
+        border-radius: 10px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+    .back-btn {
+        background: #f1f5f9;
+        color: #334155;
+        text-decoration: none;
+        padding: 13px 24px;
+        border-radius: 10px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .validation-error {
+        color: #dc2626;
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+
+    .help-text {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 8px;
+    }
+
+    @@media (max-width: 900px) {
+        .edit-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .form-row, .amenities-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="edit-heading">
+    <h1>Edit Room</h1>
+    <p>Manage room information, amenities and photos.</p>
+</div>
+
+<form asp-area="Admin"
+      asp-controller="Rooms"
+      asp-action="Edit"
+      asp-route-id="@Model.Id"
+      method="post"
+      enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="All"
+         class="validation-error"></div>
+
+    <div class="edit-grid">
+
+        <div>
+            <div class="edit-card">
+                <h3>Basic Information</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Name">Room Name</label>
+                        <input asp-for="Name" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="RoomNumber">Room Number</label>
+                        <input asp-for="RoomNumber"
+                               class="form-control" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description">Description</label>
+                    <textarea asp-for="Description"
+                              class="form-control"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="RoomType">Room Type</label>
+                        <select asp-for="RoomType"
+                                asp-items="Html.GetEnumSelectList<RoomType>()"
+                                class="form-control">
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="HotelId">Hotel</label>
+                        <select asp-for="HotelId"
+                                class="form-control">
+                            @foreach (var hotel in ViewBag.Hotels)
+                            {
+                                <option value="@hotel.Id">
+                                    @hotel.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="PricePerNight">
+                            Price Per Night (AZN)
+                        </label>
+                        <input asp-for="PricePerNight"
+                               type="number"
+                               min="0"
+                               step="0.01"
+                               class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Capacity">Capacity</label>
+                        <input asp-for="Capacity"
+                               type="number"
+                               min="1"
+                               class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="edit-card">
+                <h3>Room Amenities</h3>
+
+                <div class="amenities-grid">
+                    @foreach (var amenity in ViewBag.Amenities)
+                    {
+                        <label class="amenity-option">
+                            <input type="checkbox"
+                                   name="AmenityIds"
+                                   value="@amenity.Id"
+                                   checked="@(Model.AmenityIds.Contains((int)amenity.Id))" />
+                            <span>@amenity.Name</span>
+                        </label>
+                    }
+                </div>
+
+                <p class="help-text">
+                    Select the facilities available in this room.
+                </p>
+            </div>
+
+            <div class="edit-card">
+                <h3>Upload Images</h3>
+
+                <div class="form-group">
+                    <label>New Main Image</label>
+                    <input type="file"
+                           name="mainImage"
+                           id="mainImageFile"
+                           accept=".jpg,.jpeg,.png,.webp"
+                           class="form-control" />
+
+                    <p class="help-text">
+                        Upload a new image to replace the current one.
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label>New Gallery Images</label>
+                    <input type="file"
+                           name="galleryImages"
+                           multiple
+                           accept=".jpg,.jpeg,.png,.webp"
+                           class="form-control" />
+
+                    <p class="help-text">
+                        You can select multiple images. Maximum 5 MB each.
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="PanoramaImage">
+                        Panorama Image URL
+                    </label>
+                    <input asp-for="PanoramaImage"
+                           class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="save-btn">
+                    Save Changes
+                </button>
+
+                <a asp-area="Admin"
+                   asp-controller="Rooms"
+                   asp-action="Index"
+                   class="back-btn">
+                    Cancel
+                </a>
+            </div>
+        </div>
+
+        <div>
+            <div class="edit-card">
+                <h3>Main Image</h3>
+
+                <img id="mainImagePreview"
+                     class="main-preview"
+                     src="@Model.MainImage"
+                     alt="Room main image" />
+
+                <label style="display:flex;gap:8px;align-items:center;">
+                    <input asp-for="RemoveMainImage"
+                           type="checkbox"
+                           id="removeMainImage" />
+                    <span>Remove current main image</span>
+                </label>
+
+                <p class="help-text">
+                    Changes take effect after Save Changes.
+                </p>
+            </div>
+
+            <div class="edit-card">
+                <h3>Room Gallery</h3>
+
+                @if (Model.Images != null && Model.Images.Any())
+                {
+                    <div class="gallery-grid">
+                        @foreach (var image in Model.Images)
+                        {
+                            <div class="gallery-item">
+                                <img src="@image.ImageUrl"
+                                     alt="Gallery image" />
+
+                                <label class="gallery-delete">
+                                    <input type="checkbox"
+                                           name="DeletedImageIds"
+                                           value="@image.Id" />
+                                    Delete image
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="help-text">
+                        No gallery images available.
+                    </p>
+                }
+
+                <p class="help-text">
+                    Select images to remove, then click Save Changes.
+                </p>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    const mainImageFile =
+        document.getElementById('mainImageFile');
+
+    const mainImagePreview =
+        document.getElementById('mainImagePreview');
+
+    const removeMainImage =
+        document.getElementById('removeMainImage');
+
+    mainImageFile.addEventListener('change', function() {
+        const file = this.files[0];
+
+        if (file) {
+            mainImagePreview.src = URL.createObjectURL(file);
+            removeMainImage.checked = false;
+        }
+    });
+
+    removeMainImage.addEventListener('change', function() {
+        if (this.checked) {
+            mainImageFile.value = '';
+            mainImagePreview.style.opacity = '0.3';
+        } else {
+            mainImagePreview.style.opacity = '1';
+            mainImagePreview.src = @Html.Raw(
+                                        System.Text.Json.JsonSerializer.Serialize(Model.MainImage));
+        }
+    });
+</script>

@@ -4,6 +4,7 @@ using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Infrastructure.Persistence;
 using HotelTravel.Infrastructure.Seed;
+using HotelTravel.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -72,6 +73,14 @@ namespace HotelTravel.Web
             builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<IHotelService, HotelService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddDbContextFactory<AppDbContext>(
+    options => options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")),
+    lifetime: ServiceLifetime.Scoped);
+
+            builder.Services.AddScoped<
+                IBookingCreationService,
+                BookingCreationService>();
             builder.Services.AddScoped<IHotelChainService, HotelChainService>();
             builder.Services.AddScoped<IAmenityService, AmenityService>();
 
@@ -131,6 +140,10 @@ namespace HotelTravel.Web
             // MVC ROUTING
             // =========================================
             // =========================================
+            app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
 
             app.MapControllerRoute(
                 name: "default",

@@ -5,7 +5,9 @@ using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
 using HotelTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("HotelTravel.Tests")]
 namespace HotelTravel.Infrastructure.Services;
 
 public class BookingCreationService : IBookingCreationService
@@ -19,7 +21,25 @@ public class BookingCreationService : IBookingCreationService
     }
 
     public async Task<(bool Success, string Message, string? ConfirmationCode)>
-        CreateAsync(CreateBookingDto dto)
+    CreateAsync(CreateBookingDto dto)
+    {
+        try
+        {
+            return await ExecuteWithRetryAsync(
+                () => CreateOnceAsync(dto),
+                SqlServerErrorHelper.IsDeadlock);
+        }
+        catch (Exception ex) when (SqlServerErrorHelper.IsDeadlock(ex))
+        {
+            return (
+                false,
+                "Booking is temporarily unavailable. Please try again.",
+                null);
+        }
+    }
+    internal static async Task<T> ExecuteWithRetryAsync<T>(
+    Func<Task<T>> operation,
+    Func<Exception, bool> isDeadlock)
     {
         const int maxAttempts = 3;
 
@@ -27,29 +47,22 @@ public class BookingCreationService : IBookingCreationService
         {
             try
             {
-                return await CreateOnceAsync(dto);
+                return await operation();
             }
-            catch (Exception ex) when (
-                SqlServerErrorHelper.IsDeadlock(ex))
+            catch (Exception ex) when (isDeadlock(ex))
             {
                 if (attempt == maxAttempts)
                 {
-                    return (
-                        false,
-                        "Booking is temporarily unavailable. Please try again.",
-                        null);
+                    throw;
                 }
 
                 await Task.Delay(100 * attempt);
             }
         }
 
-        return (
-            false,
-            "Booking could not be created.",
-            null);
+        throw new InvalidOperationException(
+            "Retry attempts exhausted.");
     }
-
     private async Task<(bool Success, string Message, string? ConfirmationCode)>
      CreateOnceAsync(CreateBookingDto dto)
     {

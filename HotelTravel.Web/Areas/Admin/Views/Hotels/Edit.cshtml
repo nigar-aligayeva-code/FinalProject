@@ -1,0 +1,281 @@
+﻿@model HotelTravel.Application.DTOs.Hotels.UpdateHotelDto
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Edit Hotel";
+}
+
+<style>
+    .edit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+        .edit-header h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .edit-header p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .edit-card {
+        background: white;
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 24px;
+        box-shadow: 0 5px 25px rgba(30, 41, 59, 0.04);
+    }
+
+        .edit-card h3 {
+            margin: 0 0 22px;
+            font-size: 18px;
+            color: #1e293b;
+        }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+    }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            color: #1e293b;
+            outline: none;
+        }
+
+            .form-group input:focus,
+            .form-group textarea:focus {
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+        .form-group textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+    .image-preview {
+        width: 260px;
+        max-width: 100%;
+        height: 165px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        margin-top: 14px;
+    }
+
+    .edit-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .save-button {
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 13px 26px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .save-button:hover {
+            background: #1d4ed8;
+        }
+
+    .cancel-button {
+        background: white;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 13px 26px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .field-error {
+        color: #dc2626;
+        font-size: 12px;
+    }
+
+    @@media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .edit-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="edit-header">
+    <div>
+        <h1>Edit Hotel</h1>
+        <p>Update hotel information and settings.</p>
+    </div>
+
+    <a asp-area="Admin"
+       asp-controller="Hotels"
+       asp-action="Index"
+       class="cancel-button">
+        ← Back to Hotels
+    </a>
+</div>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="All" class="field-error"></div>
+
+    <div class="edit-card">
+        <h3>Basic Information</h3>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" />
+                <span asp-validation-for="Name" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="City"></label>
+                <input asp-for="City" />
+                <span asp-validation-for="City" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Country"></label>
+                <input asp-for="Country" />
+                <span asp-validation-for="Country" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StarRating">Star Rating</label>
+                <input asp-for="StarRating" type="number" min="1" max="5" />
+                <span asp-validation-for="StarRating" class="field-error"></span>
+            </div>
+
+            <div class="form-group full-width">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description"></textarea>
+                <span asp-validation-for="Description" class="field-error"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="edit-card">
+        <h3>Contact Information</h3>
+
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label asp-for="Address"></label>
+                <input asp-for="Address" />
+                <span asp-validation-for="Address" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Phone"></label>
+                <input asp-for="Phone" />
+                <span asp-validation-for="Phone" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" type="email" />
+                <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="edit-card">
+        <h3>Hotel Details</h3>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="Latitude"></label>
+                <input asp-for="Latitude" type="number" step="any" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Longitude"></label>
+                <input asp-for="Longitude" type="number" step="any" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="HotelChainId">Hotel Chain ID</label>
+                <input asp-for="HotelChainId" type="number" />
+            </div>
+
+            <div class="form-group full-width">
+                <label asp-for="MainImage">Main Image Path</label>
+                <input asp-for="MainImage" id="mainImageInput" />
+                <span asp-validation-for="MainImage" class="field-error"></span>
+
+                <img id="hotelImagePreview"
+                     src="@Model.MainImage"
+                     alt="Hotel preview"
+                     class="image-preview" />
+            </div>
+        </div>
+    </div>
+
+    <div class="edit-actions">
+        <a asp-area="Admin"
+           asp-controller="Hotels"
+           asp-action="Index"
+           class="cancel-button">
+            Cancel
+        </a>
+
+        <button type="submit" class="save-button">
+            Save Changes
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const imageInput = document.getElementById("mainImageInput");
+        const imagePreview = document.getElementById("hotelImagePreview");
+
+        imageInput.addEventListener("input", function() {
+            imagePreview.src = this.value;
+        });
+    </script>
+}
