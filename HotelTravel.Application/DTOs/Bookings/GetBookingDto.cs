@@ -25,4 +25,7 @@ public class GetBookingDto
     public int GuestId { get; set; }
     public string GuestName { get; set; }
     public string GuestEmail { get; set; }
-}
+
+    // Bu rezervasiya üçün rəy yazılıbmı?
+    public bool HasReview { get; set; }
+}

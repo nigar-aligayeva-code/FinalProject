@@ -29,6 +29,8 @@ public class AppDbContext
     public DbSet<RoomImage> RoomImages { get; set; }
     public DbSet<HotelImage> HotelImages { get; set; }
 
+    public DbSet<Review> Reviews { get; set; }
+
     public async Task<IDbContextTransaction> BeginTransactionAsync(
         CancellationToken cancellationToken = default)
     {
@@ -104,5 +106,37 @@ public class AppDbContext
         modelBuilder.Entity<Booking>()
             .HasIndex(b => b.ConfirmationCode)
             .IsUnique();
+
+
+        // BOOKING -> REVIEW (1:1)
+        // BookingId üzərində unique index avtomatik yaranır,
+        // yəni bir rezervasiyaya yalnız bir rəy yazıla bilər.
+        modelBuilder.Entity<Booking>()
+            .HasOne(b => b.Review)
+            .WithOne(r => r.Booking)
+            .HasForeignKey<Review>(r => r.BookingId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
+        // ROOM -> REVIEWS
+        modelBuilder.Entity<Room>()
+            .HasMany(r => r.Reviews)
+            .WithOne(rv => rv.Room)
+            .HasForeignKey(rv => rv.RoomId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
+        // REVIEW VALIDATION
+        modelBuilder.Entity<Review>(entity =>
+        {
+            entity.Property(r => r.Comment)
+                .HasMaxLength(1000)
+                .IsRequired();
+
+            entity.ToTable(t =>
+                t.HasCheckConstraint(
+                    "CK_Reviews_Rating",
+                    "[Rating] BETWEEN 1 AND 5"));
+        });
     }
-}
+}

@@ -107,7 +107,15 @@ public class RoomService : IRoomService
                         Id = i.Id,
                         ImageUrl = i.ImageUrl
                     })
-                    .ToList()
+                    .ToList(),
+
+                ReviewCount = r.Reviews
+                    .Count(rv => !rv.IsDeleted),
+
+                AverageRating = r.Reviews
+                    .Where(rv => !rv.IsDeleted)
+                    .Select(rv => (double?)rv.Rating)
+                    .Average() ?? 0
             })
             .FirstOrDefaultAsync();
     }
@@ -522,4 +530,4 @@ public class RoomService : IRoomService
 
         return fullyBookedDates;
     }
-}
+}

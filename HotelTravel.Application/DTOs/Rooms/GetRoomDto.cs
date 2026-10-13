@@ -41,4 +41,12 @@ public class GetRoomDto
     // Admin Edit səhifəsində şəkli Id ilə
     // silmək üçün istifadə edəcəyik.
     public List<GetRoomImageDto> Images { get; set; } = new();
+
+
+    // =========================
+    // REVIEWS
+    // =========================
+    public double AverageRating { get; set; }
+
+    public int ReviewCount { get; set; }
 }

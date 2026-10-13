@@ -19,10 +19,13 @@ public interface IAppDbContext
 
     DbSet<RoomImage> RoomImages { get; set; }
     DbSet<HotelImage> HotelImages { get; set; }
+
+    DbSet<Review> Reviews { get; set; }
+
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
 
     Task<IDbContextTransaction> BeginTransactionAsync(
         CancellationToken cancellationToken = default);
 
-}
+}

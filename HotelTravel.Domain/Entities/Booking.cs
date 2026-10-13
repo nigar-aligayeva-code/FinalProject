@@ -20,4 +20,7 @@ public class Booking : BaseEntity
 
     public int GuestId { get; set; }
     public Guest Guest { get; set; }
-}
+
+    // REVIEW (CheckedOut olduqdan sonra)
+    public Review? Review { get; set; }
+}

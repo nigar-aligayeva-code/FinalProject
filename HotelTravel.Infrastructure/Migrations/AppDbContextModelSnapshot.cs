@@ -373,6 +373,50 @@ namespace HotelTravel.Infrastructure.Migrations
                     b.ToTable("HotelImages");
                 });
 
+            modelBuilder.Entity("HotelTravel.Domain.Entities.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("Reviews", t =>
+                        {
+                            t.HasCheckConstraint("CK_Reviews_Rating", "[Rating] BETWEEN 1 AND 5");
+                        });
+                });
+
             modelBuilder.Entity("HotelTravel.Domain.Entities.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -648,6 +692,25 @@ namespace HotelTravel.Infrastructure.Migrations
                     b.Navigation("Hotel");
                 });
 
+            modelBuilder.Entity("HotelTravel.Domain.Entities.Review", b =>
+                {
+                    b.HasOne("HotelTravel.Domain.Entities.Booking", "Booking")
+                        .WithOne("Review")
+                        .HasForeignKey("HotelTravel.Domain.Entities.Review", "BookingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HotelTravel.Domain.Entities.Room", "Room")
+                        .WithMany("Reviews")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("HotelTravel.Domain.Entities.Room", b =>
                 {
                     b.HasOne("HotelTravel.Domain.Entities.Hotel", "Hotel")
@@ -721,6 +784,11 @@ namespace HotelTravel.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("HotelTravel.Domain.Entities.Booking", b =>
+                {
+                    b.Navigation("Review");
+                });
+
             modelBuilder.Entity("HotelTravel.Domain.Entities.Guest", b =>
                 {
                     b.Navigation("Bookings");
@@ -743,6 +811,8 @@ namespace HotelTravel.Infrastructure.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("Images");
+
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

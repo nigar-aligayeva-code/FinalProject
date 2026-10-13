@@ -215,7 +215,9 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
                 GuestName =
                     b.Guest.FirstName + " " + b.Guest.LastName,
 
-                GuestEmail = b.Guest.Email
+                GuestEmail = b.Guest.Email,
+
+                HasReview = b.Review != null
             })
             .FirstOrDefaultAsync();
     }
@@ -294,4 +296,4 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
             "Booking cancelled successfully."
         );
     }
-}
+}

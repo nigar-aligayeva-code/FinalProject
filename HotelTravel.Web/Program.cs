@@ -83,6 +83,7 @@ namespace HotelTravel.Web
                 BookingCreationService>();
             builder.Services.AddScoped<IHotelChainService, HotelChainService>();
             builder.Services.AddScoped<IAmenityService, AmenityService>();
+            builder.Services.AddScoped<IReviewService, ReviewService>();
 
             var app = builder.Build();
 

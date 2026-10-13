@@ -19,6 +19,14 @@
     galleryImages = galleryImages.Distinct().ToList();
 
     var hasPanorama = !string.IsNullOrWhiteSpace(Model.PanoramaImage);
+
+    // F8 - REVIEWS
+    var reviews =
+        ViewBag.Reviews as List<HotelTravel.Application.DTOs.Reviews.GetReviewDto>
+        ?? new List<HotelTravel.Application.DTOs.Reviews.GetReviewDto>();
+
+    var ratingSummary =
+        ViewBag.RatingSummary as HotelTravel.Application.DTOs.Reviews.RoomRatingSummaryDto;
 }
 
 <link rel="stylesheet"
@@ -338,6 +346,86 @@
             height: 320px;
         }
     }
+
+        /* =========================
+           F8 - REVIEWS
+           ========================= */
+        .room-details-page .rating-inline {
+            color: #C69B45;
+            font-weight: 600;
+        }
+
+        .room-details-page .rating-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            align-items: center;
+            padding-bottom: 26px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #F0EBE3;
+        }
+
+        .room-details-page .rating-big {
+            text-align: center;
+            min-width: 140px;
+        }
+
+            .room-details-page .rating-big .score {
+                font-family: Georgia, serif;
+                font-size: 52px;
+                line-height: 1;
+            }
+
+        .room-details-page .rating-stars {
+            color: #C69B45;
+            letter-spacing: 2px;
+        }
+
+        .room-details-page .rating-bars {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .room-details-page .rating-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #77736B;
+            margin-bottom: 6px;
+        }
+
+        .room-details-page .rating-bar {
+            flex: 1;
+            height: 8px;
+            background: #F0EBE3;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+            .room-details-page .rating-bar span {
+                display: block;
+                height: 100%;
+                background: #C69B45;
+            }
+
+        .room-details-page .review-item {
+            padding: 20px 0;
+            border-bottom: 1px solid #F0EBE3;
+        }
+
+            .room-details-page .review-item:last-child {
+                border-bottom: none;
+            }
+
+        .room-details-page .guest-review-author {
+            font-weight: 600;
+        }
+
+        .room-details-page .review-date {
+            font-size: 13px;
+            color: #9A958C;
+        }
 </style>
 
 <section class="room-details-page">
@@ -359,8 +447,28 @@
                 @Model.RoomType
                 <span class="mx-2">•</span>
                 Up to @Model.Capacity guests
+
+                @if (Model.ReviewCount > 0)
+                {
+                    <span class="mx-2">•</span>
+                    <a href="#reviews" class="rating-inline text-decoration-none">
+                        <i class="bi bi-star-fill"></i>
+                        @Model.AverageRating.ToString("0.0")
+                        <span class="text-muted fw-normal">
+                            (@Model.ReviewCount review@(Model.ReviewCount > 1 ? "s" : ""))
+                        </span>
+                    </a>
+                }
             </p>
         </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="bi bi-check2-circle me-1"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
 
         <!-- GALLERY -->
         <div class="row g-3 mb-4">
@@ -598,6 +706,94 @@
                 </div>
             </div>
         }
+
+        <!-- REVIEWS (F8) -->
+        <div class="room-panel" id="reviews">
+            <h2 class="section-heading">
+                <i class="bi bi-chat-quote me-2"
+                   style="color:#C69B45"></i>
+                Guest Reviews
+            </h2>
+
+            @if (ratingSummary != null && ratingSummary.ReviewCount > 0)
+            {
+                <div class="rating-summary">
+                    <div class="rating-big">
+                        <div class="score">
+                            @ratingSummary.AverageRating.ToString("0.0")
+                        </div>
+                        <div class="rating-stars my-1">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var icon =
+                                    ratingSummary.AverageRating >= i ? "bi-star-fill"
+                                    : ratingSummary.AverageRating >= i - 0.5 ? "bi-star-half"
+                                    : "bi-star";
+
+                                <i class="bi @icon"></i>
+                            }
+                        </div>
+                        <div class="small text-muted">
+                            @ratingSummary.ReviewCount review@(ratingSummary.ReviewCount > 1 ? "s" : "")
+                        </div>
+                    </div>
+
+                    <div class="rating-bars">
+                        @foreach (var item in ratingSummary.StarCounts)
+                        {
+                            var percent =
+                                ratingSummary.ReviewCount == 0
+                                    ? 0
+                                    : item.Value * 100 / ratingSummary.ReviewCount;
+
+                            <div class="rating-bar-row">
+                                <span style="width:46px">@item.Key star</span>
+                                <div class="rating-bar">
+                                    <span style="width:@(percent)%"></span>
+                                </div>
+                                <span style="width:24px;text-align:right">@item.Value</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                @foreach (var review in reviews)
+                {
+                    <div class="review-item">
+                        <div class="d-flex justify-content-between flex-wrap gap-2">
+                            <div>
+                                <span class="guest-review-author">
+                                    @review.GuestDisplayName
+                                </span>
+                                <span class="rating-stars ms-2">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                    }
+                                </span>
+                            </div>
+
+                            <span class="review-date">
+                                Stayed @review.CheckInDate.ToString("MMM yyyy")
+                                <span class="mx-1">•</span>
+                                @review.CreatedAt.ToString("dd MMM yyyy")
+                            </span>
+                        </div>
+
+                        <p class="room-description mt-2 mb-0">
+                            @review.Comment
+                        </p>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="room-description mb-0">
+                    No reviews yet. Guests can leave a review after their stay
+                    is completed.
+                </p>
+            }
+        </div>
 
         <!-- ACTIONS -->
         <div class="room-panel">

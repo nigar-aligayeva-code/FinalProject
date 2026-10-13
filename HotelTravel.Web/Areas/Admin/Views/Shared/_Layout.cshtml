@@ -242,6 +242,14 @@
                 <span class="menu-icon">▣</span>
                 <span class="menu-text">Bookings</span>
             </a>
+
+            <a asp-area="Admin"
+               asp-controller="Reviews"
+               asp-action="Index"
+               class="@(currentController == "Reviews" ? "active" : "")">
+                <span class="menu-icon">★</span>
+                <span class="menu-text">Reviews</span>
+            </a>
         </nav>
     </aside>
 

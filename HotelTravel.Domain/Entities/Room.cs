@@ -36,4 +36,9 @@ public class Room : BaseEntity
     // ROOM IMAGES
     public ICollection<RoomImage> Images { get; set; }
         = new List<RoomImage>();
+
+
+    // REVIEWS
+    public ICollection<Review> Reviews { get; set; }
+        = new List<Review>();
 }

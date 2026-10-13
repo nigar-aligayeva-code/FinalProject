@@ -150,7 +150,38 @@
                             </button>
                         }
 
+                        @* F8 - Tamamlanmış qalış üçün rəy *@
+                        @if (Model.Status ==
+                             HotelTravel.Domain.Enums.BookingStatus.CheckedOut &&
+                             !Model.HasReview)
+                        {
+                            <a asp-controller="Reviews"
+                               asp-action="Create"
+                               asp-route-confirmationCode="@Model.ConfirmationCode"
+                               class="btn btn-warning">
+                                <i class="bi bi-star-fill me-1"></i>
+                                Write a Review
+                            </a>
+                        }
+
+                        <a asp-controller="Rooms"
+                           asp-action="Details"
+                           asp-route-id="@Model.RoomId"
+                           class="btn btn-outline-primary">
+                            View Room
+                        </a>
+
                     </div>
+
+                    @if (Model.Status ==
+                         HotelTravel.Domain.Enums.BookingStatus.CheckedOut &&
+                         Model.HasReview)
+                    {
+                        <div class="alert alert-info mt-3 mb-0">
+                            <i class="bi bi-check2-circle me-1"></i>
+                            Thank you! You have already reviewed this stay.
+                        </div>
+                    }
 
                     @if (Model.Status ==
                          HotelTravel.Domain.Enums.BookingStatus.Confirmed)
@@ -210,4 +241,4 @@
 
     </div>
 
-</div>
+</div>
