@@ -3,6 +3,7 @@ using HotelTravel.Application.DTOs.Rooms;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.Web.Areas.Admin.Controllers
@@ -14,20 +15,22 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
         private readonly IRoomService _roomService;
         private readonly IHotelService _hotelService;
         private readonly IAmenityService _amenityService;
+        private readonly IWebHostEnvironment _environment;
+
+        private const long MaxImageSize = 5 * 1024 * 1024;
 
         public RoomsController(
             IRoomService roomService,
             IHotelService hotelService,
-            IAmenityService amenityService)
+            IAmenityService amenityService,
+            IWebHostEnvironment environment)
         {
             _roomService = roomService;
             _hotelService = hotelService;
             _amenityService = amenityService;
+            _environment = environment;
         }
 
-        // =========================
-        // ROOM LIST
-        // =========================
         public async Task<IActionResult> Index()
         {
             var rooms = await _roomService.GetAllAsync();
@@ -35,15 +38,11 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
 
             ViewBag.HotelNames = hotels.ToDictionary(
                 h => h.Id,
-                h => h.Name
-            );
+                h => h.Name);
 
             return View(rooms);
         }
 
-        // =========================
-        // EDIT ROOM - GET
-        // =========================
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -73,14 +72,13 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             return View(dto);
         }
 
-        // =========================
-        // EDIT ROOM - POST
-        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
-            UpdateRoomDto dto)
+            UpdateRoomDto dto,
+            IFormFile? mainImage,
+            List<IFormFile>? galleryImages)
         {
             if (id != dto.Id)
                 return BadRequest();
@@ -90,13 +88,11 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             if (existing == null)
                 return NotFound();
 
-            // Keep current main image.
-            dto.MainImage = existing.MainImage;
+            dto.AmenityIds ??= new List<int>();
+            dto.DeletedImageIds ??= new List<int>();
 
-            // MainImage is not posted as a text field.
+            // These fields are managed on the server.
             ModelState.Remove(nameof(dto.MainImage));
-
-            // Gallery display fields are not form inputs.
             ModelState.Remove(nameof(dto.Images));
             ModelState.Remove(nameof(dto.ImageUrls));
 
@@ -121,35 +117,109 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
                     "Capacity must be at least 1.");
             }
 
-            // Preserve selected amenities.
-            // Empty list means no amenities selected.
-            dto.AmenityIds ??= new List<int>();
+            if (mainImage != null && mainImage.Length > 0)
+            {
+                ValidateImage(mainImage, "mainImage");
+            }
 
-            // Do not add duplicate gallery images.
-            dto.ImageUrls = new List<string>();
+            var galleryFiles = galleryImages?
+                .Where(f => f.Length > 0)
+                .ToList() ?? new List<IFormFile>();
 
-            // Existing gallery images are retained.
-            dto.Images = existing.Images.ToList();
+            foreach (var file in galleryFiles)
+            {
+                ValidateImage(file, "galleryImages");
+            }
+
+            // Only allow deletion of images belonging to this room.
+            var existingImageIds = existing.Images
+                .Select(i => i.Id)
+                .ToHashSet();
+
+            var requestedDeleteIds = dto.DeletedImageIds
+                .Distinct()
+                .ToList();
+
+            if (requestedDeleteIds.Any(
+                imageId => !existingImageIds.Contains(imageId)))
+            {
+                ModelState.AddModelError(
+                    nameof(dto.DeletedImageIds),
+                    "Invalid gallery image selection.");
+            }
 
             if (!ModelState.IsValid)
             {
+                dto.MainImage = existing.MainImage;
+                dto.Images = existing.Images.ToList();
+
                 await LoadDataAsync();
+
                 return View(dto);
             }
 
-            var updated = await _roomService.UpdateAsync(id, dto);
+            var savedFiles = new List<string>();
 
-            if (!updated)
-                return NotFound();
+            try
+            {
+                // MAIN IMAGE
+                dto.MainImage = existing.MainImage;
 
-            TempData["Success"] = "Room updated successfully.";
+                if (dto.RemoveMainImage)
+                {
+                    dto.MainImage = string.Empty;
+                }
+
+                if (mainImage != null && mainImage.Length > 0)
+                {
+                    dto.MainImage = await SaveImageAsync(
+                        mainImage,
+                        savedFiles);
+                }
+
+                // GALLERY IMAGES
+                dto.ImageUrls = new List<string>();
+
+                foreach (var file in galleryFiles)
+                {
+                    var imageUrl = await SaveImageAsync(
+                        file,
+                        savedFiles);
+
+                    dto.ImageUrls.Add(imageUrl);
+                }
+
+                dto.Images = existing.Images.ToList();
+
+                var updated = await _roomService.UpdateAsync(
+                    id,
+                    dto);
+
+                if (!updated)
+                {
+                    DeleteNewFiles(savedFiles);
+                    return NotFound();
+                }
+            }
+            catch
+            {
+                DeleteNewFiles(savedFiles);
+                throw;
+            }
+
+            // The room update has succeeded.
+            // Delete selected gallery images from the database.
+            foreach (var imageId in requestedDeleteIds)
+            {
+                await _roomService.DeleteImageAsync(imageId);
+            }
+
+            TempData["Success"] =
+                "Room and images updated successfully.";
 
             return RedirectToAction(nameof(Index));
         }
 
-        // =========================
-        // DELETE ROOM
-        // =========================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -159,14 +229,12 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             if (!deleted)
                 return NotFound();
 
-            TempData["Success"] = "Room deleted successfully.";
+            TempData["Success"] =
+                "Room deleted successfully.";
 
             return RedirectToAction(nameof(Index));
         }
 
-        // =========================
-        // LOAD HOTELS & AMENITIES
-        // =========================
         private async Task LoadDataAsync()
         {
             var hotels = await _hotelService.GetAllAsync();
@@ -177,6 +245,104 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
                 .ToList();
 
             ViewBag.Amenities = amenities;
+        }
+
+        private void ValidateImage(
+            IFormFile file,
+            string fieldName)
+        {
+            var extension = Path.GetExtension(
+                file.FileName).ToLowerInvariant();
+
+            var allowedExtensions = new[]
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp"
+            };
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                ModelState.AddModelError(
+                    fieldName,
+                    "Only JPG, PNG and WEBP images are allowed.");
+            }
+
+            if (file.Length > MaxImageSize)
+            {
+                ModelState.AddModelError(
+                    fieldName,
+                    "Image size cannot exceed 5 MB.");
+            }
+
+            var allowedContentTypes = new[]
+            {
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            };
+
+            if (!allowedContentTypes.Contains(
+                file.ContentType.ToLowerInvariant()))
+            {
+                ModelState.AddModelError(
+                    fieldName,
+                    "Invalid image content type.");
+            }
+        }
+
+        private async Task<string> SaveImageAsync(
+            IFormFile file,
+            List<string> savedFiles)
+        {
+            var webRoot = _environment.WebRootPath;
+
+            if (string.IsNullOrWhiteSpace(webRoot))
+            {
+                webRoot = Path.Combine(
+                    _environment.ContentRootPath,
+                    "wwwroot");
+            }
+
+            var uploadFolder = Path.Combine(
+                webRoot,
+                "uploads",
+                "rooms");
+
+            Directory.CreateDirectory(uploadFolder);
+
+            var extension = Path.GetExtension(
+                file.FileName).ToLowerInvariant();
+
+            var fileName = $"{Guid.NewGuid():N}{extension}";
+
+            var fullPath = Path.Combine(
+                uploadFolder,
+                fileName);
+
+            using (var stream = new FileStream(
+                fullPath,
+                FileMode.CreateNew))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            savedFiles.Add(fullPath);
+
+            return $"/uploads/rooms/{fileName}";
+        }
+
+        private static void DeleteNewFiles(
+            IEnumerable<string> filePaths)
+        {
+            foreach (var path in filePaths)
+            {
+                if (System.IO.File.Exists(path))
+                {
+                    System.IO.File.Delete(path);
+                }
+            }
         }
     }
 }

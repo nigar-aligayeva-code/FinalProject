@@ -109,6 +109,20 @@
         margin-bottom: 15px;
     }
 
+    .empty-main-image {
+        min-height: 150px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 18px;
+        margin-bottom: 15px;
+    }
+
     .gallery-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -300,7 +314,7 @@
                 <h3>Upload Images</h3>
 
                 <div class="form-group">
-                    <label>New Main Image</label>
+                    <label>@(string.IsNullOrWhiteSpace(Model.MainImage) ? "Add New Main Image" : "Replace Main Image")</label>
                     <input type="file"
                            name="mainImage"
                            id="mainImageFile"
@@ -308,7 +322,9 @@
                            class="form-control" />
 
                     <p class="help-text">
-                        Upload a new image to replace the current one.
+                        @(string.IsNullOrWhiteSpace(Model.MainImage)
+                            ? "Upload a main image (JPG, PNG or WEBP, maximum 5 MB)."
+                            : "Upload a new image to replace the current one.")
                     </p>
                 </div>
 
@@ -352,20 +368,40 @@
             <div class="edit-card">
                 <h3>Main Image</h3>
 
-                <img id="mainImagePreview"
-                     class="main-preview"
-                     src="@Model.MainImage"
-                     alt="Room main image" />
+                @if (!string.IsNullOrWhiteSpace(Model.MainImage))
+                {
+                    <img id="mainImagePreview"
+                         class="main-preview"
+                         src="@Model.MainImage"
+                         alt="Room main image" />
 
-                <label style="display:flex;gap:8px;align-items:center;">
-                    <input asp-for="RemoveMainImage"
-                           type="checkbox"
-                           id="removeMainImage" />
-                    <span>Remove current main image</span>
-                </label>
+                    <div id="emptyMainImage" class="empty-main-image" style="display:none;">
+                        No main image uploaded
+                    </div>
+
+                    <label id="removeMainImageLabel" style="display:flex;gap:8px;align-items:center;">
+                        <input asp-for="RemoveMainImage"
+                               type="checkbox"
+                               id="removeMainImage" />
+                        <span>Remove current main image</span>
+                    </label>
+                }
+                else
+                {
+                    <img id="mainImagePreview"
+                         class="main-preview"
+                         alt="New room main image preview"
+                         style="display:none;" />
+
+                    <div id="emptyMainImage" class="empty-main-image">
+                        No main image uploaded
+                    </div>
+                }
 
                 <p class="help-text">
-                    Changes take effect after Save Changes.
+                    @(string.IsNullOrWhiteSpace(Model.MainImage)
+                        ? "Use Add New Main Image to upload a photo."
+                        : "Changes take effect after Save Changes.")
                 </p>
             </div>
 
@@ -407,32 +443,50 @@
 </form>
 
 <script>
-    const mainImageFile =
-        document.getElementById('mainImageFile');
-
-    const mainImagePreview =
-        document.getElementById('mainImagePreview');
-
-    const removeMainImage =
-        document.getElementById('removeMainImage');
+    const mainImageFile = document.getElementById('mainImageFile');
+    const mainImagePreview = document.getElementById('mainImagePreview');
+    const removeMainImage = document.getElementById('removeMainImage');
+    const emptyMainImage = document.getElementById('emptyMainImage');
+    const originalMainImage = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MainImage));
+    let previewUrl = null;
 
     mainImageFile.addEventListener('change', function() {
-        const file = this.files[0];
-
+        const file = this.files && this.files[0];
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            previewUrl = null;
+        }
         if (file) {
-            mainImagePreview.src = URL.createObjectURL(file);
-            removeMainImage.checked = false;
+            previewUrl = URL.createObjectURL(file);
+            mainImagePreview.src = previewUrl;
+            mainImagePreview.style.display = 'block';
+            mainImagePreview.style.opacity = '1';
+            emptyMainImage.style.display = 'none';
+            if (removeMainImage) removeMainImage.checked = false;
+        } else if (originalMainImage) {
+            mainImagePreview.src = originalMainImage;
+            mainImagePreview.style.display = 'block';
+            mainImagePreview.style.opacity = removeMainImage?.checked ? '0.3' : '1';
+            emptyMainImage.style.display = 'none';
+        } else {
+            mainImagePreview.style.display = 'none';
+            emptyMainImage.style.display = 'flex';
         }
     });
 
-    removeMainImage.addEventListener('change', function() {
-        if (this.checked) {
-            mainImageFile.value = '';
-            mainImagePreview.style.opacity = '0.3';
-        } else {
-            mainImagePreview.style.opacity = '1';
-            mainImagePreview.src = @Html.Raw(
-                                        System.Text.Json.JsonSerializer.Serialize(Model.MainImage));
-        }
-    });
+    if (removeMainImage) {
+        removeMainImage.addEventListener('change', function() {
+            if (this.checked) {
+                mainImageFile.value = '';
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                    previewUrl = null;
+                }
+                mainImagePreview.style.opacity = '0.3';
+            } else {
+                mainImagePreview.style.opacity = '1';
+                mainImagePreview.src = originalMainImage;
+            }
+        });
+    }
 </script>
