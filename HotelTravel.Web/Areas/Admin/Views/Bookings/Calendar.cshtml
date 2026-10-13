@@ -1,0 +1,671 @@
+﻿@model List<HotelTravel.Application.DTOs.Bookings.OccupancyCalendarDto>
+@using System.Text.Json
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Occupancy Calendar";
+
+    var rooms = Model
+        .GroupBy(b => b.RoomId)
+        .Select(g => new
+        {
+            Id = g.Key,
+            Name = $"Room {g.First().RoomNumber} - {g.First().RoomName}"
+        })
+        .OrderBy(r => r.Name)
+        .ToList();
+
+    var events = Model.Select(b => new
+    {
+        title = $"Room {b.RoomNumber} - {b.GuestName}",
+        roomId = b.RoomId,
+        start = b.CheckInDate.ToString("yyyy-MM-dd"),
+        end = b.CheckOutDate.ToString("yyyy-MM-dd"),
+        url = Url.Action("Details", "Bookings",
+            new { area = "Admin", id = b.BookingId }),
+        backgroundColor = b.Status switch
+        {
+            "CheckedIn" => "#0d9488",
+            "CheckedOut" => "#64748b",
+            _ => "#3467e8"
+        },
+        borderColor = "transparent",
+        extendedProps = new
+        {
+            room = b.RoomName,
+            number = b.RoomNumber,
+            guest = b.GuestName,
+            code = b.ConfirmationCode,
+            status = b.Status
+        }
+    }).ToList();
+
+    var eventsJson = JsonSerializer.Serialize(events);
+}
+
+<style>
+    .oc-page {
+        color: #13233f;
+    }
+
+    .oc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .oc-eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 11px;
+        color: #5977ad;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .oc-top h1 {
+        margin: 0;
+        font-size: 29px;
+        font-weight: 800;
+    }
+
+    .oc-subtitle {
+        margin-top: 8px;
+        color: #72819b;
+        font-size: 14px;
+    }
+
+    .oc-back {
+        display: inline-flex;
+        align-items: center;
+        padding: 12px 17px;
+        background: white;
+        color: #24446e;
+        border: 1px solid #dfe6f0;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .oc-filterbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        flex-wrap: wrap;
+        background: white;
+        border: 1px solid #e2e9f3;
+        border-radius: 16px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+    }
+
+    .oc-filtergroup {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+        .oc-filtergroup label {
+            color: #73829b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .oc-filtergroup select {
+            min-width: 250px;
+            padding: 12px;
+            border: 1px solid #dce5f1;
+            border-radius: 10px;
+            background: #f8faff;
+            color: #243d61;
+        }
+
+    .oc-filter-note {
+        max-width: 430px;
+        font-size: 12px;
+        color: #8796ad;
+    }
+
+    .oc-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .oc-stat {
+        background: white;
+        border: 1px solid #e2e9f3;
+        border-radius: 17px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 6px 24px rgba(21,47,84,.035);
+    }
+
+        .oc-stat::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 4px;
+            background: var(--accent);
+        }
+
+    .oc-stat-label {
+        color: #73829b;
+        font-size: 12px;
+        font-weight: 650;
+        margin-bottom: 9px;
+    }
+
+    .oc-stat-value {
+        font-size: 30px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .oc-stat-foot {
+        color: #91a0b5;
+        font-size: 11px;
+        margin-top: 8px;
+    }
+
+    .oc-calendar-card {
+        background: white;
+        border: 1px solid #e2e9f3;
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 10px 32px rgba(21,47,84,.04);
+    }
+
+    .oc-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .oc-card-title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+
+    .oc-card-hint {
+        font-size: 12px;
+        color: #8492a9;
+    }
+
+    .oc-legend {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+        .oc-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            color: #65748e;
+        }
+
+    .oc-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    #occupancyCalendar {
+        min-height: 580px;
+    }
+
+    .oc-page .fc .fc-toolbar-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #172b4c;
+    }
+
+    .oc-page .fc .fc-button-primary {
+        background: #f2f5fb;
+        color: #30476a;
+        border: 1px solid #e1e7f0;
+        border-radius: 9px;
+        padding: 9px 13px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+
+        .oc-page .fc .fc-button-primary:hover {
+            background: #e6edfc;
+            color: #1743a0;
+        }
+
+        .oc-page .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background: #3467e8;
+            border-color: #3467e8;
+            color: white;
+        }
+
+    .oc-page .fc .fc-col-header-cell {
+        background: #f6f8fc;
+    }
+
+    .oc-page .fc .fc-col-header-cell-cushion {
+        color: #667894;
+        font-size: 12px;
+        font-weight: 750;
+        text-decoration: none;
+        padding: 13px 3px;
+    }
+
+    .oc-page .fc .fc-daygrid-day-number {
+        color: #3e516f;
+        text-decoration: none;
+        font-size: 12px;
+        padding: 9px;
+    }
+
+    .oc-page .fc .fc-daygrid-day.fc-day-today {
+        background: #eff5ff;
+    }
+
+    .oc-page .fc .fc-daygrid-day-frame {
+        min-height: 92px;
+    }
+
+    .oc-page .fc .fc-event {
+        border: 0;
+        border-radius: 7px;
+        padding: 4px 6px;
+        font-size: 11px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+        .oc-page .fc .fc-event:hover {
+            filter: brightness(.94);
+        }
+
+    @@media (max-width: 1100px) {
+        .oc-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 650px) {
+        .oc-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .oc-stat {
+            padding: 15px;
+        }
+
+        .oc-stat-value {
+            font-size: 24px;
+        }
+
+        .oc-calendar-card {
+            padding: 12px;
+        }
+
+        .oc-page .fc .fc-toolbar {
+            flex-direction: column;
+            gap: 12px;
+        }
+    }
+</style>
+
+<div class="oc-page">
+
+    <div class="oc-top">
+        <div>
+            <p class="oc-eyebrow">
+                HotelHub - Reservation Overview
+            </p>
+
+            <h1>Occupancy Calendar</h1>
+
+            <p class="oc-subtitle">
+                Track room reservations and manage stays in one place.
+            </p>
+        </div>
+
+        <a asp-area="Admin"
+           asp-controller="Bookings"
+           asp-action="Index"
+           class="oc-back">
+            ← Back to Bookings
+        </a>
+    </div>
+
+    <div class="oc-filterbar">
+        <div class="oc-filtergroup">
+            <label for="ocRoomFilter">Filter by Room</label>
+
+            <select id="ocRoomFilter">
+                <option value="all">All Rooms</option>
+
+                @foreach (var room in rooms)
+                {
+                    <option value="@room.Id">
+                        @room.Name
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="oc-filter-note">
+            Statistics show the selected month.
+            Occupancy is based on rooms appearing in booking records.
+        </div>
+    </div>
+
+    <div class="oc-stats">
+
+        <div class="oc-stat" style="--accent:#3467e8">
+            <p class="oc-stat-label">Total Reservations</p>
+            <p class="oc-stat-value" id="ocTotal">0</p>
+            <p class="oc-stat-foot">
+                Reservations overlapping selected month
+            </p>
+        </div>
+
+        <div class="oc-stat" style="--accent:#4d7df0">
+            <p class="oc-stat-label">Confirmed</p>
+            <p class="oc-stat-value" id="ocConfirmed">0</p>
+            <p class="oc-stat-foot">Awaiting check-in</p>
+        </div>
+
+        <div class="oc-stat" style="--accent:#0d9488">
+            <p class="oc-stat-label">Checked In</p>
+            <p class="oc-stat-value" id="ocCheckedIn">0</p>
+            <p class="oc-stat-foot">
+                Marked as checked in
+            </p>
+        </div>
+
+        <div class="oc-stat" style="--accent:#a17be0">
+            <p class="oc-stat-label">
+                Monthly Occupancy Rate
+            </p>
+
+            <p class="oc-stat-value" id="ocOccupancy">—</p>
+
+            <p class="oc-stat-foot" id="ocOccupancyFoot">
+                Booked room-nights / tracked room-nights
+            </p>
+        </div>
+    </div>
+
+    <div class="oc-calendar-card">
+
+        <div class="oc-card-head">
+            <div>
+                <h2 class="oc-card-title">
+                    Reservation Timeline
+                </h2>
+
+                <p class="oc-card-hint">
+                    Click a reservation to open its details.
+                </p>
+            </div>
+
+            <div class="oc-legend">
+                <span>
+                    <i class="oc-dot" style="background:#3467e8"></i>
+                    Confirmed
+                </span>
+
+                <span>
+                    <i class="oc-dot" style="background:#0d9488"></i>
+                    Checked In
+                </span>
+
+                <span>
+                    <i class="oc-dot" style="background:#64748b"></i>
+                    Checked Out
+                </span>
+            </div>
+        </div>
+
+        <div id="occupancyCalendar"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const element =
+            document.getElementById('occupancyCalendar');
+
+        if (!element || typeof FullCalendar === 'undefined') {
+            if (element) {
+                element.textContent =
+                    'Calendar could not load. Check your internet connection.';
+            }
+            return;
+        }
+
+        const bookings = @Html.Raw(eventsJson);
+
+        const roomFilter =
+            document.getElementById('ocRoomFilter');
+
+        const totalElement =
+            document.getElementById('ocTotal');
+
+        const confirmedElement =
+            document.getElementById('ocConfirmed');
+
+        const checkedInElement =
+            document.getElementById('ocCheckedIn');
+
+        const occupancyElement =
+            document.getElementById('ocOccupancy');
+
+        const occupancyFoot =
+            document.getElementById('ocOccupancyFoot');
+
+        const trackedRooms =
+            [...new Set(bookings.map(b => b.roomId))];
+
+        let selectedRoom = 'all';
+        let calendar;
+
+        function parseUtcDay(value) {
+            const [year, month, day] =
+                value.split('-').map(Number);
+
+            return Date.UTC(year, month - 1, day);
+        }
+
+        function updateStatistics() {
+
+            const focus = calendar.getDate();
+
+            const monthStart = Date.UTC(
+                focus.getFullYear(),
+                focus.getMonth(),
+                1
+            );
+
+            const monthEnd = Date.UTC(
+                focus.getFullYear(),
+                focus.getMonth() + 1,
+                1
+            );
+
+            const daysInMonth =
+                (monthEnd - monthStart) / 86400000;
+
+            const relevant = bookings.filter(b => {
+
+                const matchesRoom =
+                    selectedRoom === 'all' ||
+                    String(b.roomId) === selectedRoom;
+
+                const overlapsMonth =
+                    parseUtcDay(b.start) < monthEnd &&
+                    parseUtcDay(b.end) > monthStart;
+
+                return matchesRoom && overlapsMonth;
+            });
+
+            totalElement.textContent =
+                relevant.length;
+
+            confirmedElement.textContent =
+                relevant.filter(b =>
+                    b.extendedProps.status === 'Confirmed'
+                ).length;
+
+            checkedInElement.textContent =
+                relevant.filter(b =>
+                    b.extendedProps.status === 'CheckedIn'
+                ).length;
+
+            // Count unique occupied room-days.
+            const occupiedDays = new Set();
+
+            for (const booking of relevant) {
+
+                const start = Math.max(
+                    monthStart,
+                    parseUtcDay(booking.start)
+                );
+
+                const end = Math.min(
+                    monthEnd,
+                    parseUtcDay(booking.end)
+                );
+
+                for (
+                    let day = start;
+                    day < end;
+                    day += 86400000
+                ) {
+                    occupiedDays.add(
+                        `${booking.roomId}:${day}`
+                    );
+                }
+            }
+
+            const roomCount =
+                selectedRoom === 'all'
+                    ? trackedRooms.length
+                    : 1;
+
+            const availableRoomNights =
+                roomCount * daysInMonth;
+
+            const occupancyRate =
+                availableRoomNights > 0
+                    ? occupiedDays.size /
+                    availableRoomNights * 100
+                    : 0;
+
+            occupancyElement.textContent =
+                availableRoomNights > 0
+                    ? occupancyRate.toFixed(1) + '%'
+                    : 'N/A';
+
+            occupancyFoot.textContent =
+                `${occupiedDays.size} booked / ` +
+                `${availableRoomNights} tracked room-nights`;
+        }
+
+        calendar = new FullCalendar.Calendar(
+            element,
+            {
+                initialView: 'dayGridMonth',
+
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listMonth'
+                },
+
+                buttonText: {
+                    today: 'Today',
+                    month: 'Month',
+                    week: 'Week',
+                    list: 'List'
+                },
+
+                events: bookings,
+
+                dayMaxEvents: 3,
+
+                displayEventTime: false,
+
+                datesSet: function() {
+                    updateStatistics();
+                },
+
+                eventDidMount: function(info) {
+
+                    const details =
+                        info.event.extendedProps;
+
+                    info.el.title =
+                        'Room ' + details.number +
+                        '\nGuest: ' + details.guest +
+                        '\nCode: ' + details.code +
+                        '\nStatus: ' + details.status;
+                },
+
+                eventClick: function(info) {
+
+                    if (info.event.url) {
+
+                        info.jsEvent.preventDefault();
+
+                        window.location.href =
+                            info.event.url;
+                    }
+                },
+
+                height: 'auto'
+            }
+        );
+
+        calendar.render();
+
+        roomFilter.addEventListener(
+            'change',
+            function() {
+
+                selectedRoom = roomFilter.value;
+
+                calendar.getEvents().forEach(event => {
+
+                    const matchesRoom =
+                        selectedRoom === 'all' ||
+                        String(event.extendedProps.roomId) === selectedRoom;
+
+                    event.setProp(
+                        'display',
+                        matchesRoom ? 'auto' : 'none'
+                    );
+                });
+
+                updateStatistics();
+            }
+        );
+    });
+</script>
