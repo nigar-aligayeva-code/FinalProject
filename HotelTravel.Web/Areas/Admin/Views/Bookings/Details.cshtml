@@ -12,6 +12,8 @@
         BookingStatus.Cancelled => "cancelled",
         _ => "checkedout"
     };
+    var fromDashboard =
+    Context.Request.Query["returnTo"].ToString() == "dashboard";
     bool canCheckIn = Model.Status == BookingStatus.Confirmed && DateTime.Today >= Model.CheckInDate.Date;
     bool canCheckOut = Model.Status == BookingStatus.CheckedIn && DateTime.Today >= Model.CheckInDate.Date;
     bool canCancel = Model.Status == BookingStatus.Confirmed;
@@ -427,7 +429,25 @@
                     <div class="bd-management-note">This reservation has no further status changes available.</div>
                 }
             </section>
-            <a asp-area="Admin" asp-controller="Bookings" asp-action="Index" class="bd-back">← Back to Bookings</a>
+            @if (fromDashboard)
+            {
+                <a asp-area="Admin"
+                   asp-controller="Dashboard"
+                   asp-action="Index"
+                   asp-fragment="recent-bookings"
+                   class="btn btn-secondary">
+                    ← Back to Dashboard
+                </a>
+            }
+            else
+            {
+                <a asp-area="Admin"
+                   asp-controller="Bookings"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    ← Back to Bookings
+                </a>
+            }
         </div>
     </div>
 </div>

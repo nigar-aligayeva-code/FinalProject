@@ -166,43 +166,23 @@ public class BookingsController : Controller
     // ADMIN - OCCUPANCY CALENDAR
     // =========================
     [Authorize(Roles = "Admin")]
+
     [HttpGet]
-    public async Task<IActionResult> Calendar(
-        int? year,
-        int? month)
+    public async Task<IActionResult> Calendar()
     {
-        var today = DateTime.Today;
-
-        int selectedYear =
-            year ?? today.Year;
-
-        int selectedMonth =
-            month ?? today.Month;
-
-        if (selectedMonth < 1 ||
-            selectedMonth > 12)
-        {
-            selectedYear = today.Year;
-            selectedMonth = today.Month;
-        }
+        var bookings =
+            await _bookingService.GetOccupancyCalendarAsync();
 
         var rooms =
             await _roomService.GetAllAsync();
 
-        var bookings =
-            await _bookingService
-                .GetOccupancyCalendarAsync();
+        var model = new OccupancyCalendarViewModel
+        {
+            Bookings = bookings,
+            Rooms = rooms
+        };
 
-        var viewModel =
-            new OccupancyCalendarViewModel
-            {
-                Year = selectedYear,
-                Month = selectedMonth,
-                Rooms = rooms,
-                Bookings = bookings
-            };
-
-        return View(viewModel);
+        return View(model);
     }
 
 

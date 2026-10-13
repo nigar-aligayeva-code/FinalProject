@@ -30,12 +30,11 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             var rooms = await _roomService.GetAllAsync();
             var bookings = await _bookingService.GetAllAsync();
 
-            // STATISTICS
+            // EXISTING STATISTICS
             ViewBag.TotalHotels = hotels.Count;
             ViewBag.TotalRooms = rooms.Count;
             ViewBag.TotalBookings = bookings.Count;
 
-            // Revenue excludes cancelled bookings
             var validBookings = bookings
                 .Where(b => b.Status != BookingStatus.Cancelled)
                 .ToList();
@@ -75,6 +74,67 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
                 .ToArray();
 
             ViewBag.ChartYear = year;
+
+            // NEW: TODAY'S CHECK-INS
+            var today = DateTime.Today;
+
+            ViewBag.TodayCheckIns = validBookings.Count(b =>
+                b.CheckInDate.Date == today);
+
+            // NEW: TODAY'S CHECK-OUTS
+            ViewBag.TodayCheckOuts = validBookings.Count(b =>
+                b.CheckOutDate.Date == today);
+
+            // NEW: MONTHLY OCCUPANCY RATE
+            var monthStart = new DateTime(
+                today.Year,
+                today.Month,
+                1);
+
+            var monthEnd = monthStart.AddMonths(1);
+
+            int daysInMonth = DateTime.DaysInMonth(
+                today.Year,
+                today.Month);
+
+            var activeRoomIds = rooms
+                .Select(r => r.Id)
+                .ToHashSet();
+
+            var occupiedRoomDays = new HashSet<(int RoomId, DateTime Day)>();
+
+            foreach (var booking in validBookings)
+            {
+                if (!activeRoomIds.Contains(booking.RoomId))
+                    continue;
+
+                var start = booking.CheckInDate.Date > monthStart
+                    ? booking.CheckInDate.Date
+                    : monthStart;
+
+                var end = booking.CheckOutDate.Date < monthEnd
+                    ? booking.CheckOutDate.Date
+                    : monthEnd;
+
+                for (var day = start; day < end; day = day.AddDays(1))
+                {
+                    occupiedRoomDays.Add((booking.RoomId, day));
+                }
+            }
+
+            int totalRoomNights = rooms.Count * daysInMonth;
+
+            ViewBag.MonthlyOccupancyRate = totalRoomNights > 0
+                ? Math.Round(
+                    (decimal)occupiedRoomDays.Count /
+                    totalRoomNights * 100,
+                    1)
+                : 0m;
+            // RECENT BOOKINGS
+            ViewBag.RecentBookings = bookings
+                .OrderByDescending(b => b.CheckInDate)
+                .Take(5)
+                .ToList();
 
             return View();
         }

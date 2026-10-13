@@ -76,10 +76,28 @@
         color: #9333ea;
     }
 
-    .icon-revenue {
-        background: #ffedd5;
-        color: #ea580c;
+    
+    .icon-checkin {
+        background: #ccfbf1;
+        color: #0d9488;
     }
+
+    .icon-checkout {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .icon-occupancy {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    .stat-description {
+        color: #94a3b8;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+
 
     .stat-label {
         color: #64748b;
@@ -165,6 +183,68 @@
         <div class="stat-label">Total Revenue (Estimated)</div>
         <div class="stat-value">
             @(((decimal)ViewBag.TotalRevenue).ToString("N2")) AZN
+        </div>
+    </div>
+
+</div>
+
+<!-- TODAY & OCCUPANCY STATISTICS -->
+<div class="stats-grid">
+
+    <!-- TODAY'S CHECK-INS -->
+    <div class="stat-card">
+        <div class="stat-icon icon-checkin">
+            ↘
+        </div>
+
+        <div class="stat-label">
+            Today's Check-ins
+        </div>
+
+        <div class="stat-value">
+            @ViewBag.TodayCheckIns
+        </div>
+
+        <div class="stat-description">
+            Guests scheduled to arrive today
+        </div>
+    </div>
+
+    <!-- TODAY'S CHECK-OUTS -->
+    <div class="stat-card">
+        <div class="stat-icon icon-checkout">
+            ↗
+        </div>
+
+        <div class="stat-label">
+            Today's Check-outs
+        </div>
+
+        <div class="stat-value">
+            @ViewBag.TodayCheckOuts
+        </div>
+
+        <div class="stat-description">
+            Guests scheduled to leave today
+        </div>
+    </div>
+
+    <!-- MONTHLY OCCUPANCY -->
+    <div class="stat-card">
+        <div class="stat-icon icon-occupancy">
+            %
+        </div>
+
+        <div class="stat-label">
+            Monthly Occupancy Rate
+        </div>
+
+        <div class="stat-value">
+            @ViewBag.MonthlyOccupancyRate%
+        </div>
+
+        <div class="stat-description">
+            Room occupancy for the current month
         </div>
     </div>
 
@@ -289,3 +369,242 @@
         }
     });
 </script>
+
+@{
+    var recentBookings =
+        ViewBag.RecentBookings as List<HotelTravel.Application.DTOs.Bookings.GetBookingDto>
+        ?? new List<HotelTravel.Application.DTOs.Bookings.GetBookingDto>();
+}
+
+<style>
+    .recent-bookings-card {
+        background: white;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        padding: 24px;
+        margin-top: 24px;
+        box-shadow: 0 5px 25px rgba(30, 41, 59, 0.04);
+    }
+
+    .recent-bookings-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+        .recent-bookings-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .recent-bookings-header p {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+    .recent-view-all {
+        background: #eff6ff;
+        color: #2563eb;
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+        .recent-view-all:hover {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+    .recent-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 850px;
+    }
+
+        .recent-table th {
+            text-align: left;
+            padding: 14px 12px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .recent-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .recent-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+    .recent-code {
+        font-weight: 700;
+        color: #2563eb;
+    }
+
+    .recent-status {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .recent-confirmed {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .recent-checkedin {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .recent-checkedout {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    .recent-cancelled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .recent-details-btn {
+        display: inline-block;
+        padding: 8px 14px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .recent-details-btn:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+</style>
+
+<div class="recent-bookings-card" id="recent-bookings">
+
+    <div class="recent-bookings-header">
+        <div>
+            <h3>Recent Bookings</h3>
+            <p>Five bookings with the latest check-in dates</p>
+        </div>
+
+        <a asp-area="Admin"
+           asp-controller="Bookings"
+           asp-action="Index"
+           class="recent-view-all">
+            View All Bookings →
+        </a>
+    </div>
+
+    <div class="recent-table-wrapper">
+
+        <table class="recent-table">
+            <thead>
+                <tr>
+                    <th>Confirmation</th>
+                    <th>Guest</th>
+                    <th>Room</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (recentBookings.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7" style="text-align:center;padding:30px;">
+                            No bookings found.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var booking in recentBookings)
+                    {
+                        var statusClass = booking.Status switch
+                        {
+                            HotelTravel.Domain.Enums.BookingStatus.Confirmed
+                                => "recent-confirmed",
+
+                            HotelTravel.Domain.Enums.BookingStatus.CheckedIn
+                                => "recent-checkedin",
+
+                            HotelTravel.Domain.Enums.BookingStatus.CheckedOut
+                                => "recent-checkedout",
+
+                            HotelTravel.Domain.Enums.BookingStatus.Cancelled
+                                => "recent-cancelled",
+
+                            _ => "recent-confirmed"
+                        };
+
+                        <tr>
+                            <td>
+                                <span class="recent-code">
+                                    @booking.ConfirmationCode
+                                </span>
+                            </td>
+
+                            <td>@booking.GuestName</td>
+
+                            <td>@booking.RoomNumber</td>
+
+                            <td>
+                                @booking.CheckInDate.ToString("dd MMM yyyy")
+                            </td>
+
+                            <td>
+                                @booking.CheckOutDate.ToString("dd MMM yyyy")
+                            </td>
+
+                            <td>
+                                <span class="recent-status @statusClass">
+                                    @booking.Status
+                                </span>
+                            </td>
+
+                            <td>
+
+                                <a asp-area="Admin"
+                                   asp-controller="Bookings"
+                                   asp-action="Details"
+                                   asp-route-id="@booking.Id"
+                                   asp-route-returnTo="dashboard"
+                                   class="recent-details-btn">
+                                    Details
+                                </a>
+
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>

@@ -11,10 +11,14 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
     public class BookingsController : Controller
     {
         private readonly IBookingService _bookingService;
+        private readonly IRoomService _roomService;
 
-        public BookingsController(IBookingService bookingService)
+        public BookingsController(
+            IBookingService bookingService,
+            IRoomService roomService)
         {
             _bookingService = bookingService;
+            _roomService = roomService;
         }
 
         // ALL BOOKINGS
@@ -82,7 +86,10 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             if (!Enum.IsDefined(typeof(BookingStatus), status))
             {
                 TempData["Error"] = "Invalid booking status.";
-                return RedirectToAction(nameof(Details), new { id });
+
+                return RedirectToAction(
+                    nameof(Details),
+                    new { id });
             }
 
             var updated = await _bookingService.UpdateStatusAsync(
@@ -100,18 +107,31 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
                     "Booking status updated successfully.";
             }
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(
+                nameof(Details),
+                new { id });
         }
 
+        // OCCUPANCY CALENDAR
         [HttpGet]
         public async Task<IActionResult> Calendar()
         {
             var bookings =
                 await _bookingService.GetOccupancyCalendarAsync();
 
+            var rooms =
+                await _roomService.GetAllAsync();
+
+            ViewBag.CalendarRooms = rooms
+                .Select(r => new
+                {
+                    r.Id,
+                    r.RoomNumber,
+                    r.Name
+                })
+                .ToList();
+
             return View(bookings);
         }
-
     }
-
 }
