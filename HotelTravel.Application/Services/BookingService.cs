@@ -8,12 +8,18 @@ namespace HotelTravel.Application.Services;
 
 public class BookingService : IBookingService
 {
-    private readonly IAppDbContext _context;
 
-    public BookingService(IAppDbContext context)
+    private readonly IAppDbContext _context;
+    private readonly IBookingCreationService _bookingCreationService;
+
+    public BookingService(
+        IAppDbContext context,
+        IBookingCreationService bookingCreationService)
     {
         _context = context;
+        _bookingCreationService = bookingCreationService;
     }
+
 
     public async Task<List<GetBookingDto>> GetAllAsync()
     {
@@ -77,139 +83,100 @@ public class BookingService : IBookingService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<(bool Success, string Message, string? ConfirmationCode)>
-     CreateAsync(CreateBookingDto dto)
+   
+
+public async Task<(bool Success, string Message, string? ConfirmationCode)>
+
+
+    CreateAsync(CreateBookingDto dto, string? appUserId = null)
     {
-        if (dto.CheckInDate.Date < DateTime.Today)
-        {
-            return (
-                false,
-                "Check-in date cannot be in the past.",
-                null
-            );
-        }
+        return await _bookingCreationService.CreateAsync(dto, appUserId);
+    }
 
-        if (dto.CheckInDate.Date >= dto.CheckOutDate.Date)
-        {
-            return (
-                false,
-                "Check-out date must be after check-in date.",
-                null
-            );
-        }
+    public async Task<(bool Success, string Message)> ModifyAsync(
+        ModifyBookingDto dto,
+        string? appUserId = null)
+    {
+        return await _bookingCreationService.ModifyAsync(dto, appUserId);
+    }
 
-        // aşağıdakı mövcud kodların olduğu kimi davam edir...
 
-        // 2. Room mövcuddur?
-        var room = await _context.Rooms
-            .FirstOrDefaultAsync(r =>
-                r.Id == dto.RoomId &&
-                !r.IsDeleted);
+    // =========================
+    // F4 - MY BOOKINGS
+    // =========================
+    public async Task<List<GetBookingDto>> GetByUserIdAsync(string appUserId)
+    {
+        if (string.IsNullOrWhiteSpace(appUserId))
+            return new List<GetBookingDto>();
 
-        if (room is null)
-        {
-            return (
-                false,
-                "Room not found.",
-                null
-            );
-        }
-
-        // 3. Qonaq sayı otağın capacity-sini keçirmi?
-        var totalGuests = dto.AdultCount + dto.ChildrenCount;
-
-        if (dto.AdultCount <= 0 ||
-            dto.ChildrenCount < 0 ||
-            totalGuests > room.Capacity)
-        {
-            return (
-                false,
-                "Guest count is not valid for this room.",
-                null
-            );
-        }
-
-        // 4. Eyni tarixlərdə aktiv booking varmı?
-        var roomIsBooked = await _context.Bookings
-            .AnyAsync(b =>
-                b.RoomId == dto.RoomId &&
+        return await _context.Bookings
+            .Where(b =>
                 !b.IsDeleted &&
-                b.Status != BookingStatus.Cancelled &&
-                dto.CheckInDate.Date < b.CheckOutDate.Date &&
-                dto.CheckOutDate.Date > b.CheckInDate.Date);
+                b.AppUserId == appUserId)
+            .OrderByDescending(b => b.CheckInDate)
+            .Select(b => new GetBookingDto
+            {
+                Id = b.Id,
+                ConfirmationCode = b.ConfirmationCode,
 
-        if (roomIsBooked)
-        {
-            return (
-                false,
-                "This room is not available for the selected dates.",
-                null
-            );
-        }
+                CheckInDate = b.CheckInDate,
+                CheckOutDate = b.CheckOutDate,
 
-        // 5. Gecə sayını hesabla
-        var numberOfNights =
-            (dto.CheckOutDate.Date - dto.CheckInDate.Date).Days;
+                AdultCount = b.AdultCount,
+                ChildrenCount = b.ChildrenCount,
 
-        // 6. Total price hesabla
-        var totalPrice =
-            numberOfNights * room.PricePerNight;
+                TotalPrice = b.TotalPrice,
+                Status = b.Status,
 
-        // 7. Guest yarat
-        var guest = new Guest
-        {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Email = dto.Email,
-            Phone = dto.Phone,
+                RoomId = b.RoomId,
+                RoomName = b.Room.Name,
+                RoomNumber = b.Room.RoomNumber,
+                RoomImage = b.Room.MainImage,
 
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            IsDeleted = false
-        };
+                GuestId = b.GuestId,
+                GuestName = b.Guest.FirstName + " " + b.Guest.LastName,
+                GuestEmail = b.Guest.Email,
 
-        await _context.Guests.AddAsync(guest);
+                HasReview = b.Review != null
+            })
+            .ToListAsync();
+    }
 
-        // 8. Confirmation code yarat
-        var confirmationCode =
-            $"BK-{Guid.NewGuid().ToString("N")[..8].ToUpper()}";
+    public async Task<(bool Success, string Message)> CancelByUserAsync(
+        int bookingId,
+        string appUserId)
+    {
+        if (string.IsNullOrWhiteSpace(appUserId))
+            return (false, "You must be logged in.");
 
-        // 9. Booking yarat
-        var booking = new Booking
-        {
-            CheckInDate = dto.CheckInDate.Date,
-            CheckOutDate = dto.CheckOutDate.Date,
+        var booking = await _context.Bookings
+            .FirstOrDefaultAsync(b =>
+                b.Id == bookingId &&
+                !b.IsDeleted &&
+                b.AppUserId == appUserId);
 
-            AdultCount = dto.AdultCount,
-            ChildrenCount = dto.ChildrenCount,
+        if (booking is null)
+            return (false, "Booking was not found.");
 
-            TotalPrice = totalPrice,
-            ConfirmationCode = confirmationCode,
+        var error = BookingRules.CanGuestChange(
+            booking.Status,
+            booking.CheckInDate,
+            DateTime.Today);
 
-            Status = BookingStatus.Confirmed,
+        if (error != null)
+            return (false, error);
 
-            RoomId = room.Id,
-            Guest = guest,
+        booking.Status = BookingStatus.Cancelled;
+        booking.UpdatedAt = DateTime.UtcNow;
 
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            IsDeleted = false
-        };
-
-        await _context.Bookings.AddAsync(booking);
-
-        // 10. Database-ə yaz
         await _context.SaveChangesAsync();
 
-        return (
-            true,
-            "Booking created successfully.",
-            confirmationCode
-        );
+        return (true, "Booking cancelled successfully.");
     }
+
     public async Task<bool> UpdateStatusAsync(
-     int id,
-     BookingStatus status)
+        int id,
+        BookingStatus status)
     {
         var booking = await _context.Bookings
             .FirstOrDefaultAsync(b =>
@@ -219,6 +186,7 @@ public class BookingService : IBookingService
         if (booking is null)
             return false;
 
+        // 1. Status keçidi düzgündür?
         bool isValidTransition =
             (booking.Status == BookingStatus.Confirmed &&
                 (status == BookingStatus.CheckedIn ||
@@ -230,6 +198,24 @@ public class BookingService : IBookingService
         if (!isValidTransition)
             return false;
 
+        // 2. Tarix yoxlamaları
+        var today = DateTime.Today;
+
+        // Giriş tarixindən əvvəl CheckedIn etmək olmaz
+        if (status == BookingStatus.CheckedIn &&
+            today < booking.CheckInDate.Date)
+        {
+            return false;
+        }
+
+        // CheckedOut giriş tarixindən əvvəl edilə bilməz
+        if (status == BookingStatus.CheckedOut &&
+            today < booking.CheckInDate.Date)
+        {
+            return false;
+        }
+
+        // 3. Statusu dəyiş
         booking.Status = status;
         booking.UpdatedAt = DateTime.UtcNow;
 
@@ -237,6 +223,7 @@ public class BookingService : IBookingService
 
         return true;
     }
+
     public async Task<List<OccupancyCalendarDto>>
     GetOccupancyCalendarAsync()
     {
@@ -309,7 +296,9 @@ public class BookingService : IBookingService
                 GuestName =
                     b.Guest.FirstName + " " + b.Guest.LastName,
 
-                GuestEmail = b.Guest.Email
+                GuestEmail = b.Guest.Email,
+
+                HasReview = b.Review != null
             })
             .FirstOrDefaultAsync();
     }
@@ -388,4 +377,4 @@ public class BookingService : IBookingService
             "Booking cancelled successfully."
         );
     }
-}
+}

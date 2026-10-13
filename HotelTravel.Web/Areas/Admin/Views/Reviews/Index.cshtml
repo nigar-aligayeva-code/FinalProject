@@ -1,0 +1,316 @@
+@model List<HotelTravel.Application.DTOs.Reviews.GetReviewDto>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Reviews";
+
+    string search = ViewBag.Search as string ?? "";
+    int? selectedRating = ViewBag.Rating as int?;
+
+    var average = Model.Any()
+        ? Model.Average(r => r.Rating)
+        : 0;
+}
+
+<style>
+    .review-heading {
+        margin-bottom: 24px;
+    }
+
+        .review-heading h1 {
+            font-size: 28px;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .review-heading p {
+            color: #64748b;
+        }
+
+    .review-stats {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .review-stat {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 18px 24px;
+        min-width: 180px;
+    }
+
+        .review-stat strong {
+            display: block;
+            font-size: 26px;
+            color: #0f172a;
+        }
+
+        .review-stat span {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+    .review-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+    }
+
+    .review-filters {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .review-input {
+        padding: 12px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        min-width: 190px;
+        background: white;
+    }
+
+    .review-btn {
+        background: #2563eb;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .review-reset {
+        padding: 12px 20px;
+        background: #f1f5f9;
+        color: #334155;
+        border-radius: 10px;
+        text-decoration: none;
+    }
+
+    .review-table-wrap {
+        overflow-x: auto;
+    }
+
+    .review-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .review-table th {
+            text-align: left;
+            padding: 14px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .review-table td {
+            padding: 16px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+            vertical-align: top;
+        }
+
+    .review-stars {
+        color: #f59e0b;
+        white-space: nowrap;
+        letter-spacing: 1px;
+    }
+
+    .review-comment {
+        max-width: 420px;
+        color: #334155;
+    }
+
+    .review-delete {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .review-alert {
+        padding: 14px 18px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .review-alert-success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .review-alert-error {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .review-empty {
+        text-align: center;
+        padding: 35px;
+        color: #64748b;
+    }
+</style>
+
+<div class="review-heading">
+    <h1>Guest Reviews</h1>
+    <p>Ratings and comments left by guests after completed stays.</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="review-alert review-alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="review-alert review-alert-error">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div class="review-stats">
+    <div class="review-stat">
+        <strong>@Model.Count</strong>
+        <span>Reviews shown</span>
+    </div>
+
+    <div class="review-stat">
+        <strong>@average.ToString("0.0") ★</strong>
+        <span>Average rating</span>
+    </div>
+</div>
+
+<div class="review-card">
+
+    <form method="get"
+          asp-area="Admin"
+          asp-controller="Reviews"
+          asp-action="Index"
+          class="review-filters">
+
+        <input type="text"
+               name="search"
+               value="@search"
+               placeholder="Code, guest, room or comment..."
+               class="review-input" />
+
+        <select name="rating" class="review-input">
+            <option value="">All Ratings</option>
+
+            @for (int star = 5; star >= 1; star--)
+            {
+                if (selectedRating == star)
+                {
+                    <option value="@star" selected>@star stars</option>
+                }
+                else
+                {
+                    <option value="@star">@star stars</option>
+                }
+            }
+        </select>
+
+        <button type="submit" class="review-btn">
+            Search
+        </button>
+
+        <a asp-area="Admin"
+           asp-controller="Reviews"
+           asp-action="Index"
+           class="review-reset">
+            Reset
+        </a>
+    </form>
+
+    <div class="review-table-wrap">
+        <table class="review-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Guest</th>
+                    <th>Room</th>
+                    <th>Booking</th>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var review in Model)
+                {
+                    <tr>
+                        <td style="white-space:nowrap">
+                            @review.CreatedAt.ToString("dd MMM yyyy")
+                        </td>
+
+                        <td style="white-space:nowrap">
+                            @review.GuestDisplayName
+                        </td>
+
+                        <td style="white-space:nowrap">
+                            @review.RoomName
+                            (#@review.RoomNumber)
+                        </td>
+
+                        <td>
+                            <a asp-area="Admin"
+                               asp-controller="Bookings"
+                               asp-action="Details"
+                               asp-route-id="@review.BookingId">
+                                @review.ConfirmationCode
+                            </a>
+                        </td>
+
+                        <td>
+                            <span class="review-stars">
+                                @(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="review-comment">
+                                @review.Comment
+                            </div>
+                        </td>
+
+                        <td>
+                            <form asp-area="Admin"
+                                  asp-controller="Reviews"
+                                  asp-action="Delete"
+                                  asp-route-id="@review.Id"
+                                  method="post"
+                                  onsubmit="return confirm('Delete this review? This cannot be undone.');">
+
+                                <button type="submit" class="review-delete">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
+        {
+            <div class="review-empty">
+                No reviews found.
+            </div>
+        }
+    </div>
+</div>

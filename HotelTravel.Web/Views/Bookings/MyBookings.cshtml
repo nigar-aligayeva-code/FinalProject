@@ -1,0 +1,195 @@
+@model List<HotelTravel.Application.DTOs.Bookings.GetBookingDto>
+@using HotelTravel.Domain.Enums
+
+@{
+    ViewData["Title"] = "My Bookings";
+
+    var today = DateTime.Today;
+
+    var upcoming = Model
+        .Where(b =>
+            b.Status == BookingStatus.Confirmed ||
+            b.Status == BookingStatus.CheckedIn)
+        .OrderBy(b => b.CheckInDate)
+        .ToList();
+
+    var past = Model
+        .Where(b =>
+            b.Status == BookingStatus.CheckedOut ||
+            b.Status == BookingStatus.Cancelled)
+        .OrderByDescending(b => b.CheckInDate)
+        .ToList();
+}
+
+<style>
+    .my-bookings-page {
+        padding: 50px 0 70px;
+        background: #F8F5F0;
+    }
+
+    .my-bookings-title {
+        font-family: Georgia, serif;
+        font-size: 34px;
+        color: #1F1F1F !important;
+    }
+
+    .my-booking-card {
+        background: #FFFFFF;
+        border: 1px solid #E8E0D5;
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .my-booking-image {
+        width: 220px;
+        min-height: 160px;
+        background: #E7E0D5;
+        flex-shrink: 0;
+    }
+
+        .my-booking-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .my-booking-body {
+        flex: 1;
+        min-width: 260px;
+        padding: 22px 26px;
+    }
+
+    .my-booking-room {
+        font-family: Georgia, serif;
+        font-size: 22px;
+        margin-bottom: 4px;
+    }
+
+    .my-booking-meta {
+        color: #77736B;
+        font-size: 14px;
+    }
+
+    .my-booking-status {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-confirmed { background: #dcfce7; color: #166534; }
+    .status-checkedin { background: #dbeafe; color: #1d4ed8; }
+    .status-checkedout { background: #f1f5f9; color: #475569; }
+    .status-cancelled { background: #fee2e2; color: #b91c1c; }
+
+    .my-booking-actions .btn {
+        border-radius: 30px;
+    }
+
+    .my-section-title {
+        font-family: Georgia, serif;
+        font-size: 24px;
+        margin: 34px 0 18px;
+        color: #1F1F1F !important;
+    }
+
+    .my-empty {
+        background: #FFFFFF;
+        border: 1px dashed #D9D2C5;
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+        color: #77736B;
+    }
+
+    @@media (max-width: 576px) {
+        .my-booking-image {
+            width: 100%;
+            height: 180px;
+        }
+    }
+</style>
+
+<section class="my-bookings-page">
+    <div class="container">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+            <div>
+                <h1 class="my-bookings-title mb-1">My Bookings</h1>
+                <p class="text-muted mb-0">
+                    View, modify or cancel your reservations.
+                </p>
+            </div>
+
+            <a asp-controller="Rooms"
+               asp-action="Search"
+               class="btn btn-dark rounded-pill px-4">
+                <i class="bi bi-plus-lg me-1"></i>
+                New Booking
+            </a>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success mt-4 mb-0">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger mt-4 mb-0">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="my-empty mt-4">
+                <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                You have no bookings yet.
+                <div class="small mt-1">
+                    Bookings made while logged in will appear here.
+                    For older bookings use
+                    <a asp-controller="Bookings" asp-action="Find">Find My Booking</a>.
+                </div>
+            </div>
+        }
+        else
+        {
+            <h2 class="my-section-title">
+                Upcoming &amp; Current (@upcoming.Count)
+            </h2>
+
+            @if (!upcoming.Any())
+            {
+                <div class="my-empty">No upcoming stays.</div>
+            }
+
+            @foreach (var booking in upcoming)
+            {
+                @await Html.PartialAsync("_MyBookingCard", booking)
+            }
+
+            <h2 class="my-section-title">
+                Past &amp; Cancelled (@past.Count)
+            </h2>
+
+            @if (!past.Any())
+            {
+                <div class="my-empty">No past bookings.</div>
+            }
+
+            @foreach (var booking in past)
+            {
+                @await Html.PartialAsync("_MyBookingCard", booking)
+            }
+        }
+
+    </div>
+</section>

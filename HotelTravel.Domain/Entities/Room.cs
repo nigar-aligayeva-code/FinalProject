@@ -15,7 +15,7 @@ public class Room : BaseEntity
     public int Capacity { get; set; }
 
     public string MainImage { get; set; }
-
+    public string? PanoramaImage { get; set; }
     public RoomType RoomType { get; set; }
 
     public int HotelId { get; set; }
@@ -36,4 +36,9 @@ public class Room : BaseEntity
     // ROOM IMAGES
     public ICollection<RoomImage> Images { get; set; }
         = new List<RoomImage>();
+
+
+    // REVIEWS
+    public ICollection<Review> Reviews { get; set; }
+        = new List<Review>();
 }

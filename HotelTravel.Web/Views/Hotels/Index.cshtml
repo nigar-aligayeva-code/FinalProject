@@ -4,103 +4,629 @@
     ViewData["Title"] = "Hotels";
 }
 
-<div class="container mt-5 mb-5">
+<section class="hotels-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Hotels</h2>
+    <div class="container">
 
-        <a asp-controller="Hotels"
-           asp-action="Create"
-           class="btn btn-primary">
-            Add New Hotel
-        </a>
-    </div>
+        <!-- HEADER -->
+        <div class="hotels-page-header">
 
-    @if (Model == null || Model.Count == 0)
-    {
-        <div class="alert alert-info">
-            No hotels have been added yet.
+            <div>
+                <span class="hotels-eyebrow">
+                    <i class="bi bi-compass"></i>
+                    CURATED STAYS
+                </span>
+
+                <h1>Discover Exceptional Stays</h1>
+
+                <p>
+                    Handpicked hotels designed for memorable journeys,
+                    exceptional comfort and unforgettable experiences.
+                </p>
+            </div>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Hotels"
+                   asp-action="Create"
+                   class="add-hotel-btn">
+
+                    <i class="bi bi-plus-lg"></i>
+                    Add Hotel
+
+                </a>
+            }
+
         </div>
-    }
-    else
-    {
-        <table class="table table-bordered table-striped">
 
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Hotel Chain</th>
-                    <th>City</th>
-                    <th>Country</th>
-                    <th>Stars</th>
-                    <th>Phone</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
 
-            <tbody>
+        @if (Model == null || Model.Count == 0)
+        {
+            <div class="hotels-empty">
+
+                <i class="bi bi-building"></i>
+
+                <h3>No hotels found</h3>
+
+                <p>
+                    There are currently no hotels available.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="hotels-grid">
 
                 @foreach (var hotel in Model)
                 {
-                    <tr>
-                        <td>
-                            @if (!string.IsNullOrEmpty(hotel.MainImage))
-                            {
-                                <img src="@hotel.MainImage"
-                                     alt="@hotel.Name"
-                                     width="100" />
-                            }
-                        </td>
+                    var imagePath = hotel.MainImage;
 
-                        <td>@hotel.Name</td>
+                    // Seed etdiyimiz hotellərin əsas şəkillərini
+                    // gallery-dəki exterior şəkilləri ilə uyğunlaşdırırıq.
+                    if (hotel.Name == "Caspian Grand Hotel")
+                    {
+                        imagePath = "/assets/images/hotels/baku-exterior.jpg";
+                    }
+                    else if (hotel.Name == "Gabala Mountain Resort")
+                    {
+                        imagePath = "/assets/images/hotels/gabala-exterior.jpg";
+                    }
+                    else if (hotel.Name == "Bosphorus Palace Hotel")
+                    {
+                        imagePath = "/assets/images/hotels/istanbul-exterior.jpg";
+                    }
+                    else if (hotel.Name == "Antalya Blue Resort")
+                    {
+                        imagePath = "/assets/images/hotels/antalya-exterior.jpg";
+                    }
+                    else if (hotel.Name == "Tbilisi Heritage Hotel")
+                    {
+                        imagePath = "/assets/images/hotels/tbilisi-exterior.jpg";
+                    }
+                    else if (hotel.Name == "Batumi Sea View Hotel")
+                    {
+                        imagePath = "/assets/images/hotels/batumi-exterior.jpg";
+                    }
+                    else if (hotel.Name == "Dubai Marina Luxury Hotel")
+                    {
+                        imagePath = "/assets/images/hotels/dubai-exterior.jpg";
+                    }
 
-                        <td>
-                            @if (!string.IsNullOrEmpty(hotel.HotelChainName))
+                    <article class="hotel-card">
+
+                        <!-- IMAGE -->
+                        <div class="hotel-card-image">
+
+                            @if (!string.IsNullOrWhiteSpace(imagePath))
                             {
-                                @hotel.HotelChainName
+                                <img src="@imagePath"
+                                     alt="@hotel.Name" />
                             }
                             else
                             {
-                                <span class="text-muted">
-                                    Independent Hotel
-                                </span>
+                                <div class="hotel-image-placeholder">
+                                    <i class="bi bi-building"></i>
+                                </div>
                             }
-                        </td>
 
-                        <td>@hotel.City</td>
 
-                        <td>@hotel.Country</td>
+                            <!-- STARS -->
+                            <div class="hotel-rating">
 
-                        <td>@hotel.StarRating ⭐</td>
+                                <i class="bi bi-star-fill"></i>
 
-                        <td>@hotel.Phone</td>
+                                <span>
+                                    @hotel.StarRating
+                                </span>
 
-                        <td>
-                            <a asp-action="Details"
-                               asp-route-id="@hotel.Id"
-                               class="btn btn-info btn-sm">
-                                Details
-                            </a>
+                            </div>
 
-                            <a asp-action="Edit"
-                               asp-route-id="@hotel.Id"
-                               class="btn btn-warning btn-sm">
-                                Edit
-                            </a>
 
-                            <a asp-action="Delete"
-                               asp-route-id="@hotel.Id"
-                               class="btn btn-danger btn-sm">
-                                Delete
-                            </a>
-                        </td>
-                    </tr>
+                            <!-- ADMIN ACTIONS -->
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <div class="hotel-admin-actions">
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@hotel.Id"
+                                       class="hotel-admin-btn"
+                                       title="Edit hotel">
+
+                                        <i class="bi bi-pencil"></i>
+
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@hotel.Id"
+                                       class="hotel-admin-btn delete"
+                                       title="Delete hotel">
+
+                                        <i class="bi bi-trash"></i>
+
+                                    </a>
+
+                                </div>
+                            }
+
+                        </div>
+
+
+                        <!-- CONTENT -->
+                        <div class="hotel-card-content">
+
+                            <div class="hotel-location">
+
+                                <i class="bi bi-geo-alt-fill"></i>
+
+                                <span>
+                                    @hotel.City, @hotel.Country
+                                </span>
+
+                            </div>
+
+
+                            <h2>
+                                @hotel.Name
+                            </h2>
+
+
+                            <div class="hotel-chain">
+
+                                <i class="bi bi-buildings"></i>
+
+                                @if (!string.IsNullOrWhiteSpace(hotel.HotelChainName))
+                                {
+                                    <span>
+                                        @hotel.HotelChainName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        Independent Hotel
+                                    </span>
+                                }
+
+                            </div>
+
+
+                            @if (!string.IsNullOrWhiteSpace(hotel.Description))
+                            {
+                                <p class="hotel-description">
+                                    @hotel.Description
+                                </p>
+                            }
+
+
+                            <div class="hotel-card-footer">
+
+                                <div class="hotel-stars">
+
+                                    @for (int i = 0; i < hotel.StarRating; i++)
+                                    {
+                                        <i class="bi bi-star-fill"></i>
+                                    }
+
+                                </div>
+
+
+                                <a asp-action="Details"
+                                   asp-route-id="@hotel.Id"
+                                   class="view-hotel-btn">
+
+                                    View Hotel
+
+                                    <i class="bi bi-arrow-right"></i>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
                 }
 
-            </tbody>
+            </div>
+        }
 
-        </table>
+    </div>
+
+</section>
+
+
+<style>
+
+    /* =========================================
+       HOTELS PAGE
+    ========================================= */
+
+    .hotels-page {
+        background: #F3EEE5;
+        min-height: 100vh;
+        padding: 80px 0 100px;
     }
 
-</div>
+
+    /* HEADER */
+
+    .hotels-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 30px;
+        margin-bottom: 50px;
+    }
+
+    .hotels-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #C69B45;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+    }
+
+    .hotels-page-header h1 {
+        color: #1F2421;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 48px;
+        font-weight: 500;
+        line-height: 1.1;
+        margin: 0 0 14px;
+    }
+
+    .hotels-page-header p {
+        color: #686C68;
+        font-size: 15px;
+        line-height: 1.8;
+        max-width: 620px;
+        margin: 0;
+    }
+
+
+    /* ADD HOTEL */
+
+    .add-hotel-btn {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+
+        background: #1F2421;
+        color: #fff;
+
+        padding: 14px 22px;
+
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+
+        transition: .25s ease;
+    }
+
+    .add-hotel-btn:hover {
+        background: #C69B45;
+        color: #fff;
+    }
+
+
+    /* GRID */
+
+    .hotels-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+    }
+
+
+    /* CARD */
+
+    .hotel-card {
+        background: #fff;
+        overflow: hidden;
+        border: 1px solid rgba(31, 36, 33, .08);
+        box-shadow: 0 12px 35px rgba(31, 36, 33, .08);
+
+        transition:
+            transform .3s ease,
+            box-shadow .3s ease;
+    }
+
+    .hotel-card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 20px 45px rgba(31, 36, 33, .14);
+    }
+
+
+    /* IMAGE */
+
+    .hotel-card-image {
+        height: 270px;
+        position: relative;
+        overflow: hidden;
+        background: #dedbd4;
+    }
+
+    .hotel-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+
+        transition: transform .5s ease;
+    }
+
+    .hotel-card:hover .hotel-card-image img {
+        transform: scale(1.05);
+    }
+
+    .hotel-image-placeholder {
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        color: #8d8d8d;
+        font-size: 55px;
+    }
+
+
+    /* RATING */
+
+    .hotel-rating {
+        position: absolute;
+        left: 18px;
+        bottom: 18px;
+
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        background: rgba(31, 36, 33, .88);
+        color: #fff;
+
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 700;
+
+        backdrop-filter: blur(5px);
+    }
+
+    .hotel-rating i {
+        color: #C69B45;
+    }
+
+
+    /* ADMIN ICONS */
+
+    .hotel-admin-actions {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+
+        display: flex;
+        gap: 8px;
+    }
+
+    .hotel-admin-btn {
+        width: 38px;
+        height: 38px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: rgba(255, 255, 255, .94);
+        color: #1F2421;
+
+        text-decoration: none;
+
+        border-radius: 50%;
+
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .15);
+
+        transition: .2s ease;
+    }
+
+    .hotel-admin-btn:hover {
+        background: #C69B45;
+        color: #fff;
+    }
+
+    .hotel-admin-btn.delete:hover {
+        background: #9f3434;
+        color: #fff;
+    }
+
+
+    /* CONTENT */
+
+    .hotel-card-content {
+        padding: 25px 25px 22px;
+    }
+
+    .hotel-location {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        color: #C69B45;
+
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+
+        margin-bottom: 10px;
+    }
+
+    .hotel-card-content h2 {
+        color: #1F2421;
+
+        font-family: Georgia, "Times New Roman", serif;
+
+        font-size: 25px;
+        font-weight: 500;
+        line-height: 1.25;
+
+        margin: 0 0 12px;
+    }
+
+    .hotel-chain {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+
+        color: #777;
+        font-size: 13px;
+
+        margin-bottom: 15px;
+    }
+
+    .hotel-chain i {
+        color: #C69B45;
+    }
+
+    .hotel-description {
+        color: #686C68;
+
+        font-size: 14px;
+        line-height: 1.7;
+
+        margin: 0;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        min-height: 48px;
+    }
+
+
+    /* FOOTER */
+
+    .hotel-card-footer {
+        border-top: 1px solid #ece9e2;
+
+        margin-top: 22px;
+        padding-top: 18px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .hotel-stars {
+        display: flex;
+        gap: 3px;
+    }
+
+    .hotel-stars i {
+        color: #C69B45;
+        font-size: 12px;
+    }
+
+    .view-hotel-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        color: #1F2421;
+
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+
+        transition: .2s ease;
+    }
+
+    .view-hotel-btn i {
+        color: #C69B45;
+        transition: transform .2s ease;
+    }
+
+    .view-hotel-btn:hover {
+        color: #C69B45;
+    }
+
+    .view-hotel-btn:hover i {
+        transform: translateX(4px);
+    }
+
+
+    /* EMPTY */
+
+    .hotels-empty {
+        background: #fff;
+
+        padding: 70px 20px;
+
+        text-align: center;
+
+        border: 1px solid rgba(31, 36, 33, .08);
+    }
+
+    .hotels-empty > i {
+        color: #C69B45;
+        font-size: 55px;
+    }
+
+    .hotels-empty h3 {
+        font-family: Georgia, "Times New Roman", serif;
+        color: #1F2421;
+        margin: 18px 0 8px;
+    }
+
+    .hotels-empty p {
+        color: #777;
+        margin: 0;
+    }
+
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 991px) {
+
+        .hotels-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .hotels-page-header h1 {
+            font-size: 40px;
+        }
+    }
+
+
+    @@media (max-width: 767px) {
+
+        .hotels-page {
+            padding: 50px 0 70px;
+        }
+
+        .hotels-page-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .hotels-page-header h1 {
+            font-size: 34px;
+        }
+
+        .hotels-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hotel-card-image {
+            height: 240px;
+        }
+    }
+
+</style>

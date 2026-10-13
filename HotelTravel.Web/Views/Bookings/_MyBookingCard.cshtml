@@ -1,0 +1,135 @@
+@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
+@using HotelTravel.Domain.Enums
+
+@{
+    var nights = (Model.CheckOutDate.Date - Model.CheckInDate.Date).Days;
+
+    var statusClass = Model.Status switch
+    {
+        BookingStatus.Confirmed => "status-confirmed",
+        BookingStatus.CheckedIn => "status-checkedin",
+        BookingStatus.CheckedOut => "status-checkedout",
+        BookingStatus.Cancelled => "status-cancelled",
+        _ => "status-checkedout"
+    };
+
+    // Yalnız Confirmed və giriş günü hələ gəlməyibsə
+    var canChange =
+        HotelTravel.Application.Services.BookingRules.CanGuestChange(
+            Model.Status,
+            Model.CheckInDate,
+            DateTime.Today) == null;
+
+    var guestsText =
+        Model.AdultCount + (Model.AdultCount == 1 ? " adult" : " adults");
+
+    if (Model.ChildrenCount > 0)
+    {
+        guestsText += ", " + Model.ChildrenCount +
+            (Model.ChildrenCount == 1 ? " child" : " children");
+    }
+
+    var canReview =
+        Model.Status == BookingStatus.CheckedOut && !Model.HasReview;
+}
+
+<div class="my-booking-card">
+
+    <div class="my-booking-image">
+        @if (!string.IsNullOrWhiteSpace(Model.RoomImage))
+        {
+            <img src="@Model.RoomImage" alt="@Model.RoomName" />
+        }
+    </div>
+
+    <div class="my-booking-body">
+
+        <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+                <div class="my-booking-room">@Model.RoomName</div>
+                <div class="my-booking-meta">
+                    Room @Model.RoomNumber
+                    <span class="mx-1">•</span>
+                    <strong>@Model.ConfirmationCode</strong>
+                </div>
+            </div>
+
+            <span class="my-booking-status @statusClass">
+                @Model.Status
+            </span>
+        </div>
+
+        <div class="row mt-3 my-booking-meta">
+            <div class="col-sm-4 mb-2">
+                <i class="bi bi-calendar-event me-1"></i>
+                @Model.CheckInDate.ToString("dd MMM yyyy")
+                &rarr;
+                @Model.CheckOutDate.ToString("dd MMM yyyy")
+            </div>
+            <div class="col-sm-4 mb-2">
+                <i class="bi bi-moon me-1"></i>
+                @nights night@(nights == 1 ? "" : "s")
+                <span class="mx-1">•</span>
+                <i class="bi bi-people me-1"></i>
+                @guestsText
+            </div>
+            <div class="col-sm-4 mb-2 text-sm-end">
+                <strong class="text-dark fs-5">
+                    @Model.TotalPrice.ToString("0.00") AZN
+                </strong>
+            </div>
+        </div>
+
+        <div class="my-booking-actions d-flex flex-wrap gap-2 mt-2">
+
+            <a asp-controller="Rooms"
+               asp-action="Details"
+               asp-route-id="@Model.RoomId"
+               class="btn btn-sm btn-outline-secondary">
+                View Room
+            </a>
+
+            @if (canChange)
+            {
+                <a asp-controller="Bookings"
+                   asp-action="Modify"
+                   asp-route-confirmationCode="@Model.ConfirmationCode"
+                   class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil me-1"></i>
+                    Modify
+                </a>
+
+                <form asp-controller="Bookings"
+                      asp-action="CancelMine"
+                      asp-route-id="@Model.Id"
+                      method="post"
+                      class="d-inline"
+                      onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+                    </button>
+                </form>
+            }
+
+            @if (canReview)
+            {
+                <a asp-controller="Reviews"
+                   asp-action="Create"
+                   asp-route-confirmationCode="@Model.ConfirmationCode"
+                   class="btn btn-sm btn-warning">
+                    <i class="bi bi-star-fill me-1"></i>
+                    Write a Review
+                </a>
+            }
+            else if (Model.HasReview)
+            {
+                <span class="small text-muted align-self-center">
+                    <i class="bi bi-check2-circle me-1"></i>
+                    Reviewed
+                </span>
+            }
+        </div>
+
+    </div>
+</div>

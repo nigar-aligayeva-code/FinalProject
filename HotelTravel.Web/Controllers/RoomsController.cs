@@ -11,17 +11,20 @@ public class RoomsController : Controller
     private readonly IRoomService _roomService;
     private readonly IHotelService _hotelService;
     private readonly IAmenityService _amenityService;
+    private readonly IReviewService _reviewService;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     public RoomsController(
         IRoomService roomService,
         IHotelService hotelService,
         IAmenityService amenityService,
+        IReviewService reviewService,
         IWebHostEnvironment webHostEnvironment)
     {
         _roomService = roomService;
         _hotelService = hotelService;
         _amenityService = amenityService;
+        _reviewService = reviewService;
         _webHostEnvironment = webHostEnvironment;
     }
 
@@ -63,6 +66,13 @@ public class RoomsController : Controller
         ViewBag.CheckOutDate = checkOutDate;
         ViewBag.AdultCount = adultCount;
         ViewBag.ChildrenCount = childrenCount;
+
+        // F8 - Rəylər və reytinq
+        ViewBag.Reviews =
+            await _reviewService.GetByRoomIdAsync(id);
+
+        ViewBag.RatingSummary =
+            await _reviewService.GetRoomSummaryAsync(id);
 
         return View(room);
     }
@@ -827,4 +837,4 @@ public class RoomsController : Controller
                     d.ToString("yyyy-MM-dd"))
                 .ToList();
     }
-}
+}

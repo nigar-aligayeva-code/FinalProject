@@ -14,7 +14,7 @@ public class GetRoomDto
     public int Capacity { get; set; }
 
     public string MainImage { get; set; }
-
+    public string? PanoramaImage { get; set; }
     public RoomType RoomType { get; set; }
 
     public int HotelId { get; set; }
@@ -41,4 +41,12 @@ public class GetRoomDto
     // Admin Edit səhifəsində şəkli Id ilə
     // silmək üçün istifadə edəcəyik.
     public List<GetRoomImageDto> Images { get; set; } = new();
+
+
+    // =========================
+    // REVIEWS
+    // =========================
+    public double AverageRating { get; set; }
+
+    public int ReviewCount { get; set; }
 }

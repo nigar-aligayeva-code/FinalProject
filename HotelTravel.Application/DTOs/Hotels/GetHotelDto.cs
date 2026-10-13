@@ -21,4 +21,6 @@ public class GetHotelDto
     public int? HotelChainId { get; set; }
 
     public string? HotelChainName { get; set; }
+    public List<GetHotelImageDto> Images { get; set; }
+    = new List<GetHotelImageDto>();
 }

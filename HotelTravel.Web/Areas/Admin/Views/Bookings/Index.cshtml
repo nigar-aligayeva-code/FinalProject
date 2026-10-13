@@ -1,0 +1,274 @@
+﻿@model List<HotelTravel.Application.DTOs.Bookings.GetBookingDto>
+@using HotelTravel.Domain.Enums
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Bookings";
+
+    string search = ViewBag.Search as string ?? "";
+    BookingStatus? selectedStatus =
+        ViewBag.Status as BookingStatus?;
+}
+
+<style>
+    .booking-heading {
+        margin-bottom: 24px;
+    }
+
+        .booking-heading h1 {
+            font-size: 28px;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .booking-heading p {
+            color: #64748b;
+        }
+
+    .booking-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+    }
+
+    .booking-filters {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .booking-input {
+        padding: 12px 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        min-width: 190px;
+        background: white;
+    }
+
+    .booking-btn {
+        background: #2563eb;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .booking-reset {
+        padding: 12px 20px;
+        background: #f1f5f9;
+        color: #334155;
+        border-radius: 10px;
+        text-decoration: none;
+    }
+
+    .booking-table-wrap {
+        overflow-x: auto;
+    }
+
+    .booking-table {
+        width: 100%;
+        border-collapse: collapse;
+        white-space: nowrap;
+    }
+
+        .booking-table th {
+            text-align: left;
+            padding: 14px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .booking-table td {
+            padding: 16px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-confirmed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-checkedin {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status-checkedout {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .status-cancelled {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .details-link {
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .booking-empty {
+        text-align: center;
+        padding: 35px;
+        color: #64748b;
+    }
+</style>
+
+<div class="booking-heading">
+    <h1>Bookings Management</h1>
+    <p>View, search and manage hotel reservations.</p>
+</div>
+
+<div style="margin-bottom:20px;">
+    <a asp-area="Admin"
+       asp-controller="Bookings"
+       asp-action="Calendar"
+       class="booking-btn">
+        View Occupancy Calendar
+    </a>
+</div>
+
+<div class="booking-card">
+
+    <form method="get"
+          asp-area="Admin"
+          asp-controller="Bookings"
+          asp-action="Index"
+          class="booking-filters">
+
+        <input type="text"
+               name="search"
+               value="@search"
+               placeholder="Code, guest, email or room..."
+               class="booking-input" />
+
+        <select name="status" class="booking-input">
+            <option value="">All Statuses</option>
+
+            @foreach (var status in Enum.GetValues<BookingStatus>())
+            {
+                if (selectedStatus == status)
+                {
+                    <option value="@status" selected>
+                        @status
+                    </option>
+                }
+                else
+                {
+                    <option value="@status">
+                        @status
+                    </option>
+                }
+            }
+        </select>
+
+        <button type="submit" class="booking-btn">
+            Search
+        </button>
+
+        <a asp-area="Admin"
+           asp-controller="Bookings"
+           asp-action="Index"
+           class="booking-reset">
+            Reset
+        </a>
+    </form>
+
+    <div class="booking-table-wrap">
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Confirmation</th>
+                    <th>Guest</th>
+                    <th>Room</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var booking in Model)
+                {
+                    var statusClass = booking.Status switch
+                    {
+                        BookingStatus.Confirmed => "status-confirmed",
+                        BookingStatus.CheckedIn => "status-checkedin",
+                        BookingStatus.CheckedOut => "status-checkedout",
+                        BookingStatus.Cancelled => "status-cancelled",
+                        _ => "status-checkedout"
+                    };
+
+                    <tr>
+                        <td>
+                            <strong>@booking.ConfirmationCode</strong>
+                        </td>
+
+                        <td>
+                            @booking.GuestName
+                        </td>
+
+                        <td>
+                            @booking.RoomName
+                            (#@booking.RoomNumber)
+                        </td>
+
+                        <td>
+                            @booking.CheckInDate.ToString("dd MMM yyyy")
+                        </td>
+
+                        <td>
+                            @booking.CheckOutDate.ToString("dd MMM yyyy")
+                        </td>
+
+                        <td>
+                            @booking.TotalPrice.ToString("0.00") AZN
+                        </td>
+
+                        <td>
+                            <span class="status-badge @statusClass">
+                                @booking.Status
+                            </span>
+                        </td>
+
+                        <td>
+                            <a asp-area="Admin"
+                               asp-controller="Bookings"
+                               asp-action="Details"
+                               asp-route-id="@booking.Id"
+                               class="details-link">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
+        {
+            <div class="booking-empty">
+                No bookings found.
+            </div>
+        }
+    </div>
+</div>

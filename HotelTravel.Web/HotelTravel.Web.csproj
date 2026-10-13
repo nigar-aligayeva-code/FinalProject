@@ -20,4 +20,8 @@
     <ProjectReference Include="..\HotelTravel.Infrastructure\HotelTravel.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Areas\Admin\ViewModels\" />
+  </ItemGroup>
+
 </Project>

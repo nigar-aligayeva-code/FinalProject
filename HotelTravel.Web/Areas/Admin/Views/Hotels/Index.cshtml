@@ -1,0 +1,201 @@
+﻿@model List<HotelTravel.Application.DTOs.Hotels.GetHotelDto>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Hotels";
+}
+
+<style>
+    .hotels-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+        .hotels-header h1 {
+            margin-bottom: 8px;
+        }
+
+        .hotels-header p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .hotel-search {
+        padding: 12px 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        width: 280px;
+        max-width: 100%;
+        font-size: 14px;
+        outline: none;
+    }
+
+        .hotel-search:focus {
+            border-color: #2563eb;
+        }
+
+    .hotel-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .hotel-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .hotel-table th {
+            text-align: left;
+            background: #f8fafc;
+            color: #64748b;
+            padding: 16px;
+            font-size: 13px;
+        }
+
+        .hotel-table td {
+            padding: 16px;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+    .hotel-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .hotel-image {
+        width: 64px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 10px;
+        background: #e2e8f0;
+    }
+
+    .hotel-name {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .hotel-city {
+        color: #94a3b8;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .star-badge {
+        background: #fff7ed;
+        color: #c2410c;
+        padding: 7px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .edit-button {
+        background: #eff6ff;
+        color: #2563eb;
+        padding: 9px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+        .edit-button:hover {
+            background: #2563eb;
+            color: white;
+        }
+</style>
+
+<div class="hotels-header">
+    <div>
+        <h1>Hotels Management</h1>
+        <p>Manage and organize all hotels in your system.</p>
+    </div>
+
+    <input type="search"
+           id="hotelSearch"
+           class="hotel-search"
+           placeholder="Search hotels..." />
+</div>
+
+<div class="admin-card">
+    <h3>All Hotels (@(Model?.Count ?? 0))</h3>
+
+    <div class="hotel-table-wrapper">
+        <table class="hotel-table" id="hotelsTable">
+            <thead>
+                <tr>
+                    <th>Hotel</th>
+                    <th>Country</th>
+                    <th>Rating</th>
+                    <th>Hotel Chain</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var hotel in Model ?? new List<HotelTravel.Application.DTOs.Hotels.GetHotelDto>())
+                {
+                    <tr>
+                        <td>
+                            <div class="hotel-info">
+                                <img class="hotel-image"
+                                     src="@hotel.MainImage"
+                                     alt="@hotel.Name"
+                                     onerror="this.style.visibility='hidden'" />
+
+                                <div>
+                                    <div class="hotel-name">@hotel.Name</div>
+                                    <div class="hotel-city">@hotel.City</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>@hotel.Country</td>
+
+                        <td>
+                            <span class="star-badge">
+                                ★ @hotel.StarRating Stars
+                            </span>
+                        </td>
+
+                        <td>@(hotel.HotelChainName ?? "Independent")</td>
+
+                        <td>
+                            <a asp-area="Admin"
+                               asp-controller="Hotels"
+                               asp-action="Edit"
+                               asp-route-id="@hotel.Id"
+                               class="edit-button">
+                                Edit
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const searchInput = document.getElementById("hotelSearch");
+        const hotelRows = document.querySelectorAll("#hotelsTable tbody tr");
+
+        searchInput.addEventListener("input", function() {
+            const searchText = this.value.toLowerCase().trim();
+
+            hotelRows.forEach(row => {
+                const hotelText = row.innerText.toLowerCase();
+
+                row.style.display = hotelText.includes(searchText)
+                    ? ""
+                    : "none";
+            });
+        });
+    </script>
+}

@@ -1,0 +1,610 @@
+﻿@using System.Text.Json
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Dashboard";
+
+    var monthlyBookings = JsonSerializer.Serialize(ViewBag.MonthlyBookings);
+    var monthlyRevenue = JsonSerializer.Serialize(ViewBag.MonthlyRevenue);
+    var bookingStatuses = JsonSerializer.Serialize(ViewBag.BookingStatuses);
+    var bookingStatusCounts = JsonSerializer.Serialize(ViewBag.BookingStatusCounts);
+}
+
+<style>
+    .dashboard-heading {
+        margin-bottom: 28px;
+    }
+
+        .dashboard-heading h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            color: #0f172a;
+        }
+
+        .dashboard-heading p {
+            color: #64748b;
+            margin: 0;
+        }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card, .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid #edf2f7;
+        box-shadow: 0 5px 25px rgba(30, 41, 59, 0.04);
+    }
+
+    .stat-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(30, 41, 59, 0.09);
+        }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 18px;
+    }
+
+    .icon-hotels {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .icon-rooms {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .icon-bookings {
+        background: #f3e8ff;
+        color: #9333ea;
+    }
+
+    
+    .icon-checkin {
+        background: #ccfbf1;
+        color: #0d9488;
+    }
+
+    .icon-checkout {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .icon-occupancy {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    .stat-description {
+        color: #94a3b8;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+
+
+    .stat-label {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .stat-value {
+        font-size: 30px;
+        font-weight: 750;
+        color: #0f172a;
+        overflow-wrap: anywhere;
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .chart-card h3 {
+        margin: 0 0 6px;
+        font-size: 18px;
+        color: #0f172a;
+    }
+
+    .chart-card p {
+        color: #64748b;
+        font-size: 13px;
+        margin: 0 0 24px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    .chart-card.full-width {
+        grid-column: 1 / -1;
+    }
+
+    @@media (max-width: 1100px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .stats-grid, .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="dashboard-heading">
+    <h1>Dashboard Overview</h1>
+    <p>Welcome back! Here is your hotel management overview.</p>
+</div>
+
+<!-- STATISTICS -->
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-icon icon-hotels">⌂</div>
+        <div class="stat-label">Total Hotels</div>
+        <div class="stat-value">@ViewBag.TotalHotels</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon icon-rooms">▤</div>
+        <div class="stat-label">Total Rooms</div>
+        <div class="stat-value">@ViewBag.TotalRooms</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon icon-bookings">▦</div>
+        <div class="stat-label">Total Bookings</div>
+        <div class="stat-value">@ViewBag.TotalBookings</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon icon-revenue">₼</div>
+        <div class="stat-label">Total Revenue (Estimated)</div>
+        <div class="stat-value">
+            @(((decimal)ViewBag.TotalRevenue).ToString("N2")) AZN
+        </div>
+    </div>
+
+</div>
+
+<!-- TODAY & OCCUPANCY STATISTICS -->
+<div class="stats-grid">
+
+    <!-- TODAY'S CHECK-INS -->
+    <div class="stat-card">
+        <div class="stat-icon icon-checkin">
+            ↘
+        </div>
+
+        <div class="stat-label">
+            Today's Check-ins
+        </div>
+
+        <div class="stat-value">
+            @ViewBag.TodayCheckIns
+        </div>
+
+        <div class="stat-description">
+            Guests scheduled to arrive today
+        </div>
+    </div>
+
+    <!-- TODAY'S CHECK-OUTS -->
+    <div class="stat-card">
+        <div class="stat-icon icon-checkout">
+            ↗
+        </div>
+
+        <div class="stat-label">
+            Today's Check-outs
+        </div>
+
+        <div class="stat-value">
+            @ViewBag.TodayCheckOuts
+        </div>
+
+        <div class="stat-description">
+            Guests scheduled to leave today
+        </div>
+    </div>
+
+    <!-- MONTHLY OCCUPANCY -->
+    <div class="stat-card">
+        <div class="stat-icon icon-occupancy">
+            %
+        </div>
+
+        <div class="stat-label">
+            Monthly Occupancy Rate
+        </div>
+
+        <div class="stat-value">
+            @ViewBag.MonthlyOccupancyRate%
+        </div>
+
+        <div class="stat-description">
+            Room occupancy for the current month
+        </div>
+    </div>
+
+</div>
+
+<!-- CHARTS -->
+<div class="charts-grid">
+
+    <div class="chart-card">
+        <h3>Monthly Bookings</h3>
+        <p>Bookings by check-in month — @ViewBag.ChartYear</p>
+        <div class="chart-container">
+            <canvas id="bookingsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Booking Status</h3>
+        <p>Distribution of reservation statuses</p>
+        <div class="chart-container">
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card full-width">
+        <h3>Monthly Revenue</h3>
+        <p>Non-cancelled booking value by check-in month — @ViewBag.ChartYear</p>
+        <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+
+    const monthlyBookings = @Html.Raw(monthlyBookings);
+    const monthlyRevenue = @Html.Raw(monthlyRevenue);
+    const bookingStatuses = @Html.Raw(bookingStatuses);
+    const bookingStatusCounts = @Html.Raw(bookingStatusCounts);
+
+    new Chart(document.getElementById('bookingsChart'), {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Bookings',
+                data: monthlyBookings,
+                backgroundColor: '#3b82f6',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: bookingStatuses,
+            datasets: [{
+                data: bookingStatusCounts,
+                backgroundColor: [
+                    '#3b82f6',
+                    '#22c55e',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#a855f7',
+                    '#14b8a6'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Revenue (AZN)',
+                data: monthlyRevenue,
+                borderColor: '#16a34a',
+                backgroundColor: 'rgba(22,163,74,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+@{
+    var recentBookings =
+        ViewBag.RecentBookings as List<HotelTravel.Application.DTOs.Bookings.GetBookingDto>
+        ?? new List<HotelTravel.Application.DTOs.Bookings.GetBookingDto>();
+}
+
+<style>
+    .recent-bookings-card {
+        background: white;
+        border: 1px solid #edf2f7;
+        border-radius: 16px;
+        padding: 24px;
+        margin-top: 24px;
+        box-shadow: 0 5px 25px rgba(30, 41, 59, 0.04);
+    }
+
+    .recent-bookings-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+        .recent-bookings-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .recent-bookings-header p {
+            margin: 6px 0 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+    .recent-view-all {
+        background: #eff6ff;
+        color: #2563eb;
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+        .recent-view-all:hover {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+    .recent-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 850px;
+    }
+
+        .recent-table th {
+            text-align: left;
+            padding: 14px 12px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .recent-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .recent-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+    .recent-code {
+        font-weight: 700;
+        color: #2563eb;
+    }
+
+    .recent-status {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .recent-confirmed {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .recent-checkedin {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .recent-checkedout {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    .recent-cancelled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .recent-details-btn {
+        display: inline-block;
+        padding: 8px 14px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .recent-details-btn:hover {
+            background: #1d4ed8;
+            color: white;
+        }
+</style>
+
+<div class="recent-bookings-card" id="recent-bookings">
+
+    <div class="recent-bookings-header">
+        <div>
+            <h3>Recent Bookings</h3>
+            <p>Five bookings with the latest check-in dates</p>
+        </div>
+
+        <a asp-area="Admin"
+           asp-controller="Bookings"
+           asp-action="Index"
+           class="recent-view-all">
+            View All Bookings →
+        </a>
+    </div>
+
+    <div class="recent-table-wrapper">
+
+        <table class="recent-table">
+            <thead>
+                <tr>
+                    <th>Confirmation</th>
+                    <th>Guest</th>
+                    <th>Room</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (recentBookings.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7" style="text-align:center;padding:30px;">
+                            No bookings found.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var booking in recentBookings)
+                    {
+                        var statusClass = booking.Status switch
+                        {
+                            HotelTravel.Domain.Enums.BookingStatus.Confirmed
+                                => "recent-confirmed",
+
+                            HotelTravel.Domain.Enums.BookingStatus.CheckedIn
+                                => "recent-checkedin",
+
+                            HotelTravel.Domain.Enums.BookingStatus.CheckedOut
+                                => "recent-checkedout",
+
+                            HotelTravel.Domain.Enums.BookingStatus.Cancelled
+                                => "recent-cancelled",
+
+                            _ => "recent-confirmed"
+                        };
+
+                        <tr>
+                            <td>
+                                <span class="recent-code">
+                                    @booking.ConfirmationCode
+                                </span>
+                            </td>
+
+                            <td>@booking.GuestName</td>
+
+                            <td>@booking.RoomNumber</td>
+
+                            <td>
+                                @booking.CheckInDate.ToString("dd MMM yyyy")
+                            </td>
+
+                            <td>
+                                @booking.CheckOutDate.ToString("dd MMM yyyy")
+                            </td>
+
+                            <td>
+                                <span class="recent-status @statusClass">
+                                    @booking.Status
+                                </span>
+                            </td>
+
+                            <td>
+
+                                <a asp-area="Admin"
+                                   asp-controller="Bookings"
+                                   asp-action="Details"
+                                   asp-route-id="@booking.Id"
+                                   asp-route-returnTo="dashboard"
+                                   class="recent-details-btn">
+                                    Details
+                                </a>
+
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>

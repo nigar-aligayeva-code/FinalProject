@@ -7,4 +7,5 @@
     <Project Path="HotelTravel.Infrastructure/HotelTravel.Infrastructure.csproj" />
     <Project Path="HotelTravel.Web/HotelTravel.Web.csproj" />
   </Folder>
+  <Project Path="HotelTravel.Tests/HotelTravel.Tests.csproj" Id="e68338ce-f85b-40d5-a6e4-300d00396fd4" />
 </Solution>

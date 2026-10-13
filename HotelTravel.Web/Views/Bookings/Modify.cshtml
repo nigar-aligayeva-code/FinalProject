@@ -1,0 +1,213 @@
+@model HotelTravel.Application.DTOs.Bookings.ModifyBookingDto
+
+@{
+    ViewData["Title"] = "Modify Booking";
+
+    var booking =
+        ViewBag.Booking as HotelTravel.Application.DTOs.Bookings.GetBookingDto;
+
+    decimal pricePerNight = ViewBag.PricePerNight ?? 0m;
+    int capacity = ViewBag.Capacity ?? 0;
+    bool isOwner = ViewBag.IsOwner ?? false;
+
+    var minDate = DateTime.Today.ToString("yyyy-MM-dd");
+}
+<style>
+    .card .form-label,
+    .card .form-text {
+        color: #1F1F1F !important;
+    }
+</style>
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+                    <h3 class="mb-0" style="color:#1F1F1F">Modify Booking</h3>
+                </div>
+
+                <div class="card-body">
+
+                    @if (booking != null)
+                    {
+                        <div class="alert alert-light border">
+                            <div>
+                                <strong>@booking.ConfirmationCode</strong>
+                                <span class="mx-2">•</span>
+                                Room @booking.RoomNumber - @booking.RoomName
+                            </div>
+                            <div class="small text-muted mt-1">
+                                Current stay:
+                                @booking.CheckInDate.ToString("dd.MM.yyyy")
+                                &rarr;
+                                @booking.CheckOutDate.ToString("dd.MM.yyyy")
+                                <span class="mx-2">•</span>
+                                @booking.TotalPrice.ToString("0.00") AZN
+                            </div>
+                        </div>
+                    }
+
+                    <form asp-controller="Bookings"
+                          asp-action="Modify"
+                          method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"></div>
+
+                        <input type="hidden" asp-for="ConfirmationCode" />
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label asp-for="CheckInDate" class="form-label">
+                                    Check-in
+                                </label>
+                                <input asp-for="CheckInDate"
+                                       type="date"
+                                       min="@minDate"
+                                       class="form-control" />
+                                <span asp-validation-for="CheckInDate"
+                                      class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CheckOutDate" class="form-label">
+                                    Check-out
+                                </label>
+                                <input asp-for="CheckOutDate"
+                                       type="date"
+                                       min="@minDate"
+                                       class="form-control" />
+                                <span asp-validation-for="CheckOutDate"
+                                      class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="AdultCount" class="form-label">
+                                    Adults
+                                </label>
+                                <input asp-for="AdultCount"
+                                       type="number"
+                                       min="1"
+                                       max="@capacity"
+                                       class="form-control" />
+                                <span asp-validation-for="AdultCount"
+                                      class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ChildrenCount" class="form-label">
+                                    Children
+                                </label>
+                                <input asp-for="ChildrenCount"
+                                       type="number"
+                                       min="0"
+                                       max="@capacity"
+                                       class="form-control" />
+                                <span asp-validation-for="ChildrenCount"
+                                      class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-text">
+                                    This room allows up to @capacity guests.
+                                    Price per night: @pricePerNight.ToString("0.00") AZN.
+                                </div>
+                            </div>
+
+                            @if (!isOwner)
+                            {
+                                <div class="col-12">
+                                    <label asp-for="Email" class="form-label">
+                                        Booking email
+                                    </label>
+                                    <input asp-for="Email"
+                                           type="email"
+                                           class="form-control"
+                                           placeholder="The email used for this reservation"
+                                           required />
+                                    <div class="form-text">
+                                        Needed to confirm that this booking is yours.
+                                    </div>
+                                    <span asp-validation-for="Email"
+                                          class="text-danger small"></span>
+                                </div>
+                            }
+
+                        </div>
+
+                        <!-- F6 - Yeni qiymətin ilkin hesablanması -->
+                        <div class="alert alert-info mt-4 mb-0 d-flex justify-content-between">
+                            <span>
+                                New total
+                                (<span id="nightCount">0</span> nights)
+                            </span>
+                            <strong>
+                                <span id="newTotal">0.00</span> AZN
+                            </strong>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                Save Changes
+                            </button>
+
+                            <a asp-controller="Bookings"
+                               asp-action="Find"
+                               asp-route-confirmationCode="@Model.ConfirmationCode"
+                               class="btn btn-outline-secondary">
+                                Back
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            const pricePerNight =
+                @pricePerNight.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            const checkIn = document.getElementById("CheckInDate");
+            const checkOut = document.getElementById("CheckOutDate");
+            const nightCount = document.getElementById("nightCount");
+            const newTotal = document.getElementById("newTotal");
+
+            function updateTotal() {
+                const start = new Date(checkIn.value);
+                const end = new Date(checkOut.value);
+
+                let nights = Math.round((end - start) / (1000 * 60 * 60 * 24));
+
+                if (isNaN(nights) || nights < 0) {
+                    nights = 0;
+                }
+
+                nightCount.textContent = nights;
+                newTotal.textContent = (nights * pricePerNight).toFixed(2);
+
+                // Check-out ən azı check-in-dən 1 gün sonra olsun
+                if (checkIn.value) {
+                    const minOut = new Date(start);
+                    minOut.setDate(minOut.getDate() + 1);
+                    checkOut.min = minOut.toISOString().split("T")[0];
+                }
+            }
+
+            checkIn.addEventListener("change", updateTotal);
+            checkOut.addEventListener("change", updateTotal);
+
+            updateTotal();
+        })();
+    </script>
+}

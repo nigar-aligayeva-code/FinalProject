@@ -1,6 +1,6 @@
 ﻿using HotelTravel.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.EntityFrameworkCore.Storage;
 namespace HotelTravel.Application.Interfaces;
 
 public interface IAppDbContext
@@ -18,7 +18,14 @@ public interface IAppDbContext
     DbSet<Amenity> Amenities { get; set; }
 
     DbSet<RoomImage> RoomImages { get; set; }
+    DbSet<HotelImage> HotelImages { get; set; }
+
+    DbSet<Review> Reviews { get; set; }
 
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
-}
+
+    Task<IDbContextTransaction> BeginTransactionAsync(
+        CancellationToken cancellationToken = default);
+
+}
