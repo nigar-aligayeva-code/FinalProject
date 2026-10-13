@@ -88,9 +88,90 @@ public class BookingService : IBookingService
 public async Task<(bool Success, string Message, string? ConfirmationCode)>
 
 
-    CreateAsync(CreateBookingDto dto)
+    CreateAsync(CreateBookingDto dto, string? appUserId = null)
     {
-        return await _bookingCreationService.CreateAsync(dto);
+        return await _bookingCreationService.CreateAsync(dto, appUserId);
+    }
+
+    public async Task<(bool Success, string Message)> ModifyAsync(
+        ModifyBookingDto dto,
+        string? appUserId = null)
+    {
+        return await _bookingCreationService.ModifyAsync(dto, appUserId);
+    }
+
+
+    // =========================
+    // F4 - MY BOOKINGS
+    // =========================
+    public async Task<List<GetBookingDto>> GetByUserIdAsync(string appUserId)
+    {
+        if (string.IsNullOrWhiteSpace(appUserId))
+            return new List<GetBookingDto>();
+
+        return await _context.Bookings
+            .Where(b =>
+                !b.IsDeleted &&
+                b.AppUserId == appUserId)
+            .OrderByDescending(b => b.CheckInDate)
+            .Select(b => new GetBookingDto
+            {
+                Id = b.Id,
+                ConfirmationCode = b.ConfirmationCode,
+
+                CheckInDate = b.CheckInDate,
+                CheckOutDate = b.CheckOutDate,
+
+                AdultCount = b.AdultCount,
+                ChildrenCount = b.ChildrenCount,
+
+                TotalPrice = b.TotalPrice,
+                Status = b.Status,
+
+                RoomId = b.RoomId,
+                RoomName = b.Room.Name,
+                RoomNumber = b.Room.RoomNumber,
+                RoomImage = b.Room.MainImage,
+
+                GuestId = b.GuestId,
+                GuestName = b.Guest.FirstName + " " + b.Guest.LastName,
+                GuestEmail = b.Guest.Email,
+
+                HasReview = b.Review != null
+            })
+            .ToListAsync();
+    }
+
+    public async Task<(bool Success, string Message)> CancelByUserAsync(
+        int bookingId,
+        string appUserId)
+    {
+        if (string.IsNullOrWhiteSpace(appUserId))
+            return (false, "You must be logged in.");
+
+        var booking = await _context.Bookings
+            .FirstOrDefaultAsync(b =>
+                b.Id == bookingId &&
+                !b.IsDeleted &&
+                b.AppUserId == appUserId);
+
+        if (booking is null)
+            return (false, "Booking was not found.");
+
+        var error = BookingRules.CanGuestChange(
+            booking.Status,
+            booking.CheckInDate,
+            DateTime.Today);
+
+        if (error != null)
+            return (false, error);
+
+        booking.Status = BookingStatus.Cancelled;
+        booking.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return (true, "Booking cancelled successfully.");
     }
 
     public async Task<bool> UpdateStatusAsync(

@@ -151,6 +151,9 @@ namespace HotelTravel.Infrastructure.Migrations
                     b.Property<int>("AdultCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("datetime2");
 
@@ -187,6 +190,8 @@ namespace HotelTravel.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
 
                     b.HasIndex("ConfirmationCode")
                         .IsUnique();
@@ -654,6 +659,11 @@ namespace HotelTravel.Infrastructure.Migrations
 
             modelBuilder.Entity("HotelTravel.Domain.Entities.Booking", b =>
                 {
+                    b.HasOne("HotelTravel.Domain.Entities.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("HotelTravel.Domain.Entities.Guest", "Guest")
                         .WithMany("Bookings")
                         .HasForeignKey("GuestId")
@@ -665,6 +675,8 @@ namespace HotelTravel.Infrastructure.Migrations
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("Guest");
 

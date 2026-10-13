@@ -152,6 +152,16 @@
                                         </a>
                                     </li>
 
+                                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                                    {
+                                        <li>
+                                            <a asp-controller="Bookings"
+                                               asp-action="MyBookings">
+                                                My Bookings
+                                            </a>
+                                        </li>
+                                    }
+
                                     @if (User.IsInRole("Admin"))
                                     {
                                         <li>
@@ -276,10 +286,13 @@
 
                                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                                     {
-                                        <span class="account-user">
+                                        <a asp-controller="Bookings"
+                                           asp-action="MyBookings"
+                                           class="account-user text-decoration-none"
+                                           title="My Bookings">
                                             <i class="bi bi-person-circle"></i>
                                             @User.Identity.Name
-                                        </span>
+                                        </a>
 
                                         <form asp-controller="Account"
                                               asp-action="Logout"
@@ -588,4 +601,4 @@
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>
-</html>
+</html>

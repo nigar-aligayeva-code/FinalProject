@@ -1,8 +1,10 @@
 ﻿using HotelTravel.Application.DTOs.Bookings;
 using HotelTravel.Application.Interfaces;
+using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
 using HotelTravel.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -12,13 +14,16 @@ public class BookingsController : Controller
 {
     private readonly IBookingService _bookingService;
     private readonly IRoomService _roomService;
+    private readonly UserManager<AppUser> _userManager;
 
     public BookingsController(
         IBookingService bookingService,
-        IRoomService roomService)
+        IRoomService roomService,
+        UserManager<AppUser> userManager)
     {
         _bookingService = bookingService;
         _roomService = roomService;
+        _userManager = userManager;
     }
 
 
@@ -236,6 +241,17 @@ public class BookingsController : Controller
 
             ViewBag.FromSearch = true;
 
+            // Daxil olmuş istifadəçinin məlumatlarını avtomatik doldur
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user != null)
+            {
+                dto.FirstName = user.FirstName ?? string.Empty;
+                dto.LastName = user.LastName ?? string.Empty;
+                dto.Email = user.Email ?? string.Empty;
+                dto.Phone = user.PhoneNumber ?? string.Empty;
+            }
+
             return View(dto);
         }
 
@@ -259,8 +275,11 @@ public class BookingsController : Controller
             return View(dto);
         }
 
+        // Daxil olubsa, rezervasiya "My Bookings"-də görünəcək
         var result =
-            await _bookingService.CreateAsync(dto);
+            await _bookingService.CreateAsync(
+                dto,
+                _userManager.GetUserId(User));
 
         if (!result.Success)
         {
@@ -284,8 +303,143 @@ public class BookingsController : Controller
 
 
     // =========================
+    // F4 - MY BOOKINGS (GUEST DASHBOARD)
+    // =========================
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> MyBookings()
+    {
+        var userId = _userManager.GetUserId(User);
+
+        var bookings =
+            await _bookingService.GetByUserIdAsync(userId!);
+
+        return View(bookings);
+    }
+
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CancelMine(int id)
+    {
+        var result =
+            await _bookingService.CancelByUserAsync(
+                id,
+                _userManager.GetUserId(User)!);
+
+        TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] =
+            result.Message;
+
+        return RedirectToAction(nameof(MyBookings));
+    }
+
+
+    // =========================
+    // F4 - MODIFY BOOKING
+    // =========================
+    [HttpGet]
+    public async Task<IActionResult> Modify(string confirmationCode)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationCode))
+            return RedirectToAction(nameof(Find));
+
+        var booking =
+            await _bookingService.GetByConfirmationCodeAsync(
+                confirmationCode);
+
+        if (booking is null)
+            return NotFound();
+
+        var error = HotelTravel.Application.Services.BookingRules
+            .CanGuestChange(
+                booking.Status,
+                booking.CheckInDate,
+                DateTime.Today);
+
+        if (error != null)
+        {
+            TempData["ErrorMessage"] = error;
+
+            return RedirectToAction(
+                nameof(Find),
+                new { confirmationCode });
+        }
+
+        var dto = new ModifyBookingDto
+        {
+            ConfirmationCode = booking.ConfirmationCode,
+            CheckInDate = booking.CheckInDate,
+            CheckOutDate = booking.CheckOutDate,
+            AdultCount = booking.AdultCount,
+            ChildrenCount = booking.ChildrenCount
+        };
+
+        await LoadModifyPageAsync(booking);
+
+        return View(dto);
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Modify(ModifyBookingDto dto)
+    {
+        var booking =
+            await _bookingService.GetByConfirmationCodeAsync(
+                dto.ConfirmationCode);
+
+        if (booking is null)
+            return NotFound();
+
+        if (!ModelState.IsValid)
+        {
+            await LoadModifyPageAsync(booking);
+            return View(dto);
+        }
+
+        var result =
+            await _bookingService.ModifyAsync(
+                dto,
+                _userManager.GetUserId(User));
+
+        if (!result.Success)
+        {
+            ModelState.AddModelError(string.Empty, result.Message);
+
+            await LoadModifyPageAsync(booking);
+            return View(dto);
+        }
+
+        TempData["SuccessMessage"] = result.Message;
+
+        return RedirectToAction(
+            nameof(Find),
+            new { confirmationCode = booking.ConfirmationCode });
+    }
+
+
+    // =========================
     // PRIVATE HELPER
     // =========================
+    private async Task LoadModifyPageAsync(GetBookingDto booking)
+    {
+        var room = await _roomService.GetByIdAsync(booking.RoomId);
+
+        ViewBag.Booking = booking;
+        ViewBag.PricePerNight = room?.PricePerNight ?? 0;
+        ViewBag.Capacity = room?.Capacity ?? 0;
+
+        // Sahib daxil olubsa, email soruşulmur
+        var userId = _userManager.GetUserId(User);
+
+        var myBookings = userId == null
+            ? new List<GetBookingDto>()
+            : await _bookingService.GetByUserIdAsync(userId);
+
+        ViewBag.IsOwner = myBookings.Any(b => b.Id == booking.Id);
+    }
+
     private async Task LoadRoomsAsync(
         int? selectedRoomId = null)
     {
@@ -308,4 +462,4 @@ public class BookingsController : Controller
                 "DisplayName",
                 selectedRoomId);
     }
-}
+}

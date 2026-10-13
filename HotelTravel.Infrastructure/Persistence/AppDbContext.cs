@@ -108,6 +108,15 @@ public class AppDbContext
             .IsUnique();
 
 
+        // APP USER -> BOOKINGS (My Bookings)
+        // İstifadəçi silinsə, rezervasiya qalır, sadəcə əlaqə kəsilir
+        modelBuilder.Entity<Booking>()
+            .HasOne(b => b.AppUser)
+            .WithMany()
+            .HasForeignKey(b => b.AppUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+
         // BOOKING -> REVIEW (1:1)
         // BookingId üzərində unique index avtomatik yaranır,
         // yəni bir rezervasiyaya yalnız bir rəy yazıla bilər.

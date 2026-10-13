@@ -21,6 +21,7 @@ public class GetBookingDto
     public int RoomId { get; set; }
     public string RoomName { get; set; }
     public string RoomNumber { get; set; }
+    public string? RoomImage { get; set; }
 
     public int GuestId { get; set; }
     public string GuestName { get; set; }
@@ -28,4 +29,4 @@ public class GetBookingDto
 
     // Bu rezervasiya üçün rəy yazılıbmı?
     public bool HasReview { get; set; }
-}
+}

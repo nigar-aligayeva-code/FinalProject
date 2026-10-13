@@ -10,7 +10,7 @@ public interface IBookingService
     Task<GetBookingDto?> GetByIdAsync(int id);
 
     Task<(bool Success, string Message, string? ConfirmationCode)>
-        CreateAsync(CreateBookingDto dto);
+        CreateAsync(CreateBookingDto dto, string? appUserId = null);
 
     Task<bool> UpdateStatusAsync(
         int id,
@@ -26,4 +26,15 @@ public interface IBookingService
     Task<(bool Success, string Message)> CancelByGuestAsync(
         string confirmationCode,
         string email);
-}
+
+    // F4 - Guest dashboard
+    Task<List<GetBookingDto>> GetByUserIdAsync(string appUserId);
+
+    Task<(bool Success, string Message)> CancelByUserAsync(
+        int bookingId,
+        string appUserId);
+
+    Task<(bool Success, string Message)> ModifyAsync(
+        ModifyBookingDto dto,
+        string? appUserId = null);
+}
