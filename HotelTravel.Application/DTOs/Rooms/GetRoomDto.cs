@@ -19,6 +19,10 @@ public class GetRoomDto
 
     public int HotelId { get; set; }
 
+    // Axtarış nəticələri və filtrlər üçün
+    public string? HotelName { get; set; }
+    public string? City { get; set; }
+
     // =========================
     // AMENITIES
     // =========================

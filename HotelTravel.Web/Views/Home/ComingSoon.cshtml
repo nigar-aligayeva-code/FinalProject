@@ -1,0 +1,58 @@
+﻿@model string
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
+
+@{
+    var (title, icon, text) = Model switch
+    {
+        "flights" => ("Flights", "fa-plane",
+            "Soon you will be able to search and book flights together with your hotel."),
+        "cars" => ("Car rental", "fa-car",
+            "Soon you will be able to rent a car for your trip right here."),
+        "attractions" => ("Attractions", "fa-landmark",
+            "Soon you will be able to discover tours, museums and things to do in every city."),
+        "taxis" => ("Airport taxis", "fa-taxi",
+            "Soon you will be able to book a taxi from the airport to your hotel."),
+        _ => ("This service", "fa-hourglass-half", "")
+    };
+
+    ViewData["Title"] = title;
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1><i class="fa-solid @icon me-2"></i>@title</h1>
+    </div>
+</section>
+
+<div class="container">
+    <div class="hh-soon">
+        <span class="hh-soon-icon">
+            <i class="fa-solid @icon"></i>
+        </span>
+
+        <h2>@title is coming soon</h2>
+
+        <p>
+            @text
+            <br />
+            Right now @(Config["Brand:Name"] ?? "Tripio") is focused on hotel stays.
+        </p>
+
+        <div class="hh-cta-actions justify-content-center">
+            <a asp-controller="Home"
+               asp-action="Index"
+               asp-fragment="search"
+               class="hh-btn hh-btn-primary">
+                <i class="fa-solid fa-bed"></i>
+                Search stays
+            </a>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               asp-fragment="destinations"
+               class="hh-btn hh-btn-outline">
+                Popular destinations
+            </a>
+        </div>
+    </div>
+</div>

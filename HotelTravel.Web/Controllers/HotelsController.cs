@@ -169,6 +169,24 @@ public class HotelsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        // Gələcək rezervasiyası olan otel silinə bilməz
+        var upcoming =
+            await _hotelService.CountUpcomingBookingsAsync(id);
+
+        if (upcoming > 0)
+        {
+            var hotel = await _hotelService.GetByIdAsync(id);
+
+            if (hotel is null)
+                return NotFound();
+
+            ViewBag.ErrorMessage =
+                $"This hotel has {upcoming} upcoming booking(s). " +
+                "Cancel or complete them before deleting the hotel.";
+
+            return View("Delete", hotel);
+        }
+
         var result =
             await _hotelService.DeleteAsync(id);
 
@@ -190,4 +208,4 @@ public class HotelsController : Controller
         ViewBag.HotelChains =
             await _hotelChainService.GetAllAsync();
     }
-}
+}

@@ -99,16 +99,23 @@ public class AccountController : Controller
 
     // LOGIN GET
     [HttpGet]
-    public IActionResult Login()
+    public IActionResult Login(string? returnUrl = null)
     {
+        // [Authorize] səhifədən gəlibsə, login-dən sonra ora qayıtsın
+        ViewBag.ReturnUrl = returnUrl;
+
         return View();
     }
 
     // LOGIN POST
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginDto dto)
+    public async Task<IActionResult> Login(
+        LoginDto dto,
+        string? returnUrl = null)
     {
+        ViewBag.ReturnUrl = returnUrl;
+
         if (!ModelState.IsValid)
             return View(dto);
 
@@ -140,6 +147,22 @@ public class AccountController : Controller
             return View(dto);
         }
 
+        // Yalnız öz saytımızdakı ünvana qayıt (open redirect olmasın)
+        if (!string.IsNullOrEmpty(returnUrl) &&
+            Url.IsLocalUrl(returnUrl))
+        {
+            return LocalRedirect(returnUrl);
+        }
+
+        // Admin birbaşa admin panelə
+        if (await _userManager.IsInRoleAsync(user, "Admin"))
+        {
+            return RedirectToAction(
+                "Index",
+                "Dashboard",
+                new { area = "Admin" });
+        }
+
         return RedirectToAction(
             "Index",
             "Home");
@@ -165,4 +188,4 @@ public class AccountController : Controller
     {
         return View();
     }
-}
+}

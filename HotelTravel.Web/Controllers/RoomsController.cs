@@ -391,6 +391,24 @@ public class RoomsController : Controller
     public async Task<IActionResult> DeleteConfirmed(
         int id)
     {
+        // Gələcək rezervasiyası olan otaq silinə bilməz
+        var upcoming =
+            await _roomService.CountUpcomingBookingsAsync(id);
+
+        if (upcoming > 0)
+        {
+            var room = await _roomService.GetByIdAsync(id);
+
+            if (room is null)
+                return NotFound();
+
+            ViewBag.ErrorMessage =
+                $"This room has {upcoming} upcoming booking(s). " +
+                "Cancel or complete them before deleting the room.";
+
+            return View("Delete", room);
+        }
+
         var result =
             await _roomService.DeleteAsync(id);
 
@@ -646,6 +664,9 @@ public class RoomsController : Controller
 
         ViewBag.ChildrenCount =
             search.ChildrenCount;
+
+        ViewBag.Destination =
+            search.Destination;
 
 
         return View(

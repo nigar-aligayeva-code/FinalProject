@@ -1,4 +1,6 @@
-﻿@{
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration Config
+@{
+    var brand = Config["Brand:Name"] ?? "Tripio";
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 }
 
@@ -7,7 +9,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] - HotelHub Admin</title>
+    <title>@ViewData["Title"] - @brand Admin</title>
 
     <style>
             * {
@@ -43,6 +45,49 @@
                 .brand span {
                     color: #60a5fa;
                 }
+
+            /* Sayta qayıtmaq / çıxış */
+            .topbar-actions {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .topbar-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 9px 14px;
+                border-radius: 10px;
+                border: 1px solid #e2e8f0;
+                background: white;
+                color: #334155;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+                .topbar-btn:hover {
+                    background: #f1f5f9;
+                    color: #0f172a;
+                }
+
+            .topbar-btn-danger {
+                color: #b91c1c;
+                border-color: #fecaca;
+            }
+
+                .topbar-btn-danger:hover {
+                    background: #fee2e2;
+                    color: #991b1b;
+                }
+
+            .sidebar .menu-site {
+                margin-top: 24px;
+                border-top: 1px solid rgba(255, 255, 255, .1);
+                padding-top: 18px;
+            }
 
             .menu-label {
                 font-size: 11px;
@@ -205,7 +250,7 @@
 <body>
     <aside class="sidebar">
         <div class="brand">
-            Hotel<span>Hub</span>
+            @brand<span>.</span>
         </div>
 
         <div class="menu-label">MAIN MENU</div>
@@ -250,6 +295,23 @@
                 <span class="menu-icon">★</span>
                 <span class="menu-text">Reviews</span>
             </a>
+
+            <a asp-area="Admin"
+               asp-controller="PromoCodes"
+               asp-action="Index"
+               class="@(currentController == "PromoCodes" ? "active" : "")">
+                <span class="menu-icon">%</span>
+                <span class="menu-text">Promo Codes</span>
+            </a>
+
+            <!-- Əsas sayta qayıt -->
+            <a asp-area=""
+               asp-controller="Home"
+               asp-action="Index"
+               class="menu-site">
+                <span class="menu-icon">↗</span>
+                <span class="menu-text">View website</span>
+            </a>
         </nav>
     </aside>
 
@@ -259,6 +321,25 @@
                 @ViewData["Title"]
             </div>
 
+            <div class="topbar-actions">
+                <a asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index"
+                   class="topbar-btn">
+                    ↗ View website
+                </a>
+
+                <form asp-area=""
+                      asp-controller="Account"
+                      asp-action="Logout"
+                      method="post"
+                      style="margin:0"
+                      onsubmit="return confirm('Are you sure you want to log out?');">
+                    <button type="submit" class="topbar-btn topbar-btn-danger">
+                        ⎋ Logout
+                    </button>
+                </form>
+
             <div class="admin-profile">
                 <div>
                     <strong>Administrator</strong>
@@ -267,6 +348,7 @@
                     </div>
                 </div>
                 <div class="avatar">A</div>
+            </div>
             </div>
         </header>
 

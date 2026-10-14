@@ -21,6 +21,10 @@
 
                         @Html.AntiForgeryToken()
 
+                        <input type="hidden"
+                               name="returnUrl"
+                               value="@ViewBag.ReturnUrl" />
+
                         <div asp-validation-summary="ModelOnly"
                              class="text-danger mb-3">
                         </div>
@@ -94,4 +98,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+}

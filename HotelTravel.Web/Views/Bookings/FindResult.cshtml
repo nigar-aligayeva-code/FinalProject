@@ -13,7 +13,7 @@
             <div class="card shadow-sm">
 
                 <div class="card-header">
-                    <h3 class="mb-0" style="color:#1F1F1F">
+                    <h3 class="mb-0">
                         Booking Details
                     </h3>
                 </div>
@@ -76,9 +76,24 @@
                             <tr>
                                 <th>Total Price</th>
                                 <td>
+                                    @if (Model.DiscountAmount > 0)
+                                    {
+                                        <span class="text-muted text-decoration-line-through me-2">
+                                            @Model.OriginalPrice.ToString("0.00") AZN
+                                        </span>
+                                    }
+
                                     <strong>
                                         @Model.TotalPrice.ToString("0.00") AZN
                                     </strong>
+
+                                    @if (Model.DiscountAmount > 0)
+                                    {
+                                        <div class="small text-success mt-1">
+                                            <i class="bi bi-tag"></i>
+                                            @Model.DiscountNote
+                                        </div>
+                                    }
                                 </td>
                             </tr>
 
@@ -185,6 +200,18 @@
                            class="btn btn-outline-primary">
                             View Room
                         </a>
+
+                        @if (Model.Status != HotelTravel.Domain.Enums.BookingStatus.Cancelled)
+                        {
+                            <a asp-controller="Bookings"
+                               asp-action="Voucher"
+                               asp-route-confirmationCode="@Model.ConfirmationCode"
+                               target="_blank"
+                               class="btn btn-success">
+                                <i class="bi bi-qr-code"></i>
+                                Voucher
+                            </a>
+                        }
 
                     </div>
 

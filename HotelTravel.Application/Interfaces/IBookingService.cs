@@ -34,7 +34,16 @@ public interface IBookingService
         int bookingId,
         string appUserId);
 
+    // Rezervasiya formunda qiymət + endirim önizləməsi
+    Task<PriceQuoteDto> GetPriceQuoteAsync(
+        int roomId,
+        DateTime checkInDate,
+        DateTime checkOutDate,
+        string? email,
+        string? appUserId,
+        string? promoCode);
+
     Task<(bool Success, string Message)> ModifyAsync(
         ModifyBookingDto dto,
         string? appUserId = null);
-}
+}

@@ -1,4 +1,6 @@
 ﻿@model List<HotelTravel.Application.DTOs.Rooms.GetRoomDto>
+@inject HotelTravel.Application.Interfaces.IWishlistService WishlistService
+@inject Microsoft.AspNetCore.Identity.UserManager<HotelTravel.Domain.Entities.AppUser> UserManager
 
 @{
     ViewData["Title"] = "Available Rooms";
@@ -9,198 +11,462 @@
     string? destination = ViewBag.Destination as string;
     int adultCount = (int)ViewBag.AdultCount;
     int childrenCount = (int)ViewBag.ChildrenCount;
+
+    var nights = Math.Max(1, (checkOutDate.Date - checkInDate.Date).Days);
+
+    var guestsText = adultCount + (adultCount == 1 ? " adult" : " adults");
+    if (childrenCount > 0)
+    {
+        guestsText += ", " + childrenCount + (childrenCount == 1 ? " child" : " children");
+    }
+
+    var rooms = Model ?? new List<HotelTravel.Application.DTOs.Rooms.GetRoomDto>();
+
+    // Filtr seçimləri nəticələrin özündən yaranır
+    var roomTypes = rooms
+        .GroupBy(r => r.RoomType.ToString())
+        .Select(g => new { Name = g.Key, Count = g.Count() })
+        .OrderBy(x => x.Name)
+        .ToList();
+
+    var hotels = rooms
+        .GroupBy(r => r.HotelName ?? "Hotel")
+        .Select(g => new { Name = g.Key, City = g.First().City, Count = g.Count() })
+        .OrderBy(x => x.Name)
+        .ToList();
+
+    var amenities = rooms
+        .SelectMany(r => r.AmenityNames ?? new List<string>())
+        .GroupBy(a => a)
+        .Select(g => new { Name = g.Key, Count = g.Count() })
+        .OrderByDescending(x => x.Count)
+        .ThenBy(x => x.Name)
+        .ToList();
+
+    var minPrice = rooms.Any() ? (int)Math.Floor(rooms.Min(r => r.PricePerNight)) : 0;
+    var maxPrice = rooms.Any() ? (int)Math.Ceiling(rooms.Max(r => r.PricePerNight)) : 0;
+
+    var savedIds =
+        await WishlistService.GetSavedRoomIdsAsync(UserManager.GetUserId(User));
+
+    string RatingLabel(double rating) => rating switch
+    {
+        >= 4.5 => "Exceptional",
+        >= 4.0 => "Excellent",
+        >= 3.5 => "Very good",
+        >= 3.0 => "Good",
+        _ => "Pleasant"
+    };
+
+    var checkInText = checkInDate.ToString("ddd, MMM d");
+    var checkOutText = checkOutDate.ToString("ddd, MMM d");
 }
 
-<div class="container mt-5 mb-5">
+<div class="container hh-results-page">
 
-    <h2 class="mb-4">Available Rooms</h2>
-
-    <!-- SEARCH INFORMATION -->
-    <div class="alert alert-info">
-
-        @if (!string.IsNullOrWhiteSpace(destination))
-        {
-            <div>
-                <strong>Destination:</strong>
-                @destination
-            </div>
-        }
-
-        <div>
-            <strong>Check-in:</strong>
-            @checkInDate.ToString("dd.MM.yyyy")
+    <!-- ============================= -->
+    <!-- SEARCH SUMMARY -->
+    <!-- ============================= -->
+    <div class="hh-summary">
+        <div class="hh-summary-item">
+            <i class="bi bi-geo-alt"></i>
+            <span>@(string.IsNullOrWhiteSpace(destination) ? "All destinations" : destination)</span>
         </div>
-
-        <div>
-            <strong>Check-out:</strong>
-            @checkOutDate.ToString("dd.MM.yyyy")
+        <div class="hh-summary-item">
+            <i class="bi bi-calendar3"></i>
+            <span>@checkInText — @checkOutText</span>
         </div>
-
-        <div>
-            <strong>Guests:</strong>
-            @adultCount Adult(s),
-            @childrenCount Child(ren)
-        </div>
-
-    </div>
-
-
-    @if (Model == null || Model.Count == 0)
-    {
-        <!-- NO AVAILABLE ROOMS -->
-        <div class="alert alert-warning">
-            No available rooms were found for the selected dates.
+        <div class="hh-summary-item">
+            <i class="bi bi-person"></i>
+            <span>@guestsText</span>
         </div>
 
         <a asp-controller="Home"
            asp-action="Index"
-           asp-fragment="booking-search"
+           asp-fragment="search"
            asp-route-destination="@destination"
            asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
            asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
            asp-route-adultCount="@adultCount"
            asp-route-childrenCount="@childrenCount"
-           class="btn btn-secondary">
-
-            <i class="bi bi-arrow-left"></i>
-            Search Again
-
+           class="hh-search-btn hh-summary-btn">
+            Change search
         </a>
+    </div>
+
+    @if (!rooms.Any())
+    {
+        <div class="hh-empty mt-4">
+            <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+            <strong class="d-block mb-1">No rooms available for these dates</strong>
+            Try different dates, fewer guests or another destination.
+        </div>
     }
     else
     {
-        <!-- AVAILABLE ROOMS -->
-        <div class="row">
+        <div class="hh-results-layout">
 
-            @foreach (var room in Model)
-            {
-                <div class="col-md-4 mb-4">
+            <!-- ============================= -->
+            <!-- FILTERS -->
+            <!-- ============================= -->
+            <aside class="hh-filters" id="hhFilters">
 
-                    <div class="card h-100">
+                <div class="hh-filters-head">
+                    <h2>Filter by</h2>
+                    <button type="button" class="hh-link-btn" id="resetFilters">
+                        Reset
+                    </button>
+                </div>
 
-                        @if (!string.IsNullOrWhiteSpace(room.MainImage))
+                <!-- Budget -->
+                <div class="hh-filter-group">
+                    <h3>Your budget (per night)</h3>
+                    <div class="hh-range-value">
+                        Up to <strong id="priceValue">@maxPrice AZN</strong>
+                    </div>
+                    <input type="range"
+                           id="filterPrice"
+                           class="hh-range"
+                           min="@minPrice"
+                           max="@maxPrice"
+                           step="5"
+                           value="@maxPrice" />
+                    <div class="hh-range-scale">
+                        <span>@minPrice AZN</span>
+                        <span>@maxPrice AZN</span>
+                    </div>
+                </div>
+
+                <!-- Rating -->
+                <div class="hh-filter-group">
+                    <h3>Guest rating</h3>
+                    <label class="hh-check">
+                        <input type="radio" name="filterRating" value="0" checked />
+                        <span>Any rating</span>
+                    </label>
+                    <label class="hh-check">
+                        <input type="radio" name="filterRating" value="4.5" />
+                        <span>Exceptional 4.5+</span>
+                    </label>
+                    <label class="hh-check">
+                        <input type="radio" name="filterRating" value="4" />
+                        <span>Excellent 4+</span>
+                    </label>
+                    <label class="hh-check">
+                        <input type="radio" name="filterRating" value="3" />
+                        <span>Good 3+</span>
+                    </label>
+                </div>
+
+                <!-- Room type -->
+                <div class="hh-filter-group">
+                    <h3>Room type</h3>
+                    @foreach (var type in roomTypes)
+                    {
+                        <label class="hh-check">
+                            <input type="checkbox" name="filterType" value="@type.Name" />
+                            <span>@type.Name</span>
+                            <small>@type.Count</small>
+                        </label>
+                    }
+                </div>
+
+                <!-- Hotel -->
+                @if (hotels.Count > 1)
+                {
+                    <div class="hh-filter-group">
+                        <h3>Hotel</h3>
+                        @foreach (var hotel in hotels)
                         {
-                            <img src="@room.MainImage"
-                                 class="card-img-top"
-                                 alt="@room.Name"
-                                 style="height:220px; object-fit:cover;" />
+                            <label class="hh-check">
+                                <input type="checkbox" name="filterHotel" value="@hotel.Name" />
+                                <span>@hotel.Name <em>@hotel.City</em></span>
+                                <small>@hotel.Count</small>
+                            </label>
                         }
+                    </div>
+                }
 
-                        <div class="card-body">
-
-                            <h4 class="card-title">
-                                @room.Name
-                            </h4>
-
-                            <p>
-                                <strong>Room:</strong>
-                                @room.RoomNumber
-                            </p>
-
-                            <p>
-                                <strong>Type:</strong>
-                                @room.RoomType
-                            </p>
-
-                            <p>
-                                <strong>Capacity:</strong>
-                                @room.Capacity
-                            </p>
-
-                            <p>
-                                <strong>Price:</strong>
-                                @room.PricePerNight.ToString("0.00")
-                                AZN / night
-                            </p>
-
-                            <p>
-                                @room.Description
-                            </p>
+                <!-- Amenities -->
+                @if (amenities.Any())
+                {
+                    <div class="hh-filter-group">
+                        <h3>Facilities</h3>
+                        @foreach (var amenity in amenities)
+                        {
+                            <label class="hh-check">
+                                <input type="checkbox" name="filterAmenity" value="@amenity.Name" />
+                                <span>@amenity.Name</span>
+                                <small>@amenity.Count</small>
+                            </label>
+                        }
+                    </div>
+                }
+            </aside>
 
 
-                            <!-- AMENITIES -->
-                            <div class="mb-3">
+            <!-- ============================= -->
+            <!-- RESULTS -->
+            <!-- ============================= -->
+            <section class="hh-results">
 
-                                <strong>Amenities:</strong>
-
-                                @if (room.AmenityNames != null &&
-                                     room.AmenityNames.Any())
-                                {
-                                    <div class="d-flex flex-wrap gap-2 mt-2">
-
-                                        @foreach (var amenity in room.AmenityNames)
-                                        {
-                                            <span class="badge bg-light text-dark border p-2">
-                                                ✓ @amenity
-                                            </span>
-                                        }
-
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="text-muted mt-2">
-                                        No amenities available.
-                                    </div>
-                                }
-
-                            </div>
-
-
-                            <!-- DETAILS -->
-                            <a asp-controller="Rooms"
-                               asp-action="Details"
-                               asp-route-id="@room.Id"
-                               asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
-                               asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
-                               asp-route-adultCount="@adultCount"
-                               asp-route-childrenCount="@childrenCount"
-                               class="btn btn-outline-secondary">
-
-                                Details
-
-                            </a>
-
-
-                            <!-- BOOK NOW -->
-                            <a asp-controller="Bookings"
-                               asp-action="Create"
-                               asp-route-roomId="@room.Id"
-                               asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
-                               asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
-                               asp-route-adultCount="@adultCount"
-                               asp-route-childrenCount="@childrenCount"
-                               class="btn btn-success">
-
-                                Book Now
-
-                            </a>
-
-                        </div>
-
+                <div class="hh-results-bar">
+                    <div>
+                        <h1 class="hh-results-title">
+                            @(string.IsNullOrWhiteSpace(destination) ? "Available rooms" : destination + ": available rooms")
+                        </h1>
+                        <span class="hh-results-count" id="resultCount">
+                            @rooms.Count room@(rooms.Count == 1 ? "" : "s") found
+                        </span>
                     </div>
 
+                    <div class="hh-results-tools">
+                        <button type="button"
+                                class="hh-btn hh-btn-outline d-lg-none"
+                                id="toggleFilters">
+                            <i class="bi bi-sliders"></i>
+                            Filters
+                        </button>
+
+                        <label class="hh-sort">
+                            <span>Sort by</span>
+                            <select id="sortBy">
+                                <option value="recommended">Our top picks</option>
+                                <option value="price-asc">Price (lowest first)</option>
+                                <option value="price-desc">Price (highest first)</option>
+                                <option value="rating-desc">Guest rating</option>
+                                <option value="capacity-desc">Most guests</option>
+                            </select>
+                        </label>
+                    </div>
                 </div>
+
+                <div id="resultList">
+                    @foreach (var room in rooms)
+                    {
+                        var saved = savedIds.Contains(room.Id);
+                        var total = room.PricePerNight * nights;
+                        var amenityList = room.AmenityNames ?? new List<string>();
+                        var description = string.IsNullOrWhiteSpace(room.Description)
+                            ? ""
+                            : (room.Description.Length > 150
+                                ? room.Description.Substring(0, 150).TrimEnd() + "…"
+                                : room.Description);
+
+                        <article class="hh-result"
+                                 data-price="@room.PricePerNight.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                 data-rating="@room.AverageRating.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                 data-reviews="@room.ReviewCount"
+                                 data-capacity="@room.Capacity"
+                                 data-type="@room.RoomType"
+                                 data-hotel="@(room.HotelName ?? "Hotel")"
+                                 data-amenities="@(string.Join("|", amenityList))">
+
+                            <div class="hh-result-img">
+                                <a asp-controller="Rooms"
+                                   asp-action="Details"
+                                   asp-route-id="@room.Id"
+                                   asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
+                                   asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
+                                   asp-route-adultCount="@adultCount"
+                                   asp-route-childrenCount="@childrenCount">
+                                    @if (!string.IsNullOrWhiteSpace(room.MainImage))
+                                    {
+                                        <img src="@room.MainImage" alt="@room.Name" loading="lazy" />
+                                    }
+                                </a>
+
+                                <button type="button"
+                                        class="hh-save @(saved ? "saved" : "")"
+                                        data-room-id="@room.Id"
+                                        aria-label="Save room"
+                                        aria-pressed="@(saved ? "true" : "false")">
+                                    <i class="bi @(saved ? "bi-heart-fill" : "bi-heart")"></i>
+                                </button>
+                            </div>
+
+                            <div class="hh-result-body">
+                                <div class="hh-result-main">
+                                    <h2>
+                                        <a asp-controller="Rooms"
+                                           asp-action="Details"
+                                           asp-route-id="@room.Id"
+                                           asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
+                                           asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
+                                           asp-route-adultCount="@adultCount"
+                                           asp-route-childrenCount="@childrenCount">
+                                            @room.Name
+                                        </a>
+                                    </h2>
+
+                                    <div class="hh-result-loc">
+                                        <i class="bi bi-geo-alt"></i>
+                                        @room.HotelName · @room.City
+                                    </div>
+
+                                    <div class="hh-result-tags">
+                                        <span>@room.RoomType</span>
+                                        <span><i class="bi bi-people"></i> Up to @room.Capacity</span>
+                                        <span>Room @room.RoomNumber</span>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(description))
+                                    {
+                                        <p class="hh-result-desc">@description</p>
+                                    }
+
+                                    @if (amenityList.Any())
+                                    {
+                                        <div class="hh-chips">
+                                            @foreach (var amenity in amenityList.Take(5))
+                                            {
+                                                <span><i class="bi bi-check2"></i> @amenity</span>
+                                            }
+                                            @if (amenityList.Count > 5)
+                                            {
+                                                <span class="hh-chip-more">+@(amenityList.Count - 5) more</span>
+                                            }
+                                        </div>
+                                    }
+
+                                    <div class="hh-result-perk">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        Free cancellation before check-in
+                                    </div>
+                                </div>
+
+                                <div class="hh-result-side">
+                                    <div class="hh-result-rating">
+                                        @if (room.ReviewCount > 0)
+                                        {
+                                            <div class="text-end">
+                                                <strong>@RatingLabel(room.AverageRating)</strong>
+                                                <small>@room.ReviewCount review@(room.ReviewCount == 1 ? "" : "s")</small>
+                                            </div>
+                                            <span class="hh-score">@room.AverageRating.ToString("0.0")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="hh-badge-new">New</span>
+                                        }
+                                    </div>
+
+                                    <div class="hh-result-price">
+                                        <small>@nights night@(nights == 1 ? "" : "s"), @guestsText</small>
+                                        <strong>@total.ToString("0.00") AZN</strong>
+                                        <small>@room.PricePerNight.ToString("0.00") AZN / night</small>
+                                    </div>
+
+                                    <a asp-controller="Bookings"
+                                       asp-action="Create"
+                                       asp-route-roomId="@room.Id"
+                                       asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
+                                       asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
+                                       asp-route-adultCount="@adultCount"
+                                       asp-route-childrenCount="@childrenCount"
+                                       class="hh-btn hh-btn-primary w-100">
+                                        Book now <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+
+                <div class="hh-empty d-none" id="noMatches">
+                    <i class="bi bi-funnel fs-2 d-block mb-2"></i>
+                    <strong class="d-block mb-1">No rooms match your filters</strong>
+                    <button type="button" class="hh-link-btn" id="resetFilters2">Reset filters</button>
+                </div>
+            </section>
+        </div>
+    }
+</div>
+
+
+@section Scripts {
+    <script>
+        (function () {
+            const list = document.getElementById("resultList");
+            if (!list) return;
+
+            const cards = Array.from(list.querySelectorAll(".hh-result"));
+            const price = document.getElementById("filterPrice");
+            const priceValue = document.getElementById("priceValue");
+            const sortBy = document.getElementById("sortBy");
+            const countLabel = document.getElementById("resultCount");
+            const noMatches = document.getElementById("noMatches");
+            const filters = document.getElementById("hhFilters");
+
+            const checked = (name) =>
+                Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
+                    .map(i => i.value);
+
+            const num = (card, key) => parseFloat(card.dataset[key]) || 0;
+
+            const sorters = {
+                "recommended": (a, b) =>
+                    num(b, "rating") - num(a, "rating") ||
+                    num(b, "reviews") - num(a, "reviews") ||
+                    num(a, "price") - num(b, "price"),
+                "price-asc": (a, b) => num(a, "price") - num(b, "price"),
+                "price-desc": (a, b) => num(b, "price") - num(a, "price"),
+                "rating-desc": (a, b) => num(b, "rating") - num(a, "rating") || num(b, "reviews") - num(a, "reviews"),
+                "capacity-desc": (a, b) => num(b, "capacity") - num(a, "capacity") || num(a, "price") - num(b, "price")
+            };
+
+            function apply() {
+                const maxPrice = parseFloat(price.value);
+                const minRating = parseFloat(checked("filterRating")[0] || "0");
+                const types = checked("filterType");
+                const hotels = checked("filterHotel");
+                const amenities = checked("filterAmenity");
+
+                priceValue.textContent = price.value + " AZN";
+
+                let visible = 0;
+
+                cards.forEach(card => {
+                    const cardAmenities = (card.dataset.amenities || "").split("|");
+
+                    const ok =
+                        num(card, "price") <= maxPrice &&
+                        num(card, "rating") >= minRating &&
+                        (types.length === 0 || types.includes(card.dataset.type)) &&
+                        (hotels.length === 0 || hotels.includes(card.dataset.hotel)) &&
+                        amenities.every(a => cardAmenities.includes(a));
+
+                    card.hidden = !ok;
+                    if (ok) visible++;
+                });
+
+                cards
+                    .slice()
+                    .sort(sorters[sortBy.value] || sorters.recommended)
+                    .forEach(card => list.appendChild(card));
+
+                countLabel.textContent = visible + (visible === 1 ? " room found" : " rooms found");
+                noMatches.classList.toggle("d-none", visible > 0);
             }
 
-        </div>
+            function reset() {
+                price.value = price.max;
+                document.querySelectorAll('input[name="filterType"], input[name="filterHotel"], input[name="filterAmenity"]')
+                    .forEach(i => i.checked = false);
+                document.querySelector('input[name="filterRating"][value="0"]').checked = true;
+                apply();
+            }
 
+            document.querySelectorAll("#hhFilters input").forEach(i => i.addEventListener("input", apply));
+            sortBy.addEventListener("change", apply);
+            document.getElementById("resetFilters").addEventListener("click", reset);
+            document.getElementById("resetFilters2").addEventListener("click", reset);
 
-        <!-- SEARCH AGAIN -->
-        <a asp-controller="Home"
-           asp-action="Index"
-           asp-fragment="booking-search"
-           asp-route-destination="@destination"
-           asp-route-checkInDate="@checkInDate.ToString("yyyy-MM-dd")"
-           asp-route-checkOutDate="@checkOutDate.ToString("yyyy-MM-dd")"
-           asp-route-adultCount="@adultCount"
-           asp-route-childrenCount="@childrenCount"
-           class="btn btn-secondary">
+            document.getElementById("toggleFilters").addEventListener("click", () => {
+                filters.classList.toggle("open");
+            });
 
-            <i class="bi bi-arrow-left"></i>
-            Search Again
-
-        </a>
-    }
-
-</div>
+            apply();
+        })();
+    </script>
+}

@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Application.Services;
 
@@ -65,5 +65,57 @@ public static class BookingRules
         return nights <= 0
             ? 0
             : nights * pricePerNight;
+    }
+
+
+    // =========================
+    // DISCOUNTS
+    // =========================
+
+    // Başqa şəhərdəki otelimizdə qalmış qonağa endirim
+    public const int ExplorerRewardPercent = 10;
+
+    // Endirimi tətbiq et (2 rəqəmə yuvarlaqlaşdırılır)
+    public static (decimal DiscountAmount, decimal Total) ApplyDiscount(
+        decimal baseTotal,
+        int discountPercent)
+    {
+        if (baseTotal <= 0 || discountPercent <= 0)
+            return (0, baseTotal < 0 ? 0 : baseTotal);
+
+        var percent = Math.Min(discountPercent, 90);
+
+        var discount = Math.Round(
+            baseTotal * percent / 100m,
+            2,
+            MidpointRounding.AwayFromZero);
+
+        return (discount, baseTotal - discount);
+    }
+
+
+    // Promo kod hazırda istifadə oluna bilərmi?
+    public static string? ValidatePromo(
+        bool isActive,
+        bool isDeleted,
+        DateTime? validFrom,
+        DateTime? validUntil,
+        int? maxUses,
+        int usedCount,
+        DateTime today)
+    {
+        if (!isActive || isDeleted)
+            return "This promo code is not active.";
+
+        if (validFrom.HasValue && today.Date < validFrom.Value.Date)
+            return "This promo code is not valid yet.";
+
+        if (validUntil.HasValue && today.Date > validUntil.Value.Date)
+            return "This promo code has expired.";
+
+        if (maxUses.HasValue && usedCount >= maxUses.Value)
+            return "This promo code has reached its usage limit.";
+
+        return null;
     }
 }

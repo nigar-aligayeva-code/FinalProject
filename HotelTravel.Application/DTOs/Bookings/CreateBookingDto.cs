@@ -35,4 +35,8 @@ public class CreateBookingDto
     [Required]
     [Phone]
     public string Phone { get; set; } = string.Empty;
+
+    // Könüllü endirim kodu
+    [StringLength(30)]
+    public string? PromoCode { get; set; }
 }

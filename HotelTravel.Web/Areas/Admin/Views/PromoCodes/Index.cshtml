@@ -1,0 +1,248 @@
+﻿@model HotelTravel.Application.DTOs.PromoCodes.CreatePromoCodeDto
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Promo Codes";
+
+    var promos =
+        ViewBag.PromoCodes as List<HotelTravel.Application.DTOs.PromoCodes.GetPromoCodeDto>
+        ?? new List<HotelTravel.Application.DTOs.PromoCodes.GetPromoCodeDto>();
+}
+
+<style>
+    .pc-heading { margin-bottom: 24px; }
+    .pc-heading h1 { font-size: 28px; color: #0f172a; margin-bottom: 8px; }
+    .pc-heading p { color: #64748b; }
+
+    .pc-grid {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+    .pc-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+    }
+
+    .pc-card h2 { font-size: 18px; color: #0f172a; margin: 0 0 16px; }
+
+    .pc-field { margin-bottom: 14px; }
+    .pc-field label { display: block; font-size: 13px; color: #475569; margin-bottom: 6px; font-weight: 600; }
+    .pc-field input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: white;
+    }
+    .pc-field .text-danger { font-size: 12px; color: #b91c1c; }
+    .pc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .pc-btn {
+        background: #2563eb;
+        color: white;
+        padding: 11px 18px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 100%;
+        font-weight: 600;
+    }
+
+    .pc-table-wrap { overflow-x: auto; }
+    .pc-table { width: 100%; border-collapse: collapse; }
+    .pc-table th { text-align: left; padding: 12px; background: #f8fafc; color: #64748b; font-size: 13px; }
+    .pc-table td { padding: 14px 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+
+    .pc-code { font-family: monospace; font-weight: 700; font-size: 15px; color: #0f172a; white-space: nowrap; }
+    .pc-table th { white-space: nowrap; }
+    .pc-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block; }
+    .pc-on { background: #dcfce7; color: #166534; }
+    .pc-off { background: #fee2e2; color: #b91c1c; }
+
+    .pc-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pc-actions button {
+        border: none;
+        padding: 7px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 13px;
+    }
+    .pc-toggle { background: #f1f5f9; color: #334155; }
+    .pc-delete { background: #fee2e2; color: #b91c1c; }
+
+    .pc-alert { padding: 14px 18px; border-radius: 10px; margin-bottom: 20px; }
+    .pc-alert-success { background: #dcfce7; color: #166534; }
+    .pc-alert-error { background: #fee2e2; color: #b91c1c; }
+    .pc-empty { text-align: center; padding: 30px; color: #64748b; }
+
+    .pc-info {
+        background: #eff6ff;
+        color: #1e40af;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 13px;
+        margin-top: 16px;
+    }
+
+    @@media (max-width: 991px) {
+        .pc-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="pc-heading">
+    <h1>Promo Codes</h1>
+    <p>Create discount codes guests can enter when booking.</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="pc-alert pc-alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="pc-alert pc-alert-error">@TempData["ErrorMessage"]</div>
+}
+
+<div class="pc-grid">
+
+    <!-- CREATE -->
+    <div class="pc-card">
+        <h2>New promo code</h2>
+
+        <form asp-area="Admin"
+              asp-controller="PromoCodes"
+              asp-action="Create"
+              method="post">
+
+            <div asp-validation-summary="ModelOnly" class="pc-alert pc-alert-error"></div>
+
+            <div class="pc-field">
+                <label asp-for="Code">Code</label>
+                <input asp-for="Code" placeholder="e.g. WELCOME10" style="text-transform:uppercase" />
+                <span asp-validation-for="Code" class="text-danger"></span>
+            </div>
+
+            <div class="pc-field">
+                <label asp-for="DiscountPercent">Discount (%)</label>
+                <input asp-for="DiscountPercent" type="number" min="1" max="90" />
+                <span asp-validation-for="DiscountPercent" class="text-danger"></span>
+            </div>
+
+            <div class="pc-field">
+                <label asp-for="Description">Description (optional)</label>
+                <input asp-for="Description" placeholder="e.g. Welcome offer" />
+            </div>
+
+            <div class="pc-row">
+                <div class="pc-field">
+                    <label asp-for="ValidFrom">Valid from</label>
+                    <input asp-for="ValidFrom" type="date" />
+                </div>
+                <div class="pc-field">
+                    <label asp-for="ValidUntil">Valid until</label>
+                    <input asp-for="ValidUntil" type="date" />
+                </div>
+            </div>
+
+            <div class="pc-field">
+                <label asp-for="MaxUses">Max uses (empty = unlimited)</label>
+                <input asp-for="MaxUses" type="number" min="1" />
+                <span asp-validation-for="MaxUses" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="pc-btn">Create code</button>
+        </form>
+
+        <div class="pc-info">
+            <strong>Explorer reward:</strong> guests who completed a stay at one of
+            our hotels in another city automatically get 10% off.
+            Discounts don't stack — the bigger one is applied.
+        </div>
+    </div>
+
+    <!-- LIST -->
+    <div class="pc-card">
+        <h2>All codes (@promos.Count)</h2>
+
+        <div class="pc-table-wrap">
+            <table class="pc-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Discount</th>
+                        <th>Valid</th>
+                        <th>Used</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var promo in promos)
+                    {
+                        <tr>
+                            <td>
+                                <div class="pc-code">@promo.Code</div>
+                                @if (!string.IsNullOrWhiteSpace(promo.Description))
+                                {
+                                    <small style="color:#64748b">@promo.Description</small>
+                                }
+                            </td>
+                            <td><strong>@promo.DiscountPercent%</strong></td>
+                            <td>
+                                @(promo.ValidFrom?.ToString("dd MMM yyyy") ?? "Any time")
+                                &rarr;
+                                @(promo.ValidUntil?.ToString("dd MMM yyyy") ?? "No end")
+                            </td>
+                            <td>
+                                @promo.UsedCount
+                                @if (promo.MaxUses.HasValue)
+                                {
+                                    <span>/ @promo.MaxUses</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="pc-badge @(promo.IsUsableToday ? "pc-on" : "pc-off")">
+                                    @promo.StatusText
+                                </span>
+                            </td>
+                            <td>
+                                <div class="pc-actions">
+                                    <form asp-area="Admin"
+                                          asp-controller="PromoCodes"
+                                          asp-action="Toggle"
+                                          asp-route-id="@promo.Id"
+                                          method="post">
+                                        <button type="submit" class="pc-toggle">
+                                            @(promo.IsActive ? "Deactivate" : "Activate")
+                                        </button>
+                                    </form>
+
+                                    <form asp-area="Admin"
+                                          asp-controller="PromoCodes"
+                                          asp-action="Delete"
+                                          asp-route-id="@promo.Id"
+                                          method="post"
+                                          onsubmit="return confirm('Delete promo code @promo.Code?');">
+                                        <button type="submit" class="pc-delete">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (!promos.Any())
+            {
+                <div class="pc-empty">No promo codes yet. Create your first one on the left.</div>
+            }
+        </div>
+    </div>
+</div>

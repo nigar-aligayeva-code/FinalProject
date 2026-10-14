@@ -1,4 +1,4 @@
-
+﻿
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
@@ -84,6 +84,8 @@ namespace HotelTravel.Web
             builder.Services.AddScoped<IHotelChainService, HotelChainService>();
             builder.Services.AddScoped<IAmenityService, AmenityService>();
             builder.Services.AddScoped<IReviewService, ReviewService>();
+            builder.Services.AddScoped<IWishlistService, WishlistService>();
+            builder.Services.AddScoped<IPromoCodeService, PromoCodeService>();
 
             var app = builder.Build();
 

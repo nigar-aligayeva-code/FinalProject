@@ -22,10 +22,14 @@ public interface IAppDbContext
 
     DbSet<Review> Reviews { get; set; }
 
+    DbSet<WishlistItem> WishlistItems { get; set; }
+
+    DbSet<PromoCode> PromoCodes { get; set; }
+
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
 
     Task<IDbContextTransaction> BeginTransactionAsync(
         CancellationToken cancellationToken = default);
 
-}
+}

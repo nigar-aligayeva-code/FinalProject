@@ -81,7 +81,9 @@ public class BookingCreationService : IBookingCreationService
 
         var room = await context.Rooms
             .FirstOrDefaultAsync(r =>
-                r.Id == dto.RoomId && !r.IsDeleted);
+                r.Id == dto.RoomId &&
+                !r.IsDeleted &&
+                !r.Hotel.IsDeleted);
 
         if (room is null)
             return (false, "Room not found.", null);
@@ -111,10 +113,36 @@ public class BookingCreationService : IBookingCreationService
                 null);
         }
 
-        var numberOfNights =
-            (dto.CheckOutDate.Date - dto.CheckInDate.Date).Days;
+        // F6 + endirimlər (promo kod / Explorer reward)
+        var quote = await PricingCalculator.QuoteAsync(
+            context,
+            room.Id,
+            dto.CheckInDate,
+            dto.CheckOutDate,
+            dto.Email,
+            appUserId,
+            dto.PromoCode,
+            DateTime.Today);
 
-        var totalPrice = numberOfNights * room.PricePerNight;
+        if (!quote.Success)
+            return (false, quote.Error ?? "Price could not be calculated.", null);
+
+        // Qonaq kod yazıbsa, amma kod yanlışdırsa - xəbər verək
+        if (!string.IsNullOrWhiteSpace(dto.PromoCode) &&
+            quote.PromoError != null)
+        {
+            return (false, quote.PromoError, null);
+        }
+
+        // Promo kod tətbiq olundusa, istifadə sayını artır
+        if (quote.AppliedPromoCode != null)
+        {
+            var promo = await context.PromoCodes
+                .FirstAsync(p => p.Code == quote.AppliedPromoCode);
+
+            promo.UsedCount++;
+            promo.UpdatedAt = DateTime.UtcNow;
+        }
 
         var guest = new Guest
         {
@@ -138,7 +166,12 @@ public class BookingCreationService : IBookingCreationService
             CheckOutDate = dto.CheckOutDate.Date,
             AdultCount = dto.AdultCount,
             ChildrenCount = dto.ChildrenCount,
-            TotalPrice = totalPrice,
+            TotalPrice = quote.Total,
+            OriginalPrice = quote.BaseTotal,
+            DiscountPercent = quote.DiscountPercent,
+            DiscountAmount = quote.DiscountAmount,
+            DiscountNote = quote.DiscountNote,
+            PromoCode = quote.AppliedPromoCode,
             ConfirmationCode = confirmationCode,
             Status = BookingStatus.Confirmed,
             RoomId = room.Id,
@@ -279,10 +312,19 @@ public class BookingCreationService : IBookingCreationService
         booking.CheckOutDate = newCheckOut;
         booking.AdultCount = dto.AdultCount;
         booking.ChildrenCount = dto.ChildrenCount;
-        booking.TotalPrice = BookingRules.CalculateTotal(
+        // Yeni qiymət: əvvəlki endirim faizi saxlanılır
+        var newBase = BookingRules.CalculateTotal(
             booking.Room.PricePerNight,
             newCheckIn,
             newCheckOut);
+
+        var (newDiscount, newTotal) = BookingRules.ApplyDiscount(
+            newBase,
+            booking.DiscountPercent);
+
+        booking.OriginalPrice = newBase;
+        booking.DiscountAmount = newDiscount;
+        booking.TotalPrice = newTotal;
         booking.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();

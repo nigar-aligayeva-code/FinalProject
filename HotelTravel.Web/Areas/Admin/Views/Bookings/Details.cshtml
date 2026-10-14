@@ -363,7 +363,16 @@
         <div class="bd-stat">
             <div class="bd-stat-label">Total amount</div>
             <div class="bd-stat-value">@Model.TotalPrice.ToString("0.00") AZN</div>
-            <div class="bd-stat-note">Booking total</div>
+            <div class="bd-stat-note">
+                @if (Model.DiscountAmount > 0)
+                {
+                    <span>@Model.OriginalPrice.ToString("0.00") AZN − @Model.DiscountAmount.ToString("0.00") AZN (@Model.DiscountNote)</span>
+                }
+                else
+                {
+                    <span>Booking total</span>
+                }
+            </div>
         </div>
     </div>
 
