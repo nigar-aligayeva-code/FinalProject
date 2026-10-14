@@ -1,0 +1,15 @@
+@model HotelTravel.Domain.Enums.CarCategory
+@using HotelTravel.Domain.Enums
+
+@{
+    // Şəkil olmayanda kateqoriyaya görə ikon
+    var icon = Model switch
+    {
+        CarCategory.SUV => "fa-truck-pickup",
+        CarCategory.Van => "fa-van-shuttle",
+        CarCategory.Premium => "fa-car-side",
+        _ => "fa-car"
+    };
+}
+
+<i class="fa-solid @icon"></i>

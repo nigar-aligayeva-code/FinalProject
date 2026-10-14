@@ -1831,3 +1831,341 @@ a {
         max-width: none;
     }
 }
+
+
+/* =========================================================
+   V5 - CITY GUIDE (Attractions)
+   ========================================================= */
+
+.hh-guide .hh-section-head {
+    margin-bottom: 14px;
+}
+
+.hh-guide-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 16px;
+    scrollbar-width: none;
+}
+
+    .hh-guide-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+.hh-guide-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--hh-border);
+    background: var(--hh-surface);
+    color: var(--hh-ink);
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+    .hh-guide-tab span {
+        background: var(--hh-cream);
+        color: var(--hh-muted);
+        border-radius: 999px;
+        padding: 1px 8px;
+        font-size: 12px;
+    }
+
+    .hh-guide-tab:hover {
+        border-color: var(--hh-green);
+    }
+
+    .hh-guide-tab.active {
+        background: var(--hh-green);
+        border-color: var(--hh-green);
+        color: #FFFFFF;
+    }
+
+        .hh-guide-tab.active span {
+            background: rgba(255, 255, 255, .2);
+            color: #FFFFFF;
+        }
+
+.hh-guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+}
+
+.hh-place {
+    display: flex;
+    flex-direction: column;
+    background: var(--hh-surface);
+    border: 1px solid var(--hh-border);
+    border-radius: var(--hh-radius);
+    overflow: hidden;
+}
+
+.hh-place-media {
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    color: #FFFFFF;
+}
+
+    .hh-place-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* Şəkil olmayanda kateqoriyaya görə rəngli fon */
+.hh-place-sight {
+    background: linear-gradient(135deg, #4E5B4C, #7A8B6F);
+}
+
+.hh-place-tour {
+    background: linear-gradient(135deg, #A9822F, #D9B26A);
+}
+
+.hh-place-food {
+    background: linear-gradient(135deg, #8C4A32, #C47B55);
+}
+
+.hh-place-shopping {
+    background: linear-gradient(135deg, #3E4A6B, #6C7CA8);
+}
+
+.hh-place-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+    .hh-place-body h3 {
+        font-size: 16px;
+        margin: 0 0 6px;
+    }
+
+    .hh-place-body p {
+        font-size: 13px;
+        color: var(--hh-text);
+        margin: 0 0 10px;
+    }
+
+.hh-place-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    font-size: 12px;
+    color: var(--hh-muted);
+}
+
+.hh-place-price {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--hh-border);
+    font-size: 13px;
+}
+
+    .hh-place-price strong {
+        color: var(--hh-ink);
+        font-size: 16px;
+    }
+
+    .hh-place-price small {
+        display: block;
+        color: var(--hh-muted);
+        font-size: 12px;
+    }
+
+/* Attractions səhifəsi */
+.hh-city-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: -24px 0 24px;
+    position: relative;
+}
+
+.hh-city-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--hh-surface);
+    border: 1px solid var(--hh-border);
+    color: var(--hh-ink);
+    font-weight: 600;
+    box-shadow: var(--hh-shadow);
+}
+
+    .hh-city-chip:hover {
+        border-color: var(--hh-green);
+        color: var(--hh-ink);
+    }
+
+    .hh-city-chip.active {
+        background: var(--hh-gold);
+        border-color: var(--hh-gold);
+        color: #FFFFFF;
+    }
+
+.hh-guide-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+
+/* =========================================================
+   V6 - CAR RENTAL
+   ========================================================= */
+
+.hh-car-search {
+    grid-template-columns: 1.2fr 1fr 1fr auto;
+    margin-top: -32px;
+    position: relative;
+}
+
+.hh-car-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 16px;
+}
+
+.hh-car {
+    display: flex;
+    flex-direction: column;
+    background: var(--hh-surface);
+    border: 1px solid var(--hh-border);
+    border-radius: var(--hh-radius);
+    overflow: hidden;
+    transition: box-shadow .2s;
+}
+
+    .hh-car:hover {
+        box-shadow: var(--hh-shadow-lg);
+    }
+
+    .hh-car.unavailable {
+        opacity: .6;
+    }
+
+.hh-car-media {
+    position: relative;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 54px;
+    overflow: hidden;
+}
+
+    .hh-car-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* Şəkil olmayanda kateqoriya rəngi (iki klass: My Bookings-də də işləsin) */
+.hh-car-media.hh-car-economy {
+    background: linear-gradient(135deg, #4E5B4C, #7A8B6F);
+}
+
+.hh-car-media.hh-car-compact {
+    background: linear-gradient(135deg, #3F6E73, #6FA3A8);
+}
+
+.hh-car-media.hh-car-sedan {
+    background: linear-gradient(135deg, #3E4A6B, #6C7CA8);
+}
+
+.hh-car-media.hh-car-suv {
+    background: linear-gradient(135deg, #8C4A32, #C47B55);
+}
+
+.hh-car-media.hh-car-premium {
+    background: linear-gradient(135deg, #2B3329, #A9822F);
+}
+
+.hh-car-media.hh-car-van {
+    background: linear-gradient(135deg, #A9822F, #D9B26A);
+}
+
+.hh-car-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+    .hh-car-body h3 {
+        font-size: 17px;
+        margin: 0;
+    }
+
+.hh-car-specs {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+    font-size: 13px;
+    color: var(--hh-text);
+}
+
+    .hh-car-specs i {
+        color: var(--hh-green);
+        margin-right: 4px;
+    }
+
+.hh-car-foot {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--hh-border);
+}
+
+.hh-car-busy {
+    font-size: 13px;
+    font-weight: 700;
+    color: #B42318;
+}
+
+.hh-summary-car {
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.hh-car-code {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--hh-ink);
+}
+
+@media (max-width: 991.98px) {
+    .hh-car-search {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hh-car-search {
+        grid-template-columns: 1fr;
+    }
+}

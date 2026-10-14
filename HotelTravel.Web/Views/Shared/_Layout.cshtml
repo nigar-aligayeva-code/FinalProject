@@ -190,19 +190,17 @@
                 </a>
 
                 <a asp-area=""
-                   asp-controller="Home"
-                   asp-action="ComingSoon"
-                   asp-route-service="cars"
-                   class="@ServiceTab("cars")">
+                   asp-controller="Cars"
+                   asp-action="Index"
+                   class="@(currentController == "Cars" ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-car"></i>
                     Car rental
                 </a>
 
                 <a asp-area=""
-                   asp-controller="Home"
-                   asp-action="ComingSoon"
-                   asp-route-service="attractions"
-                   class="@ServiceTab("attractions")">
+                   asp-controller="Guide"
+                   asp-action="Index"
+                   class="@(currentController == "Guide" ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-landmark"></i>
                     Attractions
                 </a>

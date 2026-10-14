@@ -1,0 +1,104 @@
+@model HotelTravel.Application.DTOs.Cars.SaveCarDto
+@using HotelTravel.Domain.Enums
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var isNew = !Model.Id.HasValue;
+    ViewData["Title"] = isNew ? "Add car" : "Edit car";
+
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+}
+
+<partial name="~/Areas/Admin/Views/CityGuide/_Styles.cshtml" />
+
+<div class="cg-heading">
+    <div>
+        <h1>@(isNew ? "Add a car" : "Edit car")</h1>
+        <p>Cars appear on the Car rental page for the selected city.</p>
+    </div>
+
+    <a asp-area="Admin"
+       asp-controller="Cars"
+       asp-action="Index"
+       asp-route-city="@Model.City"
+       class="cg-btn cg-btn-light">
+        ← Back to list
+    </a>
+</div>
+
+<div class="cg-card">
+    <form asp-area="Admin"
+          asp-controller="Cars"
+          asp-action="Edit"
+          method="post"
+          class="cg-form">
+
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly" class="cg-alert cg-alert-error cg-full"></div>
+
+        <div class="cg-field">
+            <label asp-for="City">City</label>
+            <input asp-for="City" list="cityList" placeholder="e.g. Baku" />
+            <datalist id="cityList">
+                @foreach (var city in cities)
+                {
+                    <option value="@city"></option>
+                }
+            </datalist>
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="Model">Model</label>
+            <input asp-for="Model" placeholder="e.g. Toyota Corolla" />
+            <span asp-validation-for="Model" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="Category">Category</label>
+            <select asp-for="Category" asp-items="Html.GetEnumSelectList<CarCategory>()"></select>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="Seats">Seats</label>
+            <input asp-for="Seats" type="number" min="2" max="9" />
+            <span asp-validation-for="Seats" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="PricePerDay">Price per day (AZN)</label>
+            <input asp-for="PricePerDay" type="number" min="1" step="1" />
+            <span asp-validation-for="PricePerDay" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="ImageUrl">Image URL (optional)</label>
+            <input asp-for="ImageUrl" placeholder="/assets/images/cars/corolla.jpg" />
+        </div>
+
+        <div class="cg-field cg-full" style="display:flex;gap:24px;flex-wrap:wrap">
+            <label style="display:flex;gap:8px;align-items:center;margin:0">
+                <input asp-for="IsAutomatic" type="checkbox" style="width:auto" />
+                Automatic transmission
+            </label>
+
+            <label style="display:flex;gap:8px;align-items:center;margin:0">
+                <input asp-for="HasAirConditioning" type="checkbox" style="width:auto" />
+                Air conditioning
+            </label>
+
+            <label style="display:flex;gap:8px;align-items:center;margin:0">
+                <input asp-for="IsActive" type="checkbox" style="width:auto" />
+                Active (shown to guests)
+            </label>
+        </div>
+
+        <div class="cg-full">
+            <button type="submit" class="cg-btn">
+                @(isNew ? "Add car" : "Save changes")
+            </button>
+        </div>
+    </form>
+</div>

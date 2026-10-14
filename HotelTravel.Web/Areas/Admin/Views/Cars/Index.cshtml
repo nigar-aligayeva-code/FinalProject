@@ -1,0 +1,204 @@
+@model List<HotelTravel.Application.DTOs.Cars.CarDto>
+@using HotelTravel.Domain.Enums
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Car Rental";
+
+    string? selectedCity = ViewBag.City as string;
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+    var rentals = ViewBag.Rentals as List<HotelTravel.Application.DTOs.Cars.CarRentalDto>
+        ?? new List<HotelTravel.Application.DTOs.Cars.CarRentalDto>();
+}
+
+<partial name="~/Areas/Admin/Views/CityGuide/_Styles.cshtml" />
+
+<div class="cg-heading">
+    <div>
+        <h1>Car Rental</h1>
+        <p>Manage the fleet in each city and see guests' car rentals.</p>
+    </div>
+
+    <a asp-area="Admin"
+       asp-controller="Cars"
+       asp-action="Edit"
+       asp-route-city="@selectedCity"
+       class="cg-btn">
+        + Add car
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cg-alert cg-alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="cg-alert cg-alert-error">@TempData["ErrorMessage"]</div>
+}
+
+<!-- FLEET -->
+<div class="cg-chips">
+    <a asp-area="Admin"
+       asp-controller="Cars"
+       asp-action="Index"
+       class="cg-chip @(string.IsNullOrEmpty(selectedCity) ? "active" : "")">
+        All cities
+    </a>
+
+    @foreach (var city in cities)
+    {
+        <a asp-area="Admin"
+           asp-controller="Cars"
+           asp-action="Index"
+           asp-route-city="@city"
+           class="cg-chip @(string.Equals(city, selectedCity, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+            @city
+        </a>
+    }
+</div>
+
+<div class="cg-card" style="margin-bottom:24px">
+    <h2 style="font-size:18px;margin:0 0 16px;color:#0f172a">Fleet (@Model.Count)</h2>
+
+    <div class="cg-table-wrap">
+        <table class="cg-table">
+            <thead>
+                <tr>
+                    <th>City</th>
+                    <th>Car</th>
+                    <th>Category</th>
+                    <th>Details</th>
+                    <th>Price / day</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var car in Model)
+                {
+                    <tr>
+                        <td><strong>@car.City</strong></td>
+                        <td><strong>@car.Model</strong></td>
+                        <td><span class="cg-badge cg-Sight">@car.Category</span></td>
+                        <td class="cg-desc">
+                            @car.Seats seats · @(car.IsAutomatic ? "Automatic" : "Manual")
+                            @(car.HasAirConditioning ? " · A/C" : "")
+                        </td>
+                        <td style="white-space:nowrap">@car.PricePerDay.ToString("0.00") AZN</td>
+                        <td>
+                            <span class="cg-badge @(car.IsActive ? "cg-Food" : "cg-Shopping")">
+                                @(car.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="cg-actions">
+                                <a asp-area="Admin"
+                                   asp-controller="Cars"
+                                   asp-action="Edit"
+                                   asp-route-id="@car.Id"
+                                   class="cg-edit">
+                                    Edit
+                                </a>
+
+                                <form asp-area="Admin"
+                                      asp-controller="Cars"
+                                      asp-action="Toggle"
+                                      asp-route-id="@car.Id"
+                                      asp-route-city="@selectedCity"
+                                      method="post">
+                                    <button type="submit" class="cg-edit">
+                                        @(car.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
+        {
+            <div class="cg-empty">No cars yet.</div>
+        }
+    </div>
+</div>
+
+<!-- RENTALS -->
+<div class="cg-card">
+    <h2 style="font-size:18px;margin:0 0 16px;color:#0f172a">Rentals (@rentals.Count)</h2>
+
+    <div class="cg-table-wrap">
+        <table class="cg-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Car</th>
+                    <th>Driver</th>
+                    <th>Dates</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rental in rentals)
+                {
+                    <tr>
+                        <td><strong>@rental.ConfirmationCode</strong></td>
+                        <td>
+                            @rental.CarModel
+                            <div class="cg-desc">@rental.City</div>
+                        </td>
+                        <td>
+                            @rental.DriverName
+                            <div class="cg-desc">@rental.Email · @rental.Phone</div>
+                        </td>
+                        <td style="white-space:nowrap">
+                            @rental.PickupDate.ToString("dd MMM") → @rental.ReturnDate.ToString("dd MMM yyyy")
+                            <div class="cg-desc">@rental.Days day@(rental.Days == 1 ? "" : "s")</div>
+                        </td>
+                        <td style="white-space:nowrap">@rental.TotalPrice.ToString("0.00") AZN</td>
+                        <td>
+                            <span class="cg-badge @(rental.Status == CarRentalStatus.Confirmed ? "cg-Food" : rental.Status == CarRentalStatus.Completed ? "cg-Sight" : "cg-Shopping")">
+                                @rental.Status
+                            </span>
+                        </td>
+                        <td>
+                            @if (rental.Status == CarRentalStatus.Confirmed)
+                            {
+                                <div class="cg-actions">
+                                    <form asp-area="Admin"
+                                          asp-controller="Cars"
+                                          asp-action="RentalStatus"
+                                          asp-route-id="@rental.Id"
+                                          asp-route-status="@CarRentalStatus.Completed"
+                                          method="post">
+                                        <button type="submit" class="cg-edit">Complete</button>
+                                    </form>
+
+                                    <form asp-area="Admin"
+                                          asp-controller="Cars"
+                                          asp-action="RentalStatus"
+                                          asp-route-id="@rental.Id"
+                                          asp-route-status="@CarRentalStatus.Cancelled"
+                                          method="post"
+                                          onsubmit="return confirm('Cancel this rental?');">
+                                        <button type="submit" class="cg-delete">Cancel</button>
+                                    </form>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!rentals.Any())
+        {
+            <div class="cg-empty">No car rentals yet.</div>
+        }
+    </div>
+</div>

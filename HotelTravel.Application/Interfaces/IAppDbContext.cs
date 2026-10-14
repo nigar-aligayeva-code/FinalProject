@@ -26,6 +26,12 @@ public interface IAppDbContext
 
     DbSet<PromoCode> PromoCodes { get; set; }
 
+    DbSet<CityPlace> CityPlaces { get; set; }
+
+    DbSet<RentalCar> RentalCars { get; set; }
+
+    DbSet<CarRental> CarRentals { get; set; }
+
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
 

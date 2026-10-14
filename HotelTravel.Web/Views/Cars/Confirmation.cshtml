@@ -1,0 +1,76 @@
+﻿@model HotelTravel.Application.DTOs.Cars.CarRentalDto
+
+@{
+    ViewData["Title"] = "Car rental confirmed";
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1><i class="bi bi-check-circle me-2"></i>Your car is booked</h1>
+        <p>We have saved your rental. Show the code below at pick-up.</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="hh-soon text-start">
+        <div class="row g-4 align-items-center">
+            <div class="col-md-7">
+                <span class="hh-search-label">Confirmation code</span>
+                <div class="hh-car-code">@Model.ConfirmationCode</div>
+
+                <h2 class="h4 mt-3 mb-1">@Model.CarModel <small class="text-muted fs-6">or similar</small></h2>
+                <div class="text-muted">@Model.CarCategory · @Model.City</div>
+
+                <div class="hh-summary-dates mt-3">
+                    <div>
+                        <small>Pick-up</small>
+                        <strong>@Model.PickupDate.ToString("ddd, MMM d, yyyy")</strong>
+                    </div>
+                    <div>
+                        <small>Return</small>
+                        <strong>@Model.ReturnDate.ToString("ddd, MMM d, yyyy")</strong>
+                    </div>
+                </div>
+
+                <div class="hh-summary-line">
+                    <span>Main driver</span>
+                    <strong>@Model.DriverName</strong>
+                </div>
+                <div class="hh-summary-line">
+                    <span>Status</span>
+                    <strong>@Model.Status</strong>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="hh-summary-total">
+                    <span>Total (@Model.Days day@(Model.Days == 1 ? "" : "s"))</span>
+                    <strong>@Model.TotalPrice.ToString("0.00") AZN</strong>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Bookings"
+                           asp-action="MyBookings"
+                           class="hh-btn hh-btn-primary">
+                            My Bookings
+                        </a>
+                    }
+
+                    <a asp-controller="Cars"
+                       asp-action="Index"
+                       asp-route-city="@Model.City"
+                       class="hh-btn hh-btn-outline">
+                        Back to cars
+                    </a>
+                </div>
+
+                <p class="small text-muted mt-3 mb-0">
+                    Please bring a valid driving licence and ID at pick-up.
+                    Signed-in guests can cancel for free before the pick-up day from My Bookings.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

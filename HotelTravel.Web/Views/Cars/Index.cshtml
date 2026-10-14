@@ -1,0 +1,186 @@
+@model List<HotelTravel.Application.DTOs.Cars.CarDto>
+
+@{
+    ViewData["Title"] = "Car rental";
+
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+    string? selected = ViewBag.SelectedCity as string;
+    var pickup = (DateTime)ViewBag.PickupDate;
+    var dropoff = (DateTime)ViewBag.ReturnDate;
+    string? dateError = ViewBag.DateError as string;
+
+    var days = Math.Max(1, (dropoff - pickup).Days);
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1><i class="fa-solid fa-car me-2"></i>Car rental</h1>
+        <p>Pick up a car in the city of your hotel. No hidden fees.</p>
+    </div>
+</section>
+
+<div class="container">
+
+    <!-- SEARCH -->
+    <form asp-controller="Cars"
+          asp-action="Index"
+          method="get"
+          class="hh-search hh-car-search">
+
+        <div class="hh-search-field">
+            <i class="bi bi-geo-alt"></i>
+            <div class="hh-search-body">
+                <label for="city">Pick-up city</label>
+                <select id="city" name="city">
+                    @foreach (var city in cities)
+                    {
+                        if (city == selected)
+                        {
+                            <option value="@city" selected>@city</option>
+                        }
+                        else
+                        {
+                            <option value="@city">@city</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-calendar3"></i>
+            <div class="hh-search-body">
+                <label for="pickupDate">Pick-up date</label>
+                <input type="date"
+                       id="pickupDate"
+                       name="pickupDate"
+                       min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       value="@pickup.ToString("yyyy-MM-dd")" />
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-calendar-check"></i>
+            <div class="hh-search-body">
+                <label for="returnDate">Return date</label>
+                <input type="date"
+                       id="returnDate"
+                       name="returnDate"
+                       min="@pickup.AddDays(1).ToString("yyyy-MM-dd")"
+                       value="@dropoff.ToString("yyyy-MM-dd")" />
+            </div>
+        </div>
+
+        <button type="submit" class="hh-search-btn">
+            <i class="bi bi-search"></i>
+            Search
+        </button>
+    </form>
+
+    @if (dateError != null)
+    {
+        <div class="alert alert-danger mt-3">@dateError</div>
+    }
+
+    <!-- RESULTS -->
+    <section class="hh-section">
+        <div class="hh-section-head">
+            <div>
+                <h2 class="hh-section-title">Cars in @selected</h2>
+                <p class="hh-section-sub">
+                    @pickup.ToString("ddd, MMM d") — @dropoff.ToString("ddd, MMM d")
+                    · @days day@(days == 1 ? "" : "s")
+                </p>
+            </div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="hh-empty">No cars found for this search.</div>
+        }
+        else
+        {
+            <div class="hh-car-grid">
+                @foreach (var car in Model)
+                {
+                    <article class="hh-car @(car.IsAvailable ? "" : "unavailable")">
+                        <div class="hh-car-media hh-car-@car.Category.ToString().ToLower()">
+                            @if (!string.IsNullOrWhiteSpace(car.ImageUrl))
+                            {
+                                <img src="@car.ImageUrl" alt="@car.Model" loading="lazy" />
+                            }
+                            else
+                            {
+                                <partial name="_CarIcon" model="car.Category" />
+                            }
+                            <span class="hh-room-type">@car.Category</span>
+                        </div>
+
+                        <div class="hh-car-body">
+                            <h3>@car.Model</h3>
+                            <small class="text-muted">or similar</small>
+
+                            <ul class="hh-car-specs">
+                                <li><i class="bi bi-people"></i> @car.Seats seats</li>
+                                <li><i class="bi bi-gear"></i> @(car.IsAutomatic ? "Automatic" : "Manual")</li>
+                                @if (car.HasAirConditioning)
+                                {
+                                    <li><i class="bi bi-snow"></i> Air conditioning</li>
+                                }
+                                <li><i class="bi bi-check-circle"></i> Free cancellation</li>
+                            </ul>
+
+                            <div class="hh-car-foot">
+                                <div class="hh-room-price text-start">
+                                    <small>@car.PricePerDay.ToString("0") AZN / day</small>
+                                    <strong>@car.TotalPrice.ToString("0.00") AZN</strong>
+                                    <small>total for @car.Days day@(car.Days == 1 ? "" : "s")</small>
+                                </div>
+
+                                @if (car.IsAvailable)
+                                {
+                                    <a asp-controller="Cars"
+                                       asp-action="Book"
+                                       asp-route-carId="@car.Id"
+                                       asp-route-pickupDate="@pickup.ToString("yyyy-MM-dd")"
+                                       asp-route-returnDate="@dropoff.ToString("yyyy-MM-dd")"
+                                       class="hh-btn hh-btn-primary">
+                                        Rent
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="hh-car-busy">Not available</span>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        // Return date ən azı pick-up-dan 1 gün sonra
+        (function () {
+            const pickup = document.getElementById("pickupDate");
+            const dropoff = document.getElementById("returnDate");
+
+            pickup.addEventListener("change", function () {
+                if (!pickup.value) return;
+
+                const min = new Date(pickup.value);
+                min.setDate(min.getDate() + 1);
+
+                const minText = min.toISOString().split("T")[0];
+                dropoff.min = minText;
+
+                if (!dropoff.value || dropoff.value < minText) {
+                    dropoff.value = minText;
+                }
+            });
+        })();
+    </script>
+}

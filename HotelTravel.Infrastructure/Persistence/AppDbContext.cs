@@ -35,6 +35,12 @@ public class AppDbContext
 
     public DbSet<PromoCode> PromoCodes { get; set; }
 
+    public DbSet<CityPlace> CityPlaces { get; set; }
+
+    public DbSet<RentalCar> RentalCars { get; set; }
+
+    public DbSet<CarRental> CarRentals { get; set; }
+
     public async Task<IDbContextTransaction> BeginTransactionAsync(
         CancellationToken cancellationToken = default)
     {
@@ -137,6 +143,53 @@ public class AppDbContext
             .WithOne(rv => rv.Room)
             .HasForeignKey(rv => rv.RoomId)
             .OnDelete(DeleteBehavior.Restrict);
+
+
+        // CAR RENTAL
+        modelBuilder.Entity<RentalCar>(entity =>
+        {
+            entity.HasIndex(c => c.City);
+            entity.Property(c => c.City).HasMaxLength(100).IsRequired();
+            entity.Property(c => c.Model).HasMaxLength(100).IsRequired();
+            entity.Property(c => c.ImageUrl).HasMaxLength(400);
+            entity.Property(c => c.PricePerDay).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<CarRental>(entity =>
+        {
+            entity.HasIndex(r => r.ConfirmationCode).IsUnique();
+            entity.Property(r => r.ConfirmationCode).HasMaxLength(20).IsRequired();
+            entity.Property(r => r.DriverName).HasMaxLength(100).IsRequired();
+            entity.Property(r => r.Email).HasMaxLength(150).IsRequired();
+            entity.Property(r => r.Phone).HasMaxLength(30).IsRequired();
+            entity.Property(r => r.PricePerDay).HasPrecision(18, 2);
+            entity.Property(r => r.TotalPrice).HasPrecision(18, 2);
+
+            entity.HasOne(r => r.RentalCar)
+                .WithMany(c => c.Rentals)
+                .HasForeignKey(r => r.RentalCarId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(r => r.AppUser)
+                .WithMany()
+                .HasForeignKey(r => r.AppUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+
+        // CITY GUIDE
+        modelBuilder.Entity<CityPlace>(entity =>
+        {
+            entity.HasIndex(p => p.City);
+
+            entity.Property(p => p.City).HasMaxLength(100).IsRequired();
+            entity.Property(p => p.Name).HasMaxLength(150).IsRequired();
+            entity.Property(p => p.Description).HasMaxLength(600).IsRequired();
+            entity.Property(p => p.Address).HasMaxLength(200);
+            entity.Property(p => p.ImageUrl).HasMaxLength(400);
+            entity.Property(p => p.Duration).HasMaxLength(50);
+            entity.Property(p => p.PriceFrom).HasPrecision(18, 2);
+        });
 
 
         // DISCOUNTS
