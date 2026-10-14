@@ -1,0 +1,123 @@
+@model List<HotelTravel.Application.DTOs.CityGuide.CityPlaceDto>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "City Guide";
+
+    string? selectedCity = ViewBag.City as string;
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+}
+
+<partial name="_Styles" />
+
+<div class="cg-heading">
+    <div>
+        <h1>City Guide</h1>
+        <p>Places to see, tours, food and shopping shown on room pages and on the Attractions page.</p>
+    </div>
+
+    <a asp-area="Admin"
+       asp-controller="CityGuide"
+       asp-action="Edit"
+       asp-route-city="@selectedCity"
+       class="cg-btn">
+        + Add place
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cg-alert cg-alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="cg-alert cg-alert-error">@TempData["ErrorMessage"]</div>
+}
+
+<div class="cg-chips">
+    <a asp-area="Admin"
+       asp-controller="CityGuide"
+       asp-action="Index"
+       class="cg-chip @(string.IsNullOrEmpty(selectedCity) ? "active" : "")">
+        All cities
+    </a>
+
+    @foreach (var city in cities)
+    {
+        <a asp-area="Admin"
+           asp-controller="CityGuide"
+           asp-action="Index"
+           asp-route-city="@city"
+           class="cg-chip @(string.Equals(city, selectedCity, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+            @city
+        </a>
+    }
+</div>
+
+<div class="cg-card">
+    <div class="cg-table-wrap">
+        <table class="cg-table">
+            <thead>
+                <tr>
+                    <th>City</th>
+                    <th>Place</th>
+                    <th>Category</th>
+                    <th>Tour info</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var place in Model)
+                {
+                    <tr>
+                        <td><strong>@place.City</strong></td>
+                        <td>
+                            <strong>@place.Name</strong>
+                            <div class="cg-desc">@place.Description</div>
+                        </td>
+                        <td>
+                            <span class="cg-badge cg-@place.Category">@place.Category</span>
+                        </td>
+                        <td style="white-space:nowrap">
+                            @if (place.PriceFrom.HasValue)
+                            {
+                                <div>from @place.PriceFrom.Value.ToString("0") AZN</div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(place.Duration))
+                            {
+                                <small style="color:#64748b">@place.Duration</small>
+                            }
+                        </td>
+                        <td>
+                            <div class="cg-actions">
+                                <a asp-area="Admin"
+                                   asp-controller="CityGuide"
+                                   asp-action="Edit"
+                                   asp-route-id="@place.Id"
+                                   class="cg-edit">
+                                    Edit
+                                </a>
+
+                                <form asp-area="Admin"
+                                      asp-controller="CityGuide"
+                                      asp-action="Delete"
+                                      asp-route-id="@place.Id"
+                                      asp-route-city="@selectedCity"
+                                      method="post"
+                                      onsubmit="return confirm('Delete this place?');">
+                                    <button type="submit" class="cg-delete">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
+        {
+            <div class="cg-empty">No places yet for this city.</div>
+        }
+    </div>
+</div>

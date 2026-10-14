@@ -15,15 +15,18 @@ public class BookingsController : Controller
     private readonly IBookingService _bookingService;
     private readonly IRoomService _roomService;
     private readonly UserManager<AppUser> _userManager;
+    private readonly ICarRentalService _carRentalService;
 
     public BookingsController(
         IBookingService bookingService,
         IRoomService roomService,
-        UserManager<AppUser> userManager)
+        UserManager<AppUser> userManager,
+        ICarRentalService carRentalService)
     {
         _bookingService = bookingService;
         _roomService = roomService;
         _userManager = userManager;
+        _carRentalService = carRentalService;
     }
 
 
@@ -317,6 +320,10 @@ public class BookingsController : Controller
 
         var bookings =
             await _bookingService.GetByUserIdAsync(userId!);
+
+        // Maşın icarələri də My Bookings-də görünsün
+        ViewBag.CarRentals =
+            await _carRentalService.GetByUserAsync(userId!);
 
         return View(bookings);
     }

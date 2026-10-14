@@ -304,6 +304,22 @@
                 <span class="menu-text">Promo Codes</span>
             </a>
 
+            <a asp-area="Admin"
+               asp-controller="CityGuide"
+               asp-action="Index"
+               class="@(currentController == "CityGuide" ? "active" : "")">
+                <span class="menu-icon">⌖</span>
+                <span class="menu-text">City Guide</span>
+            </a>
+
+            <a asp-area="Admin"
+               asp-controller="Cars"
+               asp-action="Index"
+               class="@(currentController == "Cars" ? "active" : "")">
+                <span class="menu-icon">⛟</span>
+                <span class="menu-text">Car Rental</span>
+            </a>
+
             <!-- Əsas sayta qayıt -->
             <a asp-area=""
                asp-controller="Home"

@@ -1,0 +1,129 @@
+@model List<HotelTravel.Application.DTOs.CityGuide.CityPlaceDto>
+@using HotelTravel.Domain.Enums
+
+@{
+    // Şəhər bələdçisi: otaq səhifəsində və Attractions səhifəsində istifadə olunur
+    var city = ViewData["GuideCity"] as string ?? "";
+    var showTitle = ViewData["GuideShowTitle"] as bool? ?? true;
+    var guideId = "guide-" + Guid.NewGuid().ToString("N")[..6];
+
+    var categories = new[]
+    {
+        (Key: PlaceCategory.Sight, Title: "Things to do", Icon: "bi-camera"),
+        (Key: PlaceCategory.Tour, Title: "Tours & trips", Icon: "bi-compass"),
+        (Key: PlaceCategory.Food, Title: "Food & drink", Icon: "bi-cup-hot"),
+        (Key: PlaceCategory.Shopping, Title: "Shopping", Icon: "bi-bag")
+    }
+    .Where(c => Model.Any(p => p.Category == c.Key))
+    .ToList();
+}
+
+@if (Model.Any())
+{
+    <section class="hh-guide" id="@guideId">
+
+        @if (showTitle)
+        {
+            <div class="hh-section-head">
+                <div>
+                    <h2 class="hh-section-title">Explore @city</h2>
+                    <p class="hh-section-sub">Places to see, tours, food and shopping near your stay</p>
+                </div>
+                <a asp-controller="Guide"
+                   asp-action="Index"
+                   asp-route-city="@city"
+                   class="hh-link-more">
+                    Full city guide <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        }
+
+        <!-- TABS -->
+        <div class="hh-guide-tabs" role="tablist">
+            @for (int i = 0; i < categories.Count; i++)
+            {
+                var cat = categories[i];
+                var count = Model.Count(p => p.Category == cat.Key);
+
+                <button type="button"
+                        class="hh-guide-tab @(i == 0 ? "active" : "")"
+                        data-guide-tab="@cat.Key"
+                        role="tab">
+                    <i class="bi @cat.Icon"></i>
+                    @cat.Title
+                    <span>@count</span>
+                </button>
+            }
+        </div>
+
+        <!-- PANELS -->
+        @for (int i = 0; i < categories.Count; i++)
+        {
+            var cat = categories[i];
+
+            <div class="hh-guide-grid @(i == 0 ? "" : "d-none")"
+                 data-guide-panel="@cat.Key">
+
+                @foreach (var place in Model.Where(p => p.Category == cat.Key))
+                {
+                    <article class="hh-place">
+                        <div class="hh-place-media hh-place-@cat.Key.ToString().ToLower()">
+                            @if (!string.IsNullOrWhiteSpace(place.ImageUrl))
+                            {
+                                <img src="@place.ImageUrl" alt="@place.Name" loading="lazy" />
+                            }
+                            else
+                            {
+                                <i class="bi @cat.Icon"></i>
+                            }
+                        </div>
+
+                        <div class="hh-place-body">
+                            <h3>@place.Name</h3>
+                            <p>@place.Description</p>
+
+                            <div class="hh-place-meta">
+                                @if (!string.IsNullOrWhiteSpace(place.Address))
+                                {
+                                    <span><i class="bi bi-geo-alt"></i> @place.Address</span>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(place.Duration))
+                                {
+                                    <span><i class="bi bi-clock"></i> @place.Duration</span>
+                                }
+                            </div>
+
+                            @if (place.PriceFrom.HasValue)
+                            {
+                                <div class="hh-place-price">
+                                    <span>from <strong>@place.PriceFrom.Value.ToString("0") AZN</strong> per person</span>
+                                    <small>Book at hotel reception</small>
+                                </div>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <script>
+        (function () {
+            const root = document.getElementById("@guideId");
+            if (!root) return;
+
+            root.querySelectorAll("[data-guide-tab]").forEach(function (tab) {
+                tab.addEventListener("click", function () {
+                    const key = tab.dataset.guideTab;
+
+                    root.querySelectorAll("[data-guide-tab]")
+                        .forEach(t => t.classList.toggle("active", t === tab));
+
+                    root.querySelectorAll("[data-guide-panel]")
+                        .forEach(p => p.classList.toggle("d-none", p.dataset.guidePanel !== key));
+                });
+            });
+        })();
+    </script>
+}

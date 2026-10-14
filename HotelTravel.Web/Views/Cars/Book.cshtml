@@ -1,0 +1,131 @@
+﻿@model HotelTravel.Application.DTOs.Cars.CreateCarRentalDto
+
+@{
+    ViewData["Title"] = "Rent a car";
+
+    var car = ViewBag.Car as HotelTravel.Application.DTOs.Cars.CarDto;
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1>Rent a car</h1>
+        <p>Enter the main driver's details to confirm.</p>
+    </div>
+</section>
+
+<div class="container">
+    <form asp-controller="Cars"
+          asp-action="Book"
+          method="post"
+          class="hh-checkout">
+
+        <input asp-for="CarId" type="hidden" />
+        <input asp-for="PickupDate" type="hidden" value="@Model.PickupDate.ToString("yyyy-MM-dd")" />
+        <input asp-for="ReturnDate" type="hidden" value="@Model.ReturnDate.ToString("yyyy-MM-dd")" />
+
+        <div class="hh-checkout-main">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="hh-panel">
+                <h2 class="hh-panel-title">Main driver</h2>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="DriverName" class="form-label">Full name</label>
+                        <input asp-for="DriverName" class="form-control" autocomplete="name" />
+                        <span asp-validation-for="DriverName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <input asp-for="Phone" class="form-control" autocomplete="tel" placeholder="+994 ..." />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="hh-check">
+                            <input asp-for="HasLicence" type="checkbox" />
+                            <span>The driver has a valid driving licence and will bring it at pick-up.</span>
+                        </label>
+                        <span asp-validation-for="HasLicence" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hh-panel hh-perks">
+                <div><i class="bi bi-check-circle-fill"></i> Free cancellation before the pick-up day</div>
+                <div><i class="bi bi-check-circle-fill"></i> Pick up at your hotel in @car?.City</div>
+                <div><i class="bi bi-check-circle-fill"></i> No payment now: pay at pick-up</div>
+            </div>
+
+            <button type="submit" class="hh-search-btn hh-confirm-btn">
+                Confirm rental
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <aside class="hh-checkout-side">
+            <div class="hh-panel hh-summary-card">
+                @if (car != null)
+                {
+                    <div class="hh-car-media hh-car-@car.Category.ToString().ToLower() hh-summary-car">
+                        @if (!string.IsNullOrWhiteSpace(car.ImageUrl))
+                        {
+                            <img src="@car.ImageUrl" alt="@car.Model" />
+                        }
+                        else
+                        {
+                            <partial name="_CarIcon" model="car.Category" />
+                        }
+                    </div>
+
+                    <h3>@car.Model</h3>
+                    <div class="hh-room-meta">
+                        @car.Category · @car.Seats seats · @(car.IsAutomatic ? "Automatic" : "Manual")
+                    </div>
+
+                    <div class="hh-summary-dates">
+                        <div>
+                            <small>Pick-up</small>
+                            <strong>@Model.PickupDate.ToString("ddd, MMM d, yyyy")</strong>
+                        </div>
+                        <div>
+                            <small>Return</small>
+                            <strong>@Model.ReturnDate.ToString("ddd, MMM d, yyyy")</strong>
+                        </div>
+                    </div>
+
+                    <div class="hh-summary-line">
+                        <span>@car.PricePerDay.ToString("0.00") AZN × @car.Days day@(car.Days == 1 ? "" : "s")</span>
+                        <span>@car.TotalPrice.ToString("0.00") AZN</span>
+                    </div>
+
+                    <div class="hh-summary-total">
+                        <span>Total</span>
+                        <strong>@car.TotalPrice.ToString("0.00") AZN</strong>
+                    </div>
+
+                    @if (!car.IsAvailable)
+                    {
+                        <div class="alert alert-warning mt-3 mb-0">
+                            This car is already booked for these dates.
+                            <a asp-controller="Cars" asp-action="Index" asp-route-city="@car.City">Choose another car</a>.
+                        </div>
+                    }
+                }
+            </div>
+        </aside>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

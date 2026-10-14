@@ -1,0 +1,60 @@
+﻿@model List<HotelTravel.Application.DTOs.CityGuide.CityPlaceDto>
+
+@{
+    ViewData["Title"] = "Attractions & city guides";
+
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+    string? selected = ViewBag.SelectedCity as string;
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1><i class="fa-solid fa-landmark me-2"></i>Attractions</h1>
+        <p>Things to do, tours, food and shopping in every city where we have hotels.</p>
+    </div>
+</section>
+
+<div class="container">
+
+    <!-- CITY SELECTOR -->
+    <div class="hh-city-chips">
+        @foreach (var city in cities)
+        {
+            <a asp-controller="Guide"
+               asp-action="Index"
+               asp-route-city="@city"
+               class="hh-city-chip @(city == selected ? "active" : "")">
+                <i class="bi bi-geo-alt"></i>
+                @city
+            </a>
+        }
+    </div>
+
+    @if (selected == null)
+    {
+        <div class="hh-empty mt-4">No city guides yet.</div>
+    }
+    else
+    {
+        <div class="hh-guide-head">
+            <div>
+                <h2 class="hh-section-title">@selected city guide</h2>
+                <p class="hh-section-sub">@Model.Count places to discover</p>
+            </div>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               asp-route-destination="@selected"
+               asp-fragment="search"
+               class="hh-btn hh-btn-primary">
+                <i class="fa-solid fa-bed"></i>
+                Find a stay in @selected
+            </a>
+        </div>
+
+        ViewData["GuideCity"] = selected;
+        ViewData["GuideShowTitle"] = false;
+
+        <partial name="_CityGuide" model="Model" view-data="ViewData" />
+    }
+</div>

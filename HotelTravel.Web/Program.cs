@@ -86,6 +86,8 @@ namespace HotelTravel.Web
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<IWishlistService, WishlistService>();
             builder.Services.AddScoped<IPromoCodeService, PromoCodeService>();
+            builder.Services.AddScoped<ICityGuideService, CityGuideService>();
+            builder.Services.AddScoped<ICarRentalService, CarRentalService>();
 
             var app = builder.Build();
 
@@ -114,6 +116,12 @@ namespace HotelTravel.Web
                     services.GetRequiredService<AppDbContext>();
 
                 await HotelDataSeeder.SeedAsync(context);
+
+                // Şəhər bələdçisi (boşdursa doldurulur)
+                await CityGuideSeeder.SeedAsync(context);
+
+                // Maşın parkı (boşdursa doldurulur)
+                await RentalCarSeeder.SeedAsync(context);
             }
 
             // =========================================

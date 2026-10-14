@@ -1,6 +1,7 @@
 ﻿@model HotelTravel.Application.DTOs.Rooms.GetRoomDto
 @inject HotelTravel.Application.Interfaces.IWishlistService WishlistService
 @inject Microsoft.AspNetCore.Identity.UserManager<HotelTravel.Domain.Entities.AppUser> UserManager
+@inject HotelTravel.Application.Interfaces.ICityGuideService CityGuideService
 
 @{
     ViewData["Title"] = Model.Name + " | Room Details";
@@ -21,6 +22,13 @@
     galleryImages = galleryImages.Distinct().ToList();
 
     var hasPanorama = !string.IsNullOrWhiteSpace(Model.PanoramaImage);
+
+    // Şəhər bələdçisi (otelin şəhəri üzrə)
+    var guidePlaces = string.IsNullOrWhiteSpace(Model.City)
+        ? new List<HotelTravel.Application.DTOs.CityGuide.CityPlaceDto>()
+        : await CityGuideService.GetByCityAsync(Model.City);
+
+    ViewData["GuideCity"] = Model.City;
 
     // Wishlist - bu otaq saxlanılıbmı?
     var isSaved =
@@ -812,6 +820,14 @@
                 </p>
             }
         </div>
+
+        <!-- CITY GUIDE (yaxınlıqdakı yerlər) -->
+        @if (guidePlaces.Any())
+        {
+            <div class="room-panel">
+                <partial name="_CityGuide" model="guidePlaces" view-data="ViewData" />
+            </div>
+        }
 
         <!-- ACTIONS -->
         <div class="room-panel">

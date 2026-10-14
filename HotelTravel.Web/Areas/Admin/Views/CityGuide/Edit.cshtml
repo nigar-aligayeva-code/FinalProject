@@ -1,0 +1,105 @@
+@model HotelTravel.Application.DTOs.CityGuide.SaveCityPlaceDto
+@using HotelTravel.Domain.Enums
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var isNew = !Model.Id.HasValue;
+    ViewData["Title"] = isNew ? "Add place" : "Edit place";
+
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+}
+
+<partial name="_Styles" />
+
+<div class="cg-heading">
+    <div>
+        <h1>@(isNew ? "Add a place" : "Edit place")</h1>
+        <p>Tours can have a price and duration. Other places only need a description.</p>
+    </div>
+
+    <a asp-area="Admin"
+       asp-controller="CityGuide"
+       asp-action="Index"
+       asp-route-city="@Model.City"
+       class="cg-btn cg-btn-light">
+        ← Back to list
+    </a>
+</div>
+
+<div class="cg-card">
+    <form asp-area="Admin"
+          asp-controller="CityGuide"
+          asp-action="Edit"
+          method="post"
+          class="cg-form">
+
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly" class="cg-alert cg-alert-error cg-full"></div>
+
+        <div class="cg-field">
+            <label asp-for="City">City</label>
+            <input asp-for="City" list="cityList" placeholder="e.g. Baku" />
+            <datalist id="cityList">
+                @foreach (var city in cities)
+                {
+                    <option value="@city"></option>
+                }
+            </datalist>
+            <div class="cg-hint">Must match the hotel's city name exactly.</div>
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="Category">Category</label>
+            <select asp-for="Category" asp-items="Html.GetEnumSelectList<PlaceCategory>()"></select>
+        </div>
+
+        <div class="cg-field cg-full">
+            <label asp-for="Name">Name</label>
+            <input asp-for="Name" placeholder="e.g. Maiden Tower" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field cg-full">
+            <label asp-for="Description">Description</label>
+            <textarea asp-for="Description" rows="3" maxlength="600"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="Address">Address / area (optional)</label>
+            <input asp-for="Address" />
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="ImageUrl">Image URL (optional)</label>
+            <input asp-for="ImageUrl" placeholder="/assets/images/guide/maiden-tower.jpg" />
+            <div class="cg-hint">Leave empty to show an icon.</div>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="PriceFrom">Tour price from (AZN, optional)</label>
+            <input asp-for="PriceFrom" type="number" min="0" step="1" />
+            <span asp-validation-for="PriceFrom" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="Duration">Duration (optional)</label>
+            <input asp-for="Duration" placeholder="e.g. 4 hours" />
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="SortOrder">Sort order</label>
+            <input asp-for="SortOrder" type="number" min="0" />
+            <div class="cg-hint">Smaller numbers appear first.</div>
+        </div>
+
+        <div class="cg-full">
+            <button type="submit" class="cg-btn">
+                @(isNew ? "Add place" : "Save changes")
+            </button>
+        </div>
+    </form>
+</div>
