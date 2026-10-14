@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Bookings.ModifyBookingDto
+﻿@model HotelTravel.Application.DTOs.Bookings.ModifyBookingDto
 
 @{
     ViewData["Title"] = "Modify Booking";
@@ -12,12 +12,7 @@
 
     var minDate = DateTime.Today.ToString("yyyy-MM-dd");
 }
-<style>
-    .card .form-label,
-    .card .form-text {
-        color: #1F1F1F !important;
-    }
-</style>
+
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -25,7 +20,7 @@
             <div class="card shadow-sm">
 
                 <div class="card-header">
-                    <h3 class="mb-0" style="color:#1F1F1F">Modify Booking</h3>
+                    <h3 class="mb-0">Modify Booking</h3>
                 </div>
 
                 <div class="card-body">
@@ -143,6 +138,10 @@
                             <span>
                                 New total
                                 (<span id="nightCount">0</span> nights)
+                                @if ((booking?.DiscountPercent ?? 0) > 0)
+                                {
+                                    <span class="small">· your -@(booking!.DiscountPercent)% discount is kept</span>
+                                }
                             </span>
                             <strong>
                                 <span id="newTotal">0.00</span> AZN
@@ -178,6 +177,9 @@
             const pricePerNight =
                 @pricePerNight.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
+            // Rezervasiyadakı endirim faizi dəyişiklikdən sonra da qalır
+            const discountPercent = @(booking?.DiscountPercent ?? 0);
+
             const checkIn = document.getElementById("CheckInDate");
             const checkOut = document.getElementById("CheckOutDate");
             const nightCount = document.getElementById("nightCount");
@@ -194,7 +196,9 @@
                 }
 
                 nightCount.textContent = nights;
-                newTotal.textContent = (nights * pricePerNight).toFixed(2);
+                const baseTotal = nights * pricePerNight;
+                const discount = Math.round(baseTotal * discountPercent) / 100;
+                newTotal.textContent = (baseTotal - discount).toFixed(2);
 
                 // Check-out ən azı check-in-dən 1 gün sonra olsun
                 if (checkIn.value) {

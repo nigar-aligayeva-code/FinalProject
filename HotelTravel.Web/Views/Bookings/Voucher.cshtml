@@ -1,0 +1,422 @@
+@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
+@using HotelTravel.Domain.Enums
+
+@{
+    // Çap üçün ayrıca səhifə: saytın header/footer-i yoxdur
+    Layout = null;
+
+    var brand = Config["Brand:Name"] ?? "Tripio";
+    var qrUrl = ViewBag.QrUrl as string ?? "";
+
+    var nights = Math.Max(1, (Model.CheckOutDate.Date - Model.CheckInDate.Date).Days);
+
+    var guestsText = Model.AdultCount + (Model.AdultCount == 1 ? " adult" : " adults");
+    if (Model.ChildrenCount > 0)
+    {
+        guestsText += ", " + Model.ChildrenCount + (Model.ChildrenCount == 1 ? " child" : " children");
+    }
+
+    var (statusText, statusClass) = Model.Status switch
+    {
+        BookingStatus.Confirmed => ("Confirmed", "ok"),
+        BookingStatus.CheckedIn => ("Checked in", "ok"),
+        BookingStatus.CheckedOut => ("Checked out", "muted"),
+        BookingStatus.Cancelled => ("Cancelled", "bad"),
+        _ => (Model.Status.ToString(), "muted")
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voucher @Model.ConfirmationCode - @brand</title>
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700&display=swap" />
+    <link rel="stylesheet" href="~/assets/css/bootstrap-icons.css" />
+
+    <style>
+        :root {
+            --green: #4E5B4C;
+            --green-deep: #2B3329;
+            --gold: #C69B45;
+            --gold-soft: #F5ECD9;
+            --ink: #1F2421;
+            --muted: #6B706B;
+            --border: #E5DFD4;
+            --cream: #F6F3EE;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--cream);
+            color: var(--ink);
+            font-family: "Open Sans", system-ui, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .toolbar {
+            max-width: 820px;
+            margin: 24px auto 12px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--green);
+            background: #fff;
+            color: var(--green-deep);
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .voucher {
+            max-width: 820px;
+            margin: 0 auto 32px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .v-head {
+            background: var(--green);
+            color: #fff;
+            padding: 22px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .v-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: "Playfair Display", Georgia, serif;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+            .v-brand i { color: var(--gold); }
+
+        .v-head small {
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 11px;
+            opacity: .85;
+            text-align: right;
+        }
+
+        .v-head strong {
+            font-size: 18px;
+        }
+
+        .v-top {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 24px;
+            padding: 26px 28px;
+            border-bottom: 1px dashed var(--border);
+            align-items: center;
+        }
+
+        .label {
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .code {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin: 0 0 8px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+            .status.ok { background: #DCFCE7; color: #166534; }
+            .status.muted { background: #F1F5F9; color: #475569; }
+            .status.bad { background: #FEE2E2; color: #B91C1C; }
+
+        .guest {
+            margin-top: 14px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .qr-box {
+            text-align: center;
+        }
+
+        #qrcode {
+            width: 140px;
+            height: 140px;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            margin: 0 auto;
+        }
+
+            #qrcode img,
+            #qrcode canvas {
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+        .qr-box small {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 6px;
+            max-width: 150px;
+        }
+
+        .v-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .v-cell {
+            padding: 18px 28px;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .v-cell:nth-child(odd) {
+                border-right: 1px solid var(--border);
+            }
+
+            .v-cell strong {
+                display: block;
+                font-size: 15px;
+            }
+
+            .v-cell span.sub {
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+        .v-price {
+            padding: 20px 28px;
+        }
+
+        .line {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+            .line.discount { color: #2E7D4F; font-weight: 600; }
+
+        .total {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-top: 8px;
+            padding: 12px 14px;
+            background: var(--gold-soft);
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+            .total strong { font-size: 22px; }
+
+        .v-foot {
+            background: var(--cream);
+            padding: 18px 28px;
+            font-size: 13px;
+            color: var(--muted);
+            display: grid;
+            gap: 6px;
+        }
+
+            .v-foot i { color: var(--green); margin-right: 6px; }
+
+        @@media (max-width: 600px) {
+            .v-top { grid-template-columns: 1fr; }
+            .v-grid { grid-template-columns: 1fr; }
+            .v-cell:nth-child(odd) { border-right: none; }
+            .code { font-size: 26px; }
+        }
+
+        /* ÇAP: yalnız voucher görünsün */
+        @@media print {
+            body { background: #fff; }
+            .toolbar { display: none; }
+            .voucher { border: none; margin: 0; max-width: none; }
+            .v-head, .total, .v-foot, .status {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <a href="@Url.Action("Find", "Bookings", new { confirmationCode = Model.ConfirmationCode })" class="btn">
+            <i class="bi bi-arrow-left"></i> Back to booking
+        </a>
+
+        <button type="button" class="btn btn-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Print / Save as PDF
+        </button>
+    </div>
+
+    <div class="voucher">
+
+        <div class="v-head">
+            <div class="v-brand">
+                <i class="bi bi-hexagon-fill"></i>
+                @brand
+            </div>
+            <div>
+                <small>Booking voucher</small>
+                <strong>@Model.HotelName</strong>
+            </div>
+        </div>
+
+        <div class="v-top">
+            <div>
+                <span class="label">Confirmation code</span>
+                <p class="code">@Model.ConfirmationCode</p>
+                <span class="status @statusClass">@statusText</span>
+
+                <div class="guest">
+                    <span class="label">Guest</span>
+                    @Model.GuestName
+                </div>
+            </div>
+
+            <div class="qr-box">
+                <div id="qrcode" data-url="@qrUrl"></div>
+                <small>Show this code at reception</small>
+            </div>
+        </div>
+
+        <div class="v-grid">
+            <div class="v-cell">
+                <span class="label">Check-in</span>
+                <strong>@Model.CheckInDate.ToString("dddd, d MMMM yyyy")</strong>
+            </div>
+
+            <div class="v-cell">
+                <span class="label">Check-out</span>
+                <strong>@Model.CheckOutDate.ToString("dddd, d MMMM yyyy")</strong>
+            </div>
+
+            <div class="v-cell">
+                <span class="label">Room</span>
+                <strong>@Model.RoomName</strong>
+                <span class="sub">Room @Model.RoomNumber</span>
+            </div>
+
+            <div class="v-cell">
+                <span class="label">Stay</span>
+                <strong>@nights night@(nights == 1 ? "" : "s")</strong>
+                <span class="sub">@guestsText</span>
+            </div>
+
+            <div class="v-cell">
+                <span class="label">Hotel address</span>
+                <strong>@Model.HotelName</strong>
+                <span class="sub">@Model.HotelAddress, @Model.HotelCity, @Model.HotelCountry</span>
+            </div>
+
+            <div class="v-cell">
+                <span class="label">Hotel phone</span>
+                <strong>@Model.HotelPhone</strong>
+            </div>
+        </div>
+
+        <div class="v-price">
+            <span class="label">Payment summary</span>
+
+            @if (Model.DiscountAmount > 0)
+            {
+                <div class="line">
+                    <span>Room price (@nights night@(nights == 1 ? "" : "s"))</span>
+                    <span>@Model.OriginalPrice.ToString("0.00") AZN</span>
+                </div>
+                <div class="line discount">
+                    <span>@Model.DiscountNote</span>
+                    <span>−@Model.DiscountAmount.ToString("0.00") AZN</span>
+                </div>
+            }
+
+            <div class="total">
+                <span>Total</span>
+                <strong>@Model.TotalPrice.ToString("0.00") AZN</strong>
+            </div>
+        </div>
+
+        <div class="v-foot">
+            <div><i class="bi bi-check-circle-fill"></i>Free cancellation and changes before the check-in day.</div>
+            <div><i class="bi bi-person-badge"></i>Please bring a valid ID. The name must match the booking.</div>
+            <div><i class="bi bi-qr-code"></i>Scan the QR code to open this booking online.</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        (function () {
+            const box = document.getElementById("qrcode");
+            const url = box.dataset.url;
+
+            if (!url || typeof QRCode === "undefined") {
+                // QR kitabxanası yüklənmədisə, ən azı kod görünür
+                box.textContent = "@Model.ConfirmationCode";
+                box.style.display = "flex";
+                box.style.alignItems = "center";
+                box.style.justifyContent = "center";
+                box.style.fontWeight = "800";
+                return;
+            }
+
+            new QRCode(box, {
+                text: url,
+                width: 240,
+                height: 240,
+                colorDark: "#1F2421",
+                colorLight: "#FFFFFF",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        })();
+    </script>
+</body>
+</html>

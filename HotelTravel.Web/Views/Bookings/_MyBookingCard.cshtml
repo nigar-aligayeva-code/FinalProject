@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
+﻿@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
 @using HotelTravel.Domain.Enums
 
 @{
@@ -74,9 +74,23 @@
                 @guestsText
             </div>
             <div class="col-sm-4 mb-2 text-sm-end">
+                @if (Model.DiscountAmount > 0)
+                {
+                    <div class="small text-decoration-line-through">
+                        @Model.OriginalPrice.ToString("0.00") AZN
+                    </div>
+                }
+
                 <strong class="text-dark fs-5">
                     @Model.TotalPrice.ToString("0.00") AZN
                 </strong>
+
+                @if (Model.DiscountAmount > 0)
+                {
+                    <div class="small text-success">
+                        -@Model.DiscountPercent% discount
+                    </div>
+                }
             </div>
         </div>
 
@@ -88,6 +102,18 @@
                class="btn btn-sm btn-outline-secondary">
                 View Room
             </a>
+
+            @if (Model.Status != BookingStatus.Cancelled)
+            {
+                <a asp-controller="Bookings"
+                   asp-action="Voucher"
+                   asp-route-confirmationCode="@Model.ConfirmationCode"
+                   target="_blank"
+                   class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-qr-code me-1"></i>
+                    Voucher
+                </a>
+            }
 
             @if (canChange)
             {

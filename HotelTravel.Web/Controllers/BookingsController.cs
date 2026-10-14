@@ -241,6 +241,8 @@ public class BookingsController : Controller
 
             ViewBag.FromSearch = true;
 
+            await LoadBookingRoomAsync(roomId.Value);
+
             // Daxil olmuş istifadəçinin məlumatlarını avtomatik doldur
             var user = await _userManager.GetUserAsync(User);
 
@@ -271,6 +273,7 @@ public class BookingsController : Controller
         if (!ModelState.IsValid)
         {
             await LoadRoomsAsync(dto.RoomId);
+            await LoadBookingRoomAsync(dto.RoomId);
 
             return View(dto);
         }
@@ -288,6 +291,7 @@ public class BookingsController : Controller
                 result.Message);
 
             await LoadRoomsAsync(dto.RoomId);
+            await LoadBookingRoomAsync(dto.RoomId);
 
             return View(dto);
         }
@@ -420,8 +424,80 @@ public class BookingsController : Controller
 
 
     // =========================
+    // VOUCHER (çap / PDF + QR kod)
+    // =========================
+    [HttpGet]
+    public async Task<IActionResult> Voucher(string confirmationCode)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationCode))
+            return RedirectToAction(nameof(Find));
+
+        var booking =
+            await _bookingService.GetByConfirmationCodeAsync(
+                confirmationCode);
+
+        if (booking is null)
+            return NotFound();
+
+        // QR kod skan edildikdə bu rezervasiya açılsın
+        ViewBag.QrUrl = Url.Action(
+            nameof(Find),
+            "Bookings",
+            new { confirmationCode = booking.ConfirmationCode },
+            Request.Scheme);
+
+        return View(booking);
+    }
+
+
+    // =========================
+    // PRICE PREVIEW (AJAX)
+    // Promo kod və Explorer reward-u formda göstərmək üçün
+    // =========================
+    [HttpGet]
+    public async Task<IActionResult> PricePreview(
+        int roomId,
+        DateTime checkInDate,
+        DateTime checkOutDate,
+        string? email,
+        string? promoCode)
+    {
+        var quote =
+            await _bookingService.GetPriceQuoteAsync(
+                roomId,
+                checkInDate,
+                checkOutDate,
+                email,
+                _userManager.GetUserId(User),
+                promoCode);
+
+        return Json(new
+        {
+            success = quote.Success,
+            error = quote.Error,
+            nights = quote.Nights,
+            pricePerNight = quote.PricePerNight,
+            baseTotal = quote.BaseTotal,
+            discountPercent = quote.DiscountPercent,
+            discountAmount = quote.DiscountAmount,
+            total = quote.Total,
+            discountNote = quote.DiscountNote,
+            promoError = quote.PromoError,
+            appliedPromoCode = quote.AppliedPromoCode,
+            loyaltyEligible = quote.LoyaltyEligible,
+            loyaltyCity = quote.LoyaltyCity
+        });
+    }
+
+
+    // =========================
     // PRIVATE HELPER
     // =========================
+    private async Task LoadBookingRoomAsync(int roomId)
+    {
+        ViewBag.Room = await _roomService.GetByIdAsync(roomId);
+    }
+
     private async Task LoadModifyPageAsync(GetBookingDto booking)
     {
         var room = await _roomService.GetByIdAsync(booking.RoomId);

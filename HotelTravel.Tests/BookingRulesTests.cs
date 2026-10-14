@@ -1,4 +1,4 @@
-using HotelTravel.Application.Services;
+﻿using HotelTravel.Application.Services;
 using HotelTravel.Domain.Enums;
 using Xunit;
 
@@ -143,4 +143,61 @@ public class BookingRulesTests
 
         Assert.Equal(0m, total);
     }
+
+
+    // =========================
+    // DISCOUNTS
+    // =========================
+    [Fact]
+    public void ApplyDiscount_ShouldCalculateAndRound()
+    {
+        var (discount, total) = BookingRules.ApplyDiscount(333.33m, 10);
+
+        Assert.Equal(33.33m, discount);
+        Assert.Equal(300.00m, total);
+    }
+
+    [Fact]
+    public void ApplyDiscount_ShouldIgnoreZeroPercent()
+    {
+        var (discount, total) = BookingRules.ApplyDiscount(200m, 0);
+
+        Assert.Equal(0m, discount);
+        Assert.Equal(200m, total);
+    }
+
+    [Fact]
+    public void ApplyDiscount_ShouldCapAt90Percent()
+    {
+        var (_, total) = BookingRules.ApplyDiscount(100m, 150);
+
+        Assert.Equal(10m, total);
+    }
+
+    [Theory]
+    [InlineData(false, null, null, null, 0, false)]   // deaktiv
+    [InlineData(true, 1, null, null, 0, false)]       // hələ başlamayıb
+    [InlineData(true, null, -1, null, 0, false)]      // vaxtı keçib
+    [InlineData(true, null, null, 5, 5, false)]       // limit dolub
+    [InlineData(true, -5, 5, 5, 4, true)]             // etibarlı
+    public void ValidatePromo_ShouldCheckAllRules(
+        bool isActive,
+        int? fromOffset,
+        int? untilOffset,
+        int? maxUses,
+        int usedCount,
+        bool expectedValid)
+    {
+        var error = BookingRules.ValidatePromo(
+            isActive,
+            false,
+            fromOffset.HasValue ? Today.AddDays(fromOffset.Value) : null,
+            untilOffset.HasValue ? Today.AddDays(untilOffset.Value) : null,
+            maxUses,
+            usedCount,
+            Today);
+
+        Assert.Equal(expectedValid, error == null);
+    }
 }
+

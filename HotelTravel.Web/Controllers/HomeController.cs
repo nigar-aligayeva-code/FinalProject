@@ -1,6 +1,8 @@
-using HotelTravel.Application.DTOs.Rooms;
+﻿using HotelTravel.Application.DTOs.Rooms;
 using HotelTravel.Application.Interfaces;
+using HotelTravel.Domain.Entities;
 using HotelTravel.Web.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -10,13 +12,19 @@ namespace HotelTravel.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IRoomService _roomService;
+        private readonly IHotelService _hotelService;
+        private readonly UserManager<AppUser> _userManager;
 
         public HomeController(
             ILogger<HomeController> logger,
-            IRoomService roomService)
+            IRoomService roomService,
+            IHotelService hotelService,
+            UserManager<AppUser> userManager)
         {
             _logger = logger;
             _roomService = roomService;
+            _hotelService = hotelService;
+            _userManager = userManager;
         }
 
 
@@ -25,7 +33,7 @@ namespace HotelTravel.Web.Controllers
         // =========================================
 
         [HttpGet]
-        public IActionResult Index(
+        public async Task<IActionResult> Index(
             string? destination,
             DateTime? checkInDate,
             DateTime? checkOutDate,
@@ -40,6 +48,8 @@ namespace HotelTravel.Web.Controllers
                 AdultCount = adultCount ?? 1,
                 ChildrenCount = childrenCount ?? 0
             };
+
+            await LoadHomeSectionsAsync();
 
             return View(model);
         }
@@ -79,6 +89,8 @@ namespace HotelTravel.Web.Controllers
             // Validation problemi varsa Home-a qayıt
             if (!ModelState.IsValid)
             {
+                await LoadHomeSectionsAsync();
+
                 return View("Index", search);
             }
 
@@ -123,6 +135,49 @@ namespace HotelTravel.Web.Controllers
 
 
         // =========================================
+        // FLIGHTS / CAR RENTAL / ATTRACTIONS / TAXIS
+        // Hələlik yalnız otel rezervasiyası işləyir,
+        // digər xidmətlər üçün "Coming soon" səhifəsi
+        // =========================================
+
+        [HttpGet]
+        public IActionResult ComingSoon(string? service)
+        {
+            var allowed = new[] { "flights", "cars", "attractions", "taxis" };
+
+            if (string.IsNullOrWhiteSpace(service) ||
+                !allowed.Contains(service))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Layout-da uyğun tab aktiv görünsün
+            ViewData["Service"] = service;
+
+            return View(model: service);
+        }
+
+
+        // =========================================
+        // HOME PAGE SECTIONS
+        // =========================================
+
+        private async Task LoadHomeSectionsAsync()
+        {
+            ViewBag.Destinations =
+                await _hotelService.GetPopularDestinationsAsync(8);
+
+            ViewBag.FeaturedRooms =
+                await _roomService.GetFeaturedRoomsAsync(4);
+
+            // "Nigar, where to next?" salamlaşması üçün
+            var user = await _userManager.GetUserAsync(User);
+
+            ViewBag.FirstName = user?.FirstName;
+        }
+
+
+        // =========================================
         // PRIVACY
         // =========================================
 
@@ -151,4 +206,4 @@ namespace HotelTravel.Web.Controllers
                 });
         }
     }
-}
+}

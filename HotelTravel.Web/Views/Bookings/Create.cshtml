@@ -1,158 +1,281 @@
 ﻿@model HotelTravel.Application.DTOs.Bookings.CreateBookingDto
 
 @{
-    ViewData["Title"] = "Create Booking";
+    ViewData["Title"] = "Complete your booking";
+
+    var room = ViewBag.Room as HotelTravel.Application.DTOs.Rooms.GetRoomDto;
+
+    var nights = Math.Max(1, (Model.CheckOutDate.Date - Model.CheckInDate.Date).Days);
+    var baseTotal = room == null ? 0 : room.PricePerNight * nights;
+
+    var guestsText = Model.AdultCount + (Model.AdultCount == 1 ? " adult" : " adults");
+    if (Model.ChildrenCount > 0)
+    {
+        guestsText += ", " + Model.ChildrenCount + (Model.ChildrenCount == 1 ? " child" : " children");
+    }
 }
 
-<div class="container mt-5 mb-5">
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1>Complete your booking</h1>
+        <p>Just one step left. Enter your details to confirm the stay.</p>
+    </div>
+</section>
 
-    <h2 class="mb-4">Complete Your Booking</h2>
-
+<div class="container">
     <form asp-controller="Bookings"
           asp-action="Create"
-          method="post">
-
-        <div asp-validation-summary="ModelOnly"
-             class="alert alert-danger">
-        </div>
-
-        <!-- Seçilmiş booking məlumatları -->
-        <div class="card mb-4">
-
-            <div class="card-header">
-                <h4 class="mb-0">
-                    Your Reservation
-                </h4>
-            </div>
-
-            <div class="card-body">
-
-                <p>
-                    <strong>Check-in:</strong>
-                    @Model.CheckInDate.ToString("dd.MM.yyyy")
-                </p>
-
-                <p>
-                    <strong>Check-out:</strong>
-                    @Model.CheckOutDate.ToString("dd.MM.yyyy")
-                </p>
-
-                <p>
-                    <strong>Adults:</strong>
-                    @Model.AdultCount
-                </p>
-
-                <p>
-                    <strong>Children:</strong>
-                    @Model.ChildrenCount
-                </p>
-
-            </div>
-
-        </div>
+          method="post"
+          class="hh-checkout"
+          id="bookingForm">
 
         <!-- Bunlar görünmür, amma backend-ə göndərilir -->
+        <input asp-for="RoomId" type="hidden" />
+        <input asp-for="CheckInDate" type="hidden" value="@Model.CheckInDate.ToString("yyyy-MM-dd")" />
+        <input asp-for="CheckOutDate" type="hidden" value="@Model.CheckOutDate.ToString("yyyy-MM-dd")" />
+        <input asp-for="AdultCount" type="hidden" />
+        <input asp-for="ChildrenCount" type="hidden" />
 
-        <input asp-for="RoomId"
-               type="hidden" />
+        <!-- ============================= -->
+        <!-- LEFT: GUEST DETAILS -->
+        <!-- ============================= -->
+        <div class="hh-checkout-main">
 
-        <input asp-for="CheckInDate"
-               type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-        <input asp-for="CheckOutDate"
-               type="hidden" />
+            <div class="hh-panel">
+                <h2 class="hh-panel-title">Enter your details</h2>
 
-        <input asp-for="AdultCount"
-               type="hidden" />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="FirstName" class="form-label">First name</label>
+                        <input asp-for="FirstName" class="form-control" autocomplete="given-name" />
+                        <span asp-validation-for="FirstName" class="text-danger small"></span>
+                    </div>
 
-        <input asp-for="ChildrenCount"
-               type="hidden" />
+                    <div class="col-md-6">
+                        <label asp-for="LastName" class="form-label">Last name</label>
+                        <input asp-for="LastName" class="form-control" autocomplete="family-name" />
+                        <span asp-validation-for="LastName" class="text-danger small"></span>
+                    </div>
 
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" autocomplete="email" />
+                        <div class="form-text">Your confirmation code will be linked to this email.</div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
 
-        <h4 class="mb-3">
-            Guest Information
-        </h4>
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <input asp-for="Phone" class="form-control" autocomplete="tel" placeholder="+994 ..." />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
 
-        <div class="mb-3">
+            <!-- PROMO CODE -->
+            <div class="hh-panel">
+                <h2 class="hh-panel-title">
+                    <i class="bi bi-tag me-1"></i>
+                    Have a promo code?
+                </h2>
 
-            <label asp-for="FirstName"
-                   class="form-label">
-                First Name
-            </label>
+                <div class="hh-promo">
+                    <input asp-for="PromoCode"
+                           class="form-control"
+                           placeholder="Enter code"
+                           style="text-transform:uppercase" />
+                    <button type="button" class="hh-btn hh-btn-outline" id="applyPromo">
+                        Apply
+                    </button>
+                </div>
 
-            <input asp-for="FirstName"
-                   class="form-control" />
+                <div class="hh-promo-msg" id="promoMessage"></div>
 
-            <span asp-validation-for="FirstName"
-                  class="text-danger">
-            </span>
+                <div class="hh-loyalty d-none" id="loyaltyBox">
+                    <i class="bi bi-stars"></i>
+                    <span id="loyaltyText"></span>
+                </div>
+            </div>
 
+            <div class="hh-panel hh-perks">
+                <div><i class="bi bi-check-circle-fill"></i> Free cancellation before the check-in day</div>
+                <div><i class="bi bi-check-circle-fill"></i> Instant confirmation code</div>
+                <div><i class="bi bi-check-circle-fill"></i> Change dates or guests any time before check-in</div>
+            </div>
+
+            <button type="submit" class="hh-search-btn hh-confirm-btn">
+                Confirm booking
+                <i class="bi bi-chevron-right"></i>
+            </button>
         </div>
 
 
-        <div class="mb-3">
+        <!-- ============================= -->
+        <!-- RIGHT: SUMMARY -->
+        <!-- ============================= -->
+        <aside class="hh-checkout-side">
+            <div class="hh-panel hh-summary-card">
 
-            <label asp-for="LastName"
-                   class="form-label">
-                Last Name
-            </label>
+                @if (room != null)
+                {
+                    @if (!string.IsNullOrWhiteSpace(room.MainImage))
+                    {
+                        <img src="@room.MainImage" alt="@room.Name" class="hh-summary-img" />
+                    }
 
-            <input asp-for="LastName"
-                   class="form-control" />
+                    <h3>@room.Name</h3>
+                    <div class="hh-room-meta">
+                        <i class="bi bi-geo-alt"></i>
+                        @room.HotelName · @room.City
+                    </div>
+                }
 
-            <span asp-validation-for="LastName"
-                  class="text-danger">
-            </span>
+                <div class="hh-summary-dates">
+                    <div>
+                        <small>Check-in</small>
+                        <strong>@Model.CheckInDate.ToString("ddd, MMM d, yyyy")</strong>
+                    </div>
+                    <div>
+                        <small>Check-out</small>
+                        <strong>@Model.CheckOutDate.ToString("ddd, MMM d, yyyy")</strong>
+                    </div>
+                </div>
 
-        </div>
+                <div class="hh-summary-line">
+                    <span>Length of stay</span>
+                    <strong>@nights night@(nights == 1 ? "" : "s")</strong>
+                </div>
+                <div class="hh-summary-line">
+                    <span>Guests</span>
+                    <strong>@guestsText</strong>
+                </div>
 
+                <hr />
 
-        <div class="mb-3">
+                <h4 class="hh-summary-sub">Price summary</h4>
 
-            <label asp-for="Email"
-                   class="form-label">
-                Email
-            </label>
+                <div class="hh-summary-line">
+                    <span>
+                        @(room?.PricePerNight.ToString("0.00") ?? "0.00") AZN × @nights night@(nights == 1 ? "" : "s")
+                    </span>
+                    <span id="sumBase">@baseTotal.ToString("0.00") AZN</span>
+                </div>
 
-            <input asp-for="Email"
-                   type="email"
-                   class="form-control" />
+                <div class="hh-summary-line hh-discount-line d-none" id="sumDiscountRow">
+                    <span id="sumDiscountNote">Discount</span>
+                    <span id="sumDiscount"></span>
+                </div>
 
-            <span asp-validation-for="Email"
-                  class="text-danger">
-            </span>
+                <div class="hh-summary-total">
+                    <span>Total</span>
+                    <strong id="sumTotal">@baseTotal.ToString("0.00") AZN</strong>
+                </div>
 
-        </div>
-
-
-        <div class="mb-3">
-
-            <label asp-for="Phone"
-                   class="form-label">
-                Phone
-            </label>
-
-            <input asp-for="Phone"
-                   class="form-control" />
-
-            <span asp-validation-for="Phone"
-                  class="text-danger">
-            </span>
-
-        </div>
-
-
-        <button type="submit"
-                class="btn btn-success">
-            Confirm Booking
-        </button>
-
+                <small class="text-muted d-block mt-1">
+                    Final price is calculated and confirmed when you book.
+                </small>
+            </div>
+        </aside>
     </form>
-
 </div>
+
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        (function () {
+            const previewUrl = "@Url.Action("PricePreview", "Bookings")";
+
+            const form = document.getElementById("bookingForm");
+            const emailInput = document.getElementById("Email");
+            const promoInput = document.getElementById("PromoCode");
+            const promoMessage = document.getElementById("promoMessage");
+            const loyaltyBox = document.getElementById("loyaltyBox");
+            const loyaltyText = document.getElementById("loyaltyText");
+
+            const money = (value) => Number(value).toFixed(2) + " AZN";
+
+            async function refreshPrice(showPromoResult) {
+                const params = new URLSearchParams({
+                    roomId: form.querySelector('[name="RoomId"]').value,
+                    checkInDate: form.querySelector('[name="CheckInDate"]').value,
+                    checkOutDate: form.querySelector('[name="CheckOutDate"]').value,
+                    email: emailInput.value || "",
+                    promoCode: promoInput.value || ""
+                });
+
+                try {
+                    const response = await fetch(previewUrl + "?" + params.toString());
+                    if (!response.ok) return;
+
+                    const q = await response.json();
+                    if (!q.success) return;
+
+                    document.getElementById("sumBase").textContent = money(q.baseTotal);
+                    document.getElementById("sumTotal").textContent = money(q.total);
+
+                    const discountRow = document.getElementById("sumDiscountRow");
+
+                    if (q.discountAmount > 0) {
+                        document.getElementById("sumDiscountNote").textContent = q.discountNote;
+                        document.getElementById("sumDiscount").textContent = "−" + money(q.discountAmount);
+                        discountRow.classList.remove("d-none");
+                    } else {
+                        discountRow.classList.add("d-none");
+                    }
+
+                    // Explorer reward
+                    if (q.loyaltyEligible) {
+                        loyaltyText.textContent =
+                            "Explorer reward: you stayed with us in " + q.loyaltyCity +
+                            ", so you get 10% off this trip.";
+                        loyaltyBox.classList.remove("d-none");
+                    } else {
+                        loyaltyBox.classList.add("d-none");
+                    }
+
+                    // Promo nəticəsi
+                    if (showPromoResult) {
+                        promoMessage.className = "hh-promo-msg";
+
+                        if (!promoInput.value.trim()) {
+                            promoMessage.textContent = "";
+                        } else if (q.promoError) {
+                            promoMessage.classList.add("error");
+                            promoMessage.textContent = q.promoError;
+                        } else if (q.appliedPromoCode) {
+                            promoMessage.classList.add("success");
+                            promoMessage.textContent =
+                                "Code " + q.appliedPromoCode + " applied: " + q.discountPercent + "% off.";
+                        } else {
+                            promoMessage.classList.add("info");
+                            promoMessage.textContent =
+                                "Your Explorer reward is bigger, so we kept that discount.";
+                        }
+                    }
+                } catch (e) {
+                    // Önizləmə alınmasa da forma işləyir, qiymət serverdə hesablanır
+                }
+            }
+
+            document.getElementById("applyPromo").addEventListener("click", () => refreshPrice(true));
+
+            promoInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    refreshPrice(true);
+                }
+            });
+
+            emailInput.addEventListener("change", () => refreshPrice(false));
+
+            // Daxil olmuş istifadəçinin emaili artıq doludur
+            refreshPrice(!!promoInput.value);
+        })();
+    </script>
 }

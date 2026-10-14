@@ -1,4 +1,6 @@
 ﻿@model HotelTravel.Application.DTOs.Rooms.GetRoomDto
+@inject HotelTravel.Application.Interfaces.IWishlistService WishlistService
+@inject Microsoft.AspNetCore.Identity.UserManager<HotelTravel.Domain.Entities.AppUser> UserManager
 
 @{
     ViewData["Title"] = Model.Name + " | Room Details";
@@ -19,6 +21,11 @@
     galleryImages = galleryImages.Distinct().ToList();
 
     var hasPanorama = !string.IsNullOrWhiteSpace(Model.PanoramaImage);
+
+    // Wishlist - bu otaq saxlanılıbmı?
+    var isSaved =
+        (await WishlistService.GetSavedRoomIdsAsync(UserManager.GetUserId(User)))
+            .Contains(Model.Id);
 
     // F8 - REVIEWS
     var reviews =
@@ -438,7 +445,18 @@
                 Premium Accommodation
             </div>
 
-            <h1 class="room-title">@Model.Name</h1>
+            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                <h1 class="room-title">@Model.Name</h1>
+
+                <button type="button"
+                        class="hh-save hh-save-inline @(isSaved ? "saved" : "")"
+                        data-room-id="@Model.Id"
+                        aria-label="Save room"
+                        aria-pressed="@(isSaved ? "true" : "false")">
+                    <i class="bi @(isSaved ? "bi-heart-fill" : "bi-heart")"></i>
+                    <span class="hh-save-text">@(isSaved ? "Saved" : "Save")</span>
+                </button>
+            </div>
 
             <p class="room-subtitle">
                 <i class="bi bi-geo-alt me-1"></i>

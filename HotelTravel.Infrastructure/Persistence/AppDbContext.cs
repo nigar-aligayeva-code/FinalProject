@@ -31,6 +31,10 @@ public class AppDbContext
 
     public DbSet<Review> Reviews { get; set; }
 
+    public DbSet<WishlistItem> WishlistItems { get; set; }
+
+    public DbSet<PromoCode> PromoCodes { get; set; }
+
     public async Task<IDbContextTransaction> BeginTransactionAsync(
         CancellationToken cancellationToken = default)
     {
@@ -135,6 +139,51 @@ public class AppDbContext
             .OnDelete(DeleteBehavior.Restrict);
 
 
+        // DISCOUNTS
+        modelBuilder.Entity<Booking>(entity =>
+        {
+            entity.Property(b => b.OriginalPrice).HasPrecision(18, 2);
+            entity.Property(b => b.DiscountAmount).HasPrecision(18, 2);
+            entity.Property(b => b.DiscountNote).HasMaxLength(200);
+            entity.Property(b => b.PromoCode).HasMaxLength(30);
+        });
+
+        modelBuilder.Entity<PromoCode>(entity =>
+        {
+            entity.HasIndex(p => p.Code).IsUnique();
+
+            entity.Property(p => p.Code)
+                .HasMaxLength(30)
+                .IsRequired();
+
+            entity.Property(p => p.Description).HasMaxLength(200);
+
+            entity.ToTable(t =>
+                t.HasCheckConstraint(
+                    "CK_PromoCodes_DiscountPercent",
+                    "[DiscountPercent] BETWEEN 1 AND 90"));
+        });
+
+
+        // WISHLIST (Saved rooms)
+        modelBuilder.Entity<WishlistItem>(entity =>
+        {
+            // Eyni otaq bir istifadəçidə yalnız bir dəfə
+            entity.HasIndex(w => new { w.AppUserId, w.RoomId })
+                .IsUnique();
+
+            entity.HasOne(w => w.AppUser)
+                .WithMany()
+                .HasForeignKey(w => w.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(w => w.Room)
+                .WithMany()
+                .HasForeignKey(w => w.RoomId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+
         // REVIEW VALIDATION
         modelBuilder.Entity<Review>(entity =>
         {
@@ -148,4 +197,4 @@ public class AppDbContext
                     "[Rating] BETWEEN 1 AND 5"));
         });
     }
-}
+}

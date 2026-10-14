@@ -1,4 +1,5 @@
-﻿using HotelTravel.Application.DTOs.Rooms;
+﻿using HotelTravel.Application.DTOs.Home;
+using HotelTravel.Application.DTOs.Rooms;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +85,9 @@ public class RoomService : IRoomService
                 PanoramaImage = r.PanoramaImage,
                 RoomType = r.RoomType,
                 HotelId = r.HotelId,
+
+                HotelName = r.Hotel.Name,
+                City = r.Hotel.City,
 
                 AmenityIds = r.Amenities
                     .Where(a => !a.IsDeleted)
@@ -392,6 +396,9 @@ public class RoomService : IRoomService
             .Where(r =>
                 !r.IsDeleted &&
 
+                // Silinmiş otelin otaqları axtarışda çıxmasın
+                !r.Hotel.IsDeleted &&
+
                 r.Capacity >= totalGuests &&
 
                 !r.Bookings.Any(b =>
@@ -430,6 +437,9 @@ public class RoomService : IRoomService
         // RESULT
         // =========================
         return await query
+            // Ucuzdan bahaya
+            .OrderBy(r => r.PricePerNight)
+            .ThenBy(r => r.RoomNumber)
             .Select(r => new GetRoomDto
             {
                 Id = r.Id,
@@ -444,6 +454,17 @@ public class RoomService : IRoomService
 
                 RoomType = r.RoomType,
                 HotelId = r.HotelId,
+
+                HotelName = r.Hotel.Name,
+                City = r.Hotel.City,
+
+                ReviewCount = r.Reviews
+                    .Count(rv => !rv.IsDeleted),
+
+                AverageRating = r.Reviews
+                    .Where(rv => !rv.IsDeleted)
+                    .Select(rv => (double?)rv.Rating)
+                    .Average() ?? 0,
 
                 AmenityIds = r.Amenities
                     .Where(a => !a.IsDeleted)
@@ -485,16 +506,25 @@ public class RoomService : IRoomService
             new List<DateTime>();
 
         var rooms = await _context.Rooms
-            .Where(r => !r.IsDeleted)
+            .Where(r =>
+                !r.IsDeleted &&
+                !r.Hotel.IsDeleted)
             .ToListAsync();
 
         if (rooms.Count == 0)
             return fullyBookedDates;
 
 
+        var activeRoomIds = rooms
+            .Select(r => r.Id)
+            .ToList();
+
         var bookings = await _context.Bookings
             .Where(b =>
                 !b.IsDeleted &&
+
+                // Silinmiş otaqların rezervasiyaları sayılmasın
+                activeRoomIds.Contains(b.RoomId) &&
 
                 b.Status !=
                     HotelTravel.Domain.Enums
@@ -530,4 +560,73 @@ public class RoomService : IRoomService
 
         return fullyBookedDates;
     }
-}
+
+
+    // =========================
+    // UPCOMING BOOKINGS (silməzdən əvvəl yoxlama)
+    // =========================
+    public async Task<int> CountUpcomingBookingsAsync(int roomId)
+    {
+        var today = DateTime.Today;
+
+        return await _context.Bookings
+            .CountAsync(b =>
+                b.RoomId == roomId &&
+                !b.IsDeleted &&
+                (b.Status == HotelTravel.Domain.Enums.BookingStatus.Confirmed ||
+                 b.Status == HotelTravel.Domain.Enums.BookingStatus.CheckedIn) &&
+                b.CheckOutDate >= today);
+    }
+
+
+    // =========================
+    // HOME - FEATURED ROOMS
+    // =========================
+    public async Task<List<FeaturedRoomDto>> GetFeaturedRoomsAsync(int count)
+    {
+        var rooms = await _context.Rooms
+            .Where(r =>
+                !r.IsDeleted &&
+                !r.Hotel.IsDeleted)
+            .Select(r => new FeaturedRoomDto
+            {
+                Id = r.Id,
+                Name = r.Name,
+                RoomType = r.RoomType,
+                Capacity = r.Capacity,
+                PricePerNight = r.PricePerNight,
+                MainImage = r.MainImage,
+
+                HotelName = r.Hotel.Name,
+                City = r.Hotel.City,
+                Country = r.Hotel.Country,
+
+                ReviewCount = r.Reviews
+                    .Count(rv => !rv.IsDeleted),
+
+                AverageRating = r.Reviews
+                    .Where(rv => !rv.IsDeleted)
+                    .Select(rv => (double?)rv.Rating)
+                    .Average() ?? 0
+            })
+            .ToListAsync();
+
+        // Eyni şəkilli otaqlar təkrarlanmasın:
+        // hər şəkildən yalnız ən yaxşı otaq seçilir
+        // (əvvəl reytinq, sonra rəy sayı, sonra daha bahalı otaq)
+        return rooms
+            .GroupBy(r => string.IsNullOrWhiteSpace(r.MainImage)
+                ? $"room-{r.Id}"
+                : r.MainImage)
+            .Select(g => g
+                .OrderByDescending(r => r.AverageRating)
+                .ThenByDescending(r => r.ReviewCount)
+                .ThenByDescending(r => r.PricePerNight)
+                .First())
+            .OrderByDescending(r => r.AverageRating)
+            .ThenByDescending(r => r.ReviewCount)
+            .ThenByDescending(r => r.PricePerNight)
+            .Take(count)
+            .ToList();
+    }
+}

@@ -38,6 +38,10 @@ public class BookingService : IBookingService
                 ChildrenCount = b.ChildrenCount,
 
                 TotalPrice = b.TotalPrice,
+                OriginalPrice = b.OriginalPrice,
+                DiscountPercent = b.DiscountPercent,
+                DiscountAmount = b.DiscountAmount,
+                DiscountNote = b.DiscountNote,
 
                 Status = b.Status,
 
@@ -69,6 +73,10 @@ public class BookingService : IBookingService
                 ChildrenCount = b.ChildrenCount,
 
                 TotalPrice = b.TotalPrice,
+                OriginalPrice = b.OriginalPrice,
+                DiscountPercent = b.DiscountPercent,
+                DiscountAmount = b.DiscountAmount,
+                DiscountNote = b.DiscountNote,
 
                 Status = b.Status,
 
@@ -102,6 +110,29 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
 
 
     // =========================
+    // PRICE QUOTE (preview)
+    // =========================
+    public async Task<PriceQuoteDto> GetPriceQuoteAsync(
+        int roomId,
+        DateTime checkInDate,
+        DateTime checkOutDate,
+        string? email,
+        string? appUserId,
+        string? promoCode)
+    {
+        return await PricingCalculator.QuoteAsync(
+            _context,
+            roomId,
+            checkInDate,
+            checkOutDate,
+            email,
+            appUserId,
+            promoCode,
+            DateTime.Today);
+    }
+
+
+    // =========================
     // F4 - MY BOOKINGS
     // =========================
     public async Task<List<GetBookingDto>> GetByUserIdAsync(string appUserId)
@@ -126,6 +157,10 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
                 ChildrenCount = b.ChildrenCount,
 
                 TotalPrice = b.TotalPrice,
+                OriginalPrice = b.OriginalPrice,
+                DiscountPercent = b.DiscountPercent,
+                DiscountAmount = b.DiscountAmount,
+                DiscountNote = b.DiscountNote,
                 Status = b.Status,
 
                 RoomId = b.RoomId,
@@ -282,6 +317,10 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
                 ChildrenCount = b.ChildrenCount,
 
                 TotalPrice = b.TotalPrice,
+                OriginalPrice = b.OriginalPrice,
+                DiscountPercent = b.DiscountPercent,
+                DiscountAmount = b.DiscountAmount,
+                DiscountNote = b.DiscountNote,
 
                 Status = b.Status,
 
@@ -298,7 +337,15 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
 
                 GuestEmail = b.Guest.Email,
 
-                HasReview = b.Review != null
+                HasReview = b.Review != null,
+
+                RoomImage = b.Room.MainImage,
+
+                HotelName = b.Room.Hotel.Name,
+                HotelAddress = b.Room.Hotel.Address,
+                HotelCity = b.Room.Hotel.City,
+                HotelCountry = b.Room.Hotel.Country,
+                HotelPhone = b.Room.Hotel.Phone
             })
             .FirstOrDefaultAsync();
     }

@@ -1,4 +1,5 @@
-﻿using HotelTravel.Application.DTOs.Rooms;
+﻿using HotelTravel.Application.DTOs.Home;
+using HotelTravel.Application.DTOs.Rooms;
 
 namespace HotelTravel.Application.Interfaces;
 
@@ -13,6 +14,12 @@ public interface IRoomService
     Task<bool> UpdateAsync(int id, UpdateRoomDto dto);
 
     Task<bool> DeleteAsync(int id);
+
+    // Silməzdən əvvəl: aktiv / gələcək rezervasiya sayı
+    Task<int> CountUpcomingBookingsAsync(int roomId);
+
+    // Ana səhifə - ən yüksək reytinqli otaqlar
+    Task<List<FeaturedRoomDto>> GetFeaturedRoomsAsync(int count);
 
 
     // =========================
@@ -43,4 +50,4 @@ public interface IRoomService
     Task<List<DateTime>> GetFullyBookedDatesAsync(
         DateTime startDate,
         DateTime endDate);
-}
+}

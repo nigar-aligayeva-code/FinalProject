@@ -11,6 +11,13 @@ public class Booking : BaseEntity
     public int ChildrenCount { get; set; }
 
     public decimal TotalPrice { get; set; }
+
+    // ENDIRİM (TotalPrice = OriginalPrice - DiscountAmount)
+    public decimal OriginalPrice { get; set; }
+    public int DiscountPercent { get; set; }
+    public decimal DiscountAmount { get; set; }
+    public string? DiscountNote { get; set; }
+    public string? PromoCode { get; set; }
     public string ConfirmationCode { get; set; }
 
     public BookingStatus Status { get; set; }

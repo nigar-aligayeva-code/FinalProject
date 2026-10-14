@@ -96,9 +96,24 @@
                         <div class="col-md-6 mb-3">
                             <strong>Total Price</strong>
 
+                            @if (Model.DiscountAmount > 0)
+                            {
+                                <div class="text-muted text-decoration-line-through small">
+                                    @Model.OriginalPrice.ToString("0.00") AZN
+                                </div>
+                            }
+
                             <h4 class="text-dark">
                                 @Model.TotalPrice.ToString("0.00") AZN
                             </h4>
+
+                            @if (Model.DiscountAmount > 0)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-tag"></i>
+                                    @Model.DiscountNote
+                                </span>
+                            }
                         </div>
 
                     </div>
@@ -119,6 +134,15 @@
                         </a>
 
                         <a asp-controller="Bookings"
+                           asp-action="Voucher"
+                           asp-route-confirmationCode="@Model.ConfirmationCode"
+                           target="_blank"
+                           class="btn btn-success">
+                            <i class="bi bi-qr-code"></i>
+                            Voucher / Print
+                        </a>
+
+                        <a asp-controller="Bookings"
                            asp-action="Find"
                            class="btn btn-primary">
                             Find My Booking
@@ -133,4 +157,4 @@
         </div>
     </div>
 
-</div>
+</div>
