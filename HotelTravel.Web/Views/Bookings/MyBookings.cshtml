@@ -1,5 +1,7 @@
 ﻿@model List<HotelTravel.Application.DTOs.Bookings.GetBookingDto>
 @using HotelTravel.Domain.Enums
+@inject HotelTravel.Application.Interfaces.ITaxiService TaxiService
+@inject Microsoft.AspNetCore.Identity.UserManager<HotelTravel.Domain.Entities.AppUser> UserManager
 
 @{
     ViewData["Title"] = "My Bookings";
@@ -10,19 +12,35 @@
 
     var today = DateTime.Today;
 
-    var upcoming = Model
-        .Where(b =>
-            b.Status == BookingStatus.Confirmed ||
-            b.Status == BookingStatus.CheckedIn)
-        .OrderBy(b => b.CheckInDate)
-        .ToList();
+    // Hava limanı taksiləri
+    var taxis = await TaxiService.GetByUserAsync(UserManager.GetUserId(User) ?? string.Empty);
 
-    var past = Model
-        .Where(b =>
-            b.Status == BookingStatus.CheckedOut ||
-            b.Status == BookingStatus.Cancelled)
-        .OrderByDescending(b => b.CheckInDate)
-        .ToList();
+    var now = DateTime.Now;
+
+    // Otel + maşın + taksi: hamısı bir siyahıda, tarixə görə
+    // (Date, Kind, Item) -> Kind: "hotel" / "car" / "taxi"
+    var all = new List<(DateTime Date, string Kind, object Item, bool IsActive)>();
+
+    foreach (var b in Model)
+    {
+        var active = b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.CheckedIn;
+        all.Add((b.CheckInDate, "hotel", b, active));
+    }
+
+    foreach (var r in carRentals)
+    {
+        var active = r.Status == CarRentalStatus.Confirmed && r.ReturnDate.Date >= today;
+        all.Add((r.PickupDate, "car", r, active));
+    }
+
+    foreach (var t in taxis)
+    {
+        var active = t.Status == TaxiBookingStatus.Confirmed && t.PickupTime >= now;
+        all.Add((t.PickupTime, "taxi", t, active));
+    }
+
+    var upcoming = all.Where(x => x.IsActive).OrderBy(x => x.Date).ToList();
+    var past = all.Where(x => !x.IsActive).OrderByDescending(x => x.Date).ToList();
 }
 
 <style>
@@ -152,7 +170,7 @@
             </div>
         }
 
-        @if (!Model.Any())
+        @if (!all.Any())
         {
             <div class="my-empty mt-4">
                 <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
@@ -172,12 +190,12 @@
 
             @if (!upcoming.Any())
             {
-                <div class="my-empty">No upcoming stays.</div>
+                <div class="my-empty">No upcoming trips.</div>
             }
 
-            @foreach (var booking in upcoming)
+            @foreach (var item in upcoming)
             {
-                @await Html.PartialAsync("_MyBookingCard", booking)
+                @await RenderItem(item.Kind, item.Item)
             }
 
             <h2 class="my-section-title">
@@ -189,91 +207,22 @@
                 <div class="my-empty">No past bookings.</div>
             }
 
-            @foreach (var booking in past)
+            @foreach (var item in past)
             {
-                @await Html.PartialAsync("_MyBookingCard", booking)
-            }
-        }
-
-        <!-- CAR RENTALS -->
-        @if (carRentals.Any())
-        {
-            <h2 class="my-section-title">
-                <i class="fa-solid fa-car me-1"></i>
-                Car rentals (@carRentals.Count)
-            </h2>
-
-            @foreach (var rental in carRentals)
-            {
-                <div class="my-booking-card">
-                    <div class="my-booking-image hh-car-media hh-car-@rental.CarCategory.ToString().ToLower()">
-                        @if (!string.IsNullOrWhiteSpace(rental.CarImage))
-                        {
-                            <img src="@rental.CarImage" alt="@rental.CarModel" />
-                        }
-                        else
-                        {
-                            <partial name="~/Views/Cars/_CarIcon.cshtml" model="rental.CarCategory" />
-                        }
-                    </div>
-
-                    <div class="my-booking-body">
-                        <div class="d-flex justify-content-between align-items-start gap-2">
-                            <div>
-                                <div class="my-booking-room">@rental.CarModel</div>
-                                <div class="my-booking-meta">
-                                    @rental.CarCategory · @rental.City
-                                    <span class="mx-1">•</span>
-                                    <strong>@rental.ConfirmationCode</strong>
-                                </div>
-                            </div>
-
-                            <span class="my-booking-status @(rental.Status == HotelTravel.Domain.Enums.CarRentalStatus.Cancelled ? "status-cancelled" : rental.Status == HotelTravel.Domain.Enums.CarRentalStatus.Completed ? "status-checkedout" : "status-confirmed")">
-                                @rental.Status
-                            </span>
-                        </div>
-
-                        <div class="row mt-3 my-booking-meta">
-                            <div class="col-sm-8 mb-2">
-                                <i class="bi bi-calendar-event me-1"></i>
-                                @rental.PickupDate.ToString("dd MMM yyyy")
-                                &rarr;
-                                @rental.ReturnDate.ToString("dd MMM yyyy")
-                                <span class="mx-1">•</span>
-                                @rental.Days day@(rental.Days == 1 ? "" : "s")
-                            </div>
-                            <div class="col-sm-4 mb-2 text-sm-end">
-                                <strong class="text-dark fs-5">@rental.TotalPrice.ToString("0.00") AZN</strong>
-                            </div>
-                        </div>
-
-                        <div class="my-booking-actions d-flex flex-wrap gap-2 mt-2">
-                            <a asp-controller="Cars"
-                               asp-action="Confirmation"
-                               asp-route-confirmationCode="@rental.ConfirmationCode"
-                               class="btn btn-sm btn-outline-secondary">
-                                Details
-                            </a>
-
-                            @if (rental.CanCancel)
-                            {
-                                <form asp-controller="Cars"
-                                      asp-action="CancelMine"
-                                      asp-route-id="@rental.Id"
-                                      method="post"
-                                      class="d-inline"
-                                      onsubmit="return confirm('Cancel this car rental?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-x-circle me-1"></i>
-                                        Cancel
-                                    </button>
-                                </form>
-                            }
-                        </div>
-                    </div>
-                </div>
+                @await RenderItem(item.Kind, item.Item)
             }
         }
 
     </div>
 </section>
+
+@functions {
+    // Növünə görə uyğun kartı göstər
+    private Task<Microsoft.AspNetCore.Html.IHtmlContent> RenderItem(string kind, object item)
+        => kind switch
+        {
+            "car" => Html.PartialAsync("_MyCarCard", item),
+            "taxi" => Html.PartialAsync("_MyTaxiCard", item),
+            _ => Html.PartialAsync("_MyBookingCard", item)
+        };
+}

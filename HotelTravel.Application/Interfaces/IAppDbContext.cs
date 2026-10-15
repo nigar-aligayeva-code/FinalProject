@@ -32,6 +32,8 @@ public interface IAppDbContext
 
     DbSet<CarRental> CarRentals { get; set; }
 
+    DbSet<TaxiBooking> TaxiBookings { get; set; }
+
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
 

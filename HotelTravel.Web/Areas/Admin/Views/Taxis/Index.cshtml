@@ -1,0 +1,147 @@
+@model List<HotelTravel.Application.DTOs.Taxis.TaxiBookingDto>
+@using HotelTravel.Application.Services
+@using HotelTravel.Domain.Enums
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Airport Taxis";
+
+    var status = ViewBag.Status as TaxiBookingStatus?;
+
+    string StatusClass(TaxiBookingStatus s) => s switch
+    {
+        TaxiBookingStatus.Confirmed => "cg-Food",
+        TaxiBookingStatus.Completed => "cg-Sight",
+        _ => "cg-Shopping"
+    };
+}
+
+<partial name="~/Areas/Admin/Views/CityGuide/_Styles.cshtml" />
+
+<div class="cg-heading">
+    <div>
+        <h1>Airport Taxis</h1>
+        <p>Transfers between airports and our hotels. Mark trips as completed or cancel them.</p>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cg-alert cg-alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="cg-alert cg-alert-error">@TempData["ErrorMessage"]</div>
+}
+
+<div class="cg-chips">
+    <a asp-area="Admin"
+       asp-controller="Taxis"
+       asp-action="Index"
+       class="cg-chip @(status == null ? "active" : "")">
+        All
+    </a>
+
+    @foreach (var item in Enum.GetValues<TaxiBookingStatus>())
+    {
+        <a asp-area="Admin"
+           asp-controller="Taxis"
+           asp-action="Index"
+           asp-route-status="@item"
+           class="cg-chip @(status == item ? "active" : "")">
+            @item
+        </a>
+    }
+</div>
+
+<div class="cg-card">
+    <h2 style="font-size:18px;margin:0 0 16px;color:#0f172a">Taxi bookings (@Model.Count)</h2>
+
+    <div class="cg-table-wrap">
+        <table class="cg-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Pick-up</th>
+                    <th>Route</th>
+                    <th>Passenger</th>
+                    <th>Vehicle</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var taxi in Model)
+                {
+                    <tr>
+                        <td><strong>@taxi.ConfirmationCode</strong></td>
+                        <td style="white-space:nowrap">
+                            @taxi.PickupTime.ToString("dd MMM yyyy")
+                            <div class="cg-desc">@taxi.PickupTime.ToString("HH:mm")</div>
+                        </td>
+                        <td>
+                            @taxi.FromText → @taxi.ToText
+                            <div class="cg-desc">
+                                @taxi.City · @taxi.DistanceKm km
+                                @if (!string.IsNullOrWhiteSpace(taxi.FlightNumber))
+                                {
+                                    <text> · Flight @taxi.FlightNumber</text>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            @taxi.PassengerName
+                            <div class="cg-desc">@taxi.Email · @taxi.Phone</div>
+                            @if (!string.IsNullOrWhiteSpace(taxi.Notes))
+                            {
+                                <div class="cg-desc"><em>“@taxi.Notes”</em></div>
+                            }
+                        </td>
+                        <td>
+                            @TaxiRules.GetVehicle(taxi.VehicleType).Name
+                            <div class="cg-desc">@taxi.Passengers pax · @taxi.Luggage bags</div>
+                        </td>
+                        <td style="white-space:nowrap">@taxi.Price.ToString("0.00") AZN</td>
+                        <td>
+                            <span class="cg-badge @StatusClass(taxi.Status)">@taxi.Status</span>
+                        </td>
+                        <td>
+                            @if (taxi.Status == TaxiBookingStatus.Confirmed)
+                            {
+                                <div class="cg-actions">
+                                    <form asp-area="Admin"
+                                          asp-controller="Taxis"
+                                          asp-action="SetStatus"
+                                          asp-route-id="@taxi.Id"
+                                          asp-route-status="@TaxiBookingStatus.Completed"
+                                          asp-route-filter="@status"
+                                          method="post">
+                                        <button type="submit" class="cg-edit">Complete</button>
+                                    </form>
+
+                                    <form asp-area="Admin"
+                                          asp-controller="Taxis"
+                                          asp-action="SetStatus"
+                                          asp-route-id="@taxi.Id"
+                                          asp-route-status="@TaxiBookingStatus.Cancelled"
+                                          asp-route-filter="@status"
+                                          method="post"
+                                          onsubmit="return confirm('Cancel this taxi booking?');">
+                                        <button type="submit" class="cg-delete">Cancel</button>
+                                    </form>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
+        {
+            <div class="cg-empty">No taxi bookings yet.</div>
+        }
+    </div>
+</div>

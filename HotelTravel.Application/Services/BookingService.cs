@@ -168,6 +168,10 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
                 RoomNumber = b.Room.RoomNumber,
                 RoomImage = b.Room.MainImage,
 
+                HotelId = b.Room.HotelId,
+                HotelName = b.Room.Hotel.Name,
+                HotelCity = b.Room.Hotel.City,
+
                 GuestId = b.GuestId,
                 GuestName = b.Guest.FirstName + " " + b.Guest.LastName,
                 GuestEmail = b.Guest.Email,

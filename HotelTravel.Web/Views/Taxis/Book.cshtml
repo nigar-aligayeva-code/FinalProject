@@ -1,0 +1,163 @@
+@model HotelTravel.Application.DTOs.Taxis.CreateTaxiBookingDto
+@using HotelTravel.Application.DTOs.Taxis
+@using HotelTravel.Application.Services
+@using HotelTravel.Domain.Enums
+
+@{
+    ViewData["Title"] = "Book an airport taxi";
+
+    var hotel = ViewBag.Hotel as TaxiHotelDto;
+    var vehicle = ViewBag.Vehicle as TaxiVehicleInfo;
+    var price = (decimal)ViewBag.Price;
+    var fits = (bool)ViewBag.Fits;
+
+    var fromAirport = Model.Direction == TaxiDirection.FromAirport;
+    var airportText = $"{hotel?.AirportName} ({hotel?.AirportCode})";
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1>Book an airport taxi</h1>
+        <p>Enter the lead passenger's details to confirm.</p>
+    </div>
+</section>
+
+<div class="container">
+    <form asp-controller="Taxis"
+          asp-action="Book"
+          method="post"
+          class="hh-checkout">
+
+        <input asp-for="HotelId" type="hidden" />
+        <input asp-for="Direction" type="hidden" />
+        <input asp-for="PickupTime" type="hidden" value="@Model.PickupTime.ToString("yyyy-MM-ddTHH:mm")" />
+        <input asp-for="Passengers" type="hidden" />
+        <input asp-for="Luggage" type="hidden" />
+        <input asp-for="VehicleType" type="hidden" />
+
+        <div class="hh-checkout-main">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="hh-panel">
+                <h2 class="hh-panel-title">Lead passenger</h2>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="PassengerName" class="form-label"></label>
+                        <input asp-for="PassengerName" class="form-control" autocomplete="name" />
+                        <span asp-validation-for="PassengerName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" type="email" class="form-control" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label"></label>
+                        <input asp-for="Phone" class="form-control" autocomplete="tel" placeholder="+994 ..." />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hh-panel">
+                <h2 class="hh-panel-title">Trip details</h2>
+
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label asp-for="FlightNumber" class="form-label"></label>
+                        <input asp-for="FlightNumber" class="form-control text-uppercase" placeholder="J2 8012" />
+                        <div class="form-text">
+                            @(fromAirport
+                                ? "We track your flight and adjust the pick-up if it is late."
+                                : "Optional. Helps the driver plan the trip.")
+                        </div>
+                        <span asp-validation-for="FlightNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-7">
+                        <label asp-for="Notes" class="form-label"></label>
+                        <input asp-for="Notes" class="form-control" placeholder="Child seat, extra bag, ..." />
+                        <span asp-validation-for="Notes" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hh-panel hh-perks">
+                <div><i class="bi bi-check-circle-fill"></i> Free cancellation up to @TaxiRules.FreeCancelHours hours before pick-up</div>
+                <div><i class="bi bi-check-circle-fill"></i> Fixed price: no meter, no surprises</div>
+                <div><i class="bi bi-check-circle-fill"></i> No payment now: pay the driver</div>
+            </div>
+
+            <button type="submit" class="hh-search-btn hh-confirm-btn" disabled="@(!fits)">
+                Confirm taxi
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <aside class="hh-checkout-side">
+            <div class="hh-panel hh-summary-card">
+                @if (hotel != null && vehicle != null)
+                {
+                    <div class="hh-car-media hh-taxi-@vehicle.Type.ToString().ToLower() hh-summary-car">
+                        <partial name="_TaxiIcon" model="vehicle.Type" />
+                    </div>
+
+                    <h3>@vehicle.Name taxi</h3>
+                    <div class="hh-room-meta">
+                        @vehicle.Example
+                    </div>
+
+                    <div class="hh-summary-dates">
+                        <div>
+                            <small>From</small>
+                            <strong>@(fromAirport ? airportText : hotel.Name)</strong>
+                        </div>
+                        <div>
+                            <small>To</small>
+                            <strong>@(fromAirport ? hotel.Name : airportText)</strong>
+                        </div>
+                    </div>
+
+                    <div class="hh-summary-line">
+                        <span>Pick-up</span>
+                        <span>@Model.PickupTime.ToString("ddd, MMM d, yyyy · HH:mm")</span>
+                    </div>
+                    <div class="hh-summary-line">
+                        <span>Passengers / bags</span>
+                        <span>@Model.Passengers / @Model.Luggage</span>
+                    </div>
+                    <div class="hh-summary-line">
+                        <span>Distance</span>
+                        <span>@hotel.DistanceKm km · ~@hotel.EstimatedMinutes min</span>
+                    </div>
+
+                    <div class="hh-summary-total">
+                        <span>Total</span>
+                        <strong>@price.ToString("0.00") AZN</strong>
+                    </div>
+
+                    @if (!fits)
+                    {
+                        <div class="alert alert-warning mt-3 mb-0">
+                            This vehicle is too small for your group.
+                            <a asp-controller="Taxis"
+                               asp-action="Index"
+                               asp-route-hotelId="@hotel.Id"
+                               asp-route-passengers="@Model.Passengers"
+                               asp-route-luggage="@Model.Luggage">Choose another taxi</a>.
+                        </div>
+                    }
+                }
+            </div>
+        </aside>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

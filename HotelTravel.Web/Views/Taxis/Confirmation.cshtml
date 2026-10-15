@@ -1,0 +1,105 @@
+@model HotelTravel.Application.DTOs.Taxis.TaxiBookingDto
+@using HotelTravel.Application.Services
+@using HotelTravel.Domain.Enums
+
+@{
+    ViewData["Title"] = "Airport taxi booked";
+
+    var vehicle = TaxiRules.GetVehicle(Model.VehicleType);
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1><i class="bi bi-check-circle me-2"></i>Your taxi is booked</h1>
+        <p>We have saved your transfer. Show the code below to your driver.</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="hh-soon text-start">
+        <div class="row g-4 align-items-center">
+            <div class="col-md-7">
+                <span class="hh-search-label">Confirmation code</span>
+                <div class="hh-car-code">@Model.ConfirmationCode</div>
+
+                <h2 class="h4 mt-3 mb-1">@vehicle.Name taxi <small class="text-muted fs-6">@vehicle.Example</small></h2>
+                <div class="text-muted">
+                    @Model.Passengers passenger@(Model.Passengers == 1 ? "" : "s")
+                    · @Model.Luggage bag@(Model.Luggage == 1 ? "" : "s")
+                    · @Model.DistanceKm km
+                </div>
+
+                <div class="hh-summary-dates mt-3">
+                    <div>
+                        <small>From</small>
+                        <strong>@Model.FromText</strong>
+                    </div>
+                    <div>
+                        <small>To</small>
+                        <strong>@Model.ToText</strong>
+                    </div>
+                </div>
+
+                <div class="hh-summary-line">
+                    <span>Pick-up</span>
+                    <strong>@Model.PickupTime.ToString("ddd, MMM d, yyyy · HH:mm")</strong>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.FlightNumber))
+                {
+                    <div class="hh-summary-line">
+                        <span>Flight</span>
+                        <strong>@Model.FlightNumber</strong>
+                    </div>
+                }
+
+                <div class="hh-summary-line">
+                    <span>Lead passenger</span>
+                    <strong>@Model.PassengerName</strong>
+                </div>
+                <div class="hh-summary-line">
+                    <span>Status</span>
+                    <strong>@Model.Status</strong>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="hh-summary-total">
+                    <span>Fixed price</span>
+                    <strong>@Model.Price.ToString("0.00") AZN</strong>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Bookings"
+                           asp-action="MyBookings"
+                           class="hh-btn hh-btn-primary">
+                            My Bookings
+                        </a>
+                    }
+
+                    <a asp-controller="Taxis"
+                       asp-action="Index"
+                       asp-route-hotelId="@Model.HotelId"
+                       asp-route-direction="@(Model.Direction == TaxiDirection.FromAirport ? TaxiDirection.ToAirport : TaxiDirection.FromAirport)"
+                       class="hh-btn hh-btn-outline">
+                        Book return trip
+                    </a>
+                </div>
+
+                <p class="small text-muted mt-3 mb-0">
+                    @if (Model.Direction == TaxiDirection.FromAirport)
+                    {
+                        <text>Your driver will wait in the arrivals hall with a sign showing your name.</text>
+                    }
+                    else
+                    {
+                        <text>Your driver will meet you at the hotel reception.</text>
+                    }
+                    Signed-in guests can cancel for free up to @TaxiRules.FreeCancelHours hours before pick-up from My Bookings.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

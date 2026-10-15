@@ -2169,3 +2169,184 @@ a {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* =========================================================
+   V7 - AIRPORT TAXIS
+   ========================================================= */
+
+.hh-taxi-search {
+    grid-template-columns: 1.1fr 1.6fr 1fr .8fr .8fr .7fr auto;
+    margin-top: -32px;
+    position: relative;
+}
+
+    .hh-taxi-search select,
+    .hh-taxi-search input {
+        width: 100%;
+        min-width: 0;
+    }
+
+/* Maşın sinfinin rəngi (şəkil yerinə) */
+.hh-car-media.hh-taxi-standard {
+    background: linear-gradient(135deg, #A9822F, #E0B85C);
+}
+
+.hh-car-media.hh-taxi-comfort {
+    background: linear-gradient(135deg, #3E4A6B, #6C7CA8);
+}
+
+.hh-car-media.hh-taxi-minivan {
+    background: linear-gradient(135deg, #3F6E73, #6FA3A8);
+}
+
+.hh-car-media.hh-taxi-executive {
+    background: linear-gradient(135deg, #1F2421, #4E5B4C);
+}
+
+/* Marşrut: hava limanı -> otel */
+.hh-taxi-route {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--hh-surface);
+    border: 1px solid var(--hh-border);
+    border-radius: var(--hh-radius);
+    padding: 18px 22px;
+}
+
+.hh-taxi-stop {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+    .hh-taxi-stop small {
+        display: block;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--hh-muted);
+    }
+
+    .hh-taxi-stop strong {
+        display: block;
+        color: var(--hh-ink);
+        font-size: 15px;
+    }
+
+    .hh-taxi-stop span:not(.hh-taxi-dot) {
+        display: block;
+        font-size: 13px;
+        color: var(--hh-muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+.hh-taxi-dot {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--hh-gold-soft);
+    color: var(--hh-gold-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.hh-taxi-line {
+    flex: 0 1 220px;
+    position: relative;
+    text-align: center;
+    border-top: 2px dashed var(--hh-border);
+}
+
+    .hh-taxi-line span {
+        position: relative;
+        top: -12px;
+        background: var(--hh-surface);
+        padding: 0 10px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--hh-green);
+        white-space: nowrap;
+    }
+
+/* Necə işləyir */
+.hh-taxi-perks {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+}
+
+    .hh-taxi-perks > div {
+        background: var(--hh-surface);
+        border: 1px solid var(--hh-border);
+        border-radius: var(--hh-radius);
+        padding: 16px;
+    }
+
+    .hh-taxi-perks i {
+        font-size: 22px;
+        color: var(--hh-gold);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .hh-taxi-perks strong {
+        display: block;
+        color: var(--hh-ink);
+        margin-bottom: 4px;
+    }
+
+    .hh-taxi-perks span {
+        font-size: 13px;
+        color: var(--hh-muted);
+    }
+
+@media (max-width: 1199.98px) {
+    .hh-taxi-search {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .hh-taxi-search {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .hh-taxi-route {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hh-taxi-line {
+        flex: none;
+        border-top: 0;
+        border-left: 2px dashed var(--hh-border);
+        margin-left: 21px;
+        padding: 6px 0;
+        text-align: left;
+    }
+
+        .hh-taxi-line span {
+            top: 0;
+        }
+
+    .hh-taxi-perks {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hh-taxi-search,
+    .hh-taxi-perks {
+        grid-template-columns: 1fr;
+    }
+}
