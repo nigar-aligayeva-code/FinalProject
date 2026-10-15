@@ -1,0 +1,70 @@
+﻿@model HotelTravel.Application.DTOs.Cars.CarRentalDto
+@{ var rental = Model; }
+
+<div class="my-booking-card">
+    <div class="my-booking-image hh-car-media hh-car-@rental.CarCategory.ToString().ToLower()">
+        @if (!string.IsNullOrWhiteSpace(rental.CarImage))
+        {
+            <img src="@rental.CarImage" alt="@rental.CarModel" />
+        }
+        else
+        {
+            <partial name="~/Views/Cars/_CarIcon.cshtml" model="rental.CarCategory" />
+        }
+    </div>
+
+    <div class="my-booking-body">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+                <div class="my-booking-room">@rental.CarModel</div>
+                <div class="my-booking-meta">
+                    @rental.CarCategory · @rental.City
+                    <span class="mx-1">•</span>
+                    <strong>@rental.ConfirmationCode</strong>
+                </div>
+            </div>
+
+            <span class="my-booking-status @(rental.Status == HotelTravel.Domain.Enums.CarRentalStatus.Cancelled ? "status-cancelled" : rental.Status == HotelTravel.Domain.Enums.CarRentalStatus.Completed ? "status-checkedout" : "status-confirmed")">
+                @rental.Status
+            </span>
+        </div>
+
+        <div class="row mt-3 my-booking-meta">
+            <div class="col-sm-8 mb-2">
+                <i class="bi bi-calendar-event me-1"></i>
+                @rental.PickupDate.ToString("dd MMM yyyy")
+                &rarr;
+                @rental.ReturnDate.ToString("dd MMM yyyy")
+                <span class="mx-1">•</span>
+                @rental.Days day@(rental.Days == 1 ? "" : "s")
+            </div>
+            <div class="col-sm-4 mb-2 text-sm-end">
+                <strong class="text-dark fs-5">@rental.TotalPrice.ToString("0.00") AZN</strong>
+            </div>
+        </div>
+
+        <div class="my-booking-actions d-flex flex-wrap gap-2 mt-2">
+            <a asp-controller="Cars"
+               asp-action="Confirmation"
+               asp-route-confirmationCode="@rental.ConfirmationCode"
+               class="btn btn-sm btn-outline-secondary">
+                Details
+            </a>
+
+            @if (rental.CanCancel)
+            {
+                <form asp-controller="Cars"
+                      asp-action="CancelMine"
+                      asp-route-id="@rental.Id"
+                      method="post"
+                      class="d-inline"
+                      onsubmit="return confirm('Cancel this car rental?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

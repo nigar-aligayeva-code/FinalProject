@@ -88,6 +88,7 @@ namespace HotelTravel.Web
             builder.Services.AddScoped<IPromoCodeService, PromoCodeService>();
             builder.Services.AddScoped<ICityGuideService, CityGuideService>();
             builder.Services.AddScoped<ICarRentalService, CarRentalService>();
+            builder.Services.AddScoped<ITaxiService, TaxiService>();
 
             var app = builder.Build();
 

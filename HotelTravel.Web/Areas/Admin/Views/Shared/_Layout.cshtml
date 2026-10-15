@@ -320,6 +320,14 @@
                 <span class="menu-text">Car Rental</span>
             </a>
 
+            <a asp-area="Admin"
+               asp-controller="Taxis"
+               asp-action="Index"
+               class="@(currentController == "Taxis" ? "active" : "")">
+                <span class="menu-icon">✈</span>
+                <span class="menu-text">Airport Taxis</span>
+            </a>
+
             <!-- Əsas sayta qayıt -->
             <a asp-area=""
                asp-controller="Home"

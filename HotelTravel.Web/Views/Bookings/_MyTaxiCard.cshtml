@@ -1,0 +1,69 @@
+﻿@model HotelTravel.Application.DTOs.Taxis.TaxiBookingDto
+@using HotelTravel.Domain.Enums
+@{ var taxi = Model; }
+
+<div class="my-booking-card">
+    <div class="my-booking-image hh-car-media hh-taxi-@taxi.VehicleType.ToString().ToLower()">
+        <partial name="~/Views/Taxis/_TaxiIcon.cshtml" model="taxi.VehicleType" />
+    </div>
+
+    <div class="my-booking-body">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+                <div class="my-booking-room">@taxi.FromText → @taxi.ToText</div>
+                <div class="my-booking-meta">
+                    @HotelTravel.Application.Services.TaxiRules.GetVehicle(taxi.VehicleType).Name taxi · @taxi.City
+                    <span class="mx-1">•</span>
+                    <strong>@taxi.ConfirmationCode</strong>
+                </div>
+            </div>
+
+            <span class="my-booking-status @(taxi.Status == TaxiBookingStatus.Cancelled ? "status-cancelled" : taxi.Status == TaxiBookingStatus.Completed ? "status-checkedout" : "status-confirmed")">
+                @taxi.Status
+            </span>
+        </div>
+
+        <div class="row mt-3 my-booking-meta">
+            <div class="col-sm-8 mb-2">
+                <i class="bi bi-clock me-1"></i>
+                @taxi.PickupTime.ToString("dd MMM yyyy, HH:mm")
+                <span class="mx-1">•</span>
+                <i class="bi bi-people me-1"></i>
+                @taxi.Passengers
+                @if (!string.IsNullOrWhiteSpace(taxi.FlightNumber))
+                {
+                    <span class="mx-1">•</span>
+                    <i class="fa-solid fa-plane me-1"></i>
+                    @taxi.FlightNumber
+                }
+            </div>
+            <div class="col-sm-4 mb-2 text-sm-end">
+                <strong class="text-dark fs-5">@taxi.Price.ToString("0.00") AZN</strong>
+            </div>
+        </div>
+
+        <div class="my-booking-actions d-flex flex-wrap gap-2 mt-2">
+            <a asp-controller="Taxis"
+               asp-action="Confirmation"
+               asp-route-confirmationCode="@taxi.ConfirmationCode"
+               class="btn btn-sm btn-outline-secondary">
+                Details
+            </a>
+
+            @if (taxi.CanCancel)
+            {
+                <form asp-controller="Taxis"
+                      asp-action="CancelMine"
+                      asp-route-id="@taxi.Id"
+                      method="post"
+                      class="d-inline"
+                      onsubmit="return confirm('Cancel this airport taxi?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

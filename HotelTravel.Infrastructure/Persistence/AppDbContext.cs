@@ -41,6 +41,8 @@ public class AppDbContext
 
     public DbSet<CarRental> CarRentals { get; set; }
 
+    public DbSet<TaxiBooking> TaxiBookings { get; set; }
+
     public async Task<IDbContextTransaction> BeginTransactionAsync(
         CancellationToken cancellationToken = default)
     {
@@ -173,6 +175,35 @@ public class AppDbContext
             entity.HasOne(r => r.AppUser)
                 .WithMany()
                 .HasForeignKey(r => r.AppUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+
+        // AIRPORT TAXIS
+        modelBuilder.Entity<TaxiBooking>(entity =>
+        {
+            entity.HasIndex(t => t.ConfirmationCode).IsUnique();
+            entity.HasIndex(t => t.PickupTime);
+
+            entity.Property(t => t.ConfirmationCode).HasMaxLength(20).IsRequired();
+            entity.Property(t => t.City).HasMaxLength(100).IsRequired();
+            entity.Property(t => t.AirportCode).HasMaxLength(10).IsRequired();
+            entity.Property(t => t.AirportName).HasMaxLength(150).IsRequired();
+            entity.Property(t => t.FlightNumber).HasMaxLength(10);
+            entity.Property(t => t.PassengerName).HasMaxLength(100).IsRequired();
+            entity.Property(t => t.Email).HasMaxLength(150).IsRequired();
+            entity.Property(t => t.Phone).HasMaxLength(30).IsRequired();
+            entity.Property(t => t.Notes).HasMaxLength(200);
+            entity.Property(t => t.Price).HasPrecision(18, 2);
+
+            entity.HasOne(t => t.Hotel)
+                .WithMany()
+                .HasForeignKey(t => t.HotelId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(t => t.AppUser)
+                .WithMany()
+                .HasForeignKey(t => t.AppUserId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
 

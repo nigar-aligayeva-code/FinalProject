@@ -115,6 +115,18 @@
                 </a>
             }
 
+            @if (canChange && Model.HotelId > 0)
+            {
+                <a asp-controller="Taxis"
+                   asp-action="Index"
+                   asp-route-hotelId="@Model.HotelId"
+                   asp-route-date="@Model.CheckInDate.ToString("yyyy-MM-dd")"
+                   class="btn btn-sm btn-outline-dark">
+                    <i class="fa-solid fa-taxi me-1"></i>
+                    Airport taxi
+                </a>
+            }
+
             @if (canChange)
             {
                 <a asp-controller="Bookings"

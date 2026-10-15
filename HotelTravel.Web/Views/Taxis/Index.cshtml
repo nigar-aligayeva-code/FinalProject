@@ -1,0 +1,256 @@
+@model List<HotelTravel.Application.DTOs.Taxis.TaxiOptionDto>
+@using HotelTravel.Application.DTOs.Taxis
+@using HotelTravel.Application.Services
+@using HotelTravel.Domain.Enums
+
+@{
+    ViewData["Title"] = "Airport taxis";
+
+    var hotels = ViewBag.Hotels as List<TaxiHotelDto> ?? new List<TaxiHotelDto>();
+    var hotel = ViewBag.Hotel as TaxiHotelDto;
+    var direction = (TaxiDirection)ViewBag.Direction;
+    var pickupTime = (DateTime)ViewBag.PickupTime;
+    var passengers = (int)ViewBag.Passengers;
+    var luggage = (int)ViewBag.Luggage;
+    string? error = ViewBag.Error as string;
+
+    var fromAirport = direction == TaxiDirection.FromAirport;
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1><i class="fa-solid fa-taxi me-2"></i>Airport taxis</h1>
+        <p>A fixed price transfer between the airport and your hotel. The driver waits for you.</p>
+    </div>
+</section>
+
+<div class="container">
+
+    <!-- SEARCH -->
+    <form asp-controller="Taxis"
+          asp-action="Index"
+          method="get"
+          class="hh-search hh-taxi-search">
+
+        <div class="hh-search-field">
+            <i class="bi bi-arrow-left-right"></i>
+            <div class="hh-search-body">
+                <label for="direction">Route</label>
+                <select id="direction" name="direction">
+                    <option value="@TaxiDirection.FromAirport" selected="@fromAirport">Airport → Hotel</option>
+                    <option value="@TaxiDirection.ToAirport" selected="@(!fromAirport)">Hotel → Airport</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-building"></i>
+            <div class="hh-search-body">
+                <label for="hotelId">Hotel</label>
+                <select id="hotelId" name="hotelId">
+                    @foreach (var group in hotels.GroupBy(h => h.City))
+                    {
+                        <optgroup label="@group.Key (@group.First().AirportCode)">
+                            @foreach (var item in group)
+                            {
+                                <option value="@item.Id" selected="@(item.Id == hotel?.Id)">@item.Name</option>
+                            }
+                        </optgroup>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-calendar3"></i>
+            <div class="hh-search-body">
+                <label for="date">Pick-up date</label>
+                <input type="date"
+                       id="date"
+                       name="date"
+                       min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       value="@pickupTime.ToString("yyyy-MM-dd")" />
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-clock"></i>
+            <div class="hh-search-body">
+                <label for="time">Time</label>
+                <input type="time"
+                       id="time"
+                       name="time"
+                       step="300"
+                       value="@pickupTime.ToString("HH:mm")" />
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-people"></i>
+            <div class="hh-search-body">
+                <label for="passengers">Passengers</label>
+                <select id="passengers" name="passengers">
+                    @for (var i = 1; i <= TaxiRules.MaxPassengers; i++)
+                    {
+                        <option value="@i" selected="@(i == passengers)">@i</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-briefcase"></i>
+            <div class="hh-search-body">
+                <label for="luggage">Bags</label>
+                <select id="luggage" name="luggage">
+                    @for (var i = 0; i <= TaxiRules.MaxLuggage; i++)
+                    {
+                        <option value="@i" selected="@(i == luggage)">@i</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="hh-search-btn">
+            <i class="bi bi-search"></i>
+            Search
+        </button>
+    </form>
+
+    @if (error != null)
+    {
+        <div class="alert alert-danger mt-3">@error</div>
+    }
+
+    @if (hotel == null)
+    {
+        <section class="hh-section">
+            <div class="hh-empty">Airport taxis are not available yet.</div>
+        </section>
+    }
+    else
+    {
+        <!-- ROUTE -->
+        <section class="hh-section pb-0">
+            <div class="hh-taxi-route">
+                <div class="hh-taxi-stop">
+                    <span class="hh-taxi-dot"><i class="fa-solid @(fromAirport ? "fa-plane-arrival" : "fa-hotel")"></i></span>
+                    <div>
+                        <small>From</small>
+                        <strong>@(fromAirport ? $"{hotel.AirportName} ({hotel.AirportCode})" : hotel.Name)</strong>
+                        <span>@(fromAirport ? hotel.City : hotel.Address)</span>
+                    </div>
+                </div>
+
+                <div class="hh-taxi-line">
+                    <span>@hotel.DistanceKm km · ~@hotel.EstimatedMinutes min</span>
+                </div>
+
+                <div class="hh-taxi-stop">
+                    <span class="hh-taxi-dot"><i class="fa-solid @(fromAirport ? "fa-hotel" : "fa-plane-departure")"></i></span>
+                    <div>
+                        <small>To</small>
+                        <strong>@(fromAirport ? hotel.Name : $"{hotel.AirportName} ({hotel.AirportCode})")</strong>
+                        <span>@(fromAirport ? hotel.Address : hotel.City)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RESULTS -->
+        <section class="hh-section">
+            <div class="hh-section-head">
+                <div>
+                    <h2 class="hh-section-title">Choose your taxi</h2>
+                    <p class="hh-section-sub">
+                        @pickupTime.ToString("ddd, MMM d · HH:mm")
+                        · @passengers passenger@(passengers == 1 ? "" : "s")
+                        · @luggage bag@(luggage == 1 ? "" : "s")
+                    </p>
+                </div>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="hh-empty">Change the search to see prices.</div>
+            }
+            else
+            {
+                <div class="hh-car-grid">
+                    @foreach (var option in Model)
+                    {
+                        <article class="hh-car @(option.Fits ? "" : "unavailable")">
+                            <div class="hh-car-media hh-taxi-@option.Type.ToString().ToLower()">
+                                <partial name="_TaxiIcon" model="option.Type" />
+                                <span class="hh-room-type">@option.Name</span>
+                            </div>
+
+                            <div class="hh-car-body">
+                                <h3>@option.Name</h3>
+                                <small class="text-muted">@option.Example</small>
+
+                                <ul class="hh-car-specs">
+                                    <li><i class="bi bi-people"></i> Up to @option.MaxPassengers</li>
+                                    <li><i class="bi bi-briefcase"></i> @option.MaxLuggage bags</li>
+                                    <li><i class="bi bi-person-badge"></i> Meet &amp; greet</li>
+                                    <li><i class="bi bi-check-circle"></i> Free cancellation</li>
+                                </ul>
+
+                                <div class="hh-car-foot">
+                                    <div class="hh-room-price text-start">
+                                        <small>Fixed price</small>
+                                        <strong>@option.Price.ToString("0.00") AZN</strong>
+                                        <small>per vehicle, one way</small>
+                                    </div>
+
+                                    @if (option.Fits)
+                                    {
+                                        <a asp-controller="Taxis"
+                                           asp-action="Book"
+                                           asp-route-hotelId="@hotel.Id"
+                                           asp-route-direction="@direction"
+                                           asp-route-pickupTime="@pickupTime.ToString("yyyy-MM-ddTHH:mm")"
+                                           asp-route-passengers="@passengers"
+                                           asp-route-luggage="@luggage"
+                                           asp-route-vehicleType="@option.Type"
+                                           class="hh-btn hh-btn-primary">
+                                            Select
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="hh-car-busy">Too small</span>
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+
+            <!-- HOW IT WORKS -->
+            <div class="hh-taxi-perks">
+                <div>
+                    <i class="fa-solid fa-plane-circle-check"></i>
+                    <strong>Flight tracking</strong>
+                    <span>Your driver follows your flight, so a delay is no problem.</span>
+                </div>
+                <div>
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    <strong>60 min free waiting</strong>
+                    <span>After landing the driver waits up to an hour at no cost.</span>
+                </div>
+                <div>
+                    <i class="fa-solid fa-sign-hanging"></i>
+                    <strong>Meet &amp; greet</strong>
+                    <span>Find the driver in arrivals with a sign showing your name.</span>
+                </div>
+                <div>
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <strong>Free cancellation</strong>
+                    <span>Cancel for free up to @TaxiRules.FreeCancelHours hours before pick-up.</span>
+                </div>
+            </div>
+        </section>
+    }
+</div>

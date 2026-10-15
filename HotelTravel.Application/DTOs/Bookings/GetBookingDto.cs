@@ -29,6 +29,9 @@ public class GetBookingDto
     public string RoomNumber { get; set; }
     public string? RoomImage { get; set; }
 
+    // Otel (Airport taxi linki üçün)
+    public int HotelId { get; set; }
+
     // Voucher üçün otel məlumatı
     public string? HotelName { get; set; }
     public string? HotelAddress { get; set; }

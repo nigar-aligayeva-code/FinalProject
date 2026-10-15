@@ -1,0 +1,14 @@
+@model HotelTravel.Domain.Enums.TaxiVehicleType
+@using HotelTravel.Domain.Enums
+
+@{
+    var icon = Model switch
+    {
+        TaxiVehicleType.Minivan => "fa-van-shuttle",
+        TaxiVehicleType.Executive => "fa-car-side",
+        TaxiVehicleType.Comfort => "fa-car",
+        _ => "fa-taxi"
+    };
+}
+
+<i class="fa-solid @icon"></i>
