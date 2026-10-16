@@ -1,0 +1,174 @@
+@model HotelTravel.Application.DTOs.Flights.CreateFlightBookingDto
+@using HotelTravel.Application.DTOs.Flights
+@using HotelTravel.Application.Services
+
+@{
+    ViewData["Title"] = "Book a flight";
+
+    var flight = ViewBag.Flight as FlightOptionDto;
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1>Book a flight</h1>
+        <p>Enter names exactly as they appear in each passport.</p>
+    </div>
+</section>
+
+<div class="container">
+    <form asp-controller="Flights"
+          asp-action="Book"
+          method="post"
+          class="hh-checkout">
+
+        <input asp-for="RouteId" type="hidden" />
+        <input asp-for="FlightDate" type="hidden" value="@Model.FlightDate.ToString("yyyy-MM-dd")" />
+        <input asp-for="Cabin" type="hidden" />
+        <input asp-for="Passengers" type="hidden" />
+
+        <div class="hh-checkout-main">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="hh-panel">
+                <h2 class="hh-panel-title">Passengers</h2>
+
+                <div class="row g-3">
+                    @for (var i = 0; i < Model.Passengers; i++)
+                    {
+                        <div class="col-md-6">
+                            <label class="form-label" for="PassengerNames_@i">
+                                Passenger @(i + 1) @(i == 0 ? "(lead)" : "")
+                            </label>
+                            <input asp-for="PassengerNames[i]"
+                                   class="form-control"
+                                   maxlength="100"
+                                   required
+                                   placeholder="First and last name" />
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="hh-panel">
+                <h2 class="hh-panel-title">Contact details</h2>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="ContactName" class="form-label"></label>
+                        <input asp-for="ContactName" class="form-control" autocomplete="name" />
+                        <span asp-validation-for="ContactName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" type="email" class="form-control" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Phone" class="form-label"></label>
+                        <input asp-for="Phone" class="form-control" autocomplete="tel" placeholder="+994 ..." />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hh-panel hh-perks">
+                <div><i class="bi bi-check-circle-fill"></i> Free cancellation up to @FlightRules.FreeCancelHours hours before departure</div>
+                <div><i class="bi bi-check-circle-fill"></i> Cabin bag included · @(Model.Cabin == HotelTravel.Domain.Enums.CabinClass.Business ? "2 × 32 kg" : "1 × 23 kg") checked baggage</div>
+                <div><i class="bi bi-check-circle-fill"></i> No payment now: pay at check-in</div>
+            </div>
+
+            <button type="submit" class="hh-search-btn hh-confirm-btn" disabled="@(flight == null || !flight.IsAvailable)">
+                Confirm flight
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <aside class="hh-checkout-side">
+            <div class="hh-panel hh-summary-card">
+                @if (flight != null)
+                {
+                    <div class="hh-flight-airline mb-3">
+                        <partial name="_AirlineBadge" model="flight.Airline" />
+                        <div>
+                            <strong>@flight.Airline</strong>
+                            <small>@flight.FlightNumber · @flight.Cabin</small>
+                        </div>
+                    </div>
+
+                    <div class="hh-flight-times hh-flight-times-sm">
+                        <div class="hh-flight-point">
+                            <strong>@flight.Departure.ToString("HH:mm")</strong>
+                            <span>@flight.FromCode</span>
+                        </div>
+
+                        <div class="hh-flight-path">
+                            <small>@FlightRules.FormatDuration(flight.DurationMinutes)</small>
+                            <span class="hh-flight-line"><i class="fa-solid fa-plane"></i></span>
+                            <small class="text-success">Direct</small>
+                        </div>
+
+                        <div class="hh-flight-point">
+                            <strong>
+                                @flight.Arrival.ToString("HH:mm")
+                                @if (flight.ArrivesNextDay)
+                                {
+                                    <sup class="hh-flight-plus">+1</sup>
+                                }
+                            </strong>
+                            <span>@flight.ToCode</span>
+                        </div>
+                    </div>
+
+                    <div class="hh-summary-line">
+                        <span>Date</span>
+                        <span>@flight.Departure.ToString("ddd, MMM d, yyyy")</span>
+                    </div>
+                    <div class="hh-summary-line">
+                        <span>From</span>
+                        <span>@flight.FromAirport</span>
+                    </div>
+                    <div class="hh-summary-line">
+                        <span>To</span>
+                        <span>@flight.ToAirport</span>
+                    </div>
+                    <div class="hh-summary-line">
+                        <span>@flight.Fare.ToString("0.00") AZN × @Model.Passengers passenger@(Model.Passengers == 1 ? "" : "s")</span>
+                        <span>@flight.Total.ToString("0.00") AZN</span>
+                    </div>
+
+                    <div class="hh-summary-total">
+                        <span>Total</span>
+                        <strong>@flight.Total.ToString("0.00") AZN</strong>
+                    </div>
+
+                    @if (!flight.IsAvailable)
+                    {
+                        <div class="alert alert-warning mt-3 mb-0">
+                            This flight can no longer be booked for @Model.Passengers passenger@(Model.Passengers == 1 ? "" : "s").
+                            <a asp-controller="Flights"
+                               asp-action="Index"
+                               asp-route-from="@flight.FromCity"
+                               asp-route-to="@flight.ToCity"
+                               asp-route-date="@Model.FlightDate.ToString("yyyy-MM-dd")"
+                               asp-route-passengers="@Model.Passengers">Choose another flight</a>.
+                        </div>
+                    }
+                    else if (flight.SeatsLeft <= 9)
+                    {
+                        <div class="small text-danger mt-2">
+                            Only @flight.SeatsLeft seat@(flight.SeatsLeft == 1 ? "" : "s") left at this price.
+                        </div>
+                    }
+                }
+            </div>
+        </aside>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,68 @@
+@model HotelTravel.Application.DTOs.Flights.FlightBookingDto
+@using HotelTravel.Domain.Enums
+@{ var flight = Model; }
+
+<div class="my-booking-card">
+    <div class="my-booking-image hh-car-media hh-flight-media">
+        <i class="fa-solid fa-plane-up"></i>
+    </div>
+
+    <div class="my-booking-body">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+                <div class="my-booking-room">@flight.FromCity → @flight.ToCity</div>
+                <div class="my-booking-meta">
+                    @flight.Airline · @flight.FlightNumber · @flight.Cabin
+                    <span class="mx-1">•</span>
+                    <strong>@flight.ConfirmationCode</strong>
+                </div>
+            </div>
+
+            <span class="my-booking-status @(flight.Status == FlightBookingStatus.Cancelled ? "status-cancelled" : flight.Status == FlightBookingStatus.Completed ? "status-checkedout" : "status-confirmed")">
+                @flight.Status
+            </span>
+        </div>
+
+        <div class="row mt-3 my-booking-meta">
+            <div class="col-sm-8 mb-2">
+                <i class="bi bi-calendar-event me-1"></i>
+                @flight.DepartureTime.ToString("dd MMM yyyy")
+                <span class="mx-1">•</span>
+                <i class="bi bi-clock me-1"></i>
+                @flight.DepartureTime.ToString("HH:mm") @flight.FromCode
+                &rarr;
+                @flight.ArrivalTime.ToString("HH:mm") @flight.ToCode
+                <span class="mx-1">•</span>
+                <i class="bi bi-people me-1"></i>
+                @flight.Passengers
+            </div>
+            <div class="col-sm-4 mb-2 text-sm-end">
+                <strong class="text-dark fs-5">@flight.TotalPrice.ToString("0.00") AZN</strong>
+            </div>
+        </div>
+
+        <div class="my-booking-actions d-flex flex-wrap gap-2 mt-2">
+            <a asp-controller="Flights"
+               asp-action="Confirmation"
+               asp-route-confirmationCode="@flight.ConfirmationCode"
+               class="btn btn-sm btn-outline-secondary">
+                Details
+            </a>
+
+            @if (flight.CanCancel)
+            {
+                <form asp-controller="Flights"
+                      asp-action="CancelMine"
+                      asp-route-id="@flight.Id"
+                      method="post"
+                      class="d-inline"
+                      onsubmit="return confirm('Cancel this flight?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

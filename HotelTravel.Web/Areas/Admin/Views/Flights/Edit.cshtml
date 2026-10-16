@@ -1,0 +1,114 @@
+@model HotelTravel.Application.DTOs.Flights.SaveFlightRouteDto
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var isNew = !Model.Id.HasValue;
+    ViewData["Title"] = isNew ? "Add flight" : "Edit flight";
+
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+}
+
+<partial name="~/Areas/Admin/Views/CityGuide/_Styles.cshtml" />
+
+<div class="cg-heading">
+    <div>
+        <h1>@(isNew ? "Add a flight" : "Edit flight")</h1>
+        <p>The flight runs every day at the same local time.</p>
+    </div>
+
+    <a asp-area="Admin"
+       asp-controller="Flights"
+       asp-action="Index"
+       class="cg-btn cg-btn-light">
+        ← Back to list
+    </a>
+</div>
+
+<div class="cg-card">
+    <form asp-area="Admin"
+          asp-controller="Flights"
+          asp-action="Edit"
+          method="post"
+          class="cg-form">
+
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly" class="cg-alert cg-alert-error cg-full"></div>
+
+        <div class="cg-field">
+            <label asp-for="FlightNumber"></label>
+            <input asp-for="FlightNumber" placeholder="e.g. J2 8011" />
+            <span asp-validation-for="FlightNumber" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="Airline"></label>
+            <input asp-for="Airline" placeholder="e.g. Azerbaijan Airlines" />
+            <span asp-validation-for="Airline" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="FromCity"></label>
+            <select asp-for="FromCity" asp-items="@(new SelectList(cities))"></select>
+            <span asp-validation-for="FromCity" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="ToCity"></label>
+            <select asp-for="ToCity" asp-items="@(new SelectList(cities))"></select>
+            <span asp-validation-for="ToCity" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="DepartureTime"></label>
+            <input asp-for="DepartureTime" type="time" value="@Model.DepartureTime.ToString(@"hh\:mm")" />
+            <span asp-validation-for="DepartureTime" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="DurationMinutes"></label>
+            <input asp-for="DurationMinutes" type="number" min="20" max="900" />
+            <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="EconomyPrice"></label>
+            <input asp-for="EconomyPrice" type="number" min="1" step="1" />
+            <span asp-validation-for="EconomyPrice" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="EconomySeats"></label>
+            <input asp-for="EconomySeats" type="number" min="1" max="500" />
+            <span asp-validation-for="EconomySeats" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="BusinessPrice"></label>
+            <input asp-for="BusinessPrice" type="number" min="0" step="1" />
+            <span asp-validation-for="BusinessPrice" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="BusinessSeats"></label>
+            <input asp-for="BusinessSeats" type="number" min="0" max="100" />
+            <span class="cg-desc">0 = no business class on this flight</span>
+            <span asp-validation-for="BusinessSeats" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field cg-full">
+            <label style="display:flex;gap:8px;align-items:center;margin:0">
+                <input asp-for="IsActive" type="checkbox" style="width:auto" />
+                Active (shown to guests)
+            </label>
+        </div>
+
+        <div class="cg-full">
+            <button type="submit" class="cg-btn">
+                @(isNew ? "Add flight" : "Save changes")
+            </button>
+        </div>
+    </form>
+</div>
