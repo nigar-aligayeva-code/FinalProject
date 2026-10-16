@@ -43,6 +43,10 @@ public class AppDbContext
 
     public DbSet<TaxiBooking> TaxiBookings { get; set; }
 
+    public DbSet<FlightRoute> FlightRoutes { get; set; }
+
+    public DbSet<FlightBooking> FlightBookings { get; set; }
+
     public async Task<IDbContextTransaction> BeginTransactionAsync(
         CancellationToken cancellationToken = default)
     {
@@ -175,6 +179,52 @@ public class AppDbContext
             entity.HasOne(r => r.AppUser)
                 .WithMany()
                 .HasForeignKey(r => r.AppUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+
+        // FLIGHTS
+        modelBuilder.Entity<FlightRoute>(entity =>
+        {
+            entity.HasIndex(r => new { r.FromCity, r.ToCity });
+
+            entity.Property(r => r.FlightNumber).HasMaxLength(10).IsRequired();
+            entity.Property(r => r.Airline).HasMaxLength(60).IsRequired();
+            entity.Property(r => r.FromCity).HasMaxLength(100).IsRequired();
+            entity.Property(r => r.FromCode).HasMaxLength(10).IsRequired();
+            entity.Property(r => r.ToCity).HasMaxLength(100).IsRequired();
+            entity.Property(r => r.ToCode).HasMaxLength(10).IsRequired();
+            entity.Property(r => r.EconomyPrice).HasPrecision(18, 2);
+            entity.Property(r => r.BusinessPrice).HasPrecision(18, 2);
+        });
+
+        modelBuilder.Entity<FlightBooking>(entity =>
+        {
+            entity.HasIndex(b => b.ConfirmationCode).IsUnique();
+            entity.HasIndex(b => new { b.FlightRouteId, b.FlightDate });
+
+            entity.Property(b => b.ConfirmationCode).HasMaxLength(20).IsRequired();
+            entity.Property(b => b.FlightNumber).HasMaxLength(10).IsRequired();
+            entity.Property(b => b.Airline).HasMaxLength(60).IsRequired();
+            entity.Property(b => b.FromCity).HasMaxLength(100).IsRequired();
+            entity.Property(b => b.FromCode).HasMaxLength(10).IsRequired();
+            entity.Property(b => b.ToCity).HasMaxLength(100).IsRequired();
+            entity.Property(b => b.ToCode).HasMaxLength(10).IsRequired();
+            entity.Property(b => b.PassengerNames).HasMaxLength(800).IsRequired();
+            entity.Property(b => b.ContactName).HasMaxLength(100).IsRequired();
+            entity.Property(b => b.Email).HasMaxLength(150).IsRequired();
+            entity.Property(b => b.Phone).HasMaxLength(30).IsRequired();
+            entity.Property(b => b.FarePerPassenger).HasPrecision(18, 2);
+            entity.Property(b => b.TotalPrice).HasPrecision(18, 2);
+
+            entity.HasOne(b => b.FlightRoute)
+                .WithMany(r => r.Bookings)
+                .HasForeignKey(b => b.FlightRouteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(b => b.AppUser)
+                .WithMany()
+                .HasForeignKey(b => b.AppUserId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
 

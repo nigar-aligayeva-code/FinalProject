@@ -181,10 +181,9 @@
                 </a>
 
                 <a asp-area=""
-                   asp-controller="Home"
-                   asp-action="ComingSoon"
-                   asp-route-service="flights"
-                   class="@ServiceTab("flights")">
+                   asp-controller="Flights"
+                   asp-action="Index"
+                   class="@(currentController == "Flights" ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-plane"></i>
                     Flights
                 </a>

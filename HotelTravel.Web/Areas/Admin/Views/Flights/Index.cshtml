@@ -1,0 +1,259 @@
+@model List<HotelTravel.Application.DTOs.Flights.FlightRouteDto>
+@using HotelTravel.Application.DTOs.Flights
+@using HotelTravel.Application.Services
+@using HotelTravel.Domain.Enums
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Flights";
+
+    string? selectedCity = ViewBag.City as string;
+    var status = ViewBag.Status as FlightBookingStatus?;
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+    var bookings = ViewBag.Bookings as List<FlightBookingDto> ?? new List<FlightBookingDto>();
+
+    string StatusClass(FlightBookingStatus s) => s switch
+    {
+        FlightBookingStatus.Confirmed => "cg-Food",
+        FlightBookingStatus.Completed => "cg-Sight",
+        _ => "cg-Shopping"
+    };
+}
+
+<partial name="~/Areas/Admin/Views/CityGuide/_Styles.cshtml" />
+
+<div class="cg-heading">
+    <div>
+        <h1>Flights</h1>
+        <p>Daily flight schedule between hotel cities and guests' flight bookings.</p>
+    </div>
+
+    <a asp-area="Admin"
+       asp-controller="Flights"
+       asp-action="Edit"
+       class="cg-btn">
+        + Add flight
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="cg-alert cg-alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="cg-alert cg-alert-error">@TempData["ErrorMessage"]</div>
+}
+
+<!-- SCHEDULE -->
+<div class="cg-chips">
+    <a asp-area="Admin"
+       asp-controller="Flights"
+       asp-action="Index"
+       class="cg-chip @(string.IsNullOrEmpty(selectedCity) ? "active" : "")">
+        All cities
+    </a>
+
+    @foreach (var city in cities)
+    {
+        <a asp-area="Admin"
+           asp-controller="Flights"
+           asp-action="Index"
+           asp-route-city="@city"
+           class="cg-chip @(string.Equals(city, selectedCity, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+            @city
+        </a>
+    }
+</div>
+
+<div class="cg-card" style="margin-bottom:24px">
+    <h2 style="font-size:18px;margin:0 0 16px;color:#0f172a">Schedule (@Model.Count)</h2>
+
+    <div class="cg-table-wrap">
+        <table class="cg-table">
+            <thead>
+                <tr>
+                    <th>Flight</th>
+                    <th>Route</th>
+                    <th>Daily at</th>
+                    <th>Economy</th>
+                    <th>Business</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var route in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@route.FlightNumber</strong>
+                            <div class="cg-desc">@route.Airline</div>
+                        </td>
+                        <td>
+                            @route.FromCity (@route.FromCode) → @route.ToCity (@route.ToCode)
+                        </td>
+                        <td style="white-space:nowrap">
+                            @route.DepartureTime.ToString(@"hh\:mm")
+                            <div class="cg-desc">@FlightRules.FormatDuration(route.DurationMinutes)</div>
+                        </td>
+                        <td style="white-space:nowrap">
+                            @route.EconomyPrice.ToString("0") AZN
+                            <div class="cg-desc">@route.EconomySeats seats</div>
+                        </td>
+                        <td style="white-space:nowrap">
+                            @if (route.BusinessSeats > 0)
+                            {
+                                <span>@route.BusinessPrice.ToString("0") AZN</span>
+                                <div class="cg-desc">@route.BusinessSeats seats</div>
+                            }
+                            else
+                            {
+                                <span class="cg-desc">—</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="cg-badge @(route.IsActive ? "cg-Food" : "cg-Shopping")">
+                                @(route.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="cg-actions">
+                                <a asp-area="Admin"
+                                   asp-controller="Flights"
+                                   asp-action="Edit"
+                                   asp-route-id="@route.Id"
+                                   class="cg-edit">
+                                    Edit
+                                </a>
+
+                                <form asp-area="Admin"
+                                      asp-controller="Flights"
+                                      asp-action="Toggle"
+                                      asp-route-id="@route.Id"
+                                      asp-route-city="@selectedCity"
+                                      method="post">
+                                    <button type="submit" class="cg-edit">
+                                        @(route.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
+        {
+            <div class="cg-empty">No flights yet.</div>
+        }
+    </div>
+</div>
+
+<!-- BOOKINGS -->
+<div class="cg-chips">
+    <a asp-area="Admin"
+       asp-controller="Flights"
+       asp-action="Index"
+       asp-route-city="@selectedCity"
+       class="cg-chip @(status == null ? "active" : "")">
+        All bookings
+    </a>
+
+    @foreach (var item in Enum.GetValues<FlightBookingStatus>())
+    {
+        <a asp-area="Admin"
+           asp-controller="Flights"
+           asp-action="Index"
+           asp-route-city="@selectedCity"
+           asp-route-status="@item"
+           class="cg-chip @(status == item ? "active" : "")">
+            @item
+        </a>
+    }
+</div>
+
+<div class="cg-card">
+    <h2 style="font-size:18px;margin:0 0 16px;color:#0f172a">Bookings (@bookings.Count)</h2>
+
+    <div class="cg-table-wrap">
+        <table class="cg-table">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Flight</th>
+                    <th>Departure</th>
+                    <th>Passengers</th>
+                    <th>Contact</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in bookings)
+                {
+                    <tr>
+                        <td><strong>@booking.ConfirmationCode</strong></td>
+                        <td>
+                            @booking.FlightNumber · @booking.Cabin
+                            <div class="cg-desc">@booking.FromCode → @booking.ToCode</div>
+                        </td>
+                        <td style="white-space:nowrap">
+                            @booking.DepartureTime.ToString("dd MMM yyyy")
+                            <div class="cg-desc">@booking.DepartureTime.ToString("HH:mm") → @booking.ArrivalTime.ToString("HH:mm")</div>
+                        </td>
+                        <td class="cg-desc">
+                            @foreach (var name in booking.PassengerList)
+                            {
+                                <div>@name</div>
+                            }
+                        </td>
+                        <td>
+                            @booking.ContactName
+                            <div class="cg-desc">@booking.Email · @booking.Phone</div>
+                        </td>
+                        <td style="white-space:nowrap">@booking.TotalPrice.ToString("0.00") AZN</td>
+                        <td>
+                            <span class="cg-badge @StatusClass(booking.Status)">@booking.Status</span>
+                        </td>
+                        <td>
+                            @if (booking.Status == FlightBookingStatus.Confirmed)
+                            {
+                                <div class="cg-actions">
+                                    <form asp-area="Admin"
+                                          asp-controller="Flights"
+                                          asp-action="BookingStatus"
+                                          asp-route-id="@booking.Id"
+                                          asp-route-status="@FlightBookingStatus.Completed"
+                                          asp-route-filter="@status"
+                                          method="post">
+                                        <button type="submit" class="cg-edit">Complete</button>
+                                    </form>
+
+                                    <form asp-area="Admin"
+                                          asp-controller="Flights"
+                                          asp-action="BookingStatus"
+                                          asp-route-id="@booking.Id"
+                                          asp-route-status="@FlightBookingStatus.Cancelled"
+                                          asp-route-filter="@status"
+                                          method="post"
+                                          onsubmit="return confirm('Cancel this flight booking?');">
+                                        <button type="submit" class="cg-delete">Cancel</button>
+                                    </form>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (!bookings.Any())
+        {
+            <div class="cg-empty">No flight bookings yet.</div>
+        }
+    </div>
+</div>

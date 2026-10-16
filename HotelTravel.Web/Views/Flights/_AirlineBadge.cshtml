@@ -1,0 +1,19 @@
+@model string
+
+@{
+    // Aviaşirkətin baş hərfləri və rəngi
+    var name = Model ?? string.Empty;
+
+    var initials = string.Concat(
+        name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Where(w => w.ToLower() != "airlines" && w.ToLower() != "airways")
+            .Take(2)
+            .Select(w => char.ToUpper(w[0])));
+
+    if (string.IsNullOrEmpty(initials))
+        initials = "✈";
+
+    var tone = Math.Abs(name.Sum(c => (int)c)) % 5;
+}
+
+<span class="hh-airline hh-airline-@tone" title="@name">@initials</span>

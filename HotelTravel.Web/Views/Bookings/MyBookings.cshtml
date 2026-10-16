@@ -1,6 +1,7 @@
 ﻿@model List<HotelTravel.Application.DTOs.Bookings.GetBookingDto>
 @using HotelTravel.Domain.Enums
 @inject HotelTravel.Application.Interfaces.ITaxiService TaxiService
+@inject HotelTravel.Application.Interfaces.IFlightService FlightService
 @inject Microsoft.AspNetCore.Identity.UserManager<HotelTravel.Domain.Entities.AppUser> UserManager
 
 @{
@@ -15,10 +16,13 @@
     // Hava limanı taksiləri
     var taxis = await TaxiService.GetByUserAsync(UserManager.GetUserId(User) ?? string.Empty);
 
+    // Aviabiletlər
+    var flights = await FlightService.GetByUserAsync(UserManager.GetUserId(User) ?? string.Empty);
+
     var now = DateTime.Now;
 
     // Otel + maşın + taksi: hamısı bir siyahıda, tarixə görə
-    // (Date, Kind, Item) -> Kind: "hotel" / "car" / "taxi"
+    // (Date, Kind, Item) -> Kind: "hotel" / "car" / "taxi" / "flight"
     var all = new List<(DateTime Date, string Kind, object Item, bool IsActive)>();
 
     foreach (var b in Model)
@@ -37,6 +41,12 @@
     {
         var active = t.Status == TaxiBookingStatus.Confirmed && t.PickupTime >= now;
         all.Add((t.PickupTime, "taxi", t, active));
+    }
+
+    foreach (var f in flights)
+    {
+        var active = f.Status == FlightBookingStatus.Confirmed && f.DepartureTime >= now;
+        all.Add((f.DepartureTime, "flight", f, active));
     }
 
     var upcoming = all.Where(x => x.IsActive).OrderBy(x => x.Date).ToList();
@@ -223,6 +233,7 @@
         {
             "car" => Html.PartialAsync("_MyCarCard", item),
             "taxi" => Html.PartialAsync("_MyTaxiCard", item),
+            "flight" => Html.PartialAsync("_MyFlightCard", item),
             _ => Html.PartialAsync("_MyBookingCard", item)
         };
 }

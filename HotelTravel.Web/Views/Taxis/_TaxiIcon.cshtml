@@ -1,14 +1,20 @@
 @model HotelTravel.Domain.Enums.TaxiVehicleType
 @using HotelTravel.Domain.Enums
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
 
 @{
-    var icon = Model switch
+    // Taksi sinfi -> maşın illüstrasiyası
+    var category = Model switch
     {
-        TaxiVehicleType.Minivan => "fa-van-shuttle",
-        TaxiVehicleType.Executive => "fa-car-side",
-        TaxiVehicleType.Comfort => "fa-car",
-        _ => "fa-taxi"
+        TaxiVehicleType.Minivan => CarCategory.Van,
+        TaxiVehicleType.Executive => CarCategory.Premium,
+        _ => CarCategory.Sedan
+    };
+
+    var data = new ViewDataDictionary(ViewData)
+    {
+        ["TaxiSign"] = Model == TaxiVehicleType.Standard
     };
 }
 
-<i class="fa-solid @icon"></i>
+@await Html.PartialAsync("~/Views/Cars/_CarIcon.cshtml", category, data)

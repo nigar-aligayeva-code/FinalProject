@@ -2350,3 +2350,325 @@ a {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* =========================================================
+   V8 - FLIGHTS
+   ========================================================= */
+
+.hh-flight-search {
+    grid-template-columns: 1.3fr 44px 1.3fr 1fr .8fr .9fr auto;
+    margin-top: -32px;
+    position: relative;
+}
+
+.hh-flight-swap {
+    align-self: center;
+    justify-self: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--hh-gold);
+    background: #FFFFFF;
+    color: var(--hh-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform .2s;
+}
+
+    .hh-flight-swap:hover {
+        transform: rotate(180deg);
+    }
+
+/* Tarix zolağı */
+.hh-flight-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-top: 22px;
+}
+
+.hh-flight-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 6px;
+    border: 1px solid var(--hh-border);
+    border-radius: 10px;
+    background: var(--hh-surface);
+    color: var(--hh-text);
+    text-decoration: none;
+    font-size: 13px;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+    .hh-flight-day strong {
+        color: var(--hh-ink);
+        font-size: 15px;
+    }
+
+    .hh-flight-day:hover {
+        border-color: var(--hh-gold);
+        box-shadow: var(--hh-shadow);
+        color: var(--hh-text);
+    }
+
+    .hh-flight-day.active {
+        border: 2px solid var(--hh-green);
+        background: var(--hh-gold-soft);
+    }
+
+/* Uçuş kartları */
+.hh-flight-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hh-flight {
+    display: grid;
+    grid-template-columns: 1.1fr 1.6fr auto;
+    align-items: center;
+    gap: 20px;
+    background: var(--hh-surface);
+    border: 1px solid var(--hh-border);
+    border-radius: var(--hh-radius);
+    padding: 18px 22px;
+    transition: box-shadow .2s;
+}
+
+    .hh-flight:hover {
+        box-shadow: var(--hh-shadow-lg);
+    }
+
+    .hh-flight.unavailable {
+        opacity: .6;
+    }
+
+.hh-flight-airline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+    .hh-flight-airline strong {
+        display: block;
+        color: var(--hh-ink);
+    }
+
+    .hh-flight-airline small {
+        display: block;
+        color: var(--hh-muted);
+        font-size: 13px;
+    }
+
+.hh-airline {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    color: #FFFFFF;
+    letter-spacing: .5px;
+}
+
+.hh-airline-0 { background: linear-gradient(135deg, #2B3329, #4E5B4C); }
+.hh-airline-1 { background: linear-gradient(135deg, #A9822F, #D9B26A); }
+.hh-airline-2 { background: linear-gradient(135deg, #3E4A6B, #6C7CA8); }
+.hh-airline-3 { background: linear-gradient(135deg, #8C4A32, #C47B55); }
+.hh-airline-4 { background: linear-gradient(135deg, #3F6E73, #6FA3A8); }
+
+.hh-flight-times {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 14px;
+}
+
+.hh-flight-point strong {
+    display: block;
+    font-size: 22px;
+    color: var(--hh-ink);
+    line-height: 1.1;
+}
+
+.hh-flight-point span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--hh-muted);
+}
+
+.hh-flight-point:last-child {
+    text-align: right;
+}
+
+.hh-flight-plus {
+    font-size: 11px;
+    color: #B42318;
+    font-weight: 700;
+}
+
+.hh-flight-path {
+    text-align: center;
+    font-size: 12px;
+    color: var(--hh-muted);
+}
+
+.hh-flight-line {
+    display: block;
+    position: relative;
+    height: 16px;
+    margin: 2px 0;
+}
+
+    .hh-flight-line::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        border-top: 2px solid var(--hh-border);
+    }
+
+    .hh-flight-line i {
+        position: relative;
+        background: var(--hh-surface);
+        padding: 0 6px;
+        color: var(--hh-gold);
+        font-size: 13px;
+    }
+
+.hh-flight-times-sm .hh-flight-point strong {
+    font-size: 18px;
+}
+
+.hh-flight-buy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    min-width: 150px;
+}
+
+.hh-flight-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    background: var(--hh-gold-soft);
+    color: var(--hh-gold-dark);
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+
+.hh-flight-seats {
+    font-size: 12px;
+    font-weight: 700;
+    color: #B42318;
+}
+
+.hh-car-media.hh-flight-media {
+    background: linear-gradient(135deg, #3E4A6B, #A9822F);
+}
+
+/* Səfəri tamamla */
+.hh-flight-next {
+    border: 1px dashed var(--hh-gold);
+    border-radius: var(--hh-radius);
+    padding: 14px 16px;
+    background: var(--hh-gold-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .hh-flight-next strong {
+        color: var(--hh-ink);
+    }
+
+    .hh-flight-next a,
+    .hh-flight-next button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        background: #FFFFFF;
+        border: 1px solid var(--hh-border);
+        border-radius: 8px;
+        padding: 9px 12px;
+        color: var(--hh-green);
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+        text-align: left;
+        cursor: pointer;
+    }
+
+        .hh-flight-next a:hover,
+        .hh-flight-next button:hover {
+            border-color: var(--hh-gold);
+        }
+
+@media (max-width: 1199.98px) {
+    .hh-flight-search {
+        grid-template-columns: 1fr 44px 1fr;
+    }
+
+        .hh-flight-search .hh-search-field:nth-of-type(n+3),
+        .hh-flight-search .hh-search-btn {
+            grid-column: span 3;
+        }
+}
+
+@media (max-width: 991.98px) {
+    .hh-flight {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .hh-flight-buy {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .hh-flight-days {
+        grid-template-columns: repeat(7, minmax(92px, 1fr));
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+}
+
+
+/* =========================================================
+   V9 - CAR ILLUSTRATIONS
+   ========================================================= */
+
+/* Şəkli olmayan maşın/taksi kartlarında SVG illüstrasiya */
+.hh-car-media .hh-car-svg {
+    width: 82%;
+    max-width: 240px;
+    height: auto;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .18));
+    transition: transform .25s ease;
+}
+
+.hh-car:hover .hh-car-media .hh-car-svg {
+    transform: translateX(-6px);
+}
+
+.my-booking-image.hh-car-media .hh-car-svg {
+    width: 78%;
+}

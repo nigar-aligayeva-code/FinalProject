@@ -1,0 +1,275 @@
+@model List<HotelTravel.Application.DTOs.Flights.FlightOptionDto>
+@using HotelTravel.Application.DTOs.Flights
+@using HotelTravel.Application.Services
+@using HotelTravel.Domain.Enums
+
+@{
+    ViewData["Title"] = "Flights";
+
+    var cities = ViewBag.Cities as List<string> ?? new List<string>();
+    string? from = ViewBag.From as string;
+    string? to = ViewBag.To as string;
+    var date = (DateTime)ViewBag.Date;
+    var passengers = (int)ViewBag.Passengers;
+    var cabin = (CabinClass)ViewBag.Cabin;
+    string? error = ViewBag.Error as string;
+    var dayFares = ViewBag.DayFares as List<FlightDayFareDto> ?? new List<FlightDayFareDto>();
+
+    var cheapest = Model.Where(f => f.IsAvailable).Select(f => (decimal?)f.Fare).Min();
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1><i class="fa-solid fa-plane me-2"></i>Flights</h1>
+        <p>Direct flights between our hotel cities. Add a hotel and an airport taxi in one trip.</p>
+    </div>
+</section>
+
+<div class="container">
+
+    <!-- SEARCH -->
+    <form asp-controller="Flights"
+          asp-action="Index"
+          method="get"
+          class="hh-search hh-flight-search">
+
+        <div class="hh-search-field">
+            <i class="fa-solid fa-plane-departure"></i>
+            <div class="hh-search-body">
+                <label for="from">From</label>
+                <select id="from" name="from">
+                    @foreach (var city in cities)
+                    {
+                        <option value="@city" selected="@(city == from)">@city (@FlightRules.AirportCode(city))</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <button type="button" class="hh-flight-swap" id="swapCities" title="Swap cities" aria-label="Swap cities">
+            <i class="bi bi-arrow-left-right"></i>
+        </button>
+
+        <div class="hh-search-field">
+            <i class="fa-solid fa-plane-arrival"></i>
+            <div class="hh-search-body">
+                <label for="to">To</label>
+                <select id="to" name="to">
+                    @foreach (var city in cities)
+                    {
+                        <option value="@city" selected="@(city == to)">@city (@FlightRules.AirportCode(city))</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-calendar3"></i>
+            <div class="hh-search-body">
+                <label for="date">Departure</label>
+                <input type="date"
+                       id="date"
+                       name="date"
+                       min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                       max="@DateTime.Today.AddDays(FlightRules.MaxDaysAhead).ToString("yyyy-MM-dd")"
+                       value="@date.ToString("yyyy-MM-dd")" />
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-people"></i>
+            <div class="hh-search-body">
+                <label for="passengers">Passengers</label>
+                <select id="passengers" name="passengers">
+                    @for (var i = 1; i <= FlightRules.MaxPassengers; i++)
+                    {
+                        <option value="@i" selected="@(i == passengers)">@i</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="hh-search-field">
+            <i class="bi bi-star"></i>
+            <div class="hh-search-body">
+                <label for="cabin">Cabin</label>
+                <select id="cabin" name="cabin">
+                    <option value="@CabinClass.Economy" selected="@(cabin == CabinClass.Economy)">Economy</option>
+                    <option value="@CabinClass.Business" selected="@(cabin == CabinClass.Business)">Business</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="hh-search-btn">
+            <i class="bi bi-search"></i>
+            Search
+        </button>
+    </form>
+
+    @if (error != null)
+    {
+        <div class="alert alert-danger mt-3">@error</div>
+    }
+
+    @if (error == null && from != null && to != null)
+    {
+        <!-- DATE STRIP -->
+        @if (dayFares.Any())
+        {
+            <nav class="hh-flight-days" aria-label="Nearby dates">
+                @foreach (var day in dayFares)
+                {
+                    <a asp-controller="Flights"
+                       asp-action="Index"
+                       asp-route-from="@from"
+                       asp-route-to="@to"
+                       asp-route-date="@day.Date.ToString("yyyy-MM-dd")"
+                       asp-route-passengers="@passengers"
+                       asp-route-cabin="@cabin"
+                       class="hh-flight-day @(day.Date == date ? "active" : "")">
+                        <span>@day.Date.ToString("ddd, MMM d")</span>
+                        <strong>@(day.LowestFare.HasValue ? day.LowestFare.Value.ToString("0") + " AZN" : "—")</strong>
+                    </a>
+                }
+            </nav>
+        }
+
+        <!-- RESULTS -->
+        <section class="hh-section">
+            <div class="hh-section-head">
+                <div>
+                    <h2 class="hh-section-title">@from → @to</h2>
+                    <p class="hh-section-sub">
+                        @date.ToString("dddd, MMMM d")
+                        · @passengers passenger@(passengers == 1 ? "" : "s")
+                        · @cabin
+                    </p>
+                </div>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="hh-empty">
+                    No direct @cabin.ToString().ToLower() flights on this route.
+                    @if (cabin == CabinClass.Business)
+                    {
+                        <a asp-controller="Flights"
+                           asp-action="Index"
+                           asp-route-from="@from"
+                           asp-route-to="@to"
+                           asp-route-date="@date.ToString("yyyy-MM-dd")"
+                           asp-route-passengers="@passengers">Try economy</a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="hh-flight-list">
+                    @foreach (var flight in Model)
+                    {
+                        <article class="hh-flight @(flight.IsAvailable ? "" : "unavailable")">
+                            <div class="hh-flight-airline">
+                                <partial name="_AirlineBadge" model="flight.Airline" />
+                                <div>
+                                    <strong>@flight.Airline</strong>
+                                    <small>@flight.FlightNumber · @flight.Cabin</small>
+                                </div>
+                            </div>
+
+                            <div class="hh-flight-times">
+                                <div class="hh-flight-point">
+                                    <strong>@flight.Departure.ToString("HH:mm")</strong>
+                                    <span>@flight.FromCode</span>
+                                </div>
+
+                                <div class="hh-flight-path">
+                                    <small>@FlightRules.FormatDuration(flight.DurationMinutes)</small>
+                                    <span class="hh-flight-line"><i class="fa-solid fa-plane"></i></span>
+                                    <small class="text-success">Direct</small>
+                                </div>
+
+                                <div class="hh-flight-point">
+                                    <strong>
+                                        @flight.Arrival.ToString("HH:mm")
+                                        @if (flight.ArrivesNextDay)
+                                        {
+                                            <sup class="hh-flight-plus">+1</sup>
+                                        }
+                                    </strong>
+                                    <span>@flight.ToCode</span>
+                                </div>
+                            </div>
+
+                            <div class="hh-flight-buy">
+                                @if (cheapest.HasValue && flight.IsAvailable && flight.Fare == cheapest.Value)
+                                {
+                                    <span class="hh-flight-tag">Cheapest</span>
+                                }
+
+                                <div class="hh-room-price">
+                                    <strong>@flight.Fare.ToString("0") AZN</strong>
+                                    <small>
+                                        per passenger
+                                        @if (passengers > 1)
+                                        {
+                                            <text>· @flight.Total.ToString("0") AZN total</text>
+                                        }
+                                    </small>
+                                </div>
+
+                                @if (flight.IsAvailable)
+                                {
+                                    @if (flight.SeatsLeft <= 9)
+                                    {
+                                        <small class="hh-flight-seats">Only @flight.SeatsLeft seat@(flight.SeatsLeft == 1 ? "" : "s") left</small>
+                                    }
+
+                                    <a asp-controller="Flights"
+                                       asp-action="Book"
+                                       asp-route-routeId="@flight.RouteId"
+                                       asp-route-date="@date.ToString("yyyy-MM-dd")"
+                                       asp-route-passengers="@passengers"
+                                       asp-route-cabin="@cabin"
+                                       class="hh-btn hh-btn-primary">
+                                        Select
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="hh-car-busy">
+                                        @(flight.SeatsLeft < passengers ? "Sold out" : "Closed")
+                                    </span>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+
+            <p class="small text-muted mt-3 mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                All times are local. Prices are per passenger, one way, including taxes.
+                Booking early is cheaper: fares rise 14 and 3 days before departure.
+            </p>
+        </section>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // From / To yerini dəyiş
+        (function () {
+            const swap = document.getElementById("swapCities");
+            const from = document.getElementById("from");
+            const to = document.getElementById("to");
+
+            if (!swap || !from || !to) return;
+
+            swap.addEventListener("click", function () {
+                const value = from.value;
+                from.value = to.value;
+                to.value = value;
+            });
+        })();
+    </script>
+}
