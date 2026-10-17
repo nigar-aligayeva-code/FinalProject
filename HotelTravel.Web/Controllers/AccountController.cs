@@ -1,21 +1,22 @@
-﻿using HotelTravel.Application.DTOs.Account;
-using HotelTravel.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using HotelTravel.Application.DTOs.Account;
+using HotelTravel.Application.DTOs.Auth;
+using HotelTravel.Web.Services;
+using HotelTravel.Web.Services.Api;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.Web.Controllers;
 
+// Login / register API üzərindən (JWT) işləyir
 public class AccountController : Controller
 {
-    private readonly UserManager<AppUser> _userManager;
-    private readonly SignInManager<AppUser> _signInManager;
+    private readonly IAuthApiClient _authApi;
 
-    public AccountController(
-        UserManager<AppUser> userManager,
-        SignInManager<AppUser> signInManager)
+    public AccountController(IAuthApiClient authApi)
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
+        _authApi = authApi;
     }
 
     // REGISTER GET
@@ -33,67 +34,18 @@ public class AccountController : Controller
         if (!ModelState.IsValid)
             return View(dto);
 
-        var existingUser =
-            await _userManager.FindByEmailAsync(dto.Email);
+        var (auth, error) = await _authApi.RegisterAsync(dto);
 
-        if (existingUser != null)
+        if (auth == null)
         {
-            ModelState.AddModelError(
-                nameof(dto.Email),
-                "An account with this email already exists.");
-
-            return View(dto);
-        }
-
-        var user = new AppUser
-        {
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Email = dto.Email,
-            UserName = dto.Email
-        };
-
-        var result =
-            await _userManager.CreateAsync(
-                user,
-                dto.Password);
-
-        if (!result.Succeeded)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    error.Description);
-            }
-
-            return View(dto);
-        }
-        var roleResult =
-    await _userManager.AddToRoleAsync(
-        user,
-        "User");
-
-        if (!roleResult.Succeeded)
-        {
-            foreach (var error in roleResult.Errors)
-            {
-                ModelState.AddModelError(
-                    string.Empty,
-                    error.Description);
-            }
-
+            ModelState.AddModelError(string.Empty, error ?? "Registration failed.");
             return View(dto);
         }
 
         // Register-dən sonra avtomatik login
-        await _signInManager.SignInAsync(
-            user,
-            isPersistent: false);
+        await SignInAsync(auth, isPersistent: false);
 
-        return RedirectToAction(
-            "Index",
-            "Home");
+        return RedirectToAction("Index", "Home");
     }
 
 
@@ -110,62 +62,32 @@ public class AccountController : Controller
     // LOGIN POST
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(
-        LoginDto dto,
-        string? returnUrl = null)
+    public async Task<IActionResult> Login(LoginDto dto, string? returnUrl = null)
     {
         ViewBag.ReturnUrl = returnUrl;
 
         if (!ModelState.IsValid)
             return View(dto);
 
-        var user =
-            await _userManager.FindByEmailAsync(dto.Email);
+        var (auth, error) = await _authApi.LoginAsync(dto.Email, dto.Password);
 
-        if (user == null)
+        if (auth == null)
         {
-            ModelState.AddModelError(
-                string.Empty,
-                "Email or password is incorrect.");
-
+            ModelState.AddModelError(string.Empty, error ?? "Email or password is incorrect.");
             return View(dto);
         }
 
-        var result =
-            await _signInManager.PasswordSignInAsync(
-                user,
-                dto.Password,
-                dto.RememberMe,
-                lockoutOnFailure: false);
-
-        if (!result.Succeeded)
-        {
-            ModelState.AddModelError(
-                string.Empty,
-                "Email or password is incorrect.");
-
-            return View(dto);
-        }
+        await SignInAsync(auth, dto.RememberMe);
 
         // Yalnız öz saytımızdakı ünvana qayıt (open redirect olmasın)
-        if (!string.IsNullOrEmpty(returnUrl) &&
-            Url.IsLocalUrl(returnUrl))
-        {
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             return LocalRedirect(returnUrl);
-        }
 
         // Admin birbaşa admin panelə
-        if (await _userManager.IsInRoleAsync(user, "Admin"))
-        {
-            return RedirectToAction(
-                "Index",
-                "Dashboard",
-                new { area = "Admin" });
-        }
+        if (auth.Roles.Contains("Admin"))
+            return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
 
-        return RedirectToAction(
-            "Index",
-            "Home");
+        return RedirectToAction("Index", "Home");
     }
 
 
@@ -174,11 +96,9 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _signInManager.SignOutAsync();
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-        return RedirectToAction(
-            "Index",
-            "Home");
+        return RedirectToAction("Index", "Home");
     }
 
 
@@ -188,4 +108,36 @@ public class AccountController : Controller
     {
         return View();
     }
-}
+
+
+    // API-dən gələn məlumatla cookie yaradılır; JWT token də cookie-də saxlanır
+    private async Task SignInAsync(AuthResponseDto auth, bool isPersistent)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, auth.UserId),
+            new(ClaimTypes.Name, auth.Email),
+            new(ClaimTypes.Email, auth.Email),
+            new(ClaimTypes.GivenName, auth.FirstName),
+            new(ClaimTypes.Surname, auth.LastName),
+            new(AuthClaimTypes.AccessToken, auth.AccessToken)
+        };
+
+        if (!string.IsNullOrWhiteSpace(auth.PhoneNumber))
+            claims.Add(new Claim(ClaimTypes.MobilePhone, auth.PhoneNumber));
+
+        claims.AddRange(auth.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(identity),
+            new AuthenticationProperties
+            {
+                IsPersistent = isPersistent,
+                // Cookie token ilə eyni vaxtda bitsin
+                ExpiresUtc = auth.ExpiresAtUtc
+            });
+    }
+}

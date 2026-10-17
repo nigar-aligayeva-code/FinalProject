@@ -1,18 +1,13 @@
-﻿
-using HotelTravel.Application.Interfaces;
-using HotelTravel.Application.Services;
-using HotelTravel.Domain.Entities;
-using HotelTravel.Infrastructure.Persistence;
-using HotelTravel.Infrastructure.Seed;
-using HotelTravel.Infrastructure.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using HotelTravel.Web.Filters;
+using HotelTravel.Web.Services;
+using HotelTravel.Web.Services.Api;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace HotelTravel.Web
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -20,117 +15,46 @@ namespace HotelTravel.Web
             // MVC
             // =========================================
 
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews(options =>
+            {
+                // API xətaları (401, API işləmir və s.) üçün səliqəli cavab
+                options.Filters.Add<ApiExceptionFilter>();
+            });
 
             // =========================================
-            // DATABASE
+            // API CLIENTS (HttpClient)
             // =========================================
+            // MVC verilənlər bazasına müraciət etmir:
+            // bütün məlumat HotelTravel.API-dən gəlir.
 
-            builder.Services.AddDbContext<AppDbContext>(
-                options =>
-                    options.UseSqlServer(
-                        builder.Configuration
-                            .GetConnectionString("DefaultConnection")));
+            builder.Services.AddTripioApiClients(builder.Configuration);
+
+            builder.Services.AddScoped<CurrentUserAccessor>();
 
             // =========================================
-            // IDENTITY
+            // AUTHENTICATION (cookie + API JWT)
             // =========================================
+            // Login zamanı API JWT token qaytarır; token cookie-də saxlanır
+            // və hər API sorğusuna ApiTokenHandler tərəfindən əlavə olunur.
 
             builder.Services
-                .AddIdentity<AppUser, IdentityRole>(
-                    options =>
-                    {
-                        options.Password.RequireDigit = true;
-                        options.Password.RequireLowercase = true;
-                        options.Password.RequireUppercase = true;
-                        options.Password.RequireNonAlphanumeric = false;
-                        options.Password.RequiredLength = 6;
-
-                        options.User.RequireUniqueEmail = true;
-                    })
-                .AddEntityFrameworkStores<AppDbContext>()
-                .AddDefaultTokenProviders();
-
-            // =========================================
-            // COOKIE SETTINGS
-            // =========================================
-
-            builder.Services.ConfigureApplicationCookie(
-                options =>
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
                 {
                     options.LoginPath = "/Account/Login";
+                    options.LogoutPath = "/Account/Logout";
                     options.AccessDeniedPath = "/Account/AccessDenied";
+                    options.Cookie.Name = "Tripio.Auth";
+                    options.Cookie.HttpOnly = true;
+                    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+
+                    // Token-in müddəti uzanmır, ona görə cookie də uzanmasın
+                    options.SlidingExpiration = false;
                 });
 
-            // =========================================
-            // DEPENDENCY INJECTION
-            // =========================================
-
-            builder.Services.AddScoped<IAppDbContext>(
-                provider =>
-                    provider.GetRequiredService<AppDbContext>());
-
-            builder.Services.AddScoped<IRoomService, RoomService>();
-            builder.Services.AddScoped<IHotelService, HotelService>();
-            builder.Services.AddScoped<IBookingService, BookingService>();
-            builder.Services.AddDbContextFactory<AppDbContext>(
-    options => options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")),
-    lifetime: ServiceLifetime.Scoped);
-
-            builder.Services.AddScoped<
-                IBookingCreationService,
-                BookingCreationService>();
-            builder.Services.AddScoped<IHotelChainService, HotelChainService>();
-            builder.Services.AddScoped<IAmenityService, AmenityService>();
-            builder.Services.AddScoped<IReviewService, ReviewService>();
-            builder.Services.AddScoped<IWishlistService, WishlistService>();
-            builder.Services.AddScoped<IPromoCodeService, PromoCodeService>();
-            builder.Services.AddScoped<ICityGuideService, CityGuideService>();
-            builder.Services.AddScoped<ICarRentalService, CarRentalService>();
-            builder.Services.AddScoped<ITaxiService, TaxiService>();
-            builder.Services.AddScoped<IFlightService, FlightService>();
+            builder.Services.AddAuthorization();
 
             var app = builder.Build();
-
-            // =========================================
-            // SEED DATA
-            // =========================================
-
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-
-                // IDENTITY SEED
-                var roleManager =
-                    services.GetRequiredService<RoleManager<IdentityRole>>();
-
-                var userManager =
-                    services.GetRequiredService<UserManager<AppUser>>();
-
-                await IdentitySeeder.SeedAsync(
-                    roleManager,
-                    userManager,
-                    builder.Configuration);
-
-                // HOTEL DATA SEED
-                var context =
-                    services.GetRequiredService<AppDbContext>();
-
-                await HotelDataSeeder.SeedAsync(context);
-
-                // Olmayan otel/otaq şəkillərini real fotolarla əvəz et
-                await MediaFixSeeder.SeedAsync(context, app.Environment.WebRootPath);
-
-                // Şəhər bələdçisi (boşdursa doldurulur)
-                await CityGuideSeeder.SeedAsync(context);
-
-                // Maşın parkı (boşdursa doldurulur)
-                await RentalCarSeeder.SeedAsync(context);
-
-                // Reys cədvəli (boşdursa doldurulur)
-                await FlightRouteSeeder.SeedAsync(context);
-            }
 
             // =========================================
             // HTTP PIPELINE
@@ -148,21 +72,16 @@ namespace HotelTravel.Web
 
             app.UseRouting();
 
-            // =========================================
-            // AUTHENTICATION & AUTHORIZATION
-            // =========================================
-
             app.UseAuthentication();
             app.UseAuthorization();
 
             // =========================================
             // MVC ROUTING
             // =========================================
-            // =========================================
-            app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
+            app.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
             app.MapControllerRoute(
                 name: "default",

@@ -1,6 +1,6 @@
 ﻿@model HotelTravel.Application.DTOs.Rooms.GetRoomDto
 @inject HotelTravel.Application.Interfaces.IWishlistService WishlistService
-@inject Microsoft.AspNetCore.Identity.UserManager<HotelTravel.Domain.Entities.AppUser> UserManager
+@inject HotelTravel.Web.Services.CurrentUserAccessor CurrentUser
 @inject HotelTravel.Application.Interfaces.ICityGuideService CityGuideService
 
 @{
@@ -32,7 +32,7 @@
 
     // Wishlist - bu otaq saxlanılıbmı?
     var isSaved =
-        (await WishlistService.GetSavedRoomIdsAsync(UserManager.GetUserId(User)))
+        (await WishlistService.GetSavedRoomIdsAsync(CurrentUser.GetUserId(User)))
             .Contains(Model.Id);
 
     // F8 - REVIEWS

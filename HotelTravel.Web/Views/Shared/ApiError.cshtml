@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Something went wrong";
+}
+
+<section class="hh-hero hh-hero-small">
+    <div class="container">
+        <h1><i class="bi bi-exclamation-triangle me-2"></i>Something went wrong</h1>
+        <p>Your request could not be completed.</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="hh-soon">
+        <p class="mb-4">@ViewData["ErrorMessage"]</p>
+        <a href="javascript:history.back()" class="hh-btn hh-btn-outline">Go back</a>
+        <a asp-controller="Home" asp-action="Index" class="hh-btn hh-btn-primary">Home</a>
+    </div>
+</div>

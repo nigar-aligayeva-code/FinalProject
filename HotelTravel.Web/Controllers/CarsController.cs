@@ -3,7 +3,7 @@ using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using HotelTravel.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.Web.Controllers;
@@ -12,14 +12,14 @@ namespace HotelTravel.Web.Controllers;
 public class CarsController : Controller
 {
     private readonly ICarRentalService _carRentalService;
-    private readonly UserManager<AppUser> _userManager;
+    private readonly CurrentUserAccessor _currentUser;
 
     public CarsController(
         ICarRentalService carRentalService,
-        UserManager<AppUser> userManager)
+        CurrentUserAccessor currentUser)
     {
         _carRentalService = carRentalService;
-        _userManager = userManager;
+        _currentUser = currentUser;
     }
 
 
@@ -80,7 +80,7 @@ public class CarsController : Controller
         };
 
         // Daxil olmuş istifadəçinin məlumatları
-        var user = await _userManager.GetUserAsync(User);
+        var user = await _currentUser.GetUserAsync(User);
 
         if (user != null)
         {
@@ -102,7 +102,7 @@ public class CarsController : Controller
         {
             var result = await _carRentalService.BookAsync(
                 dto,
-                _userManager.GetUserId(User));
+                _currentUser.GetUserId(User));
 
             if (result.Success)
             {
@@ -150,7 +150,7 @@ public class CarsController : Controller
     {
         var result = await _carRentalService.CancelByUserAsync(
             id,
-            _userManager.GetUserId(User)!);
+            _currentUser.GetUserId(User)!);
 
         TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Message;
 

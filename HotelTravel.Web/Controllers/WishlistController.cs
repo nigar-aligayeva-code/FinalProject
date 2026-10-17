@@ -1,7 +1,7 @@
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using HotelTravel.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.Web.Controllers;
@@ -10,14 +10,14 @@ namespace HotelTravel.Web.Controllers;
 public class WishlistController : Controller
 {
     private readonly IWishlistService _wishlistService;
-    private readonly UserManager<AppUser> _userManager;
+    private readonly CurrentUserAccessor _currentUser;
 
     public WishlistController(
         IWishlistService wishlistService,
-        UserManager<AppUser> userManager)
+        CurrentUserAccessor currentUser)
     {
         _wishlistService = wishlistService;
-        _userManager = userManager;
+        _currentUser = currentUser;
     }
 
 
@@ -29,7 +29,7 @@ public class WishlistController : Controller
     {
         var rooms =
             await _wishlistService.GetSavedRoomsAsync(
-                _userManager.GetUserId(User)!);
+                _currentUser.GetUserId(User)!);
 
         return View(rooms);
     }
@@ -44,7 +44,7 @@ public class WishlistController : Controller
     {
         var result =
             await _wishlistService.ToggleAsync(
-                _userManager.GetUserId(User)!,
+                _currentUser.GetUserId(User)!,
                 roomId);
 
         if (!result.Success)

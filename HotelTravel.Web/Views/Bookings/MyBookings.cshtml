@@ -2,7 +2,7 @@
 @using HotelTravel.Domain.Enums
 @inject HotelTravel.Application.Interfaces.ITaxiService TaxiService
 @inject HotelTravel.Application.Interfaces.IFlightService FlightService
-@inject Microsoft.AspNetCore.Identity.UserManager<HotelTravel.Domain.Entities.AppUser> UserManager
+@inject HotelTravel.Web.Services.CurrentUserAccessor CurrentUser
 
 @{
     ViewData["Title"] = "My Bookings";
@@ -14,10 +14,10 @@
     var today = DateTime.Today;
 
     // Hava limanı taksiləri
-    var taxis = await TaxiService.GetByUserAsync(UserManager.GetUserId(User) ?? string.Empty);
+    var taxis = await TaxiService.GetByUserAsync(CurrentUser.GetUserId(User) ?? string.Empty);
 
     // Aviabiletlər
-    var flights = await FlightService.GetByUserAsync(UserManager.GetUserId(User) ?? string.Empty);
+    var flights = await FlightService.GetByUserAsync(CurrentUser.GetUserId(User) ?? string.Empty);
 
     var now = DateTime.Now;
 
