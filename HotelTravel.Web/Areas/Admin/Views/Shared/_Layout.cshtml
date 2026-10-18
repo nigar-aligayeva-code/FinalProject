@@ -265,6 +265,14 @@
             </a>
 
             <a asp-area="Admin"
+               asp-controller="Analytics"
+               asp-action="Index"
+               class="@(currentController == "Analytics" ? "active" : "")">
+                <span class="menu-icon">◔</span>
+                <span class="menu-text">Analytics</span>
+            </a>
+
+            <a asp-area="Admin"
                asp-controller="Hotels"
                asp-action="Index"
                class="@(currentController == "Hotels" ? "active" : "")">
