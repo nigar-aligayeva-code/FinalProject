@@ -5,7 +5,7 @@ using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using HotelTravel.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.Web.Controllers;
@@ -14,14 +14,14 @@ namespace HotelTravel.Web.Controllers;
 public class TaxisController : Controller
 {
     private readonly ITaxiService _taxiService;
-    private readonly UserManager<AppUser> _userManager;
+    private readonly CurrentUserAccessor _currentUser;
 
     public TaxisController(
         ITaxiService taxiService,
-        UserManager<AppUser> userManager)
+        CurrentUserAccessor currentUser)
     {
         _taxiService = taxiService;
-        _userManager = userManager;
+        _currentUser = currentUser;
     }
 
 
@@ -101,7 +101,7 @@ public class TaxisController : Controller
         };
 
         // Daxil olmuş istifadəçinin məlumatları
-        var user = await _userManager.GetUserAsync(User);
+        var user = await _currentUser.GetUserAsync(User);
 
         if (user != null)
         {
@@ -123,7 +123,7 @@ public class TaxisController : Controller
         {
             var result = await _taxiService.BookAsync(
                 dto,
-                _userManager.GetUserId(User));
+                _currentUser.GetUserId(User));
 
             if (result.Success)
             {
@@ -171,7 +171,7 @@ public class TaxisController : Controller
     {
         var result = await _taxiService.CancelByUserAsync(
             id,
-            _userManager.GetUserId(User)!);
+            _currentUser.GetUserId(User)!);
 
         TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Message;
 

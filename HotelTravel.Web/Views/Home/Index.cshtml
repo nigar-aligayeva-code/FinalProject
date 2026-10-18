@@ -1,7 +1,7 @@
 ﻿@model HotelTravel.Application.DTOs.Rooms.RoomSearchDto
 @using HotelTravel.Application.DTOs.Home
 @inject HotelTravel.Application.Interfaces.IWishlistService WishlistService
-@inject Microsoft.AspNetCore.Identity.UserManager<HotelTravel.Domain.Entities.AppUser> UserManager
+@inject HotelTravel.Web.Services.CurrentUserAccessor CurrentUser
 
 @{
     ViewData["Title"] = "Find your perfect stay";
@@ -23,7 +23,7 @@
 
     // Hansı otaqlar "Saved"-dədir (ürək dolu görünsün)
     var savedIds =
-        await WishlistService.GetSavedRoomIdsAsync(UserManager.GetUserId(User));
+        await WishlistService.GetSavedRoomIdsAsync(CurrentUser.GetUserId(User));
 
     // Booking-style reytinq sözü (1-5 şkalası)
     string RatingLabel(double rating) => rating switch

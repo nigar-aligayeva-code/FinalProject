@@ -1,45 +1,49 @@
-
 using System.Text;
-using HotelTravel.Application.Interfaces;
-using HotelTravel.Application.Services;
+using System.Text.Json.Serialization;
+using HotelTravel.API.Middleware;
 using HotelTravel.Domain.Entities;
+using HotelTravel.Infrastructure;
 using HotelTravel.Infrastructure.Persistence;
+using HotelTravel.Infrastructure.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using HotelTravel.Infrastructure.Services;
+
 namespace HotelTravel.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             // =========================================
-            // CONTROLLERS
+            // CONTROLLERS + JSON
             // =========================================
 
-            builder.Services.AddControllers();
+            builder.Services
+                .AddControllers(options =>
+                {
+                    // "string Name" sahəsi boş gələ bilər (məs. şəkilsiz otaq);
+                    // yalnız [Required] olan sahələr məcburidir
+                    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+                })
+                .AddJsonOptions(options =>
+                {
+                    // Enum-lar Swagger-də ad kimi görünsün ("Confirmed")
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
 
             // =========================================
-            // DATABASE
+            // DATABASE + SERVICES
             // =========================================
 
-            builder.Services.AddDbContext<AppDbContext>(
-                options => options.UseSqlServer(
-                    builder.Configuration.GetConnectionString(
-                        "DefaultConnection")));
+            builder.Services.AddHotelTravelInfrastructure(
+                builder.Configuration.GetConnectionString("DefaultConnection")!);
 
-            builder.Services.AddDbContextFactory<AppDbContext>(
-    options => options.UseSqlServer(
-        builder.Configuration.GetConnectionString(
-            "DefaultConnection")),
-    lifetime: ServiceLifetime.Scoped);
             // =========================================
-            // IDENTITY
+            // IDENTITY (istifadəçilər və rollar)
             // =========================================
 
             builder.Services
@@ -57,21 +61,6 @@ namespace HotelTravel.API
                 .AddDefaultTokenProviders();
 
             // =========================================
-            // DEPENDENCY INJECTION
-            // =========================================
-
-            builder.Services.AddScoped<IAppDbContext>(
-                provider =>
-                    provider.GetRequiredService<AppDbContext>());
-
-            builder.Services.AddScoped<IRoomService, RoomService>();
-            builder.Services.AddScoped<IHotelService, HotelService>();
-            builder.Services.AddScoped<IBookingService, BookingService>();
-            builder.Services.AddScoped<IBookingCreationService, BookingCreationService>();
-            builder.Services.AddScoped<IHotelChainService, HotelChainService>();
-            builder.Services.AddScoped<IAmenityService, AmenityService>();
-
-            // =========================================
             // JWT AUTHENTICATION
             // =========================================
 
@@ -85,37 +74,31 @@ namespace HotelTravel.API
             }
 
             var jwtIssuer = builder.Configuration["Jwt:Issuer"]
-                ?? throw new InvalidOperationException(
-                    "Jwt:Issuer is missing.");
+                ?? throw new InvalidOperationException("Jwt:Issuer is missing.");
 
             var jwtAudience = builder.Configuration["Jwt:Audience"]
-                ?? throw new InvalidOperationException(
-                    "Jwt:Audience is missing.");
+                ?? throw new InvalidOperationException("Jwt:Audience is missing.");
 
             builder.Services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.TokenValidationParameters =
-                        new TokenValidationParameters
-                        {
-                            ValidateIssuer = true,
-                            ValidIssuer = jwtIssuer,
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = jwtIssuer,
 
-                            ValidateAudience = true,
-                            ValidAudience = jwtAudience,
+                        ValidateAudience = true,
+                        ValidAudience = jwtAudience,
 
-                            ValidateIssuerSigningKey = true,
-                            IssuerSigningKey =
-                                new SymmetricSecurityKey(
-                                    Encoding.UTF8.GetBytes(jwtKey)),
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
 
-                            ValidateLifetime = true,
-                            ClockSkew = TimeSpan.Zero,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero,
 
-                            RoleClaimType =
-                                System.Security.Claims.ClaimTypes.Role
-                        };
+                        RoleClaimType = System.Security.Claims.ClaimTypes.Role
+                    };
                 });
 
             builder.Services.AddAuthorization();
@@ -130,56 +113,63 @@ namespace HotelTravel.API
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "HotelTravel API",
+                    Title = "Tripio API",
                     Version = "v1",
-                    Description = "Hotel Reservation System REST API"
+                    Description =
+                        "Hotel & Travel Reservation System REST API. " +
+                        "Login via POST /api/auth/login, then click Authorize and paste the accessToken."
                 });
 
-                options.AddSecurityDefinition("Bearer",
-                    new OpenApiSecurityScheme
-                    {
-                        Name = "Authorization",
-                        Type = SecuritySchemeType.Http,
-                        Scheme = "bearer",
-                        BearerFormat = "JWT",
-                        In = ParameterLocation.Header,
-                        Description = "Enter your JWT access token."
-                    });
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter your JWT access token."
+                });
 
-                options.AddSecurityRequirement(
-                    new OpenApiSecurityRequirement
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
                     {
+                        new OpenApiSecurityScheme
                         {
-                            new OpenApiSecurityScheme
+                            Reference = new OpenApiReference
                             {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                            Array.Empty<string>()
-                        }
-                    });
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
 
             var app = builder.Build();
 
             // =========================================
-            // SWAGGER
+            // SEED DATA (API verilənlər bazasının sahibidir)
             // =========================================
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            await SeedDatabaseAsync(app);
 
             // =========================================
             // HTTP PIPELINE
             // =========================================
 
-            app.UseHttpsRedirection();
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Tripio API v1");
+                options.DocumentTitle = "Tripio API";
+            });
+
+            // Development-də MVC API-yə http ilə müraciət edir (redirect token-i itirər)
+            if (!app.Environment.IsDevelopment())
+                app.UseHttpsRedirection();
 
             app.UseRouting();
 
@@ -189,6 +179,53 @@ namespace HotelTravel.API
             app.MapControllers();
 
             app.Run();
+        }
+
+        private static async Task SeedDatabaseAsync(WebApplication app)
+        {
+            using var scope = app.Services.CreateScope();
+
+            var services = scope.ServiceProvider;
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            var configuration = services.GetRequiredService<IConfiguration>();
+            var context = services.GetRequiredService<AppDbContext>();
+
+            // Rollar + admin (AdminSettings yoxdursa admin addımı ötürülür)
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = services.GetRequiredService<UserManager<AppUser>>();
+
+            if (string.IsNullOrWhiteSpace(configuration["AdminSettings:Email"]) ||
+                string.IsNullOrWhiteSpace(configuration["AdminSettings:Password"]))
+            {
+                foreach (var role in new[] { "Admin", "User" })
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                }
+
+                logger.LogWarning(
+                    "AdminSettings is not configured for the API: admin user seeding skipped.");
+            }
+            else
+            {
+                await IdentitySeeder.SeedAsync(roleManager, userManager, configuration);
+            }
+
+            await HotelDataSeeder.SeedAsync(context);
+
+            // Şəkillər MVC-nin wwwroot qovluğundadır
+            var webRoot = configuration["Media:WebRootPath"];
+
+            if (string.IsNullOrWhiteSpace(webRoot))
+            {
+                webRoot = Path.GetFullPath(Path.Combine(
+                    app.Environment.ContentRootPath, "..", "HotelTravel.Web", "wwwroot"));
+            }
+
+            await MediaFixSeeder.SeedAsync(context, Directory.Exists(webRoot) ? webRoot : null);
+            await CityGuideSeeder.SeedAsync(context);
+            await RentalCarSeeder.SeedAsync(context);
+            await FlightRouteSeeder.SeedAsync(context);
         }
     }
 }

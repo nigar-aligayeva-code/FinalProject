@@ -2,7 +2,7 @@
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Web.Models;
-using Microsoft.AspNetCore.Identity;
+using HotelTravel.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -13,18 +13,18 @@ namespace HotelTravel.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IRoomService _roomService;
         private readonly IHotelService _hotelService;
-        private readonly UserManager<AppUser> _userManager;
+        private readonly CurrentUserAccessor _currentUser;
 
         public HomeController(
             ILogger<HomeController> logger,
             IRoomService roomService,
             IHotelService hotelService,
-            UserManager<AppUser> userManager)
+            CurrentUserAccessor currentUser)
         {
             _logger = logger;
             _roomService = roomService;
             _hotelService = hotelService;
-            _userManager = userManager;
+            _currentUser = currentUser;
         }
 
 
@@ -171,7 +171,7 @@ namespace HotelTravel.Web.Controllers
                 await _roomService.GetFeaturedRoomsAsync(4);
 
             // "Nigar, where to next?" salamlaşması üçün
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _currentUser.GetUserAsync(User);
 
             ViewBag.FirstName = user?.FirstName;
         }

@@ -1,6 +1,6 @@
 ﻿@model List<HotelTravel.Application.DTOs.Rooms.GetRoomDto>
 @inject HotelTravel.Application.Interfaces.IWishlistService WishlistService
-@inject Microsoft.AspNetCore.Identity.UserManager<HotelTravel.Domain.Entities.AppUser> UserManager
+@inject HotelTravel.Web.Services.CurrentUserAccessor CurrentUser
 
 @{
     ViewData["Title"] = "Available Rooms";
@@ -47,7 +47,7 @@
     var maxPrice = rooms.Any() ? (int)Math.Ceiling(rooms.Max(r => r.PricePerNight)) : 0;
 
     var savedIds =
-        await WishlistService.GetSavedRoomIdsAsync(UserManager.GetUserId(User));
+        await WishlistService.GetSavedRoomIdsAsync(CurrentUser.GetUserId(User));
 
     string RatingLabel(double rating) => rating switch
     {

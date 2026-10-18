@@ -4,7 +4,7 @@ using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
 using HotelTravel.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using HotelTravel.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -14,18 +14,18 @@ public class BookingsController : Controller
 {
     private readonly IBookingService _bookingService;
     private readonly IRoomService _roomService;
-    private readonly UserManager<AppUser> _userManager;
+    private readonly CurrentUserAccessor _currentUser;
     private readonly ICarRentalService _carRentalService;
 
     public BookingsController(
         IBookingService bookingService,
         IRoomService roomService,
-        UserManager<AppUser> userManager,
+        CurrentUserAccessor currentUser,
         ICarRentalService carRentalService)
     {
         _bookingService = bookingService;
         _roomService = roomService;
-        _userManager = userManager;
+        _currentUser = currentUser;
         _carRentalService = carRentalService;
     }
 
@@ -247,7 +247,7 @@ public class BookingsController : Controller
             await LoadBookingRoomAsync(roomId.Value);
 
             // Daxil olmuş istifadəçinin məlumatlarını avtomatik doldur
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _currentUser.GetUserAsync(User);
 
             if (user != null)
             {
@@ -285,7 +285,7 @@ public class BookingsController : Controller
         var result =
             await _bookingService.CreateAsync(
                 dto,
-                _userManager.GetUserId(User));
+                _currentUser.GetUserId(User));
 
         if (!result.Success)
         {
@@ -316,7 +316,7 @@ public class BookingsController : Controller
     [HttpGet]
     public async Task<IActionResult> MyBookings()
     {
-        var userId = _userManager.GetUserId(User);
+        var userId = _currentUser.GetUserId(User);
 
         var bookings =
             await _bookingService.GetByUserIdAsync(userId!);
@@ -337,7 +337,7 @@ public class BookingsController : Controller
         var result =
             await _bookingService.CancelByUserAsync(
                 id,
-                _userManager.GetUserId(User)!);
+                _currentUser.GetUserId(User)!);
 
         TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] =
             result.Message;
@@ -412,7 +412,7 @@ public class BookingsController : Controller
         var result =
             await _bookingService.ModifyAsync(
                 dto,
-                _userManager.GetUserId(User));
+                _currentUser.GetUserId(User));
 
         if (!result.Success)
         {
@@ -475,7 +475,7 @@ public class BookingsController : Controller
                 checkInDate,
                 checkOutDate,
                 email,
-                _userManager.GetUserId(User),
+                _currentUser.GetUserId(User),
                 promoCode);
 
         return Json(new
@@ -514,7 +514,7 @@ public class BookingsController : Controller
         ViewBag.Capacity = room?.Capacity ?? 0;
 
         // Sahib daxil olubsa, email soruşulmur
-        var userId = _userManager.GetUserId(User);
+        var userId = _currentUser.GetUserId(User);
 
         var myBookings = userId == null
             ? new List<GetBookingDto>()

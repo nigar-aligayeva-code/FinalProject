@@ -1,107 +1,162 @@
-﻿
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using HotelTravel.API.DTOs.Auth;
+using HotelTravel.Application.DTOs.Account;
+using HotelTravel.Application.DTOs.Auth;
+using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
-namespace HotelTravel.API.Controllers
+namespace HotelTravel.API.Controllers;
+
+// Giriş və qeydiyyat: JWT token qaytarır
+[Route("api/auth")]
+[AllowAnonymous]
+public class AuthController : ApiControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+    private readonly UserManager<AppUser> _userManager;
+    private readonly IConfiguration _configuration;
+
+    public AuthController(
+        UserManager<AppUser> userManager,
+        IConfiguration configuration)
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly IConfiguration _configuration;
+        _userManager = userManager;
+        _configuration = configuration;
+    }
 
-        public AuthController(
-            UserManager<AppUser> userManager,
-            IConfiguration configuration)
+    // POST: api/auth/login
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(AuthResponseDto), 200)]
+    [ProducesResponseType(typeof(ApiResultDto), 401)]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+
+        if (user == null ||
+            !await _userManager.CheckPasswordAsync(user, request.Password))
         {
-            _userManager = userManager;
-            _configuration = configuration;
+            return Unauthorized(ApiResultDto.Fail("Email or password is incorrect."));
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(
-            [FromBody] LoginRequestDto request)
+        return Ok(await CreateTokenAsync(user));
+    }
+
+    // POST: api/auth/register
+    [HttpPost("register")]
+    [ProducesResponseType(typeof(AuthResponseDto), 200)]
+    [ProducesResponseType(typeof(ApiResultDto), 400)]
+    public async Task<IActionResult> Register([FromBody] RegisterDto request)
+    {
+        var existing = await _userManager.FindByEmailAsync(request.Email);
+
+        if (existing != null)
+            return BadRequest(ApiResultDto.Fail("An account with this email already exists."));
+
+        var user = new AppUser
         {
-            var user = await _userManager.FindByEmailAsync(
-                request.Email);
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
+            Email = request.Email.Trim(),
+            UserName = request.Email.Trim()
+        };
 
-            if (user == null ||
-                !await _userManager.CheckPasswordAsync(
-                    user, request.Password))
-            {
-                return Unauthorized(new
-                {
-                    message = "Invalid email or password."
-                });
-            }
+        var created = await _userManager.CreateAsync(user, request.Password);
 
-            var roles = await _userManager.GetRolesAsync(user);
-
-            var claims = new List<Claim>
-            {
-                new Claim(
-                    JwtRegisteredClaimNames.Sub,
-                    user.Id),
-
-                new Claim(
-                    JwtRegisteredClaimNames.Email,
-                    user.Email ?? string.Empty),
-
-                new Claim(
-                    JwtRegisteredClaimNames.Jti,
-                    Guid.NewGuid().ToString())
-            };
-
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(
-                    ClaimTypes.Role, role));
-            }
-
-            var jwtKey = _configuration["Jwt:Key"]!;
-            var jwtIssuer = _configuration["Jwt:Issuer"]!;
-            var jwtAudience = _configuration["Jwt:Audience"]!;
-
-            var expirationMinutes = int.TryParse(
-                _configuration["Jwt:ExpirationMinutes"],
-                out var minutes) && minutes > 0
-                    ? minutes
-                    : 60;
-
-            var signingKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey));
-
-            var credentials = new SigningCredentials(
-                signingKey,
-                SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: jwtIssuer,
-                audience: jwtAudience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(
-                    expirationMinutes),
-                signingCredentials: credentials);
-
-            return Ok(new
-            {
-                accessToken =
-                    new JwtSecurityTokenHandler()
-                        .WriteToken(token),
-
-                tokenType = "Bearer",
-
-                expiresIn = expirationMinutes * 60,
-
-                roles
-            });
+        if (!created.Succeeded)
+        {
+            return BadRequest(ApiResultDto.Fail(
+                string.Join(" ", created.Errors.Select(e => e.Description))));
         }
+
+        var roleResult = await _userManager.AddToRoleAsync(user, "User");
+
+        if (!roleResult.Succeeded)
+        {
+            return BadRequest(ApiResultDto.Fail(
+                string.Join(" ", roleResult.Errors.Select(e => e.Description))));
+        }
+
+        return Ok(await CreateTokenAsync(user));
+    }
+
+    // GET: api/auth/me  (token yoxlamaq üçün)
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType(typeof(AuthResponseDto), 200)]
+    public async Task<IActionResult> Me()
+    {
+        var user = await _userManager.FindByIdAsync(CurrentUserId ?? string.Empty);
+
+        if (user == null)
+            return Unauthorized(ApiResultDto.Fail("User not found."));
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        return Ok(new AuthResponseDto
+        {
+            UserId = user.Id,
+            Email = user.Email ?? string.Empty,
+            FirstName = user.FirstName ?? string.Empty,
+            LastName = user.LastName ?? string.Empty,
+            PhoneNumber = user.PhoneNumber,
+            Roles = roles.ToList()
+        });
+    }
+
+
+    // =========================
+    // TOKEN
+    // =========================
+    private async Task<AuthResponseDto> CreateTokenAsync(AppUser user)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.Name, user.Email ?? string.Empty),
+            new(ClaimTypes.GivenName, user.FirstName ?? string.Empty),
+            new(ClaimTypes.Surname, user.LastName ?? string.Empty)
+        };
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        var expirationMinutes =
+            int.TryParse(_configuration["Jwt:ExpirationMinutes"], out var minutes) && minutes > 0
+                ? minutes
+                : 60;
+
+        var expires = DateTime.UtcNow.AddMinutes(expirationMinutes);
+
+        var credentials = new SigningCredentials(
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)),
+            SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: expires,
+            signingCredentials: credentials);
+
+        return new AuthResponseDto
+        {
+            AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+            TokenType = "Bearer",
+            ExpiresAtUtc = expires,
+            UserId = user.Id,
+            Email = user.Email ?? string.Empty,
+            FirstName = user.FirstName ?? string.Empty,
+            LastName = user.LastName ?? string.Empty,
+            PhoneNumber = user.PhoneNumber,
+            Roles = roles.ToList()
+        };
     }
 }
