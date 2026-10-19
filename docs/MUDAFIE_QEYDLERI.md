@@ -9,10 +9,14 @@ Təqdimatda istifadə etmək üçün qısa plan və müəllimin verə biləcəyi
 1. **Demo (min. 8 feature)** — ~6 dəq
    Otaq axtarışı → otaq səhifəsi (şəkillər, rəylər, şəhər bələdçisi) → rezerv (promo kod) →
    təsdiq kodu və QR voucher → My Bookings (dəyiş / ləğv et) → Find booking (kod + email).
-2. **Əlavə feature-lər (yaradıcılıq)** — ~3 dəq
-   Flights → Car rental → Airport taxis → Attractions → Saved (wishlist) → loyallıq endirimi.
-   Admin panel: otaq redaktəsi + şəkil yükləmə, statuslar, occupancy calendar, promo kodlar.
-3. **GitHub repo** — branch-lar (`feature/...`), pull request-lər, commit tarixçəsi.
+2. **Əlavə feature-lər (yaradıcılıq)** — ~4 dəq
+   **Packages** (uçuş + otel + taksi, endirim 8→10→12%) → paketin səhifəsi → PDF voucher-i yüklə →
+   Admin → **Emails** (göndərilən məktub) → **Hotels** xəritəsi və otelin Location bölməsi →
+   **Profile** (statistika, səviyyə, avatar seçimi) → Flights / Car rental / Airport taxis / Attractions.
+   Admin panel: **Analytics** (gəlir, doluluq proqnozu, top şəhərlər), otaq redaktəsi + şəkil yükləmə,
+   statuslar, occupancy calendar, promo kodlar.
+3. **GitHub repo** — branch-lar (`feature/...`), pull request-lər, commit tarixçəsi,
+   **Actions** tab-ı (hər push-da avtomatik build + testlər) və README-dəki yaşıl CI nişanı.
 4. **Swagger** — login → Authorize → qorunan endpoint (`/api/bookings/mine`) → admin endpoint.
 5. **Code base / sistem dizaynı** — aşağıdakı 2-ci bölmə.
 
@@ -112,9 +116,50 @@ EF Core migration-ları (`Update-Database ... -StartupProject HotelTravel.API`).
 açılanda seed: rollar, otellər, otaqlar, şəhər bələdçisi, maşınlar, reyslər.
 
 **Testlər nəyi yoxlayır?**
-70 xUnit testi: rezerv qaydaları, qiymət və endirimlər, deadlock retry, rəylər, wishlist,
-maşın icarəsi, taksi, uçuşlar (saat qurşağı, yer limiti, ləğv qaydası). Servis testləri
-EF Core InMemory bazası ilə işləyir.
+140-dan çox xUnit testi: rezerv qaydaları, qiymət və endirimlər, deadlock retry, rəylər, wishlist,
+maşın icarəsi, taksi, uçuşlar (saat qurşağı, yer limiti, ləğv qaydası), analitika hesablamaları,
+profil səviyyəsi, avatarlar, məktub şablonları (HTML encode) və trip paketinin qaydaları.
+Servis testləri EF Core InMemory bazası ilə işləyir.
+
+**CI nədir, sizdə necə işləyir?**
+Continuous Integration: kod GitHub-a push olunanda **GitHub Actions** avtomatik olaraq solution-u
+build edir və bütün testləri işə salır (`.github/workflows/ci.yml`). Nəsə sınarsa, PR-da qırmızı
+görünür, yəni xətalı kod `master`-ə düşmür. README-dəki nişan son nəticəni göstərir.
+
+**Trip paketi necə işləyir? Biri alınmasa nə olur?**
+`TripPackageService` mövcud servisləri birləşdirir: əvvəlcə heç nə yaratmadan qiymətləri və yerləri
+yoxlayır, sonra ardıcıl olaraq otel → gediş uçuşu → dönüş uçuşu → taksi yaradır. Hansısa addım
+alınmasa, əvvəl yaradılan hissələr ləğv edilir (**saga / kompensasiya** yanaşması), beləcə yarımçıq
+paket qalmır. Endirim `TripPackageRules`-dadır: uçuş + otel 8%, dönüş uçuşu +2%, taksi +2%.
+Taksi uçuş enəndən 45 dəqiqə sonraya avtomatik təyin olunur.
+
+**Niyə hamısını bir tranzaksiyada etmədiniz?**
+Hər hissənin öz qaydaları və öz servisi var (məs. otel rezervi Serializable tranzaksiya ilə
+ayrıca yaradılır). Onları bir böyük tranzaksiyaya yığmaq servisləri bir-birinə bağlayardı.
+Kompensasiya real sistemlərdə (məs. ayrı-ayrı servislər, mikroservislər) istifadə olunan üsuldur.
+
+**PDF və e-poçt necə yaradılır?**
+PDF API-də **QuestPDF** ilə yaradılır, QR kodu **QRCoder** çəkir (skan edəndə rezerv açılır).
+Məktubun HTML-i `BookingEmailTemplates`-də qurulur və istifadəçi məlumatı **HtmlEncode** olunur
+(XSS olmasın, bunun testi var). Göndərmə `IEmailSender` interfeysi ilədir: SMTP verilibsə real
+göndərir, yoxdursa `.eml` faylı yazır. Hər məktub `EmailLog` cədvəlinə düşür və Admin → Emails-də
+görünür. Məktub alınmasa belə rezervasiya pozulmur.
+
+**Analitika necə hesablanır?**
+`AnalyticsService` API-də bütün xidmətlərin (otel, maşın, taksi, uçuş) sifarişlərini oxuyur,
+ləğv olunanları gəlirdən çıxır. Doluluq proqnozu = növbəti 30 gündə tutulmuş otaq-gecələr /
+(otaq sayı × 30). Hesablama düsturları `AnalyticsCalculator`-dadır və testlə yoxlanılır.
+MVC yalnız hazır nəticəni (DTO) alıb Chart.js ilə çəkir.
+
+**Xəritə necə işləyir?**
+Otellərin koordinatları bazadadır. MVC onları JSON kimi səhifəyə verir, **Leaflet** kitabxanası
+**OpenStreetMap** üzərində pin-ləri çəkir (pulsuzdur, API açarı lazım deyil). Koordinatsız otelə
+seed zamanı şəhər mərkəzi verilir.
+
+**Profil və avatar necə saxlanır?**
+`AppUser`-ə `AvatarKey` sahəsi əlavə olunub. API yalnız siyahıdakı avatarları qəbul edir
+(`AvatarCatalog.IsValid`), yoxsa 400 qaytarır. Profil yenilənəndə MVC cookie-ni yeni məlumatla
+yenidən yaradır, ona görə header-dəki ad və avatar dərhal dəyişir.
 
 **Git ilə necə işlədiniz?**
 Hər feature ayrıca branch-da (`feature/flights`, `feature/api-mvc`…), sonra pull request və
@@ -134,3 +179,8 @@ Hər feature ayrıca branch-da (`feature/flights`, `feature/api-mvc`…), sonra 
 | Double booking qorunması | `HotelTravel.Infrastructure/Services/BookingCreationService.cs` |
 | Biznes qaydaları | `HotelTravel.Application/Services/BookingRules.cs`, `FlightRules.cs` |
 | Bütün servislərin qeydiyyatı | `HotelTravel.Infrastructure/DependencyInjection.cs` |
+| Trip paketi (saga / kompensasiya) | `HotelTravel.Application/Services/TripPackageService.cs` |
+| PDF voucher (QuestPDF + QR) | `HotelTravel.Infrastructure/Services/QuestPdfVoucherService.cs` |
+| Məktublar (şablon + jurnal) | `HotelTravel.Application/Services/BookingEmailService.cs`, `BookingEmailTemplates.cs` |
+| Analitika | `HotelTravel.Application/Services/AnalyticsService.cs` |
+| CI (GitHub Actions) | `.github/workflows/ci.yml` |

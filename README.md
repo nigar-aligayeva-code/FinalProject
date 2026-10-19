@@ -1,8 +1,14 @@
 # Tripio — Hotel & Travel Reservation System
 
+[![CI](https://github.com/nigar-aligayeva-code/FinalProject/actions/workflows/ci.yml/badge.svg)](https://github.com/nigar-aligayeva-code/FinalProject/actions/workflows/ci.yml)
+![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4)
+![Tests](https://img.shields.io/badge/tests-140%2B-2ea44f)
+
 A full-stack booking platform built with **ASP.NET Core 8**: guests search and book hotel rooms,
-rent cars, book airport taxis and flights, explore city attractions and manage everything from
-one **My Bookings** page. Admins manage the whole catalogue from an admin panel.
+rent cars, book airport taxis and flights — or all of them together as a **trip package** — find
+hotels on a map, explore city attractions and manage everything from one **My Bookings** page. Guests get a
+confirmation email with a **PDF voucher**. Admins manage the catalogue and follow the business in an
+**analytics** dashboard.
 
 > **Architecture (Variant B):** ASP.NET Core **Web API** backend · ASP.NET Core **MVC** frontend ·
 > connected with **HttpClient** · **SQL Server** · documented with **Swagger**.
@@ -25,7 +31,7 @@ flowchart LR
     subgraph Backend
         API["HotelTravel.API<br/>REST API + Swagger<br/>JWT auth"]
         APP["HotelTravel.Application<br/>services, DTOs, business rules"]
-        INF["HotelTravel.Infrastructure<br/>EF Core, Identity, seeding"]
+        INF["HotelTravel.Infrastructure<br/>EF Core, Identity, seeding,<br/>PDF (QuestPDF), email (SMTP)"]
         DOM["HotelTravel.Domain<br/>entities, enums"]
     end
 
@@ -41,12 +47,12 @@ flowchart LR
 
 | Project | Responsibility |
 |---|---|
-| **HotelTravel.Domain** | Entities (`Hotel`, `Room`, `Booking`, `FlightRoute`, …) and enums. No dependencies. |
-| **HotelTravel.Application** | Business logic: services (`BookingService`, `FlightService`, …), interfaces, DTOs and pure rule classes (`BookingRules`, `PricingCalculator`, `FlightRules`, `TaxiRules`). |
-| **HotelTravel.Infrastructure** | EF Core `AppDbContext`, migrations, ASP.NET Identity, transactional booking creation, seeders. `AddHotelTravelInfrastructure()` registers everything. |
-| **HotelTravel.API** | REST endpoints (~95), JWT authentication, role-based authorization, global exception middleware, Swagger. **Owns the database.** |
+| **HotelTravel.Domain** | Entities (`Hotel`, `Room`, `Booking`, `FlightRoute`, `TripPackage`, `EmailLog`, …) and enums. No dependencies. |
+| **HotelTravel.Application** | Business logic: services (`BookingService`, `FlightService`, `TripPackageService`, `AnalyticsService`, …), interfaces, DTOs and pure rule classes (`BookingRules`, `PricingCalculator`, `FlightRules`, `TaxiRules`, `TripPackageRules`, `AnalyticsCalculator`). |
+| **HotelTravel.Infrastructure** | EF Core `AppDbContext`, migrations, ASP.NET Identity, transactional booking creation, seeders, PDF vouchers (QuestPDF + QR) and email delivery. `AddHotelTravelInfrastructure()` registers everything. |
+| **HotelTravel.API** | REST endpoints (~110), JWT authentication, role-based authorization, global exception middleware, Swagger. **Owns the database.** |
 | **HotelTravel.Web** | MVC frontend + admin area. **Has no database access**: every service interface is implemented by an HTTP client that calls the API. |
-| **HotelTravel.Tests** | 70 xUnit tests (rules + services with the EF Core InMemory provider). |
+| **HotelTravel.Tests** | 140+ xUnit tests (rules + services with the EF Core InMemory provider), run on every push by GitHub Actions. |
 
 ### How a request flows (example: search rooms)
 
@@ -120,12 +126,56 @@ sequenceDiagram
 * **Reviews & ratings** (only after a completed stay), **wishlist (Saved)**, **QR voucher**
 * One **My Bookings** page for rooms, cars, taxis and flights (upcoming / past & cancelled)
 
+**Added in the final phase**
+
+* **Trip packages** — flight(s) + hotel + airport taxi in one order with a bundle discount
+  (8% → 10% with a return flight → 12% with a taxi). Parts are created step by step; if one step
+  fails, the parts already created are cancelled (**saga / compensation**), so no half-booked trip remains.
+* **PDF voucher & confirmation emails** — A4 voucher with QR code (QuestPDF + QRCoder), emailed on
+  booking and cancellation. Without SMTP settings emails are saved as `.eml` files; every email is
+  logged and visible in **Admin → Emails**.
+* **Admin analytics** — revenue by service and month, revenue split, 30-day occupancy forecast,
+  cancellation rate, top cities, most booked rooms, guest ratings (Chart.js).
+* **Maps** — all hotels on an OpenStreetMap/Leaflet map; each hotel page shows its location,
+  the nearest airport, directions and a one-click airport taxi.
+* **User profile** — travel stats and traveler level, edit details, change password,
+  **12 illustrated avatars** (or initials).
+
+### Trip package flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant API as API (TripsController)
+    participant TPS as TripPackageService
+    participant H as BookingService
+    participant F as FlightService
+    participant T as TaxiService
+
+    User->>API: POST api/trips (flights, room, taxi, travelers)
+    API->>TPS: BookAsync(dto, userId from JWT)
+    TPS->>F: check flights are still available
+    TPS->>H: price quote for the room
+    TPS->>H: create hotel booking
+    TPS->>F: create outbound (+ return) flight
+    alt a step fails
+        TPS->>TPS: cancel the parts already created
+        TPS-->>API: 400 with the reason
+    else all parts created
+        TPS->>T: create airport taxi (pick-up = landing + 45 min)
+        TPS->>TPS: save TripPackage + bundle discount
+        API->>API: send confirmation email with PDF voucher
+        TPS-->>API: 200 { code: "TP-…" }
+    end
+```
+
 ---
 
 ## Tech stack
 
 ASP.NET Core 8 (Web API + MVC) · Entity Framework Core 8 · SQL Server · ASP.NET Core Identity ·
-JWT Bearer · Swagger (Swashbuckle) · xUnit · Bootstrap 5 · jQuery · flatpickr
+JWT Bearer · Swagger (Swashbuckle) · QuestPDF · QRCoder · System.Net.Mail · Chart.js ·
+Leaflet + OpenStreetMap · xUnit · GitHub Actions · Bootstrap 5 · jQuery · flatpickr
 
 ---
 
@@ -143,6 +193,10 @@ JWT Bearer · Swagger (Swashbuckle) · xUnit · Bootstrap 5 · jQuery · flatpic
    }
    ```
    (`appsettings.Development.json` already contains a development-only JWT key.)
+
+   *Optional — real emails:* add an `Email` section to the same secrets file
+   (`SmtpHost`, `SmtpPort`, `SmtpUser`, `SmtpPassword`, `From`). Without it, emails are written to
+   `HotelTravel.API/App_Data/Emails` as `.eml` files and shown in **Admin → Emails**.
 3. Create the database:
    ```
    Update-Database -Project HotelTravel.Infrastructure -StartupProject HotelTravel.API
@@ -167,11 +221,15 @@ The MVC app finds the API through `Api:BaseUrl` in `HotelTravel.Web/appsettings.
 
 ---
 
-## Tests
+## Tests & CI
 
 ```
 dotnet test
 ```
 
-70 tests cover booking rules, pricing and discounts, wishlist, reviews, city guide, car rental,
-airport taxis and flights (time zones, dynamic fares, seat limits, cancellation rules).
+140+ tests cover booking rules, pricing and discounts, wishlist, reviews, city guide, car rental,
+airport taxis, flights (time zones, dynamic fares, seat limits, cancellation rules), analytics,
+profile levels, avatars, email templates (including HTML encoding) and trip package rules.
+
+**GitHub Actions** (`.github/workflows/ci.yml`) restores, builds the whole solution and runs the
+tests on every push and pull request; the badge at the top shows the current status.

@@ -1,0 +1,42 @@
+# Hər push və pull request-də solution build olunur və testlər işə düşür.
+name: CI
+
+on:
+  push:
+    branches: [ master, "feature/**" ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & test
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # net8.0 layihələr + .slnx solution faylı (SDK 9 tanıyır)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Restore
+        run: dotnet restore HotelReservation.slnx
+
+      - name: Build
+        run: dotnet build HotelReservation.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test HotelTravel.Tests/HotelTravel.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/*.trx
