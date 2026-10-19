@@ -214,6 +214,14 @@
                 </a>
 
                 <a asp-area=""
+                   asp-controller="Trips"
+                   asp-action="Index"
+                   class="@(currentController == "Trips" ? "hh-tab active" : "hh-tab")">
+                    <i class="fa-solid fa-suitcase-rolling"></i>
+                    Packages
+                </a>
+
+                <a asp-area=""
                    asp-controller="Flights"
                    asp-action="Index"
                    class="@(currentController == "Flights" ? "hh-tab active" : "hh-tab")">
@@ -285,6 +293,7 @@
                         <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
                         <li><a asp-area="" asp-controller="Rooms" asp-action="Search">Search rooms</a></li>
                         <li><a asp-area="" asp-controller="Hotels" asp-action="Index">All hotels &amp; map</a></li>
+                        <li><a asp-area="" asp-controller="Trips" asp-action="Index">Trip packages</a></li>
                         <li><a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="destinations">Destinations</a></li>
                     </ul>
                 </div>

@@ -1,0 +1,406 @@
+@using System.Globalization
+@using HotelTravel.Domain.Enums
+@model HotelTravel.Web.ViewModels.TripsIndexViewModel
+
+@{
+    ViewData["Title"] = "Trip packages";
+
+    var s = Model.Search;
+    var plan = Model.Plan;
+    var inv = CultureInfo.InvariantCulture;
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var hasResults = plan != null && plan.Error == null;
+
+    string Price(decimal v) => v.ToString(inv);
+    string Money(decimal v) => v.ToString("N2", inv) + " AZN";
+    string Duration(int minutes) => $"{minutes / 60}h {minutes % 60:00}m";
+}
+
+<section class="tp-hero">
+    <div class="container">
+        <span class="tp-eyebrow"><i class="fa-solid fa-suitcase-rolling"></i> TRIP PACKAGES</span>
+        <h1>Flight + hotel + airport taxi, booked together</h1>
+        <p>
+            Save <b>@TripPackageBadge(8)</b> on flight + hotel, plus extra for a return flight and airport taxi —
+            up to <b>@TripPackageBadge(12)</b> off the whole trip.
+        </p>
+
+        <!-- AXTARIŞ -->
+        <form method="get" asp-action="Index" class="tp-search">
+            <div class="tp-field">
+                <label>From</label>
+                <select name="FromCity" required>
+                    <option value="">Choose city</option>
+                    @foreach (var city in Model.Origins)
+                    {
+                        <option value="@city" selected="@(string.Equals(city, s.FromCity, StringComparison.OrdinalIgnoreCase))">@city</option>
+                    }
+                </select>
+            </div>
+            <div class="tp-field">
+                <label>To</label>
+                <select name="ToCity" required>
+                    <option value="">Choose city</option>
+                    @foreach (var city in Model.Destinations)
+                    {
+                        <option value="@city" selected="@(string.Equals(city, s.ToCity, StringComparison.OrdinalIgnoreCase))">@city</option>
+                    }
+                </select>
+            </div>
+            <div class="tp-field">
+                <label>Depart</label>
+                <input type="date" name="DepartDate" value="@s.DepartDate?.ToString("yyyy-MM-dd")" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" required />
+            </div>
+            <div class="tp-field">
+                <label>Return</label>
+                <input type="date" name="ReturnDate" value="@s.ReturnDate?.ToString("yyyy-MM-dd")" min="@DateTime.Today.AddDays(2).ToString("yyyy-MM-dd")" required />
+            </div>
+            <div class="tp-field tp-small">
+                <label>Adults</label>
+                <input type="number" name="Adults" value="@s.Adults" min="1" max="6" />
+            </div>
+            <div class="tp-field tp-small">
+                <label>Children</label>
+                <input type="number" name="Children" value="@s.Children" min="0" max="5" />
+            </div>
+            <div class="tp-field tp-small">
+                <label>Cabin</label>
+                <select name="Cabin">
+                    <option value="Economy" selected="@(s.Cabin == CabinClass.Economy)">Economy</option>
+                    <option value="Business" selected="@(s.Cabin == CabinClass.Business)">Business</option>
+                </select>
+            </div>
+            <button type="submit" class="tp-search-btn"><i class="bi bi-search"></i> Find trip</button>
+        </form>
+    </div>
+</section>
+
+<div class="container tp-body">
+
+    @if (TempData["TripError"] is string tripError && !string.IsNullOrWhiteSpace(tripError))
+    {
+        <div class="tp-alert tp-alert-error"><i class="bi bi-exclamation-circle"></i> @tripError</div>
+    }
+
+    @if (plan?.Error != null)
+    {
+        <div class="tp-alert tp-alert-error"><i class="bi bi-exclamation-circle"></i> @plan.Error</div>
+    }
+
+    @if (hasResults)
+    {
+        <form asp-action="Book" method="post" id="tripForm" class="tp-layout">
+            <input type="hidden" name="FromCity" value="@s.FromCity" />
+            <input type="hidden" name="ToCity" value="@s.ToCity" />
+            <input type="hidden" name="DepartDate" value="@s.DepartDate?.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="ReturnDate" value="@s.ReturnDate?.ToString("yyyy-MM-dd")" />
+            <input type="hidden" name="Adults" value="@s.Adults" />
+            <input type="hidden" name="Children" value="@s.Children" />
+            <input type="hidden" name="Cabin" value="@s.Cabin" />
+
+            <div class="tp-steps">
+
+                <!-- 1. GEDİŞ -->
+                <section class="tp-step">
+                    <h2><span>1</span> Outbound flight · @s.FromCity → @s.ToCity · @s.DepartDate?.ToString("ddd, dd MMM")</h2>
+                    <div class="tp-options">
+                        @foreach (var f in plan!.OutboundFlights)
+                        {
+                            <label class="tp-option">
+                                <input type="radio" name="OutboundRouteId" value="@f.RouteId" data-price="@Price(f.Total)" required />
+                                <div class="tp-flight">
+                                    <div class="tp-flight-airline"><b>@f.Airline</b><small>@f.FlightNumber</small></div>
+                                    <div class="tp-flight-times">
+                                        <b>@f.Departure.ToString("HH:mm")</b> <small>@f.FromCode</small>
+                                        <span class="tp-line">@Duration(f.DurationMinutes)</span>
+                                        <b>@f.Arrival.ToString("HH:mm")@(f.ArrivesNextDay ? "+1" : "")</b> <small>@f.ToCode</small>
+                                    </div>
+                                    <div class="tp-price">@Money(f.Total)<small>@f.SeatsLeft seats left</small></div>
+                                </div>
+                            </label>
+                        }
+                    </div>
+                </section>
+
+                <!-- 2. DÖNÜŞ -->
+                <section class="tp-step">
+                    <h2><span>2</span> Return flight · @s.ToCity → @s.FromCity · @s.ReturnDate?.ToString("ddd, dd MMM")</h2>
+                    <div class="tp-options">
+                        @foreach (var f in plan.ReturnFlights)
+                        {
+                            <label class="tp-option">
+                                <input type="radio" name="ReturnRouteId" value="@f.RouteId" data-price="@Price(f.Total)" />
+                                <div class="tp-flight">
+                                    <div class="tp-flight-airline"><b>@f.Airline</b><small>@f.FlightNumber</small></div>
+                                    <div class="tp-flight-times">
+                                        <b>@f.Departure.ToString("HH:mm")</b> <small>@f.FromCode</small>
+                                        <span class="tp-line">@Duration(f.DurationMinutes)</span>
+                                        <b>@f.Arrival.ToString("HH:mm")@(f.ArrivesNextDay ? "+1" : "")</b> <small>@f.ToCode</small>
+                                    </div>
+                                    <div class="tp-price">@Money(f.Total)<small>+@plan.ReturnFlightBonus% package discount</small></div>
+                                </div>
+                            </label>
+                        }
+                        <label class="tp-option tp-option-plain">
+                            <input type="radio" name="ReturnRouteId" value="" data-price="0" checked="@(plan.ReturnFlights.Count == 0)" />
+                            <div>I'll arrange my own return @(plan.ReturnFlights.Count == 0 ? "(no return flights on this date)" : "")</div>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- 3. OTEL -->
+                <section class="tp-step">
+                    <h2><span>3</span> Hotel in @s.ToCity · @plan.Nights night@(plan.Nights == 1 ? "" : "s")</h2>
+                    <div class="tp-rooms">
+                        @foreach (var option in plan.Rooms)
+                        {
+                            var r = option.Room;
+                            <label class="tp-room">
+                                <input type="radio" name="RoomId" value="@r.Id" data-price="@Price(option.StayPrice)" required />
+                                <div class="tp-room-card">
+                                    <img src="@(string.IsNullOrWhiteSpace(r.MainImage) ? "/assets/images/hotels/hotelhub-room.jpg" : r.MainImage)" alt="" loading="lazy" />
+                                    <div class="tp-room-body">
+                                        <b>@r.Name</b>
+                                        <small>@r.HotelName · up to @r.Capacity guests</small>
+                                        @if (r.ReviewCount > 0)
+                                        {
+                                            <small><i class="bi bi-star-fill text-warning"></i> @r.AverageRating.ToString("0.0") (@r.ReviewCount)</small>
+                                        }
+                                        <div class="tp-price">@Money(option.StayPrice)<small>@r.PricePerNight.ToString("N0", inv) AZN / night</small></div>
+                                    </div>
+                                </div>
+                            </label>
+                        }
+                    </div>
+                </section>
+
+                <!-- 4. TAKSİ -->
+                @if (plan.Taxi != null)
+                {
+                    <section class="tp-step">
+                        <h2><span>4</span> Airport taxi</h2>
+                        <label class="tp-option tp-taxi">
+                            <input type="checkbox" name="IncludeTaxi" value="true" data-price="@Price(plan.Taxi.Price)" />
+                            <div class="tp-flight">
+                                <div class="tp-flight-airline"><b><i class="fa-solid fa-taxi"></i> @plan.Taxi.VehicleName car</b><small>Meets you after landing</small></div>
+                                <div class="tp-flight-times"><small>@plan.Taxi.AirportName → your hotel · @plan.Taxi.DistanceKm km</small></div>
+                                <div class="tp-price">@Money(plan.Taxi.Price)<small>+@plan.TaxiBonus% package discount</small></div>
+                            </div>
+                        </label>
+                    </section>
+                }
+
+                <!-- 5. SƏYAHƏTÇİLƏR -->
+                <section class="tp-step">
+                    <h2><span>@(plan.Taxi != null ? 5 : 4)</span> Travelers & contact</h2>
+
+                    @if (!isAuthenticated)
+                    {
+                        <div class="tp-signin">
+                            <i class="bi bi-person-lock"></i>
+                            <div>
+                                <b>Sign in to book a trip package</b>
+                                <small>Your flights, hotel and taxi will be saved together in My Bookings.</small>
+                            </div>
+                            <a asp-controller="Account" asp-action="Login"
+                               asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
+                               class="tp-btn">Sign in</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="tp-muted">Names exactly as in passports — they go on the flight tickets.</p>
+                        <div class="tp-grid">
+                            @for (var i = 0; i < s.Travelers; i++)
+                            {
+                                <div class="tp-input">
+                                    <label>Traveler @(i + 1)@(i >= s.Adults ? " (child)" : "")</label>
+                                    <input name="TravelerNames" required maxlength="100"
+                                           value="@(i == 0 ? $"{Model.FirstName} {Model.LastName}".Trim() : "")" />
+                                </div>
+                            }
+                        </div>
+
+                        <div class="tp-grid">
+                            <div class="tp-input"><label>First name</label><input name="FirstName" value="@Model.FirstName" required maxlength="50" /></div>
+                            <div class="tp-input"><label>Last name</label><input name="LastName" value="@Model.LastName" required maxlength="50" /></div>
+                            <div class="tp-input"><label>Email</label><input type="email" name="Email" value="@Model.Email" required maxlength="150" /></div>
+                            <div class="tp-input"><label>Phone</label><input type="tel" name="Phone" value="@Model.Phone" required maxlength="30" placeholder="+994 50 000 00 00" /></div>
+                        </div>
+                    }
+                </section>
+            </div>
+
+            <!-- XÜLASƏ -->
+            <aside class="tp-summary">
+                <h3>Your trip</h3>
+                <p class="tp-muted">@s.FromCity → @s.ToCity · @s.Travelers traveler@(s.Travelers == 1 ? "" : "s")</p>
+                <ul>
+                    <li><span>Flights</span><b id="sumFlights">—</b></li>
+                    <li><span>Hotel</span><b id="sumHotel">—</b></li>
+                    <li><span>Airport taxi</span><b id="sumTaxi">—</b></li>
+                    <li class="tp-sub"><span>Subtotal</span><b id="sumSubtotal">—</b></li>
+                    <li class="tp-save"><span>Package discount <em id="sumPercent">@plan.BaseDiscount%</em></span><b id="sumDiscount">—</b></li>
+                    <li class="tp-total"><span>Total</span><b id="sumTotal">—</b></li>
+                </ul>
+                <small class="tp-muted">Hotel price may include your member discount; the final amount is confirmed after booking.</small>
+
+                @if (isAuthenticated)
+                {
+                    <button type="submit" class="tp-btn tp-btn-block" id="bookBtn" disabled>Book trip package</button>
+                }
+            </aside>
+        </form>
+    }
+    else if (plan == null)
+    {
+        <div class="tp-how">
+            <div><i class="fa-solid fa-plane-departure"></i><b>Pick your flights</b><small>Outbound and (optionally) return.</small></div>
+            <div><i class="bi bi-building"></i><b>Choose a room</b><small>Only rooms free for your dates.</small></div>
+            <div><i class="fa-solid fa-taxi"></i><b>Add a taxi</b><small>Driver waits after landing.</small></div>
+            <div><i class="bi bi-percent"></i><b>Save up to 12%</b><small>One booking, one discount.</small></div>
+        </div>
+    }
+
+    @if (Model.MyTrips.Any())
+    {
+        <section class="tp-mine">
+            <h2>Your trip packages</h2>
+            <div class="tp-mine-grid">
+                @foreach (var trip in Model.MyTrips)
+                {
+                    <a asp-action="Details" asp-route-code="@trip.Code" class="tp-mine-card">
+                        <small>@trip.Code</small>
+                        <b>@trip.FromCity → @trip.ToCity</b>
+                        <span>@trip.DepartDate.ToString("dd MMM") – @trip.ReturnDate.ToString("dd MMM yyyy") · @trip.HotelName</span>
+                        <em>@Money(trip.Total) <s>@Money(trip.Subtotal)</s></em>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+</div>
+
+@functions {
+    private static string TripPackageBadge(int percent) => percent + "%";
+}
+
+@section Styles {
+    <style>
+        .tp-hero { background: #1F2421; color: #fff; padding: 56px 0 40px; }
+        .tp-eyebrow { color: #d5e5d1; font-size: 12px; letter-spacing: .14em; font-weight: 700; }
+        .tp-hero h1 { font-family: Georgia, serif; font-size: 38px; margin: 10px 0 8px; color: #fff; }
+        .tp-hero p { color: #cbd5c8; margin-bottom: 26px; }
+        .tp-search { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr .7fr .7fr .9fr auto; gap: 10px; background: #fff; padding: 12px; border-radius: 18px; }
+        .tp-field { display: flex; flex-direction: column; gap: 4px; }
+        .tp-field label { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .06em; }
+        .tp-field input, .tp-field select { border: 1px solid #e3ddd2; border-radius: 10px; padding: 9px 10px; font-size: 15px; background: #fcfbf8; color: #1F2421; width: 100%; }
+        .tp-search-btn { align-self: end; border: none; background: #52614e; color: #fff; font-weight: 700; border-radius: 12px; padding: 11px 20px; white-space: nowrap; }
+        .tp-body { padding: 34px 0 80px; }
+        .tp-alert { border-radius: 14px; padding: 14px 18px; margin-bottom: 20px; font-weight: 600; }
+        .tp-alert-error { background: #fdecea; color: #8a1f17; border: 1px solid #f5c2bd; }
+        .tp-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+        .tp-step { background: #fff; border-radius: 20px; padding: 22px; margin-bottom: 18px; border: 1px solid #eee7dc; }
+        .tp-step h2 { font-size: 18px; margin: 0 0 16px; color: #1F2421; display: flex; align-items: center; gap: 10px; }
+        .tp-step h2 span { width: 28px; height: 28px; border-radius: 50%; background: #1F2421; color: #fff; display: inline-grid; place-items: center; font-size: 14px; flex-shrink: 0; }
+        .tp-options { display: grid; gap: 10px; }
+        .tp-option { display: flex; gap: 14px; align-items: center; border: 2px solid #eee7dc; border-radius: 14px; padding: 12px 16px; cursor: pointer; }
+        .tp-option:has(input:checked) { border-color: #52614e; background: #f6f8f4; }
+        .tp-option input { accent-color: #52614e; width: 18px; height: 18px; flex-shrink: 0; }
+        .tp-option-plain { color: #4b5563; }
+        .tp-flight { flex: 1; display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 12px; align-items: center; }
+        .tp-flight-airline b, .tp-flight-airline small { display: block; }
+        .tp-flight-airline small, .tp-flight-times small { color: #6b7280; font-size: 12px; }
+        .tp-flight-times { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .tp-line { flex: 1; min-width: 60px; text-align: center; font-size: 11px; color: #6b7280; border-bottom: 1px dashed #cfc8bb; padding-bottom: 2px; }
+        .tp-price { text-align: right; font-weight: 800; color: #1F2421; }
+        .tp-price small { display: block; font-weight: 500; font-size: 11px; color: #6b7280; }
+        .tp-rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+        .tp-room { cursor: pointer; position: relative; }
+        .tp-room input { position: absolute; top: 12px; left: 12px; width: 20px; height: 20px; accent-color: #52614e; z-index: 1; }
+        .tp-room-card { border: 2px solid #eee7dc; border-radius: 16px; overflow: hidden; height: 100%; }
+        .tp-room:has(input:checked) .tp-room-card { border-color: #52614e; box-shadow: 0 0 0 3px rgba(82,97,78,.15); }
+        .tp-room-card img { width: 100%; height: 130px; object-fit: cover; display: block; }
+        .tp-room-body { padding: 12px 14px; display: grid; gap: 2px; }
+        .tp-room-body small { color: #6b7280; font-size: 12px; }
+        .tp-room-body .tp-price { text-align: left; margin-top: 6px; }
+        .tp-signin { display: flex; align-items: center; gap: 14px; background: #F3EEE5; border-radius: 14px; padding: 16px; }
+        .tp-signin i { font-size: 26px; color: #52614e; }
+        .tp-signin div { flex: 1; } .tp-signin b, .tp-signin small { display: block; } .tp-signin small { color: #6b7280; }
+        .tp-muted { color: #6b7280; font-size: 13px; }
+        .tp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+        .tp-input { display: flex; flex-direction: column; gap: 4px; }
+        .tp-input label { font-size: 13px; font-weight: 700; color: #374151; }
+        .tp-input input { border: 1px solid #e3ddd2; border-radius: 10px; padding: 10px 12px; background: #fcfbf8; }
+        .tp-summary { position: sticky; top: 20px; background: #fff; border-radius: 20px; padding: 22px; border: 1px solid #eee7dc; }
+        .tp-summary h3 { font-family: Georgia, serif; margin: 0 0 4px; }
+        .tp-summary ul { list-style: none; padding: 0; margin: 14px 0; }
+        .tp-summary li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1ede6; font-size: 14px; }
+        .tp-summary .tp-sub { border-top: 1px solid #e3ddd2; }
+        .tp-summary .tp-save { color: #2f6b2a; } .tp-save em { font-style: normal; background: #e6efe3; border-radius: 999px; padding: 1px 8px; font-size: 12px; margin-left: 4px; }
+        .tp-summary .tp-total { font-size: 18px; border-bottom: none; }
+        .tp-btn { display: inline-block; border: none; background: #1F2421; color: #fff; font-weight: 700; border-radius: 999px; padding: 12px 22px; text-decoration: none; text-align: center; }
+        .tp-btn:hover { background: #52614e; color: #fff; }
+        .tp-btn:disabled { opacity: .45; cursor: not-allowed; }
+        .tp-btn-block { width: 100%; margin-top: 14px; }
+        .tp-how { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+        .tp-how div { background: #fff; border-radius: 18px; padding: 20px; border: 1px solid #eee7dc; display: grid; gap: 4px; }
+        .tp-how i { font-size: 24px; color: #52614e; margin-bottom: 6px; }
+        .tp-how small { color: #6b7280; }
+        .tp-mine { margin-top: 36px; }
+        .tp-mine h2 { font-family: Georgia, serif; font-size: 24px; }
+        .tp-mine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+        .tp-mine-card { background: #fff; border-radius: 16px; padding: 18px; border: 1px solid #eee7dc; text-decoration: none; color: #1F2421; display: grid; gap: 4px; }
+        .tp-mine-card:hover { border-color: #52614e; }
+        .tp-mine-card small { color: #52614e; font-weight: 700; letter-spacing: .06em; }
+        .tp-mine-card span { color: #6b7280; font-size: 13px; }
+        .tp-mine-card em { font-style: normal; font-weight: 800; } .tp-mine-card s { color: #9ca3af; font-weight: 400; font-size: 13px; margin-left: 6px; }
+        @@media (max-width: 1100px) { .tp-search { grid-template-columns: 1fr 1fr 1fr 1fr; } .tp-layout { grid-template-columns: 1fr; } .tp-summary { position: static; } }
+        @@media (max-width: 700px) { .tp-search, .tp-grid, .tp-how { grid-template-columns: 1fr 1fr; } .tp-flight { grid-template-columns: 1fr; } .tp-price { text-align: left; } }
+    </style>
+}
+
+@section Scripts {
+    @if (hasResults)
+    {
+        <script>
+            (function () {
+                const form = document.getElementById('tripForm');
+                const base = @(plan!.BaseDiscount), returnBonus = @(plan.ReturnFlightBonus), taxiBonus = @(plan.TaxiBonus);
+                const fmt = v => v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' AZN';
+                const priceOf = el => el ? parseFloat(el.dataset.price || '0') : 0;
+                const set = (id, text) => document.getElementById(id).textContent = text;
+
+                function update() {
+                    const out = form.querySelector('input[name="OutboundRouteId"]:checked');
+                    const back = form.querySelector('input[name="ReturnRouteId"]:checked');
+                    const room = form.querySelector('input[name="RoomId"]:checked');
+                    const taxi = form.querySelector('input[name="IncludeTaxi"]');
+                    const hasReturn = !!(back && back.value);
+                    const hasTaxi = !!(taxi && taxi.checked);
+
+                    const flights = priceOf(out) + (hasReturn ? priceOf(back) : 0);
+                    const hotel = priceOf(room);
+                    const taxiPrice = hasTaxi ? priceOf(taxi) : 0;
+                    const subtotal = flights + hotel + taxiPrice;
+                    const percent = base + (hasReturn ? returnBonus : 0) + (hasTaxi ? taxiBonus : 0);
+                    const discount = Math.round(subtotal * percent) / 100;
+
+                    set('sumFlights', out ? fmt(flights) : '—');
+                    set('sumHotel', room ? fmt(hotel) : '—');
+                    set('sumTaxi', hasTaxi ? fmt(taxiPrice) : 'Not added');
+                    set('sumSubtotal', fmt(subtotal));
+                    set('sumPercent', percent + '%');
+                    set('sumDiscount', '-' + fmt(discount));
+                    set('sumTotal', fmt(subtotal - discount));
+
+                    const btn = document.getElementById('bookBtn');
+                    if (btn) btn.disabled = !(out && room);
+                }
+
+                form.addEventListener('change', update);
+                update();
+            })();
+        </script>
+    }
+}

@@ -1,0 +1,146 @@
+@using System.Globalization
+@model HotelTravel.Application.DTOs.Trips.TripPackageDto
+
+@{
+    ViewData["Title"] = $"Trip {Model.Code}";
+
+    var inv = CultureInfo.InvariantCulture;
+    string Money(decimal v) => v.ToString("N2", inv) + " AZN";
+}
+
+<section class="td-page">
+    <div class="container">
+
+        @if (TempData["TripSuccess"] is string ok)
+        {
+            <div class="td-alert"><i class="bi bi-check-circle-fill"></i> @ok A confirmation email with the hotel voucher is on its way.</div>
+        }
+
+        <div class="td-head">
+            <div>
+                <span class="td-eyebrow"><i class="fa-solid fa-suitcase-rolling"></i> TRIP PACKAGE · @Model.Code</span>
+                <h1>@Model.FromCity → @Model.ToCity</h1>
+                <p>@Model.DepartDate.ToString("ddd, dd MMM") – @Model.ReturnDate.ToString("ddd, dd MMM yyyy") · @Model.Nights night@(Model.Nights == 1 ? "" : "s") · @Model.Travelers traveler@(Model.Travelers == 1 ? "" : "s")</p>
+            </div>
+            <a asp-action="Index" class="td-btn td-btn-light"><i class="bi bi-arrow-left"></i> All trips</a>
+        </div>
+
+        <div class="td-grid">
+            <div class="td-parts">
+
+                <!-- GEDİŞ -->
+                @if (Model.OutboundFlight is { } outFlight)
+                {
+                    <div class="td-part">
+                        <div class="td-icon"><i class="fa-solid fa-plane-departure"></i></div>
+                        <div class="td-info">
+                            <small>Outbound flight · @outFlight.ConfirmationCode · @outFlight.Status</small>
+                            <b>@outFlight.Airline @outFlight.FlightNumber · @outFlight.FromCode → @outFlight.ToCode</b>
+                            <span>@outFlight.DepartureTime.ToString("ddd dd MMM, HH:mm") → @outFlight.ArrivalTime.ToString("HH:mm") · @outFlight.Cabin</span>
+                        </div>
+                        <a asp-controller="Flights" asp-action="Confirmation" asp-route-confirmationCode="@outFlight.ConfirmationCode" class="td-link">Details</a>
+                    </div>
+                }
+
+                <!-- OTEL -->
+                @if (Model.Hotel is { } hotel)
+                {
+                    <div class="td-part">
+                        <div class="td-icon"><i class="bi bi-building"></i></div>
+                        <div class="td-info">
+                            <small>Hotel · @hotel.ConfirmationCode · @hotel.Status</small>
+                            <b>@hotel.HotelName · @hotel.RoomName</b>
+                            <span>Check-in @hotel.CheckInDate.ToString("dd MMM") from 14:00 · check-out @hotel.CheckOutDate.ToString("dd MMM") until 12:00</span>
+                        </div>
+                        <a asp-controller="Bookings" asp-action="VoucherPdf" asp-route-confirmationCode="@hotel.ConfirmationCode" class="td-link">
+                            <i class="bi bi-file-earmark-pdf"></i> Voucher
+                        </a>
+                    </div>
+                }
+
+                <!-- TAKSİ -->
+                @if (Model.Taxi is { } taxi)
+                {
+                    <div class="td-part">
+                        <div class="td-icon"><i class="fa-solid fa-taxi"></i></div>
+                        <div class="td-info">
+                            <small>Airport taxi · @taxi.ConfirmationCode · @taxi.Status</small>
+                            <b>@taxi.VehicleType car · @taxi.AirportCode → @taxi.HotelName</b>
+                            <span>Pick-up @taxi.PickupTime.ToString("ddd dd MMM, HH:mm") · driver tracks flight @taxi.FlightNumber</span>
+                        </div>
+                        <a asp-controller="Taxis" asp-action="Confirmation" asp-route-confirmationCode="@taxi.ConfirmationCode" class="td-link">Details</a>
+                    </div>
+                }
+
+                <!-- DÖNÜŞ -->
+                @if (Model.ReturnFlight is { } backFlight)
+                {
+                    <div class="td-part">
+                        <div class="td-icon"><i class="fa-solid fa-plane-arrival"></i></div>
+                        <div class="td-info">
+                            <small>Return flight · @backFlight.ConfirmationCode · @backFlight.Status</small>
+                            <b>@backFlight.Airline @backFlight.FlightNumber · @backFlight.FromCode → @backFlight.ToCode</b>
+                            <span>@backFlight.DepartureTime.ToString("ddd dd MMM, HH:mm") → @backFlight.ArrivalTime.ToString("HH:mm") · @backFlight.Cabin</span>
+                        </div>
+                        <a asp-controller="Flights" asp-action="Confirmation" asp-route-confirmationCode="@backFlight.ConfirmationCode" class="td-link">Details</a>
+                    </div>
+                }
+
+                <p class="td-note">
+                    <i class="bi bi-info-circle"></i>
+                    Each part also appears in <a asp-controller="Bookings" asp-action="MyBookings">My Bookings</a>,
+                    where you can manage or cancel it separately.
+                </p>
+            </div>
+
+            <aside class="td-price">
+                <h3>Price</h3>
+                <ul>
+                    <li><span>Flights</span><b>@Money(Model.FlightsPrice)</b></li>
+                    <li><span>Hotel</span><b>@Money(Model.HotelPrice)</b></li>
+                    @if (Model.TaxiPrice > 0)
+                    {
+                        <li><span>Airport taxi</span><b>@Money(Model.TaxiPrice)</b></li>
+                    }
+                    <li class="td-sub"><span>Subtotal</span><b>@Money(Model.Subtotal)</b></li>
+                    <li class="td-save"><span>Package discount (@Model.DiscountPercent%)</span><b>-@Money(Model.DiscountAmount)</b></li>
+                    <li class="td-total"><span>Total</span><b>@Money(Model.Total)</b></li>
+                </ul>
+                <small>Booked @Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</small>
+            </aside>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        .td-page { background: #F3EEE5; min-height: 100vh; padding: 50px 0 90px; }
+        .td-alert { background: #e6efe3; color: #2f4a2b; border: 1px solid #c9dcc4; border-radius: 14px; padding: 14px 18px; margin-bottom: 22px; font-weight: 600; }
+        .td-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 26px; }
+        .td-eyebrow { color: #52614e; font-size: 12px; letter-spacing: .12em; font-weight: 700; }
+        .td-head h1 { font-family: Georgia, serif; font-size: 36px; margin: 6px 0 4px; color: #1F2421; }
+        .td-head p { color: #6b7280; margin: 0; }
+        .td-grid { display: grid; grid-template-columns: 1fr 340px; gap: 22px; align-items: start; }
+        .td-parts { display: grid; gap: 14px; }
+        .td-part { display: flex; align-items: center; gap: 16px; background: #fff; border-radius: 18px; padding: 18px 20px; border-left: 4px solid #52614e; }
+        .td-icon { width: 46px; height: 46px; border-radius: 12px; background: #F3EEE5; display: grid; place-items: center; color: #52614e; font-size: 20px; flex-shrink: 0; }
+        .td-info { flex: 1; display: grid; gap: 2px; }
+        .td-info small { color: #52614e; font-weight: 700; font-size: 12px; letter-spacing: .04em; }
+        .td-info b { color: #1F2421; }
+        .td-info span { color: #6b7280; font-size: 13px; }
+        .td-link { color: #1F2421; font-weight: 700; text-decoration: none; border: 1px solid #e3ddd2; border-radius: 999px; padding: 7px 14px; white-space: nowrap; }
+        .td-link:hover { border-color: #52614e; color: #52614e; }
+        .td-note { color: #6b7280; font-size: 13px; }
+        .td-price { background: #fff; border-radius: 20px; padding: 22px; }
+        .td-price h3 { font-family: Georgia, serif; margin: 0; }
+        .td-price ul { list-style: none; padding: 0; margin: 14px 0; }
+        .td-price li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1ede6; font-size: 14px; }
+        .td-price .td-sub { border-top: 1px solid #e3ddd2; }
+        .td-price .td-save { color: #2f6b2a; }
+        .td-price .td-total { font-size: 19px; border-bottom: none; }
+        .td-price small { color: #6b7280; }
+        .td-btn { border-radius: 999px; padding: 10px 18px; font-weight: 700; text-decoration: none; }
+        .td-btn-light { background: #fff; color: #1F2421; border: 1px solid #e3ddd2; }
+        @@media (max-width: 900px) { .td-grid { grid-template-columns: 1fr; } .td-part { flex-wrap: wrap; } }
+    </style>
+}

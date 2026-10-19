@@ -61,6 +61,9 @@ public static class DependencyInjection
         services.AddScoped<IBookingEmailService, BookingEmailService>();
         services.AddScoped<IEmailLogService, EmailLogService>();
 
+        // TRIP PACKAGE
+        services.AddScoped<ITripPackageService, TripPackageService>();
+
         return services;
     }
 
