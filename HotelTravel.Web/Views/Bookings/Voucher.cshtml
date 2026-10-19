@@ -293,8 +293,12 @@
             <i class="bi bi-arrow-left"></i> Back to booking
         </a>
 
+        <a href="@Url.Action("VoucherPdf", "Bookings", new { confirmationCode = Model.ConfirmationCode })" class="btn">
+            <i class="bi bi-file-earmark-pdf"></i> Download PDF
+        </a>
+
         <button type="button" class="btn btn-primary" onclick="window.print()">
-            <i class="bi bi-printer"></i> Print / Save as PDF
+            <i class="bi bi-printer"></i> Print
         </button>
     </div>
 

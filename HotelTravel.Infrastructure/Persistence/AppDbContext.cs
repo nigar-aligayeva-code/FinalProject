@@ -47,6 +47,8 @@ public class AppDbContext
 
     public DbSet<FlightBooking> FlightBookings { get; set; }
 
+    public DbSet<EmailLog> EmailLogs { get; set; }
+
     public async Task<IDbContextTransaction> BeginTransactionAsync(
         CancellationToken cancellationToken = default)
     {
@@ -58,6 +60,17 @@ public class AppDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // EMAIL LOG
+        modelBuilder.Entity<EmailLog>(entity =>
+        {
+            entity.Property(e => e.To).HasMaxLength(256);
+            entity.Property(e => e.Subject).HasMaxLength(300);
+            entity.Property(e => e.Type).HasMaxLength(50);
+            entity.Property(e => e.ReferenceCode).HasMaxLength(50);
+            entity.Property(e => e.Error).HasMaxLength(500);
+            entity.HasIndex(e => e.CreatedAt);
+        });
 
 
         // HOTEL CHAIN -> HOTELS

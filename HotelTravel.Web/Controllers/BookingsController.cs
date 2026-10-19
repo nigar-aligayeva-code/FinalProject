@@ -5,6 +5,7 @@ using HotelTravel.Domain.Enums;
 using HotelTravel.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using HotelTravel.Web.Services;
+using HotelTravel.Web.Services.Api;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -16,17 +17,20 @@ public class BookingsController : Controller
     private readonly IRoomService _roomService;
     private readonly CurrentUserAccessor _currentUser;
     private readonly ICarRentalService _carRentalService;
+    private readonly IVoucherApiClient _voucherApi;
 
     public BookingsController(
         IBookingService bookingService,
         IRoomService roomService,
         CurrentUserAccessor currentUser,
-        ICarRentalService carRentalService)
+        ICarRentalService carRentalService,
+        IVoucherApiClient voucherApi)
     {
         _bookingService = bookingService;
         _roomService = roomService;
         _currentUser = currentUser;
         _carRentalService = carRentalService;
+        _voucherApi = voucherApi;
     }
 
 
@@ -458,6 +462,45 @@ public class BookingsController : Controller
 
 
     // =========================
+    // VOUCHER PDF (API-də yaradılır)
+    // =========================
+    [HttpGet]
+    public async Task<IActionResult> VoucherPdf(string confirmationCode)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationCode))
+            return RedirectToAction(nameof(Find));
+
+        var pdf = await _voucherApi.GetPdfAsync(confirmationCode);
+
+        if (pdf is null)
+            return NotFound();
+
+        return File(pdf, "application/pdf", $"Tripio-{confirmationCode.Trim().ToUpperInvariant()}.pdf");
+    }
+
+
+    // =========================
+    // TƏSDİQ MƏKTUBUNU YENİDƏN GÖNDƏR
+    // =========================
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendVoucherEmail(string confirmationCode, string? returnUrl = null)
+    {
+        if (string.IsNullOrWhiteSpace(confirmationCode))
+            return RedirectToAction(nameof(Find));
+
+        var result = await _voucherApi.SendEmailAsync(confirmationCode);
+
+        TempData[result.Success ? "VoucherEmailSuccess" : "VoucherEmailError"] = result.Message;
+
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return LocalRedirect(returnUrl);
+
+        return RedirectToAction(nameof(Confirmation), new { confirmationCode });
+    }
+
+
+    // =========================
     // PRICE PREVIEW (AJAX)
     // Promo kod və Explorer reward-u formda göstərmək üçün
     // =========================
@@ -545,4 +588,4 @@ public class BookingsController : Controller
                 "DisplayName",
                 selectedRoomId);
     }
-}
+}

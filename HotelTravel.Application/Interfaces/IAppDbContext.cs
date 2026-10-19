@@ -38,6 +38,8 @@ public interface IAppDbContext
 
     DbSet<FlightBooking> FlightBookings { get; set; }
 
+    DbSet<EmailLog> EmailLogs { get; set; }
+
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);
 

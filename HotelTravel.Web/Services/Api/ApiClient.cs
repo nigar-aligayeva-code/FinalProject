@@ -47,6 +47,19 @@ public class ApiClient
         return await response.Content.ReadFromJsonAsync<T>(JsonOptions);
     }
 
+    // Fayl (məs. PDF); tapılmasa null
+    public async Task<byte[]?> GetBytesOrNullAsync(string url)
+    {
+        using var response = await SendRawAsync(HttpMethod.Get, url, null);
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return null;
+
+        await EnsureSuccessAsync(response);
+
+        return await response.Content.ReadAsByteArrayAsync();
+    }
+
     // =========================
     // POST / PUT / DELETE -> ApiResultDto
     // =========================
