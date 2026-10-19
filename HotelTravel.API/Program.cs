@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using HotelTravel.API.Middleware;
+using HotelTravel.Application.Options;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Infrastructure;
 using HotelTravel.Infrastructure.Persistence;
@@ -41,6 +42,14 @@ namespace HotelTravel.API
 
             builder.Services.AddHotelTravelInfrastructure(
                 builder.Configuration.GetConnectionString("DefaultConnection")!);
+
+            // EMAIL: "Email" bölməsi yoxdursa məktublar App_Data/Emails qovluğuna .eml kimi yazılır
+            var emailOptions = builder.Configuration.GetSection("Email").Get<EmailOptions>() ?? new EmailOptions();
+
+            if (string.IsNullOrWhiteSpace(emailOptions.PickupDirectory))
+                emailOptions.PickupDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Emails");
+
+            builder.Services.AddSingleton(emailOptions);
 
             // =========================================
             // IDENTITY (istifadəçilər və rollar)

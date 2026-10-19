@@ -1,0 +1,121 @@
+@using HotelTravel.Application.DTOs.Email
+@model List<EmailLogDto>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Emails";
+
+    var selected = ViewBag.Selected as EmailLogDto;
+
+    string TypeLabel(string type) => type switch
+    {
+        "BookingConfirmation" => "Confirmation",
+        "BookingCancellation" => "Cancellation",
+        _ => type
+    };
+}
+
+<style>
+    .em-head { margin-bottom: 22px; }
+    .em-head h1 { margin: 0 0 6px; font-size: 28px; color: #0f172a; }
+    .em-head p { margin: 0; color: #64748b; }
+    .em-grid { display: grid; grid-template-columns: 380px 1fr; gap: 18px; align-items: start; }
+    .em-card { background: #fff; border: 1px solid #edf2f7; border-radius: 16px; box-shadow: 0 5px 25px rgba(30,41,59,.04); overflow: hidden; }
+    .em-list { max-height: 720px; overflow-y: auto; }
+    .em-item { display: block; padding: 14px 18px; border-bottom: 1px solid #f1f5f9; text-decoration: none; color: inherit; }
+    .em-item:hover { background: #f8fafc; }
+    .em-item.active { background: #eff6ff; border-left: 3px solid #2563eb; }
+    .em-item .top { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: #94a3b8; }
+    .em-item .subject { font-weight: 600; color: #0f172a; margin: 4px 0 2px; font-size: 14px; }
+    .em-item .to { color: #64748b; font-size: 13px; }
+    .em-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .em-badge.ok { background: #dcfce7; color: #166534; }
+    .em-badge.fail { background: #fee2e2; color: #991b1b; }
+    .em-badge.type { background: #f1f5f9; color: #334155; }
+    .em-preview-head { padding: 18px 22px; border-bottom: 1px solid #f1f5f9; }
+    .em-preview-head h3 { margin: 0 0 6px; font-size: 18px; color: #0f172a; }
+    .em-meta { display: flex; flex-wrap: wrap; gap: 14px; color: #64748b; font-size: 13px; }
+    .em-frame { width: 100%; height: 640px; border: 0; background: #F3EEE5; display: block; }
+    .em-error { margin: 12px 22px 0; padding: 10px 14px; border-radius: 10px; background: #fef2f2; color: #991b1b; font-size: 13px; }
+    .em-empty { padding: 40px; text-align: center; color: #94a3b8; }
+    .em-tip { margin-top: 16px; color: #64748b; font-size: 13px; }
+    @@media (max-width: 1000px) { .em-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="em-head">
+    <h1>Emails</h1>
+    <p>Booking confirmations and cancellations sent to guests (with the PDF voucher attached).</p>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="em-card em-empty">
+        No emails yet. Make a booking on the site and the confirmation will appear here.
+    </div>
+}
+else
+{
+    <div class="em-grid">
+        <div class="em-card em-list">
+            @foreach (var email in Model)
+            {
+                <a class="em-item @(selected?.Id == email.Id ? "active" : "")"
+                   asp-action="Index"
+                   asp-route-id="@email.Id">
+                    <div class="top">
+                        <span>@email.SentAt.ToString("dd MMM, HH:mm")</span>
+                        <span>
+                            <span class="em-badge type">@TypeLabel(email.Type)</span>
+                            <span class="em-badge @(email.Delivered ? "ok" : "fail")">@(email.Delivered ? "Sent" : "Failed")</span>
+                        </span>
+                    </div>
+                    <div class="subject">@email.Subject</div>
+                    <div class="to">
+                        To: @email.To
+                        @if (email.HasAttachment)
+                        {
+                            <i class="bi bi-paperclip" title="PDF attached"></i>
+                        }
+                    </div>
+                </a>
+            }
+        </div>
+
+        <div class="em-card">
+            @if (selected != null)
+            {
+                <div class="em-preview-head">
+                    <h3>@selected.Subject</h3>
+                    <div class="em-meta">
+                        <span><b>To:</b> @selected.To</span>
+                        <span><b>Sent:</b> @selected.SentAt.ToString("dd MMM yyyy, HH:mm")</span>
+                        @if (!string.IsNullOrWhiteSpace(selected.ReferenceCode))
+                        {
+                            <span>
+                                <b>Booking:</b> @selected.ReferenceCode ·
+                                <a asp-area="" asp-controller="Bookings" asp-action="VoucherPdf"
+                                   asp-route-confirmationCode="@selected.ReferenceCode">
+                                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                                </a>
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(selected.Error))
+                {
+                    <div class="em-error"><i class="bi bi-exclamation-triangle"></i> @selected.Error</div>
+                }
+
+                <!-- Məktub ayrıca, skriptsiz "sandbox" çərçivədə göstərilir -->
+                <iframe class="em-frame" sandbox="" srcdoc="@selected.HtmlBody" title="Email preview"></iframe>
+            }
+        </div>
+    </div>
+
+    <p class="em-tip">
+        <i class="bi bi-info-circle"></i>
+        Without SMTP settings, emails are also saved as <code>.eml</code> files in <code>HotelTravel.API/App_Data/Emails</code>
+        (open them with Outlook or Windows Mail to see the PDF attachment).
+    </p>
+}

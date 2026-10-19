@@ -11,10 +11,17 @@ namespace HotelTravel.API.Controllers;
 public class BookingsController : ApiControllerBase
 {
     private readonly IBookingService _bookingService;
+    private readonly IBookingEmailService _bookingEmails;
+    private readonly IVoucherPdfService _voucherPdf;
 
-    public BookingsController(IBookingService bookingService)
+    public BookingsController(
+        IBookingService bookingService,
+        IBookingEmailService bookingEmails,
+        IVoucherPdfService voucherPdf)
     {
         _bookingService = bookingService;
+        _bookingEmails = bookingEmails;
+        _voucherPdf = voucherPdf;
     }
 
     // =========================
@@ -29,6 +36,10 @@ public class BookingsController : ApiControllerBase
     public async Task<IActionResult> Create([FromBody] CreateBookingDto dto)
     {
         var result = await _bookingService.CreateAsync(dto, CurrentUserId);
+
+        // Təsdiq məktubu + PDF (alınmasa rezervasiya yenə uğurludur, EmailLog-da görünür)
+        if (result.Success && !string.IsNullOrWhiteSpace(result.ConfirmationCode))
+            await _bookingEmails.SendConfirmationAsync(result.ConfirmationCode);
 
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message, code: result.ConfirmationCode)
@@ -57,12 +68,46 @@ public class BookingsController : ApiControllerBase
             await _bookingService.GetByConfirmationCodeAsync(confirmationCode),
             "Booking not found.");
 
+    // GET: api/bookings/by-code/BK-1234ABCD/voucher.pdf
+    [HttpGet("by-code/{confirmationCode}/voucher.pdf")]
+    [AllowAnonymous]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(typeof(ApiResultDto), 404)]
+    public async Task<IActionResult> VoucherPdf(string confirmationCode)
+    {
+        var booking = await _bookingService.GetByConfirmationCodeAsync(confirmationCode);
+
+        if (booking == null)
+            return NotFound(ApiResultDto.Fail("Booking not found."));
+
+        var pdf = _voucherPdf.Create(booking, _bookingEmails.GetBookingUrl(booking.ConfirmationCode));
+
+        return File(pdf, "application/pdf", $"Tripio-{booking.ConfirmationCode}.pdf");
+    }
+
+    // POST: api/bookings/by-code/BK-1234ABCD/send-email  (məktub yalnız rezervasiyanın öz email-inə gedir)
+    [HttpPost("by-code/{confirmationCode}/send-email")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResultDto), 200)]
+    [ProducesResponseType(typeof(ApiResultDto), 400)]
+    public async Task<IActionResult> SendEmail(string confirmationCode)
+    {
+        var result = await _bookingEmails.SendConfirmationAsync(confirmationCode);
+
+        return FromResult(result.Success
+            ? ApiResultDto.Ok(result.Message)
+            : ApiResultDto.Fail(result.Message));
+    }
+
     // POST: api/bookings/cancel  (kod + email ilə)
     [HttpPost("cancel")]
     [AllowAnonymous]
     public async Task<IActionResult> CancelByGuest([FromBody] CancelBookingDto dto)
     {
         var result = await _bookingService.CancelByGuestAsync(dto.ConfirmationCode, dto.Email);
+
+        if (result.Success)
+            await _bookingEmails.SendCancellationAsync(dto.ConfirmationCode);
 
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message)
@@ -98,6 +143,14 @@ public class BookingsController : ApiControllerBase
     public async Task<IActionResult> CancelMine(int id)
     {
         var result = await _bookingService.CancelByUserAsync(id, CurrentUserId!);
+
+        if (result.Success)
+        {
+            var booking = await _bookingService.GetByIdAsync(id);
+
+            if (booking != null)
+                await _bookingEmails.SendCancellationAsync(booking.ConfirmationCode);
+        }
 
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message)

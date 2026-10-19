@@ -55,6 +55,12 @@ public static class DependencyInjection
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IProfileService, ProfileService>();
 
+        // EMAIL + PDF
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddSingleton<IVoucherPdfService, QuestPdfVoucherService>();
+        services.AddScoped<IBookingEmailService, BookingEmailService>();
+        services.AddScoped<IEmailLogService, EmailLogService>();
+
         return services;
     }
 
