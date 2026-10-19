@@ -19,5 +19,8 @@ public class AuthResponseDto
 
     public string? PhoneNumber { get; set; }
 
+    // Seçilmiş avatar (null -> baş hərflər)
+    public string? AvatarKey { get; set; }
+
     public List<string> Roles { get; set; } = new();
 }

@@ -7,6 +7,9 @@ public static class AuthClaimTypes
 {
     // Cookie-də saxlanan JWT token
     public const string AccessToken = "api_access_token";
+
+    // Seçilmiş avatar açarı (məs. "beard")
+    public const string Avatar = "avatar_key";
 }
 
 // Daxil olmuş istifadəçinin məlumatı cookie-dəki claim-lərdən oxunur

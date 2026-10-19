@@ -170,6 +170,10 @@ namespace HotelTravel.Web.Controllers
             ViewBag.FeaturedRooms =
                 await _roomService.GetFeaturedRoomsAsync(4);
 
+            // Ana səhifədəki xəritə üçün
+            ViewBag.MapHotels =
+                await _hotelService.GetAllAsync();
+
             // "Nigar, where to next?" salamlaşması üçün
             var user = await _currentUser.GetUserAsync(User);
 

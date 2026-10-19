@@ -12,6 +12,12 @@
     {
         sliderImages.Add(Model.MainImage);
     }
+
+    // Xəritə: koordinat (nöqtə ilə, region formatından asılı olmasın) və hava limanı
+    var hasMap = Model.Latitude != 0 || Model.Longitude != 0;
+    var latText = Model.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    var lngText = Model.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    var airport = HotelTravel.Application.Services.TaxiRules.GetAirport(Model.City);
 }
 
 <section class="hotel-details-page">
@@ -260,6 +266,67 @@
             </div>
 
         </div>
+
+
+        @if (hasMap)
+        {
+            <!-- =========================
+                 LOCATION MAP
+            ========================== -->
+            <div class="hotel-location-block">
+
+                <div class="hotel-location-info">
+                    <span class="section-eyebrow">
+                        <i class="bi bi-geo-alt"></i>
+                        WHERE YOU'LL STAY
+                    </span>
+
+                    <h2>Location</h2>
+
+                    <p class="loc-address">@Model.Address<br />@Model.City, @Model.Country</p>
+
+                    @if (airport != null)
+                    {
+                        <div class="loc-airport">
+                            <i class="bi bi-airplane"></i>
+                            <div>
+                                <strong>@airport.Name (@airport.Code)</strong>
+                                <span>
+                                    @airport.DistanceKm km ·
+                                    about @HotelTravel.Application.Services.TaxiRules.EstimateMinutes(airport.DistanceKm) min by car
+                                </span>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="loc-actions">
+                        <a class="loc-btn loc-btn-dark"
+                           target="_blank"
+                           rel="noopener"
+                           href="https://www.google.com/maps/dir/?api=1&destination=@latText,@lngText">
+                            <i class="bi bi-signpost-split"></i> Get directions
+                        </a>
+
+                        @if (airport != null)
+                        {
+                            <a class="loc-btn loc-btn-light"
+                               asp-controller="Taxis"
+                               asp-action="Index"
+                               asp-route-hotelId="@Model.Id">
+                                <i class="bi bi-car-front"></i> Book airport taxi
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <div id="hotelMap"
+                     class="hotel-map"
+                     data-lat="@latText"
+                     data-lng="@lngText"
+                     data-name="@Model.Name"></div>
+
+            </div>
+        }
 
     </div>
 
@@ -1435,3 +1502,60 @@
     });
 
 </script>
+
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <style>
+        .hotel-location-block { display: grid; grid-template-columns: 340px 1fr; gap: 28px; background: #fff; border-radius: 26px; padding: 28px; margin-top: 50px; box-shadow: 0 10px 30px rgba(31, 36, 33, .06); }
+        .hotel-location-info h2 { font-family: Georgia, "Times New Roman", serif; margin: 10px 0 12px; color: #1F2421; }
+        .loc-address { color: #4b5563; line-height: 1.6; }
+        .loc-airport { display: flex; gap: 12px; align-items: flex-start; background: #F3EEE5; border-radius: 16px; padding: 14px 16px; margin: 18px 0; }
+        .loc-airport i { font-size: 20px; color: #52614e; }
+        .loc-airport strong { display: block; color: #1F2421; font-size: 14px; }
+        .loc-airport span { color: #6b7280; font-size: 13px; }
+        .loc-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .loc-btn { display: inline-flex; gap: 8px; align-items: center; border-radius: 999px; padding: 10px 18px; font-weight: 700; font-size: 14px; text-decoration: none; }
+        .loc-btn-dark { background: #1F2421; color: #fff; }
+        .loc-btn-dark:hover { background: #52614e; color: #fff; }
+        .loc-btn-light { background: #fff; color: #1F2421; border: 1px solid #e3ddd2; }
+        .hotel-map { min-height: 340px; border-radius: 20px; overflow: hidden; z-index: 0; }
+        .hotel-map-pin { width: 44px; height: 44px; border-radius: 50% 50% 50% 0; background: #1F2421; transform: rotate(-45deg); display: grid; place-items: center; border: 3px solid #fff; box-shadow: 0 6px 16px rgba(0,0,0,.3); }
+        .hotel-map-pin i { transform: rotate(45deg); color: #fff; font-size: 18px; }
+
+        @@media (max-width: 900px) {
+            .hotel-location-block { grid-template-columns: 1fr; }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        (function () {
+            const el = document.getElementById('hotelMap');
+            if (!el || typeof L === 'undefined') return;
+
+            const lat = parseFloat(el.dataset.lat);
+            const lng = parseFloat(el.dataset.lng);
+
+            const map = L.map(el, { scrollWheelZoom: false }).setView([lat, lng], 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const icon = L.divIcon({
+                className: '',
+                html: '<div class="hotel-map-pin"><i class="bi bi-building"></i></div>',
+                iconSize: [44, 44],
+                iconAnchor: [22, 44],
+                popupAnchor: [0, -40]
+            });
+
+            const marker = L.marker([lat, lng], { icon }).addTo(map);
+            marker.bindPopup(document.createTextNode(el.dataset.name)).openPopup();
+        })();
+    </script>
+}
