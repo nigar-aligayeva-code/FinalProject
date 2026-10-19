@@ -459,6 +459,41 @@ public static class HotelDataSeeder
             // HotelHub-un əsas kart şəklini də düzəldirik
             hotelHubBaku.MainImage =
                 "/assets/images/hotels/hotelhub-exterior.jpg";
+
+            // Xəritə üçün koordinat (Nizami küçəsi, Bakı)
+            if (hotelHubBaku.Latitude == 0 && hotelHubBaku.Longitude == 0)
+            {
+                hotelHubBaku.Latitude = 40.3777;
+                hotelHubBaku.Longitude = 49.8445;
+            }
+        }
+
+        // ==========================================
+        // KOORDİNATI OLMAYAN OTELLƏR -> ŞƏHƏR MƏRKƏZİ
+        // ==========================================
+
+        var cityCenters = new Dictionary<string, (double Lat, double Lng)>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Baku"] = (40.3777, 49.8920),
+            ["Gabala"] = (40.9814, 47.8458),
+            ["Istanbul"] = (41.0082, 28.9784),
+            ["Antalya"] = (36.8969, 30.7133),
+            ["Tbilisi"] = (41.7151, 44.8271),
+            ["Batumi"] = (41.6168, 41.6367),
+            ["Dubai"] = (25.2048, 55.2708)
+        };
+
+        var withoutCoordinates = await context.Hotels
+            .Where(h => !h.IsDeleted && h.Latitude == 0 && h.Longitude == 0)
+            .ToListAsync();
+
+        foreach (var hotel in withoutCoordinates)
+        {
+            if (hotel.City != null && cityCenters.TryGetValue(hotel.City.Trim(), out var center))
+            {
+                hotel.Latitude = center.Lat;
+                hotel.Longitude = center.Lng;
+            }
         }
         // ==========================================
         // ROOM MEDIA - ROOMS 201-205

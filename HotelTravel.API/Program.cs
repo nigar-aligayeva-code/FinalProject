@@ -181,6 +181,28 @@ namespace HotelTravel.API
             app.Run();
         }
 
+        private static async Task WaitForDatabaseAsync(AppDbContext context, ILogger logger)
+        {
+            const int maxAttempts = 10;
+
+            for (var attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    if (await context.Database.CanConnectAsync())
+                        return;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning("Database not ready ({Attempt}/{Max}): {Message}", attempt, maxAttempts, ex.Message);
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(3));
+            }
+
+            logger.LogError("Could not connect to the database. Check that SQL Server is running.");
+        }
+
         private static async Task SeedDatabaseAsync(WebApplication app)
         {
             using var scope = app.Services.CreateScope();
@@ -189,6 +211,9 @@ namespace HotelTravel.API
             var logger = services.GetRequiredService<ILogger<Program>>();
             var configuration = services.GetRequiredService<IConfiguration>();
             var context = services.GetRequiredService<AppDbContext>();
+
+            // SQL Server hazır olana qədər gözlə (kompüter yenicə açılıbsa gecikə bilər)
+            await WaitForDatabaseAsync(context, logger);
 
             // Rollar + admin (AdminSettings yoxdursa admin addımı ötürülür)
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();

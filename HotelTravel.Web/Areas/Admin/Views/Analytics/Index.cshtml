@@ -17,7 +17,7 @@
     var cityRevenue = JsonSerializer.Serialize(Model.TopCities.Select(c => c.Revenue));
     var cityBookings = JsonSerializer.Serialize(Model.TopCities.Select(c => c.Bookings));
 
-    string Money(decimal v) => "$" + v.ToString("N0");
+    string Money(decimal v) => v.ToString("N0") + " AZN";
 }
 
 <style>
@@ -200,7 +200,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-    const money = v => '$' + Number(v).toLocaleString();
+    const money = v => Number(v).toLocaleString() + ' AZN';
     const colors = { hotels: '#2563eb', cars: '#16a34a', taxis: '#f59e0b', flights: '#9333ea' };
 
     new Chart(document.getElementById('monthlyChart'), {

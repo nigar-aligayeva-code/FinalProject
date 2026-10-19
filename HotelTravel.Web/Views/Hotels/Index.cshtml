@@ -2,6 +2,37 @@
 
 @{
     ViewData["Title"] = "Hotels";
+
+    // Seed otellərinin exterior şəkilləri (kartlardakı ilə eyni)
+    var exteriorImages = new Dictionary<string, string>
+    {
+        ["Caspian Grand Hotel"] = "/assets/images/hotels/baku-exterior.jpg",
+        ["Gabala Mountain Resort"] = "/assets/images/hotels/gabala-exterior.jpg",
+        ["Bosphorus Palace Hotel"] = "/assets/images/hotels/istanbul-exterior.jpg",
+        ["Antalya Blue Resort"] = "/assets/images/hotels/antalya-exterior.jpg",
+        ["Tbilisi Heritage Hotel"] = "/assets/images/hotels/tbilisi-exterior.jpg",
+        ["Batumi Sea View Hotel"] = "/assets/images/hotels/batumi-exterior.jpg",
+        ["Dubai Marina Luxury Hotel"] = "/assets/images/hotels/dubai-exterior.jpg"
+    };
+
+    // Xəritə üçün: koordinatı olan otellər (JSON -> Leaflet)
+    var mapHotels = (Model ?? new List<HotelTravel.Application.DTOs.Hotels.GetHotelDto>())
+        .Where(h => h.Latitude != 0 || h.Longitude != 0)
+        .Select(h => new
+        {
+            id = h.Id,
+            name = h.Name,
+            city = h.City,
+            country = h.Country,
+            lat = h.Latitude,
+            lng = h.Longitude,
+            stars = h.StarRating,
+            image = exteriorImages.TryGetValue(h.Name ?? "", out var ext) ? ext : h.MainImage,
+            url = Url.Action("Details", "Hotels", new { id = h.Id })
+        })
+        .ToList();
+
+    var mapHotelsJson = System.Text.Json.JsonSerializer.Serialize(mapHotels);
 }
 
 <section class="hotels-page">
@@ -56,6 +87,23 @@
         }
         else
         {
+            @if (mapHotels.Any())
+            {
+                <!-- XƏRİTƏ -->
+                <div class="hotels-map-card">
+                    <div class="hotels-map-head">
+                        <div>
+                            <h3><i class="bi bi-map"></i> Hotels on the map</h3>
+                            <p>@mapHotels.Count hotels in @mapHotels.Select(h => h.city).Distinct().Count() cities. Click a pin to see the hotel.</p>
+                        </div>
+                        <button type="button" class="hotels-map-toggle" id="mapToggle">
+                            <i class="bi bi-eye-slash"></i> <span>Hide map</span>
+                        </button>
+                    </div>
+                    <div id="hotelsMap" class="hotels-map"></div>
+                </div>
+            }
+
             <div class="hotels-grid">
 
                 @foreach (var hotel in Model)
@@ -630,3 +678,71 @@
     }
 
 </style>
+
+
+@section Styles {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <style>
+        .hotels-map-card { background: #fff; border-radius: 24px; padding: 22px; margin-bottom: 40px; box-shadow: 0 10px 30px rgba(31, 36, 33, .06); }
+        .hotels-map-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+        .hotels-map-head h3 { font-family: Georgia, "Times New Roman", serif; margin: 0 0 4px; font-size: 22px; color: #1F2421; }
+        .hotels-map-head h3 i { color: #52614e; }
+        .hotels-map-head p { margin: 0; color: #6b7280; font-size: 14px; }
+        .hotels-map-toggle { border: 1px solid #e3ddd2; background: #fcfbf8; border-radius: 999px; padding: 8px 16px; font-weight: 700; color: #1F2421; }
+        .hotels-map { height: 430px; border-radius: 18px; overflow: hidden; z-index: 0; }
+        .hotels-map.collapsed { display: none; }
+
+        .map-pin { background: #1F2421; color: #fff; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; border: 2px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,.25); display: inline-flex; gap: 4px; align-items: center; }
+        .map-pin i { color: #f5c451; }
+        .map-popup { width: 220px; }
+        .map-popup img { width: 100%; height: 110px; object-fit: cover; border-radius: 10px; margin-bottom: 8px; }
+        .map-popup strong { display: block; font-size: 14px; color: #1F2421; }
+        .map-popup span { color: #6b7280; font-size: 12px; }
+        .map-popup a { display: inline-block; margin-top: 8px; color: #52614e; font-weight: 700; text-decoration: none; }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script>
+        (function () {
+            const el = document.getElementById('hotelsMap');
+            if (!el || typeof L === 'undefined') return;
+
+            const hotels = @Html.Raw(mapHotelsJson);
+            const map = L.map(el, { scrollWheelZoom: false });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+            const markers = hotels.map(h => {
+                const icon = L.divIcon({
+                    className: '',
+                    html: `<span class="map-pin"><i class="bi bi-star-fill"></i>${h.stars} ${esc(h.city)}</span>`,
+                    iconSize: null
+                });
+
+                const img = h.image ? `<img src="${esc(h.image)}" alt="">` : '';
+
+                return L.marker([h.lat, h.lng], { icon })
+                    .bindPopup(`<div class="map-popup">${img}<strong>${esc(h.name)}</strong><span>${esc(h.city)}, ${esc(h.country)}</span><br><a href="${h.url}">View hotel &rarr;</a></div>`)
+                    .addTo(map);
+            });
+
+            map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2));
+
+            // Gizlət / göstər
+            const btn = document.getElementById('mapToggle');
+            btn.addEventListener('click', () => {
+                const hidden = el.classList.toggle('collapsed');
+                btn.querySelector('span').textContent = hidden ? 'Show map' : 'Hide map';
+                btn.querySelector('i').className = hidden ? 'bi bi-eye' : 'bi bi-eye-slash';
+                if (!hidden) map.invalidateSize();
+            });
+        })();
+    </script>
+}

@@ -12,10 +12,52 @@
 <div class="container">
     <div class="hh-soon">
         <p class="mb-2">@ViewData["ErrorMessage"]</p>
+
+        <!-- API yenicə başlayırsa (seed), səhifə özü yenilənir -->
+        <p class="mb-4" id="retryInfo">
+            Trying again in <strong id="retrySeconds">5</strong> seconds…
+        </p>
+
         <p class="small text-muted mb-4">
             Developer tip: start both projects (HotelTravel.API and HotelTravel.Web).
             In Visual Studio: right-click the solution → Configure Startup Projects → Multiple startup projects.
         </p>
-        <a asp-controller="Home" asp-action="Index" class="hh-btn hh-btn-primary">Try again</a>
+
+        <button type="button" class="hh-btn hh-btn-primary" onclick="location.reload()">Try again now</button>
     </div>
 </div>
+
+<script>
+    (function () {
+        // Ən çox 12 dəfə (~1 dəqiqə) avtomatik yenilə
+        const key = 'tripio-api-retries';
+        let tries = 0;
+
+        // Sayğac 2 dəqiqədən köhnədirsə sıfırlanır (növbəti problem üçün)
+        try {
+            const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
+            if (saved && Date.now() - saved.t < 120000) tries = saved.n;
+        } catch (e) { }
+
+        const info = document.getElementById('retryInfo');
+        const counter = document.getElementById('retrySeconds');
+
+        if (tries >= 12) {
+            info.textContent = 'The server is still not responding. Please check that the API is running.';
+            try { sessionStorage.removeItem(key); } catch (e) { }
+            return;
+        }
+
+        let seconds = 5;
+        const timer = setInterval(() => {
+            seconds--;
+            counter.textContent = seconds;
+
+            if (seconds <= 0) {
+                clearInterval(timer);
+                try { sessionStorage.setItem(key, JSON.stringify({ n: tries + 1, t: Date.now() })); } catch (e) { }
+                location.reload();
+            }
+        }, 1000);
+    })();
+</script>

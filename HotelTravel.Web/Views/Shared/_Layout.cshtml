@@ -50,11 +50,20 @@
 
         var isAdmin = User.IsInRole("Admin");
 
-        var userName = User.Identity?.Name ?? "";
+        // Ad varsa adı, yoxdursa email göstərilir (profil yenilənəndə dərhal dəyişir)
+        var firstName = User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value;
+
+        var userName = !string.IsNullOrWhiteSpace(firstName)
+            ? firstName
+            : User.Identity?.Name ?? "";
 
         var initial = string.IsNullOrEmpty(userName)
             ? "?"
             : userName.Substring(0, 1).ToUpper();
+
+        // Seçilmiş avatar (yoxdursa baş hərf göstərilir)
+        var avatarUrl = HotelTravel.Application.Services.AvatarCatalog.GetUrl(
+            User.FindFirst(HotelTravel.Web.Services.AuthClaimTypes.Avatar)?.Value);
 
         // Booking-style xidmət tab-ı aktivdirmi?
         var currentService = ViewData["Service"] as string;
@@ -127,12 +136,28 @@
                         <a asp-area=""
                            asp-controller="Bookings"
                            asp-action="MyBookings"
-                           class="hh-user"
+                           class="hh-btn hh-btn-ghost"
                            title="My Bookings">
-                            <span class="hh-avatar">@initial</span>
+                            <i class="bi bi-briefcase"></i>
+                            <span class="d-none d-xl-inline">Trips</span>
+                        </a>
+
+                        <a asp-area=""
+                           asp-controller="Profile"
+                           asp-action="Index"
+                           class="hh-user"
+                           title="My Profile">
+                            @if (avatarUrl != null)
+                            {
+                                <img class="hh-avatar" src="@avatarUrl" alt="" style="padding:0;object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <span class="hh-avatar">@initial</span>
+                            }
                             <span class="hh-user-text d-none d-sm-flex">
                                 <strong>@userName</strong>
-                                <small>My Bookings</small>
+                                <small>My Profile</small>
                             </span>
                         </a>
 
@@ -178,6 +203,14 @@
                    class="@(isStays ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-bed"></i>
                     Stays
+                </a>
+
+                <a asp-area=""
+                   asp-controller="Hotels"
+                   asp-action="Index"
+                   class="@(currentController == "Hotels" ? "hh-tab active" : "hh-tab")">
+                    <i class="fa-solid fa-hotel"></i>
+                    Hotels
                 </a>
 
                 <a asp-area=""
@@ -251,6 +284,7 @@
                     <ul class="hh-footer-links">
                         <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
                         <li><a asp-area="" asp-controller="Rooms" asp-action="Search">Search rooms</a></li>
+                        <li><a asp-area="" asp-controller="Hotels" asp-action="Index">All hotels &amp; map</a></li>
                         <li><a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="destinations">Destinations</a></li>
                     </ul>
                 </div>
@@ -263,6 +297,7 @@
                         @if (isAuthenticated)
                         {
                             <li><a asp-area="" asp-controller="Bookings" asp-action="MyBookings">My bookings</a></li>
+                            <li><a asp-area="" asp-controller="Profile" asp-action="Index">My profile</a></li>
                             <li><a asp-area="" asp-controller="Wishlist" asp-action="Index">Saved rooms</a></li>
                         }
                         else

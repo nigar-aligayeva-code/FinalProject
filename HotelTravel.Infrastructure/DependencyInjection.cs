@@ -2,6 +2,7 @@ using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
 using HotelTravel.Infrastructure.Persistence;
 using HotelTravel.Infrastructure.Services;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +21,10 @@ public static class DependencyInjection
             throw new InvalidOperationException(
                 "ConnectionStrings:DefaultConnection is missing.");
         }
+
+        // SQL Express kompüter yenicə açılanda gec cavab verir:
+        // standart 15 saniyə əvəzinə 60 saniyə gözləyirik
+        connectionString = WithLongerTimeout(connectionString);
 
         // DATABASE
         services.AddDbContext<AppDbContext>(options =>
@@ -48,7 +53,18 @@ public static class DependencyInjection
         services.AddScoped<ITaxiService, TaxiService>();
         services.AddScoped<IFlightService, FlightService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
+        services.AddScoped<IProfileService, ProfileService>();
 
         return services;
+    }
+
+    private static string WithLongerTimeout(string connectionString)
+    {
+        var builder = new SqlConnectionStringBuilder(connectionString);
+
+        if (builder.ConnectTimeout < 60)
+            builder.ConnectTimeout = 60;
+
+        return builder.ConnectionString;
     }
 }

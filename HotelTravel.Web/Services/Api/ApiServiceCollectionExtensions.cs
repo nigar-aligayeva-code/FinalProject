@@ -52,6 +52,7 @@ public static class ApiServiceCollectionExtensions
         services.AddScoped<ITaxiService, TaxiApiService>();
         services.AddScoped<IFlightService, FlightApiService>();
         services.AddScoped<IAnalyticsService, AnalyticsApiService>();
+        services.AddScoped<IProfileApiClient, ProfileApiClient>();
 
         return services;
     }

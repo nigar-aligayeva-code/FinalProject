@@ -104,6 +104,7 @@ public class AuthController : ApiControllerBase
             FirstName = user.FirstName ?? string.Empty,
             LastName = user.LastName ?? string.Empty,
             PhoneNumber = user.PhoneNumber,
+            AvatarKey = user.AvatarKey,
             Roles = roles.ToList()
         });
     }
@@ -156,6 +157,7 @@ public class AuthController : ApiControllerBase
             FirstName = user.FirstName ?? string.Empty,
             LastName = user.LastName ?? string.Empty,
             PhoneNumber = user.PhoneNumber,
+            AvatarKey = user.AvatarKey,
             Roles = roles.ToList()
         };
     }

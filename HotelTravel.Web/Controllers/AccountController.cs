@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using HotelTravel.Application.DTOs.Account;
 using HotelTravel.Application.DTOs.Auth;
 using HotelTravel.Web.Services;
@@ -113,26 +112,9 @@ public class AccountController : Controller
     // API-dən gələn məlumatla cookie yaradılır; JWT token də cookie-də saxlanır
     private async Task SignInAsync(AuthResponseDto auth, bool isPersistent)
     {
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, auth.UserId),
-            new(ClaimTypes.Name, auth.Email),
-            new(ClaimTypes.Email, auth.Email),
-            new(ClaimTypes.GivenName, auth.FirstName),
-            new(ClaimTypes.Surname, auth.LastName),
-            new(AuthClaimTypes.AccessToken, auth.AccessToken)
-        };
-
-        if (!string.IsNullOrWhiteSpace(auth.PhoneNumber))
-            claims.Add(new Claim(ClaimTypes.MobilePhone, auth.PhoneNumber));
-
-        claims.AddRange(auth.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(identity),
+            AuthCookie.BuildPrincipal(auth),
             new AuthenticationProperties
             {
                 IsPersistent = isPersistent,
