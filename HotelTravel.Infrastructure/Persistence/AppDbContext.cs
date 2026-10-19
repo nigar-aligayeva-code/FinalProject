@@ -49,6 +49,8 @@ public class AppDbContext
 
     public DbSet<EmailLog> EmailLogs { get; set; }
 
+    public DbSet<TripPackage> TripPackages { get; set; }
+
     public async Task<IDbContextTransaction> BeginTransactionAsync(
         CancellationToken cancellationToken = default)
     {
@@ -60,6 +62,30 @@ public class AppDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // TRIP PACKAGE
+        modelBuilder.Entity<TripPackage>(entity =>
+        {
+            entity.Property(p => p.Code).HasMaxLength(20);
+            entity.HasIndex(p => p.Code).IsUnique();
+            entity.Property(p => p.FromCity).HasMaxLength(100);
+            entity.Property(p => p.ToCity).HasMaxLength(100);
+            entity.Property(p => p.HotelBookingCode).HasMaxLength(50);
+            entity.Property(p => p.OutboundFlightCode).HasMaxLength(50);
+            entity.Property(p => p.ReturnFlightCode).HasMaxLength(50);
+            entity.Property(p => p.TaxiCode).HasMaxLength(50);
+            entity.Property(p => p.HotelPrice).HasPrecision(18, 2);
+            entity.Property(p => p.FlightsPrice).HasPrecision(18, 2);
+            entity.Property(p => p.TaxiPrice).HasPrecision(18, 2);
+            entity.Property(p => p.Subtotal).HasPrecision(18, 2);
+            entity.Property(p => p.DiscountAmount).HasPrecision(18, 2);
+            entity.Property(p => p.Total).HasPrecision(18, 2);
+
+            entity.HasOne(p => p.AppUser)
+                .WithMany()
+                .HasForeignKey(p => p.AppUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
         // EMAIL LOG
         modelBuilder.Entity<EmailLog>(entity =>

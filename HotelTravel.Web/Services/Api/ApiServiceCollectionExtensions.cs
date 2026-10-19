@@ -55,6 +55,7 @@ public static class ApiServiceCollectionExtensions
         services.AddScoped<IProfileApiClient, ProfileApiClient>();
         services.AddScoped<IVoucherApiClient, VoucherApiClient>();
         services.AddScoped<IEmailLogService, EmailLogApiService>();
+        services.AddScoped<ITripPackageService, TripApiService>();
 
         return services;
     }
