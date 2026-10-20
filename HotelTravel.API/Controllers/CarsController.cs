@@ -11,10 +11,12 @@ namespace HotelTravel.API.Controllers;
 public class CarsController : ApiControllerBase
 {
     private readonly ICarRentalService _carRentalService;
+    private readonly IActivityNotifier _notifier;
 
-    public CarsController(ICarRentalService carRentalService)
+    public CarsController(ICarRentalService carRentalService, IActivityNotifier notifier)
     {
         _carRentalService = carRentalService;
+        _notifier = notifier;
     }
 
     // =========================
@@ -54,6 +56,9 @@ public class CarsController : ApiControllerBase
     public async Task<IActionResult> Book([FromBody] CreateCarRentalDto dto)
     {
         var result = await _carRentalService.BookAsync(dto, CurrentUserId);
+
+        if (result.Success && result.ConfirmationCode != null)
+            await _notifier.CarRentedAsync(result.ConfirmationCode);
 
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message, code: result.ConfirmationCode)

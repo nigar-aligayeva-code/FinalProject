@@ -11,10 +11,12 @@ namespace HotelTravel.API.Controllers;
 public class TaxisController : ApiControllerBase
 {
     private readonly ITaxiService _taxiService;
+    private readonly IActivityNotifier _notifier;
 
-    public TaxisController(ITaxiService taxiService)
+    public TaxisController(ITaxiService taxiService, IActivityNotifier notifier)
     {
         _taxiService = taxiService;
+        _notifier = notifier;
     }
 
     // GET: api/taxis/hotels
@@ -47,6 +49,9 @@ public class TaxisController : ApiControllerBase
     public async Task<IActionResult> Book([FromBody] CreateTaxiBookingDto dto)
     {
         var result = await _taxiService.BookAsync(dto, CurrentUserId);
+
+        if (result.Success && result.ConfirmationCode != null)
+            await _notifier.TaxiBookedAsync(result.ConfirmationCode);
 
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message, code: result.ConfirmationCode)

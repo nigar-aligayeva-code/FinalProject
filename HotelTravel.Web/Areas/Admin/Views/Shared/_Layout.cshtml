@@ -2,6 +2,10 @@
 @{
     var brand = Config["Brand:Name"] ?? "Tripio";
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+
+    // Canlı bildirişlər: brauzer API-dəki SignalR hub-a admin token-i ilə qoşulur
+    var liveApiBase = (Config["Api:BaseUrl"] ?? "").TrimEnd('/');
+    var liveToken = User.FindFirst(HotelTravel.Web.Services.AuthClaimTypes.AccessToken)?.Value ?? "";
 }
 
 <!DOCTYPE html>
@@ -370,6 +374,26 @@
             </div>
 
             <div class="topbar-actions">
+                <!-- CANLI BİLDİRİŞLƏR -->
+                <div class="live-bell" id="liveBell">
+                    <button type="button" class="topbar-btn" id="liveBellBtn" title="Live activity">
+                        <span id="liveBellIcon">🔔</span> <span class="live-count" id="liveCount" hidden>0</span>
+                    </button>
+                    <div class="live-panel" id="livePanel" hidden>
+                        <div class="live-panel-head">
+                            <b>Live activity</b>
+                            <span class="live-status off" id="liveStatus">connecting…</span>
+                        </div>
+                        <div class="live-settings">
+                            <button type="button" class="live-toggle" id="liveSoundToggle">🔊 Sound on</button>
+                            <button type="button" class="live-toggle" id="livePopupToggle">💬 Pop-ups on</button>
+                        </div>
+                        <div class="live-list" id="liveList">
+                            <div class="live-empty">New bookings will appear here instantly.</div>
+                        </div>
+                    </div>
+                </div>
+
                 <a asp-area=""
                    asp-controller="Home"
                    asp-action="Index"
@@ -404,6 +428,53 @@
             @RenderBody()
         </main>
     </div>
+
+    <div class="live-toasts" id="liveToasts"></div>
+
+    <style>
+        .live-bell { position: relative; }
+        .live-bell .topbar-btn { position: relative; }
+        .live-count { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; border-radius: 999px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; padding: 0 4px; }
+        .live-count[hidden] { display: none; }
+        .live-panel { position: absolute; right: 0; top: calc(100% + 10px); width: 360px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 20px 40px rgba(15,23,42,.15); z-index: 1000; overflow: hidden; }
+        .live-panel-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; color: #0f172a; }
+        .live-status { font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+        .live-status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+        .live-status.ok { color: #16a34a; } .live-status.off { color: #94a3b8; }
+        .live-list { max-height: 380px; overflow-y: auto; }
+        .live-empty { padding: 26px 16px; text-align: center; color: #94a3b8; font-size: 13px; }
+        .live-item { display: flex; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f8fafc; text-decoration: none; color: inherit; }
+        .live-item:hover { background: #f8fafc; }
+        .live-icon { width: 36px; height: 36px; border-radius: 10px; background: #f1f5f9; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+        .live-body { display: grid; gap: 2px; min-width: 0; }
+        .live-body b { font-size: 13px; color: #0f172a; }
+        .live-body small { font-size: 12px; color: #475569; }
+        .live-body em { font-size: 11px; color: #94a3b8; font-style: normal; }
+        .live-cancel .live-icon { background: #fee2e2; }
+        .live-trip .live-icon { background: #ede9fe; }
+        .live-toasts { position: fixed; right: 20px; bottom: 20px; display: grid; gap: 10px; z-index: 2000; width: 340px; }
+        .live-toast { background: #fff; border-radius: 14px; box-shadow: 0 15px 35px rgba(15,23,42,.2); border-left: 4px solid #2563eb; animation: liveIn .35s ease; transition: opacity .5s, transform .5s; }
+        .live-toast.live-cancel { border-left-color: #ef4444; }
+        .live-toast.live-trip { border-left-color: #7c3aed; }
+        .live-toast.hide { opacity: 0; transform: translateX(30px); }
+        .ring { animation: liveRing .8s ease; }
+        .live-settings { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; background: #f8fafc; }
+        .live-toggle { flex: 1; border: 1px solid #e2e8f0; background: #fff; border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 600; color: #0f172a; cursor: pointer; }
+        .live-toggle.off { color: #94a3b8; background: #f1f5f9; }
+        .live-highlight, .live-highlight > td { background: #fef9c3 !important; transition: background 1s; }
+        .live-highlight { outline: 2px solid #facc15; outline-offset: -2px; }
+        @@keyframes liveIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+        @@keyframes liveRing { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-15deg); } 40% { transform: rotate(12deg); } 60% { transform: rotate(-8deg); } 80% { transform: rotate(5deg); } }
+    </style>
+
+    <script>
+        window.tripioLive = {
+            apiBase: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(liveApiBase)),
+            token: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(liveToken))
+        };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/live-admin.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

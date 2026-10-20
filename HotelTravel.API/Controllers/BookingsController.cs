@@ -13,15 +13,18 @@ public class BookingsController : ApiControllerBase
     private readonly IBookingService _bookingService;
     private readonly IBookingEmailService _bookingEmails;
     private readonly IVoucherPdfService _voucherPdf;
+    private readonly IActivityNotifier _notifier;
 
     public BookingsController(
         IBookingService bookingService,
         IBookingEmailService bookingEmails,
-        IVoucherPdfService voucherPdf)
+        IVoucherPdfService voucherPdf,
+        IActivityNotifier notifier)
     {
         _bookingService = bookingService;
         _bookingEmails = bookingEmails;
         _voucherPdf = voucherPdf;
+        _notifier = notifier;
     }
 
     // =========================
@@ -39,7 +42,10 @@ public class BookingsController : ApiControllerBase
 
         // Təsdiq məktubu + PDF (alınmasa rezervasiya yenə uğurludur, EmailLog-da görünür)
         if (result.Success && !string.IsNullOrWhiteSpace(result.ConfirmationCode))
+        {
             await _bookingEmails.SendConfirmationAsync(result.ConfirmationCode);
+            await _notifier.HotelBookedAsync(result.ConfirmationCode);
+        }
 
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message, code: result.ConfirmationCode)
@@ -107,7 +113,10 @@ public class BookingsController : ApiControllerBase
         var result = await _bookingService.CancelByGuestAsync(dto.ConfirmationCode, dto.Email);
 
         if (result.Success)
+        {
             await _bookingEmails.SendCancellationAsync(dto.ConfirmationCode);
+            await _notifier.HotelCancelledAsync(dto.ConfirmationCode);
+        }
 
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message)
@@ -149,7 +158,10 @@ public class BookingsController : ApiControllerBase
             var booking = await _bookingService.GetByIdAsync(id);
 
             if (booking != null)
+            {
                 await _bookingEmails.SendCancellationAsync(booking.ConfirmationCode);
+                await _notifier.HotelCancelledAsync(booking.ConfirmationCode);
+            }
         }
 
         return FromResult(result.Success
