@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelTravel.API.Controllers;
 
 // Daxil olmuş istifadəçinin profili (məlumat: GET api/auth/me)
+/// <summary>Signed-in user's profile: travel statistics, personal details, avatar and password.</summary>
 [Route("api/profile")]
 [Authorize]
 public class ProfileController : ApiControllerBase
@@ -26,12 +27,14 @@ public class ProfileController : ApiControllerBase
     }
 
     // GET: api/profile/summary
+    /// <summary>Travel statistics of the signed-in user: trips, nights, cities, spending, next trip and level.</summary>
     [HttpGet("summary")]
     [ProducesResponseType(typeof(ProfileSummaryDto), 200)]
     public async Task<IActionResult> Summary()
         => Ok(await _profileService.GetSummaryAsync(CurrentUserId!));
 
     // PUT: api/profile
+    /// <summary>Update first name, last name and phone.</summary>
     [HttpPut]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 400)]
@@ -56,6 +59,7 @@ public class ProfileController : ApiControllerBase
     }
 
     // PUT: api/profile/avatar
+    /// <summary>Choose one of the built-in avatars, or send an empty value to use initials.</summary>
     [HttpPut("avatar")]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 400)]
@@ -79,6 +83,7 @@ public class ProfileController : ApiControllerBase
     }
 
     // POST: api/profile/change-password
+    /// <summary>Change the password (current password required).</summary>
     [HttpPost("change-password")]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 400)]

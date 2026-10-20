@@ -126,6 +126,19 @@ Continuous Integration: kod GitHub-a push olunanda **GitHub Actions** avtomatik 
 build edir və bütün testləri işə salır (`.github/workflows/ci.yml`). Nəsə sınarsa, PR-da qırmızı
 görünür, yəni xətalı kod `master`-ə düşmür. README-dəki nişan son nəticəni göstərir.
 
+**Swagger-də endpoint təsvirləri haradan gəlir?**
+Controller-lərdəki `/// <summary>` XML şərhlərindən. Layihə build olanda XML fayl yaranır
+(`GenerateDocumentationFile`), Swagger onu oxuyub hər endpoint-in və bölmənin təsvirini göstərir.
+
+**Health check nədir?**
+`GET /health` API-nin və SQL Server bağlantısının vəziyyətini JSON kimi qaytarır (`Healthy` /
+`Unhealthy`). Real sistemlərdə monitorinq alətləri (və ya Docker/Kubernetes) bu ünvanı yoxlayır
+və servis düşəndə xəbər verir.
+
+**Performansı necə izləyirsiniz?**
+`RequestTimingMiddleware` hər sorğunun müddətini loglayır, cavaba `X-Response-Time` başlığı yazır,
+500 ms-dən uzun çəkən sorğuları xəbərdarlıq kimi qeyd edir.
+
 **Trip paketi necə işləyir? Biri alınmasa nə olur?**
 `TripPackageService` mövcud servisləri birləşdirir: əvvəlcə heç nə yaratmadan qiymətləri və yerləri
 yoxlayır, sonra ardıcıl olaraq otel → gediş uçuşu → dönüş uçuşu → taksi yaradır. Hansısa addım

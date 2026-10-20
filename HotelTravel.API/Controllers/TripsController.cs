@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelTravel.API.Controllers;
 
 // Trip paketi: uçuş + otel + taksi bir sifarişdə
+/// <summary>Trip packages: flight + hotel + airport taxi in one order with a bundle discount.</summary>
 [Route("api/trips")]
 public class TripsController : ApiControllerBase
 {
@@ -25,6 +26,7 @@ public class TripsController : ApiControllerBase
     }
 
     // GET: api/trips/origins
+    /// <summary>Cities you can fly from.</summary>
     [HttpGet("origins")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<string>), 200)]
@@ -32,6 +34,7 @@ public class TripsController : ApiControllerBase
         => Ok(await _tripService.GetOriginsAsync());
 
     // GET: api/trips/destinations
+    /// <summary>Cities that have both flights and hotels.</summary>
     [HttpGet("destinations")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<string>), 200)]
@@ -39,6 +42,7 @@ public class TripsController : ApiControllerBase
         => Ok(await _tripService.GetDestinationsAsync());
 
     // POST: api/trips/plan  (uçuşlar, otaqlar, taksi təklifi)
+    /// <summary>Options for a trip: outbound and return flights, free rooms and an airport taxi offer. Nothing is booked.</summary>
     [HttpPost("plan")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(TripPlanDto), 200)]
@@ -46,6 +50,7 @@ public class TripsController : ApiControllerBase
         => Ok(await _tripService.PlanAsync(search));
 
     // POST: api/trips
+    /// <summary>Book a trip package. Parts are created one by one; if a step fails, the parts already created are cancelled.</summary>
     [HttpPost]
     [Authorize]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
@@ -69,6 +74,7 @@ public class TripsController : ApiControllerBase
     }
 
     // GET: api/trips/mine
+    /// <summary>Trip packages of the signed-in user.</summary>
     [HttpGet("mine")]
     [Authorize]
     [ProducesResponseType(typeof(List<TripPackageDto>), 200)]
@@ -76,6 +82,7 @@ public class TripsController : ApiControllerBase
         => Ok(await _tripService.GetByUserAsync(CurrentUserId!));
 
     // GET: api/trips/TP-1234ABCD
+    /// <summary>One trip package with all its parts and the price breakdown.</summary>
     [HttpGet("{code}")]
     [Authorize]
     [ProducesResponseType(typeof(TripPackageDto), 200)]

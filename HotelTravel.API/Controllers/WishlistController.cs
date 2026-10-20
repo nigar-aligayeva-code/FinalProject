@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelTravel.API.Controllers;
 
 // Saved rooms (yalnız daxil olmuş istifadəçi)
+/// <summary>Saved rooms (wishlist) of the signed-in user.</summary>
 [Route("api/wishlist")]
 [Authorize]
 public class WishlistController : ApiControllerBase
@@ -19,18 +20,21 @@ public class WishlistController : ApiControllerBase
     }
 
     // GET: api/wishlist
+    /// <summary>Saved rooms of the signed-in user.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(List<FeaturedRoomDto>), 200)]
     public async Task<IActionResult> GetSaved()
         => Ok(await _wishlistService.GetSavedRoomsAsync(CurrentUserId!));
 
     // GET: api/wishlist/ids
+    /// <summary>Ids of saved rooms (to fill the heart icons).</summary>
     [HttpGet("ids")]
     [ProducesResponseType(typeof(List<int>), 200)]
     public async Task<IActionResult> GetIds()
         => Ok((await _wishlistService.GetSavedRoomIdsAsync(CurrentUserId)).ToList());
 
     // POST: api/wishlist/toggle/5   -> Flag = indi saved-dir?
+    /// <summary>Save or unsave a room. Flag in the response is true when the room is now saved.</summary>
     [HttpPost("toggle/{roomId:int}")]
     public async Task<IActionResult> Toggle(int roomId)
     {

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.API.Controllers;
 
+/// <summary>Guest reviews and ratings. Only guests with a completed stay can review.</summary>
 [Route("api/reviews")]
 public class ReviewsController : ApiControllerBase
 {
@@ -17,6 +18,7 @@ public class ReviewsController : ApiControllerBase
     }
 
     // GET: api/reviews/eligibility/BK-1234ABCD
+    /// <summary>Check if a booking can be reviewed (stay completed, not reviewed yet).</summary>
     [HttpGet("eligibility/{confirmationCode}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(ReviewEligibilityDto), 200)]
@@ -24,6 +26,7 @@ public class ReviewsController : ApiControllerBase
         => Ok(await _reviewService.CheckEligibilityAsync(confirmationCode));
 
     // POST: api/reviews
+    /// <summary>Write a review for a completed stay.</summary>
     [HttpPost]
     [AllowAnonymous]
     public async Task<IActionResult> Create([FromBody] CreateReviewDto dto)
@@ -36,6 +39,7 @@ public class ReviewsController : ApiControllerBase
     }
 
     // GET: api/reviews/room/5
+    /// <summary>Reviews of a room.</summary>
     [HttpGet("room/{roomId:int}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<GetReviewDto>), 200)]
@@ -43,6 +47,7 @@ public class ReviewsController : ApiControllerBase
         => Ok(await _reviewService.GetByRoomIdAsync(roomId));
 
     // GET: api/reviews/room/5/summary
+    /// <summary>Average rating and review count of a room.</summary>
     [HttpGet("room/{roomId:int}/summary")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(RoomRatingSummaryDto), 200)]
@@ -50,6 +55,7 @@ public class ReviewsController : ApiControllerBase
         => Ok(await _reviewService.GetRoomSummaryAsync(roomId));
 
     // GET: api/reviews
+    /// <summary>All reviews (admin).</summary>
     [HttpGet]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(List<GetReviewDto>), 200)]
@@ -57,6 +63,7 @@ public class ReviewsController : ApiControllerBase
         => Ok(await _reviewService.GetAllAsync());
 
     // DELETE: api/reviews/5
+    /// <summary>Delete a review (admin).</summary>
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)

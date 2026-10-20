@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelTravel.API.Controllers;
 
 // Səfər tarixləri üçün hava (Open-Meteo üzərindən)
+/// <summary>Weather for travel dates (Open-Meteo forecast, or typical weather from last year for far dates).</summary>
 [Route("api/weather")]
 [AllowAnonymous]
 public class WeatherController : ApiControllerBase
@@ -19,6 +20,7 @@ public class WeatherController : ApiControllerBase
     }
 
     // GET: api/weather/hotel/5?from=2026-11-10&to=2026-11-14
+    /// <summary>Weather at a hotel for the given dates (next 7 days if no dates).</summary>
     [HttpGet("hotel/{hotelId:int}")]
     [ProducesResponseType(typeof(TripWeatherDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 404)]
@@ -26,6 +28,7 @@ public class WeatherController : ApiControllerBase
         => OkOrNotFound(await _weatherService.GetForHotelAsync(hotelId, from, to), "Weather is not available.");
 
     // GET: api/weather/city/Istanbul?from=...&to=...
+    /// <summary>Weather in a city for the given dates.</summary>
     [HttpGet("city/{city}")]
     [ProducesResponseType(typeof(TripWeatherDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 404)]

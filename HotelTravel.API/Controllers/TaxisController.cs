@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.API.Controllers;
 
+/// <summary>Airport taxi transfers: hotels with airports, vehicle options, booking and admin management.</summary>
 [Route("api/taxis")]
 public class TaxisController : ApiControllerBase
 {
@@ -20,6 +21,7 @@ public class TaxisController : ApiControllerBase
     }
 
     // GET: api/taxis/hotels
+    /// <summary>Hotels that have an airport taxi (with airport and distance).</summary>
     [HttpGet("hotels")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<TaxiHotelDto>), 200)]
@@ -27,6 +29,7 @@ public class TaxisController : ApiControllerBase
         => Ok(await _taxiService.GetHotelsAsync());
 
     // GET: api/taxis/hotels/5
+    /// <summary>One hotel with its airport and distance.</summary>
     [HttpGet("hotels/{hotelId:int}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(TaxiHotelDto), 200)]
@@ -34,6 +37,7 @@ public class TaxisController : ApiControllerBase
         => OkOrNotFound(await _taxiService.GetHotelAsync(hotelId), "Hotel not found.");
 
     // GET: api/taxis/options?distanceKm=25&passengers=2&luggage=2
+    /// <summary>Vehicle classes and prices for a distance, passengers and luggage.</summary>
     [HttpGet("options")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<TaxiOptionDto>), 200)]
@@ -44,6 +48,7 @@ public class TaxisController : ApiControllerBase
         => Ok(_taxiService.GetOptions(distanceKm, passengers, luggage));
 
     // POST: api/taxis/bookings
+    /// <summary>Book an airport taxi.</summary>
     [HttpPost("bookings")]
     [AllowAnonymous]
     public async Task<IActionResult> Book([FromBody] CreateTaxiBookingDto dto)
@@ -59,6 +64,7 @@ public class TaxisController : ApiControllerBase
     }
 
     // GET: api/taxis/bookings/by-code/TX-1234ABCD
+    /// <summary>Find a taxi booking by its confirmation code.</summary>
     [HttpGet("bookings/by-code/{confirmationCode}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(TaxiBookingDto), 200)]
@@ -66,6 +72,7 @@ public class TaxisController : ApiControllerBase
         => OkOrNotFound(await _taxiService.GetByCodeAsync(confirmationCode), "Taxi booking not found.");
 
     // GET: api/taxis/bookings/mine
+    /// <summary>Taxi bookings of the signed-in user.</summary>
     [HttpGet("bookings/mine")]
     [Authorize]
     [ProducesResponseType(typeof(List<TaxiBookingDto>), 200)]
@@ -73,6 +80,7 @@ public class TaxisController : ApiControllerBase
         => Ok(await _taxiService.GetByUserAsync(CurrentUserId!));
 
     // POST: api/taxis/bookings/5/cancel-mine
+    /// <summary>Cancel one of the signed-in user's taxi bookings.</summary>
     [HttpPost("bookings/{id:int}/cancel-mine")]
     [Authorize]
     public async Task<IActionResult> CancelMine(int id)
@@ -85,6 +93,7 @@ public class TaxisController : ApiControllerBase
     }
 
     // GET: api/taxis/bookings?status=Confirmed  (admin)
+    /// <summary>All taxi bookings, optionally filtered by status (admin).</summary>
     [HttpGet("bookings")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(List<TaxiBookingDto>), 200)]
@@ -92,6 +101,7 @@ public class TaxisController : ApiControllerBase
         => Ok(await _taxiService.GetAllAsync(status));
 
     // PUT: api/taxis/bookings/5/status
+    /// <summary>Change taxi booking status (admin).</summary>
     [HttpPut("bookings/{id:int}/status")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SetStatus(
