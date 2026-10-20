@@ -9,13 +9,16 @@ public class HotelsController : Controller
 {
     private readonly IHotelService _hotelService;
     private readonly IHotelChainService _hotelChainService;
+    private readonly IWeatherService _weatherService;
 
     public HotelsController(
         IHotelService hotelService,
-        IHotelChainService hotelChainService)
+        IHotelChainService hotelChainService,
+        IWeatherService weatherService)
     {
         _hotelService = hotelService;
         _hotelChainService = hotelChainService;
+        _weatherService = weatherService;
     }
 
 
@@ -43,6 +46,9 @@ public class HotelsController : Controller
 
         if (hotel is null)
             return NotFound();
+
+        // Növbəti 7 günün havası (alınmasa null)
+        ViewBag.Weather = await _weatherService.GetForHotelAsync(id, null, null);
 
         return View(hotel);
     }

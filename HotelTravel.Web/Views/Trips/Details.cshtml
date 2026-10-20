@@ -28,6 +28,12 @@
         <div class="td-grid">
             <div class="td-parts">
 
+                @if (ViewBag.Weather is HotelTravel.Application.DTOs.Weather.TripWeatherDto weather)
+                {
+                    ViewData["WeatherTitle"] = $"Weather in {weather.Location}";
+                    <partial name="_WeatherWidget" model="weather" />
+                }
+
                 <!-- GEDİŞ -->
                 @if (Model.OutboundFlight is { } outFlight)
                 {

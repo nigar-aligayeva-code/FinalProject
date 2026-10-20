@@ -100,6 +100,12 @@
 
             <div class="tp-steps">
 
+                @if (Model.Weather != null)
+                {
+                    ViewData["WeatherTitle"] = $"Weather in {Model.Weather.Location} during your trip";
+                    <partial name="_WeatherWidget" model="Model.Weather" />
+                }
+
                 <!-- 1. GEDİŞ -->
                 <section class="tp-step">
                     <h2><span>1</span> Outbound flight · @s.FromCity → @s.ToCity · @s.DepartDate?.ToString("ddd, dd MMM")</h2>

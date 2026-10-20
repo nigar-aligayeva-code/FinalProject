@@ -12,13 +12,16 @@ public class TripsController : Controller
 {
     private readonly ITripPackageService _tripService;
     private readonly CurrentUserAccessor _currentUser;
+    private readonly IWeatherService _weatherService;
 
     public TripsController(
         ITripPackageService tripService,
-        CurrentUserAccessor currentUser)
+        CurrentUserAccessor currentUser,
+        IWeatherService weatherService)
     {
         _tripService = tripService;
         _currentUser = currentUser;
+        _weatherService = weatherService;
     }
 
     // GET: /Trips?FromCity=Baku&ToCity=Istanbul&DepartDate=...&ReturnDate=...
@@ -39,7 +42,12 @@ public class TripsController : Controller
         search.ReturnDate ??= search.DepartDate.Value.AddDays(4);
 
         if (!string.IsNullOrWhiteSpace(search.FromCity) && !string.IsNullOrWhiteSpace(search.ToCity))
+        {
             model.Plan = await _tripService.PlanAsync(search);
+
+            if (model.Plan.Error == null)
+                model.Weather = await _weatherService.GetForCityAsync(search.ToCity, search.DepartDate, search.ReturnDate);
+        }
 
         var user = await _currentUser.GetUserAsync(User);
 
@@ -107,6 +115,8 @@ public class TripsController : Controller
 
         if (trip == null)
             return NotFound();
+
+        ViewBag.Weather = await _weatherService.GetForCityAsync(trip.ToCity, trip.DepartDate, trip.ReturnDate);
 
         return View(trip);
     }

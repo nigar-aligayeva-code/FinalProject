@@ -12,6 +12,9 @@ public class TripsIndexViewModel
     // Axtarış edilibsə
     public TripPlanDto? Plan { get; set; }
 
+    // Gediləcək şəhərin səfər günlərindəki havası
+    public HotelTravel.Application.DTOs.Weather.TripWeatherDto? Weather { get; set; }
+
     public List<TripPackageDto> MyTrips { get; set; } = new();
 
     // Əlaqə forması üçün (daxil olmuş istifadəçidən)

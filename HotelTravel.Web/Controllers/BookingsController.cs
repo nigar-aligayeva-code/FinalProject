@@ -18,14 +18,17 @@ public class BookingsController : Controller
     private readonly CurrentUserAccessor _currentUser;
     private readonly ICarRentalService _carRentalService;
     private readonly IVoucherApiClient _voucherApi;
+    private readonly IWeatherService _weatherService;
 
     public BookingsController(
         IBookingService bookingService,
         IRoomService roomService,
         CurrentUserAccessor currentUser,
         ICarRentalService carRentalService,
-        IVoucherApiClient voucherApi)
+        IVoucherApiClient voucherApi,
+        IWeatherService weatherService)
     {
+        _weatherService = weatherService;
         _bookingService = bookingService;
         _roomService = roomService;
         _currentUser = currentUser;
@@ -84,6 +87,10 @@ public class BookingsController : Controller
 
         if (booking is null)
             return NotFound();
+
+        // Qalma günlərinin havası
+        if (booking.HotelId > 0)
+            ViewBag.Weather = await _weatherService.GetForHotelAsync(booking.HotelId, booking.CheckInDate, booking.CheckOutDate);
 
         return View(booking);
     }

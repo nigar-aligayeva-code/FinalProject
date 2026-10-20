@@ -134,6 +134,12 @@
 
                     </div>
 
+                    @if (ViewBag.Weather is HotelTravel.Application.DTOs.Weather.TripWeatherDto weather)
+                    {
+                        ViewData["WeatherTitle"] = $"Weather during your stay in {weather.Location}";
+                        <partial name="_WeatherWidget" model="weather" />
+                    }
+
                     <hr />
 
                     <div class="alert alert-warning">
