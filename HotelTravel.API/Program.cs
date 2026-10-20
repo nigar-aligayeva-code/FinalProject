@@ -1,6 +1,9 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using HotelTravel.API.Hubs;
 using HotelTravel.API.Middleware;
+using HotelTravel.API.Services;
+using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Options;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Infrastructure;
@@ -108,9 +111,46 @@ namespace HotelTravel.API
 
                         RoleClaimType = System.Security.Claims.ClaimTypes.Role
                     };
+
+                    // SignalR (WebSocket) başlıq göndərə bilmir: token query-də gəlir
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var token = context.Request.Query["access_token"];
+
+                            if (!string.IsNullOrEmpty(token) &&
+                                context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+                            {
+                                context.Token = token;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
             builder.Services.AddAuthorization();
+
+            // =========================================
+            // SIGNALR (canlı bildirişlər) + CORS
+            // =========================================
+
+            builder.Services.AddSignalR();
+            builder.Services.AddSingleton<IRealtimePublisher, SignalRRealtimePublisher>();
+
+            // Brauzer hub-a birbaşa qoşulur, ona görə MVC saytının ünvanına icazə lazımdır
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                ?? new[] { "http://localhost:5233", "https://localhost:7234" };
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("TripioWeb", policy => policy
+                    .WithOrigins(allowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials());
+            });
 
             // =========================================
             // SWAGGER + AUTHORIZE
@@ -182,10 +222,13 @@ namespace HotelTravel.API
 
             app.UseRouting();
 
+            app.UseCors("TripioWeb");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapHub<NotificationHub>("/hubs/notifications");
 
             app.Run();
         }

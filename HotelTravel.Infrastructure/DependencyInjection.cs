@@ -64,6 +64,9 @@ public static class DependencyInjection
         // TRIP PACKAGE
         services.AddScoped<ITripPackageService, TripPackageService>();
 
+        // CANLI BİLDİRİŞLƏR (IRealtimePublisher API-də qeydiyyatdan keçir)
+        services.AddScoped<IActivityNotifier, ActivityNotifier>();
+
         return services;
     }
 

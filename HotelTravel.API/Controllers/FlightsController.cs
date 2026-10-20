@@ -11,10 +11,12 @@ namespace HotelTravel.API.Controllers;
 public class FlightsController : ApiControllerBase
 {
     private readonly IFlightService _flightService;
+    private readonly IActivityNotifier _notifier;
 
-    public FlightsController(IFlightService flightService)
+    public FlightsController(IFlightService flightService, IActivityNotifier notifier)
     {
         _flightService = flightService;
+        _notifier = notifier;
     }
 
     // =========================
@@ -70,6 +72,9 @@ public class FlightsController : ApiControllerBase
     public async Task<IActionResult> Book([FromBody] CreateFlightBookingDto dto)
     {
         var result = await _flightService.BookAsync(dto, CurrentUserId);
+
+        if (result.Success && result.ConfirmationCode != null)
+            await _notifier.FlightBookedAsync(result.ConfirmationCode);
 
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message, code: result.ConfirmationCode)

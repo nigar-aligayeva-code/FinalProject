@@ -12,13 +12,16 @@ public class TripsController : ApiControllerBase
 {
     private readonly ITripPackageService _tripService;
     private readonly IBookingEmailService _bookingEmails;
+    private readonly IActivityNotifier _notifier;
 
     public TripsController(
         ITripPackageService tripService,
-        IBookingEmailService bookingEmails)
+        IBookingEmailService bookingEmails,
+        IActivityNotifier notifier)
     {
         _tripService = tripService;
         _bookingEmails = bookingEmails;
+        _notifier = notifier;
     }
 
     // GET: api/trips/origins
@@ -59,6 +62,8 @@ public class TripsController : ApiControllerBase
 
         if (package != null)
             await _bookingEmails.SendConfirmationAsync(package.HotelBookingCode);
+
+        await _notifier.TripBookedAsync(result.Code!);
 
         return Ok(ApiResultDto.Ok(result.Message, code: result.Code));
     }
