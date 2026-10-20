@@ -97,9 +97,25 @@
 
                 <div class="hh-actions">
 
-                    <span class="hh-currency" title="Prices are shown in Azerbaijani manat">
-                        AZN
-                    </span>
+                    <!-- VALYUTA SEÇİMİ (yalnız göstəriş; ödəniş AZN-dədir) -->
+                    <div class="hh-currency-menu" id="currencyMenu" data-no-currency>
+                        <button type="button" class="hh-currency" id="currencyBtn" title="Change currency">
+                            <span>AZN</span> <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="hh-currency-list" id="currencyList" hidden>
+                            <div class="hh-currency-head">
+                                <b>Currency</b>
+                                <small id="currencyUpdated"></small>
+                            </div>
+                            <button type="button" data-code="AZN"><b>₼</b> AZN <small>Azerbaijani manat</small></button>
+                            <button type="button" data-code="USD"><b>$</b> USD <small>US dollar</small></button>
+                            <button type="button" data-code="EUR"><b>€</b> EUR <small>Euro</small></button>
+                            <button type="button" data-code="TRY"><b>₺</b> TRY <small>Turkish lira</small></button>
+                            <button type="button" data-code="GEL"><b>₾</b> GEL <small>Georgian lari</small></button>
+                            <button type="button" data-code="AED"><b>د.إ</b> AED <small>UAE dirham</small></button>
+                            <p class="hh-currency-foot">You always pay in AZN. Other currencies are shown for convenience.</p>
+                        </div>
+                    </div>
 
                     <a asp-area=""
                        asp-controller="Bookings"
@@ -358,6 +374,32 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="~/js/live-activity.js" asp-append-version="true"></script>
+
+    <!-- Seçilmiş valyutada göstərilir -->
+    <div class="hh-currency-note" id="currencyNote" hidden data-no-currency>
+        <i class="bi bi-info-circle"></i> Prices converted from AZN · you pay in AZN
+    </div>
+    <style>
+        .hh-currency-menu { position: relative; }
+        .hh-currency { background: none; border: 1px solid rgba(255,255,255,.25); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .hh-currency:hover { background: rgba(255,255,255,.1); }
+        .hh-currency i { font-size: 11px; }
+        .hh-currency-list { position: absolute; right: 0; top: calc(100% + 8px); width: 260px; background: #fff; border-radius: 14px; box-shadow: 0 18px 40px rgba(31,36,33,.2); padding: 8px; z-index: 2000; }
+        .hh-currency-list[hidden] { display: none; }
+        .hh-currency-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px 8px; color: #1F2421; }
+        .hh-currency-head small { color: #6b7280; font-size: 11px; }
+        .hh-currency-list button[data-code] { display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: none; text-align: left; padding: 8px 10px; border-radius: 10px; color: #1F2421; font-weight: 600; font-size: 14px; }
+        .hh-currency-list button[data-code]:hover { background: #F3EEE5; }
+        .hh-currency-list button[data-code].active { background: #e6efe3; color: #2f4a2b; }
+        .hh-currency-list button[data-code]:disabled { opacity: .4; cursor: not-allowed; }
+        .hh-currency-list button b { width: 30px; text-align: center; color: #52614e; }
+        .hh-currency-list button small { margin-left: auto; color: #6b7280; font-weight: 400; font-size: 12px; }
+        .hh-currency-foot { margin: 6px 10px 4px; font-size: 11px; color: #6b7280; }
+        .hh-currency-note { position: fixed; right: 20px; bottom: 20px; z-index: 1400; background: #1F2421; color: #fff; border-radius: 999px; padding: 8px 14px; font-size: 12px; box-shadow: 0 10px 25px rgba(0,0,0,.2); }
+        .hh-currency-note[hidden] { display: none; }
+        @@media (max-width: 768px) { .hh-currency-menu { display: block; } .hh-currency { display: inline-flex !important; } }
+    </style>
+    <script src="~/js/currency.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 
