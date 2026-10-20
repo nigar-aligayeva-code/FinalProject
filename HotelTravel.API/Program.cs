@@ -64,6 +64,12 @@ namespace HotelTravel.API
                 client.Timeout = TimeSpan.FromSeconds(8);
             });
 
+            // VALYUTA: open.er-api.com (pulsuz, açarsız) + 6 saatlıq keş
+            builder.Services.AddHttpClient<ICurrencyService, ExchangeRateService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(8);
+            });
+
             // =========================================
             // IDENTITY (istifadəçilər və rollar)
             // =========================================
