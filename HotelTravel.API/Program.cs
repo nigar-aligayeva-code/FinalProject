@@ -8,6 +8,7 @@ using HotelTravel.Application.Options;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Infrastructure;
 using HotelTravel.Infrastructure.Persistence;
+using HotelTravel.Infrastructure.Services;
 using HotelTravel.Infrastructure.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -53,6 +54,13 @@ namespace HotelTravel.API
                 emailOptions.PickupDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Emails");
 
             builder.Services.AddSingleton(emailOptions);
+
+            // HAVA: Open-Meteo (pulsuz, açarsız) + 30 dəqiqəlik keş
+            builder.Services.AddMemoryCache();
+            builder.Services.AddHttpClient<IWeatherService, OpenMeteoWeatherService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(8);
+            });
 
             // =========================================
             // IDENTITY (istifadəçilər və rollar)

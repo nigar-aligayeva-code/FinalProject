@@ -319,11 +319,19 @@
                     </div>
                 </div>
 
+                <div class="hotel-map-col">
+                @if (ViewBag.Weather is HotelTravel.Application.DTOs.Weather.TripWeatherDto weather)
+                {
+                    ViewData["WeatherTitle"] = $"Next {weather.Days.Count} days in {weather.Location}";
+                    <partial name="_WeatherWidget" model="weather" />
+                }
+
                 <div id="hotelMap"
                      class="hotel-map"
                      data-lat="@latText"
                      data-lng="@lngText"
                      data-name="@Model.Name"></div>
+                </div>
 
             </div>
         }
@@ -1507,6 +1515,9 @@
 @section Styles {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <style>
+        .hotel-map-col { display: flex; flex-direction: column; min-width: 0; }
+        .hotel-map-col .wx-card { padding: 0 0 16px; border: none; border-bottom: 1px solid #eee7dc; border-radius: 0; }
+        .hotel-map-col .hotel-map { flex: 1; }
         .hotel-location-block { display: grid; grid-template-columns: 340px 1fr; gap: 28px; background: #fff; border-radius: 26px; padding: 28px; margin-top: 50px; box-shadow: 0 10px 30px rgba(31, 36, 33, .06); }
         .hotel-location-info h2 { font-family: Georgia, "Times New Roman", serif; margin: 10px 0 12px; color: #1F2421; }
         .loc-address { color: #4b5563; line-height: 1.6; }

@@ -1,0 +1,73 @@
+@model HotelTravel.Application.DTOs.Weather.TripWeatherDto
+@{
+    // ViewData["WeatherTitle"] ilə başlığı dəyişmək olar
+    var title = ViewData["WeatherTitle"] as string ?? $"Weather in {Model.Location}";
+    var first = Model.Days.First().Date;
+    var last = Model.Days.Last().Date;
+}
+
+<div class="wx-card">
+    <div class="wx-head">
+        <div>
+            <h3><span>🌤️</span> @title</h3>
+            <p>
+                @first.ToString("ddd dd MMM")@(first != last ? " – " + last.ToString("ddd dd MMM") : "")
+                · avg @Model.AverageMin.ToString("0")° / @Model.AverageMax.ToString("0")°C
+            </p>
+        </div>
+        @if (Model.IsForecast)
+        {
+            <span class="wx-badge">Forecast</span>
+        }
+        else
+        {
+            <span class="wx-badge wx-badge-typical" title="Your dates are more than 16 days away, so we show the weather on the same days last year.">Typical weather · last year</span>
+        }
+    </div>
+
+    <div class="wx-days">
+        @foreach (var day in Model.Days)
+        {
+            <div class="wx-day" title="@day.Summary">
+                <small>@day.Date.ToString("ddd")</small>
+                <em>@day.Date.ToString("dd MMM")</em>
+                <span class="wx-icon">@day.Icon</span>
+                <b>@day.TempMax.ToString("0")°</b>
+                <small>@day.TempMin.ToString("0")°</small>
+                @if (day.RainChance is int chance && chance > 0)
+                {
+                    <i>💧 @chance%</i>
+                }
+                else if (day.RainMm is double mm && mm > 0)
+                {
+                    <i>💧 @mm.ToString("0.#") mm</i>
+                }
+            </div>
+        }
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Advice))
+    {
+        <p class="wx-advice">@Model.Advice</p>
+    }
+
+    <p class="wx-source">Weather data: Open-Meteo</p>
+</div>
+
+<style>
+    .wx-card { background: #fff; border-radius: 20px; padding: 20px 22px; border: 1px solid #eee7dc; margin: 0 0 18px; }
+    .wx-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .wx-head h3 { font-family: Georgia, "Times New Roman", serif; font-size: 20px; margin: 0 0 2px; color: #1F2421; }
+    .wx-head p { margin: 0; color: #6b7280; font-size: 13px; }
+    .wx-badge { background: #e6efe3; color: #2f4a2b; border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .wx-badge-typical { background: #fef3c7; color: #92400e; cursor: help; }
+    .wx-days { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(78px, 1fr); gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .wx-day { background: #F3EEE5; border-radius: 14px; padding: 10px 6px; text-align: center; display: grid; gap: 1px; }
+    .wx-day small { color: #6b7280; font-size: 12px; }
+    .wx-day em { font-style: normal; font-size: 11px; color: #9ca3af; }
+    .wx-icon { font-size: 26px; line-height: 1.3; }
+    .wx-day b { font-size: 16px; color: #1F2421; }
+    .wx-day i { font-style: normal; font-size: 11px; color: #2563eb; }
+    .wx-advice { margin: 12px 0 0; font-weight: 600; color: #2f4a2b; }
+    .wx-source { margin: 6px 0 0; font-size: 11px; color: #9ca3af; }
+</style>
