@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace HotelTravel.API.Controllers;
 
 // Giriş və qeydiyyat: JWT token qaytarır
+/// <summary>Login and registration. Returns a JWT access token used by the website and Swagger.</summary>
 [Route("api/auth")]
 [AllowAnonymous]
 public class AuthController : ApiControllerBase
@@ -30,6 +31,7 @@ public class AuthController : ApiControllerBase
     }
 
     // POST: api/auth/login
+    /// <summary>Sign in with email and password. Copy accessToken from the response and click Authorize.</summary>
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthResponseDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 401)]
@@ -47,6 +49,7 @@ public class AuthController : ApiControllerBase
     }
 
     // POST: api/auth/register
+    /// <summary>Create a new user account and sign in.</summary>
     [HttpPost("register")]
     [ProducesResponseType(typeof(AuthResponseDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 400)]
@@ -85,6 +88,7 @@ public class AuthController : ApiControllerBase
     }
 
     // GET: api/auth/me  (token yoxlamaq üçün)
+    /// <summary>Current user's profile from the token (useful to test the token).</summary>
     [HttpGet("me")]
     [Authorize]
     [ProducesResponseType(typeof(AuthResponseDto), 200)]

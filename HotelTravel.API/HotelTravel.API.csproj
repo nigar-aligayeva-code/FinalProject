@@ -5,6 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>c2a935a6-23fa-4668-a4c9-c5b1b6f1b83e</UserSecretsId>
+
+    <!-- /// şərhlər Swagger-də endpoint təsviri kimi görünür -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -216,8 +216,17 @@ The MVC app finds the API through `Api:BaseUrl` in `HotelTravel.Web/appsettings.
 ### Using Swagger
 
 1. `POST /api/auth/login` → copy `accessToken`.
-2. Click **Authorize**, paste the token.
+2. Click **Authorize**, paste the token (it is kept after a page refresh).
 3. Call protected endpoints such as `GET /api/bookings/mine` or admin endpoints.
+
+Every endpoint and section has a description (XML comments), sections start collapsed and there is
+a search box to filter endpoints.
+
+### Health & monitoring
+
+* `GET /health` — JSON status of the API and the SQL Server connection (useful for uptime checks).
+* Every request is logged with its duration and returns an `X-Response-Time` header;
+  requests slower than 500 ms are logged as warnings.
 
 ---
 

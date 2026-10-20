@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelTravel.API.Controllers;
 
 // Göndərilən məktubların jurnalı (admin)
+/// <summary>Outbox of emails sent to guests (confirmations and cancellations). Admin only.</summary>
 [Route("api/emails")]
 [Authorize(Roles = "Admin")]
 public class EmailsController : ApiControllerBase
@@ -18,12 +19,14 @@ public class EmailsController : ApiControllerBase
     }
 
     // GET: api/emails?take=50
+    /// <summary>Latest sent emails (admin).</summary>
     [HttpGet]
     [ProducesResponseType(typeof(List<EmailLogDto>), 200)]
     public async Task<IActionResult> GetRecent([FromQuery] int take = 50)
         => Ok(await _emailLogService.GetRecentAsync(take));
 
     // GET: api/emails/5  (HTML mətni ilə)
+    /// <summary>One email with its HTML body (admin).</summary>
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(EmailLogDto), 200)]
     [ProducesResponseType(typeof(Application.DTOs.Common.ApiResultDto), 404)]

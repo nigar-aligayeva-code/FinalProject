@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using HotelTravel.API.Health;
 using HotelTravel.API.Hubs;
 using HotelTravel.API.Middleware;
 using HotelTravel.API.Services;
@@ -11,6 +12,7 @@ using HotelTravel.Infrastructure.Persistence;
 using HotelTravel.Infrastructure.Services;
 using HotelTravel.Infrastructure.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -145,6 +147,11 @@ namespace HotelTravel.API
             // =========================================
 
             builder.Services.AddSignalR();
+
+            // HEALTH CHECK: GET /health
+            builder.Services
+                .AddHealthChecks()
+                .AddCheck<DatabaseHealthCheck>("database");
             builder.Services.AddSingleton<IRealtimePublisher, SignalRRealtimePublisher>();
 
             // Brauzer hub-a birbaşa qoşulur, ona görə MVC saytının ünvanına icazə lazımdır
@@ -173,9 +180,26 @@ namespace HotelTravel.API
                     Title = "Tripio API",
                     Version = "v1",
                     Description =
-                        "Hotel & Travel Reservation System REST API. " +
-                        "Login via POST /api/auth/login, then click Authorize and paste the accessToken."
+                        "Hotel & Travel Reservation System REST API (ASP.NET Core 8, Clean Architecture).\n\n" +
+                        "**How to try protected endpoints:**\n" +
+                        "1. `POST /api/auth/login` with an account's email and password.\n" +
+                        "2. Copy `accessToken` from the response.\n" +
+                        "3. Click **Authorize** (top right) and paste the token.\n\n" +
+                        "Endpoints marked *(admin)* need a token with the **Admin** role. " +
+                        "Health check: `GET /health`. Live notifications: SignalR hub `/hubs/notifications`.",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Tripio",
+                        Url = new Uri("https://github.com/nigar-aligayeva-code/FinalProject")
+                    }
                 });
+
+                // /// <summary> şərhləri endpoint və bölmə təsviri kimi göstər
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                if (File.Exists(xmlPath))
+                    options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -215,6 +239,7 @@ namespace HotelTravel.API
             // HTTP PIPELINE
             // =========================================
 
+            app.UseMiddleware<RequestTimingMiddleware>();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseSwagger();
@@ -222,6 +247,11 @@ namespace HotelTravel.API
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "Tripio API v1");
                 options.DocumentTitle = "Tripio API";
+
+                options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None); // bölmələr bağlı açılsın
+                options.EnableFilter();               // axtarış qutusu
+                options.DisplayRequestDuration();     // sorğunun müddəti
+                options.EnablePersistAuthorization(); // token səhifə yenilənəndə itməsin
             });
 
             // Development-də MVC API-yə http ilə müraciət edir (redirect token-i itirər)
@@ -237,6 +267,11 @@ namespace HotelTravel.API
 
             app.MapControllers();
             app.MapHub<NotificationHub>("/hubs/notifications");
+
+            app.MapHealthChecks("/health", new HealthCheckOptions
+            {
+                ResponseWriter = HealthResponseWriter.WriteAsync
+            });
 
             app.Run();
         }

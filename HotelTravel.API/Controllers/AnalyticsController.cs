@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelTravel.API.Controllers;
 
 // Admin analitikası (gəlir, doluluq, top şəhərlər, reytinqlər)
+/// <summary>Business analytics for the admin dashboard.</summary>
 [Route("api/analytics")]
 [Authorize(Roles = "Admin")]
 public class AnalyticsController : ApiControllerBase
@@ -18,6 +19,7 @@ public class AnalyticsController : ApiControllerBase
     }
 
     // GET: api/analytics
+    /// <summary>Revenue by service and month, occupancy forecast, cancellation rate, top cities, top rooms and ratings (admin).</summary>
     [HttpGet]
     [ProducesResponseType(typeof(AnalyticsDto), 200)]
     public async Task<IActionResult> Get()

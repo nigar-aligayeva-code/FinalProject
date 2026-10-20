@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.API.Controllers;
 
+/// <summary>Hotel room bookings: create, price quote, find by code, modify, cancel, PDF voucher and admin management.</summary>
 [Route("api/bookings")]
 public class BookingsController : ApiControllerBase
 {
@@ -32,6 +33,7 @@ public class BookingsController : ApiControllerBase
     // =========================
 
     // POST: api/bookings  (token varsa rezervasiya istifadəçiyə bağlanır)
+    /// <summary>Book a room. If a token is sent, the booking is linked to the user. Sends a confirmation email with a PDF voucher.</summary>
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
@@ -53,6 +55,7 @@ public class BookingsController : ApiControllerBase
     }
 
     // GET: api/bookings/price-quote?roomId=1&checkInDate=...&checkOutDate=...&email=...&promoCode=...
+    /// <summary>Price for a room and dates, including promo code and loyalty discounts. Nothing is booked.</summary>
     [HttpGet("price-quote")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PriceQuoteDto), 200)]
@@ -66,6 +69,7 @@ public class BookingsController : ApiControllerBase
             roomId, checkInDate, checkOutDate, email, CurrentUserId, promoCode));
 
     // GET: api/bookings/by-code/BK-1234ABCD
+    /// <summary>Find a booking by its confirmation code.</summary>
     [HttpGet("by-code/{confirmationCode}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(GetBookingDto), 200)]
@@ -75,6 +79,7 @@ public class BookingsController : ApiControllerBase
             "Booking not found.");
 
     // GET: api/bookings/by-code/BK-1234ABCD/voucher.pdf
+    /// <summary>Download the booking voucher as a PDF with a QR code.</summary>
     [HttpGet("by-code/{confirmationCode}/voucher.pdf")]
     [AllowAnonymous]
     [ProducesResponseType(200)]
@@ -92,6 +97,7 @@ public class BookingsController : ApiControllerBase
     }
 
     // POST: api/bookings/by-code/BK-1234ABCD/send-email  (məktub yalnız rezervasiyanın öz email-inə gedir)
+    /// <summary>Send the confirmation email (with PDF voucher) again. It always goes to the email on the booking.</summary>
     [HttpPost("by-code/{confirmationCode}/send-email")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
@@ -106,6 +112,7 @@ public class BookingsController : ApiControllerBase
     }
 
     // POST: api/bookings/cancel  (kod + email ilə)
+    /// <summary>Cancel a booking with confirmation code + email (guest without account).</summary>
     [HttpPost("cancel")]
     [AllowAnonymous]
     public async Task<IActionResult> CancelByGuest([FromBody] CancelBookingDto dto)
@@ -124,6 +131,7 @@ public class BookingsController : ApiControllerBase
     }
 
     // POST: api/bookings/modify
+    /// <summary>Change the dates or guests of a booking.</summary>
     [HttpPost("modify")]
     [AllowAnonymous]
     public async Task<IActionResult> Modify([FromBody] ModifyBookingDto dto)
@@ -140,6 +148,7 @@ public class BookingsController : ApiControllerBase
     // =========================
 
     // GET: api/bookings/mine
+    /// <summary>Bookings of the signed-in user.</summary>
     [HttpGet("mine")]
     [Authorize]
     [ProducesResponseType(typeof(List<GetBookingDto>), 200)]
@@ -147,6 +156,7 @@ public class BookingsController : ApiControllerBase
         => Ok(await _bookingService.GetByUserIdAsync(CurrentUserId!));
 
     // POST: api/bookings/5/cancel-mine
+    /// <summary>Cancel one of the signed-in user's bookings.</summary>
     [HttpPost("{id:int}/cancel-mine")]
     [Authorize]
     public async Task<IActionResult> CancelMine(int id)
@@ -174,6 +184,7 @@ public class BookingsController : ApiControllerBase
     // =========================
 
     // GET: api/bookings
+    /// <summary>All bookings (admin).</summary>
     [HttpGet]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(List<GetBookingDto>), 200)]
@@ -181,6 +192,7 @@ public class BookingsController : ApiControllerBase
         => Ok(await _bookingService.GetAllAsync());
 
     // GET: api/bookings/5
+    /// <summary>One booking by id (admin).</summary>
     [HttpGet("{id:int}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(GetBookingDto), 200)]
@@ -188,6 +200,7 @@ public class BookingsController : ApiControllerBase
         => OkOrNotFound(await _bookingService.GetByIdAsync(id), "Booking not found.");
 
     // PUT: api/bookings/5/status
+    /// <summary>Change booking status: Confirmed, CheckedIn, CheckedOut or Cancelled (admin).</summary>
     [HttpPut("{id:int}/status")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateStatus(
@@ -199,6 +212,7 @@ public class BookingsController : ApiControllerBase
             "Booking status could not be changed.");
 
     // GET: api/bookings/occupancy-calendar
+    /// <summary>Bookings per room and day for the occupancy calendar (admin).</summary>
     [HttpGet("occupancy-calendar")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(List<OccupancyCalendarDto>), 200)]

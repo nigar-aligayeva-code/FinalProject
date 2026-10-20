@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HotelTravel.API.Controllers;
 
+/// <summary>Car rental: search the fleet by city and dates, book, cancel and admin fleet management.</summary>
 [Route("api/cars")]
 public class CarsController : ApiControllerBase
 {
@@ -24,6 +25,7 @@ public class CarsController : ApiControllerBase
     // =========================
 
     // GET: api/cars/cities
+    /// <summary>Cities with rental cars.</summary>
     [HttpGet("cities")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<string>), 200)]
@@ -31,6 +33,7 @@ public class CarsController : ApiControllerBase
         => Ok(await _carRentalService.GetCitiesAsync());
 
     // GET: api/cars/search?city=Baku&pickupDate=...&returnDate=...
+    /// <summary>Available cars in a city for the given pick-up and return dates.</summary>
     [HttpGet("search")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(List<CarDto>), 200)]
@@ -41,6 +44,7 @@ public class CarsController : ApiControllerBase
         => Ok(await _carRentalService.SearchAsync(city, pickupDate, returnDate));
 
     // GET: api/cars/5?pickupDate=...&returnDate=...
+    /// <summary>One car with the price for the given dates.</summary>
     [HttpGet("{id:int}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(CarDto), 200)]
@@ -51,6 +55,7 @@ public class CarsController : ApiControllerBase
         => OkOrNotFound(await _carRentalService.GetCarAsync(id, pickupDate, returnDate), "Car not found.");
 
     // POST: api/cars/rentals
+    /// <summary>Rent a car.</summary>
     [HttpPost("rentals")]
     [AllowAnonymous]
     public async Task<IActionResult> Book([FromBody] CreateCarRentalDto dto)
@@ -66,6 +71,7 @@ public class CarsController : ApiControllerBase
     }
 
     // GET: api/cars/rentals/by-code/CR-1234ABCD
+    /// <summary>Find a car rental by its confirmation code.</summary>
     [HttpGet("rentals/by-code/{confirmationCode}")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(CarRentalDto), 200)]
@@ -73,6 +79,7 @@ public class CarsController : ApiControllerBase
         => OkOrNotFound(await _carRentalService.GetByCodeAsync(confirmationCode), "Car rental not found.");
 
     // GET: api/cars/rentals/mine
+    /// <summary>Car rentals of the signed-in user.</summary>
     [HttpGet("rentals/mine")]
     [Authorize]
     [ProducesResponseType(typeof(List<CarRentalDto>), 200)]
@@ -80,6 +87,7 @@ public class CarsController : ApiControllerBase
         => Ok(await _carRentalService.GetByUserAsync(CurrentUserId!));
 
     // POST: api/cars/rentals/5/cancel-mine
+    /// <summary>Cancel one of the signed-in user's car rentals.</summary>
     [HttpPost("rentals/{id:int}/cancel-mine")]
     [Authorize]
     public async Task<IActionResult> CancelMine(int id)
@@ -96,6 +104,7 @@ public class CarsController : ApiControllerBase
     // =========================
 
     // GET: api/cars/fleet?city=Baku
+    /// <summary>The whole fleet, optionally filtered by city (admin).</summary>
     [HttpGet("fleet")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(List<CarDto>), 200)]
@@ -103,6 +112,7 @@ public class CarsController : ApiControllerBase
         => Ok(await _carRentalService.GetFleetAsync(city));
 
     // GET: api/cars/5/edit
+    /// <summary>A car for the edit form (admin).</summary>
     [HttpGet("{id:int}/edit")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(SaveCarDto), 200)]
@@ -110,6 +120,7 @@ public class CarsController : ApiControllerBase
         => OkOrNotFound(await _carRentalService.GetCarForEditAsync(id), "Car not found.");
 
     // POST: api/cars/fleet  (Id varsa yeniləyir)
+    /// <summary>Create a car, or update it if Id is set (admin).</summary>
     [HttpPost("fleet")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> SaveCar([FromBody] SaveCarDto dto)
@@ -119,12 +130,14 @@ public class CarsController : ApiControllerBase
     }
 
     // POST: api/cars/5/toggle
+    /// <summary>Activate or deactivate a car (admin).</summary>
     [HttpPost("{id:int}/toggle")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Toggle(int id)
         => FromBool(await _carRentalService.ToggleCarAsync(id), "Car updated.", "Car not found.");
 
     // GET: api/cars/rentals
+    /// <summary>All car rentals (admin).</summary>
     [HttpGet("rentals")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(List<CarRentalDto>), 200)]
@@ -132,6 +145,7 @@ public class CarsController : ApiControllerBase
         => Ok(await _carRentalService.GetRentalsAsync());
 
     // PUT: api/cars/rentals/5/status
+    /// <summary>Change car rental status (admin).</summary>
     [HttpPut("rentals/{id:int}/status")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RentalStatus(
