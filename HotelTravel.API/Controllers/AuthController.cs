@@ -5,7 +5,13 @@ using HotelTravel.API.DTOs.Auth;
 using HotelTravel.Application.DTOs.Account;
 using HotelTravel.Application.DTOs.Auth;
 using HotelTravel.Application.DTOs.Common;
+using HotelTravel.Application.DTOs.Email;
+using HotelTravel.Application.Interfaces;
+using HotelTravel.Application.Options;
+using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,29 +27,54 @@ public class AuthController : ApiControllerBase
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly IConfiguration _configuration;
+    private readonly IEmailOutbox _outbox;
+    private readonly EmailOptions _emailOptions;
 
     public AuthController(
         UserManager<AppUser> userManager,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IEmailOutbox outbox,
+        EmailOptions emailOptions)
     {
         _userManager = userManager;
         _configuration = configuration;
+        _outbox = outbox;
+        _emailOptions = emailOptions;
     }
 
     // POST: api/auth/login
     /// <summary>Sign in with email and password. Copy accessToken from the response and click Authorize.</summary>
     [HttpPost("login")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     [ProducesResponseType(typeof(AuthResponseDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 401)]
+    [ProducesResponseType(typeof(ApiResultDto), 429)]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
 
-        if (user == null ||
-            !await _userManager.CheckPasswordAsync(user, request.Password))
-        {
+        if (user == null)
             return Unauthorized(ApiResultDto.Fail("Email or password is incorrect."));
+
+        // Çoxlu səhv cəhd -> hesab müvəqqəti bloklanıb
+        if (await _userManager.IsLockedOutAsync(user))
+            return Unauthorized(ApiResultDto.Fail(LockedMessage(await _userManager.GetLockoutEndDateAsync(user))));
+
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
+        {
+            await _userManager.AccessFailedAsync(user);
+
+            if (await _userManager.IsLockedOutAsync(user))
+                return Unauthorized(ApiResultDto.Fail(LockedMessage(await _userManager.GetLockoutEndDateAsync(user))));
+
+            var left = _userManager.Options.Lockout.MaxFailedAccessAttempts - await _userManager.GetAccessFailedCountAsync(user);
+
+            return Unauthorized(ApiResultDto.Fail(left <= 2
+                ? $"Email or password is incorrect. {left} attempt{(left == 1 ? "" : "s")} left before the account is locked for a few minutes."
+                : "Email or password is incorrect."));
         }
+
+        await _userManager.ResetAccessFailedCountAsync(user);
 
         return Ok(await CreateTokenAsync(user));
     }
@@ -51,6 +82,7 @@ public class AuthController : ApiControllerBase
     // POST: api/auth/register
     /// <summary>Create a new user account and sign in.</summary>
     [HttpPost("register")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
     [ProducesResponseType(typeof(AuthResponseDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 400)]
     public async Task<IActionResult> Register([FromBody] RegisterDto request)
@@ -87,6 +119,81 @@ public class AuthController : ApiControllerBase
         return Ok(await CreateTokenAsync(user));
     }
 
+    // POST: api/auth/forgot-password
+    /// <summary>Send a password reset link by email. Always returns OK, so nobody can find out which emails are registered.</summary>
+    [HttpPost("forgot-password")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
+    [ProducesResponseType(typeof(ApiResultDto), 200)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+    {
+        const string message = "If an account exists for this email, a reset link has been sent.";
+
+        var user = await _userManager.FindByEmailAsync(dto.Email.Trim());
+
+        if (user == null)
+            return Ok(ApiResultDto.Ok(message));
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var encoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+        var link = AccountEmailTemplates.ResetLink(_emailOptions.PublicSiteUrl, user.Email!, encoded);
+        var (subject, html) = AccountEmailTemplates.PasswordReset(user.FirstName, link);
+
+        await _outbox.SendAsync(new EmailMessage
+        {
+            To = user.Email!,
+            Subject = subject,
+            HtmlBody = html,
+            LogHtmlBody = AccountEmailTemplates.PasswordResetForLog(user.FirstName).Html
+        }, AccountEmailTemplates.PasswordResetType, null);
+
+        return Ok(ApiResultDto.Ok(message));
+    }
+
+    // POST: api/auth/reset-password
+    /// <summary>Set a new password with the token from the reset email. Also unlocks a locked account.</summary>
+    [HttpPost("reset-password")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
+    [ProducesResponseType(typeof(ApiResultDto), 200)]
+    [ProducesResponseType(typeof(ApiResultDto), 400)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+    {
+        const string invalid = "This reset link is invalid or has expired. Please request a new one.";
+
+        var user = await _userManager.FindByEmailAsync(dto.Email.Trim());
+
+        if (user == null)
+            return BadRequest(ApiResultDto.Fail(invalid));
+
+        string token;
+
+        try
+        {
+            token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(dto.Token));
+        }
+        catch (FormatException)
+        {
+            return BadRequest(ApiResultDto.Fail(invalid));
+        }
+
+        var result = await _userManager.ResetPasswordAsync(user, token, dto.NewPassword);
+
+        if (!result.Succeeded)
+        {
+            var message = result.Errors.Any(e => e.Code == "InvalidToken")
+                ? invalid
+                : string.Join(" ", result.Errors.Select(e => e.Description));
+
+            return BadRequest(ApiResultDto.Fail(message));
+        }
+
+        // Yeni şifrə qoyulandan sonra blok açılır
+        await _userManager.SetLockoutEndDateAsync(user, null);
+        await _userManager.ResetAccessFailedCountAsync(user);
+
+        return Ok(ApiResultDto.Ok("Your password has been changed. You can sign in now."));
+    }
+
     // GET: api/auth/me  (token yoxlamaq üçün)
     /// <summary>Current user's profile from the token (useful to test the token).</summary>
     [HttpGet("me")]
@@ -113,6 +220,16 @@ public class AuthController : ApiControllerBase
         });
     }
 
+
+    private static string LockedMessage(DateTimeOffset? lockoutEnd)
+    {
+        var minutes = lockoutEnd.HasValue
+            ? Math.Max(1, (int)Math.Ceiling((lockoutEnd.Value - DateTimeOffset.UtcNow).TotalMinutes))
+            : 5;
+
+        return $"Too many failed attempts. The account is locked for {minutes} minute{(minutes == 1 ? "" : "s")}. " +
+               "You can also reset your password.";
+    }
 
     // =========================
     // TOKEN

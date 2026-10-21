@@ -1,7 +1,6 @@
 using HotelTravel.Application.DTOs.Email;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Options;
-using HotelTravel.Domain.Entities;
 
 namespace HotelTravel.Application.Services;
 
@@ -11,21 +10,18 @@ public class BookingEmailService : IBookingEmailService
 {
     private readonly IBookingService _bookingService;
     private readonly IVoucherPdfService _pdfService;
-    private readonly IEmailSender _emailSender;
-    private readonly IAppDbContext _context;
+    private readonly IEmailOutbox _outbox;
     private readonly EmailOptions _options;
 
     public BookingEmailService(
         IBookingService bookingService,
         IVoucherPdfService pdfService,
-        IEmailSender emailSender,
-        IAppDbContext context,
+        IEmailOutbox outbox,
         EmailOptions options)
     {
         _bookingService = bookingService;
         _pdfService = pdfService;
-        _emailSender = emailSender;
-        _context = context;
+        _outbox = outbox;
         _options = options;
     }
 
@@ -83,41 +79,9 @@ public class BookingEmailService : IBookingEmailService
         }, BookingEmailTemplates.CancellationType, booking.ConfirmationCode);
     }
 
-    private async Task<(bool Success, string Message)> DeliverAsync(
+    private Task<(bool Success, string Message)> DeliverAsync(
         EmailMessage message,
         string type,
         string code)
-    {
-        var log = new EmailLog
-        {
-            To = message.To,
-            Subject = message.Subject,
-            HtmlBody = message.HtmlBody,
-            Type = type,
-            ReferenceCode = code,
-            HasAttachment = message.Attachments.Count > 0,
-            CreatedAt = DateTime.Now
-        };
-
-        try
-        {
-            if (string.IsNullOrWhiteSpace(message.To))
-                throw new InvalidOperationException("The booking has no email address.");
-
-            await _emailSender.SendAsync(message);
-            log.Delivered = true;
-        }
-        catch (Exception ex)
-        {
-            log.Delivered = false;
-            log.Error = ex.Message.Length > 500 ? ex.Message[..500] : ex.Message;
-        }
-
-        _context.EmailLogs.Add(log);
-        await _context.SaveChangesAsync();
-
-        return log.Delivered
-            ? (true, $"Email sent to {message.To}.")
-            : (false, "The email could not be sent: " + log.Error);
-    }
+        => _outbox.SendAsync(message, type, code);
 }

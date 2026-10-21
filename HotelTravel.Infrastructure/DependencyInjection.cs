@@ -57,6 +57,7 @@ public static class DependencyInjection
 
         // EMAIL + PDF
         services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<IEmailOutbox, EmailOutbox>();
         services.AddSingleton<IVoucherPdfService, QuestPdfVoucherService>();
         services.AddScoped<IBookingEmailService, BookingEmailService>();
         services.AddScoped<IEmailLogService, EmailLogService>();

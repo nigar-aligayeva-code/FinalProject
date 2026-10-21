@@ -107,8 +107,13 @@ else
                     <div class="em-error"><i class="bi bi-exclamation-triangle"></i> @selected.Error</div>
                 }
 
-                <!-- Məktub ayrıca, skriptsiz "sandbox" çərçivədə göstərilir -->
-                <iframe class="em-frame" sandbox="" srcdoc="@selected.HtmlBody" title="Email preview"></iframe>
+                <!-- Məktub ayrıca, skriptsiz "sandbox" çərçivədə göstərilir; linklər klik olunmur -->
+                <iframe class="em-frame" sandbox="" title="Email preview"
+                        srcdoc="@("<style>a{pointer-events:none!important;cursor:default!important}</style>" + selected.HtmlBody)"></iframe>
+                <p class="em-tip" style="margin:10px 22px 16px">
+                    <i class="bi bi-shield-lock"></i>
+                    Preview only — links are disabled. Password reset links are never stored in the log.
+                </p>
             }
         </div>
     </div>

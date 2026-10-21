@@ -12,7 +12,9 @@ using HotelTravel.Infrastructure.Persistence;
 using HotelTravel.Infrastructure.Services;
 using HotelTravel.Infrastructure.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -83,6 +85,11 @@ namespace HotelTravel.API
                     options.Password.RequireNonAlphanumeric = false;
                     options.Password.RequiredLength = 6;
                     options.User.RequireUniqueEmail = true;
+
+                    // 5 səhv cəhddən sonra hesab 5 dəqiqəlik bloklanır
+                    options.Lockout.MaxFailedAccessAttempts = 5;
+                    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                    options.Lockout.AllowedForNewUsers = true;
                 })
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
@@ -153,6 +160,31 @@ namespace HotelTravel.API
             // =========================================
 
             builder.Services.AddSignalR();
+
+            // RATE LIMITING: login / qeydiyyat / şifrə bərpası üçün bir IP-dən dəqiqədə 10 sorğu
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                options.AddPolicy(RateLimitPolicies.Auth, httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 10,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueLimit = 0
+                        }));
+
+                options.OnRejected = async (context, cancellationToken) =>
+                {
+                    context.HttpContext.Response.ContentType = "application/json";
+                    await context.HttpContext.Response.WriteAsJsonAsync(
+                        HotelTravel.Application.DTOs.Common.ApiResultDto.Fail(
+                            "Too many attempts. Please wait a minute and try again."),
+                        cancellationToken);
+                };
+            });
 
             // HEALTH CHECK: GET /health
             builder.Services
@@ -267,6 +299,8 @@ namespace HotelTravel.API
             app.UseRouting();
 
             app.UseCors("TripioWeb");
+
+            app.UseRateLimiter();
 
             app.UseAuthentication();
             app.UseAuthorization();

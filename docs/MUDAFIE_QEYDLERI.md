@@ -126,6 +126,18 @@ Continuous Integration: kod GitHub-a push olunanda **GitHub Actions** avtomatik 
 build edir və bütün testləri işə salır (`.github/workflows/ci.yml`). Nəsə sınarsa, PR-da qırmızı
 görünür, yəni xətalı kod `master`-ə düşmür. README-dəki nişan son nəticəni göstərir.
 
+**Şifrəni unudan istifadəçi nə edir? Bu təhlükəsizdirmi?**
+Login səhifəsində "Forgot password?" → email yazır → API Identity ilə birdəfəlik, 24 saatlıq
+token yaradır və linki məktubla göndərir. Email bazada olsa da, olmasa da cavab eynidir, beləcə
+kənar şəxs hansı email-lərin qeydiyyatda olduğunu öyrənə bilmir. Yeni şifrə qoyulanda hesabın
+bloku da açılır.
+
+**Brute-force (şifrəni təxmin etmə) hücumundan necə qorunursunuz?**
+İki qat: (1) **Rate limiting** — bir IP-dən login/qeydiyyat/şifrə bərpasına dəqiqədə 10 sorğu,
+artıq olanda 429 qaytarılır (.NET 8-in öz `AddRateLimiter` aləti). (2) **Lockout** — eyni hesaba
+5 səhv şifrədən sonra hesab 5 dəqiqə bloklanır (ASP.NET Identity). Son 2 cəhddə istifadəçiyə
+xəbərdarlıq göstərilir.
+
 **Swagger-də endpoint təsvirləri haradan gəlir?**
 Controller-lərdəki `/// <summary>` XML şərhlərindən. Layihə build olanda XML fayl yaranır
 (`GenerateDocumentationFile`), Swagger onu oxuyub hər endpoint-in və bölmənin təsvirini göstərir.
