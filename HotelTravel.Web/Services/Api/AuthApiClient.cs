@@ -10,6 +10,10 @@ public interface IAuthApiClient
     Task<(AuthResponseDto? Auth, string? Error)> LoginAsync(string email, string password);
 
     Task<(AuthResponseDto? Auth, string? Error)> RegisterAsync(RegisterDto dto);
+
+    Task<ApiResultDto> ForgotPasswordAsync(string email);
+
+    Task<ApiResultDto> ResetPasswordAsync(ResetPasswordDto dto);
 }
 
 // Login / register: API-dən JWT token alır (api/auth)
@@ -27,6 +31,53 @@ public class AuthApiClient : IAuthApiClient
 
     public Task<(AuthResponseDto? Auth, string? Error)> RegisterAsync(RegisterDto dto)
         => PostAsync("api/auth/register", dto, "Registration failed.");
+
+    public Task<ApiResultDto> ForgotPasswordAsync(string email)
+        => PostForResultAsync("api/auth/forgot-password", new ForgotPasswordDto { Email = email });
+
+    public Task<ApiResultDto> ResetPasswordAsync(ResetPasswordDto dto)
+        => PostForResultAsync("api/auth/reset-password", dto);
+
+    // Cavab ApiResultDto-dur (token yoxdur)
+    private async Task<ApiResultDto> PostForResultAsync(string url, object body)
+    {
+        HttpResponseMessage response;
+
+        try
+        {
+            response = await _http.PostAsJsonAsync(url, body, ApiClient.JsonOptions);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new ApiUnavailableException(ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            throw new ApiUnavailableException(ex);
+        }
+
+        using (response)
+        {
+            if ((int)response.StatusCode >= 500)
+                return ApiResultDto.Fail("The server could not process the request. Please try again.");
+
+            try
+            {
+                var result = await response.Content.ReadFromJsonAsync<ApiResultDto>(ApiClient.JsonOptions);
+
+                if (result != null && !string.IsNullOrWhiteSpace(result.Message))
+                    return result;
+            }
+            catch
+            {
+                // validation cavabı
+            }
+
+            return response.IsSuccessStatusCode
+                ? ApiResultDto.Ok()
+                : ApiResultDto.Fail("Please check the form and try again.");
+        }
+    }
 
     private async Task<(AuthResponseDto? Auth, string? Error)> PostAsync(
         string url,

@@ -140,6 +140,8 @@ sequenceDiagram
   the nearest airport, directions and a one-click airport taxi.
 * **User profile** — travel stats and traveler level, edit details, change password,
   **12 illustrated avatars** (or initials).
+* **Account security** — "Forgot password" with an emailed one-time link (24 h), account lockout
+  after 5 failed logins, and rate limiting (10 auth requests per minute per IP).
 
 ### Trip package flow
 

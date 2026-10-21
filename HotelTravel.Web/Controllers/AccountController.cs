@@ -101,6 +101,66 @@ public class AccountController : Controller
     }
 
 
+    // FORGOT PASSWORD
+    [HttpGet]
+    public IActionResult ForgotPassword()
+    {
+        return View(new ForgotPasswordDto());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto)
+    {
+        if (!ModelState.IsValid)
+            return View(dto);
+
+        var result = await _authApi.ForgotPasswordAsync(dto.Email);
+
+        if (!result.Success)
+        {
+            ModelState.AddModelError(string.Empty, result.Message);
+            return View(dto);
+        }
+
+        // Email mövcud olsa da, olmasa da eyni mesaj (kimin qeydiyyatda olduğu bilinməsin)
+        TempData["ResetSent"] = result.Message;
+
+        return RedirectToAction(nameof(ForgotPassword));
+    }
+
+
+    // RESET PASSWORD (məktubdakı link)
+    [HttpGet]
+    public IActionResult ResetPassword(string? email, string? token)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+            return RedirectToAction(nameof(ForgotPassword));
+
+        return View(new ResetPasswordDto { Email = email, Token = token });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
+    {
+        if (!ModelState.IsValid)
+            return View(dto);
+
+        var result = await _authApi.ResetPasswordAsync(dto);
+
+        if (!result.Success)
+        {
+            ModelState.AddModelError(string.Empty, result.Message);
+            return View(dto);
+        }
+
+        TempData["LoginMessage"] = result.Message;
+
+        return RedirectToAction(nameof(Login));
+    }
+
+
     // ACCESS DENIED
     [HttpGet]
     public IActionResult AccessDenied()
