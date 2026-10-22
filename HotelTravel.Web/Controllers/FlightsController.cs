@@ -160,6 +160,25 @@ public class FlightsController : Controller
     }
 
 
+    // ADD TO CALENDAR (.ics)
+    [HttpGet]
+    public async Task<IActionResult> CalendarFile(string confirmationCode)
+    {
+        var flight = await _flightService.GetByCodeAsync(confirmationCode);
+
+        if (flight is null)
+            return NotFound();
+
+        var ics = HotelTravel.Application.Services.CalendarRules.BuildIcs(
+            HotelTravel.Application.Services.CalendarRules.ForFlight(
+                flight.ConfirmationCode, flight.Airline, flight.FlightNumber,
+                flight.FromCity, flight.FromCode, flight.ToCity, flight.ToCode,
+                flight.DepartureTime, flight.ArrivalTime));
+
+        return File(System.Text.Encoding.UTF8.GetBytes(ics), "text/calendar", $"Tripio-{flight.ConfirmationCode}.ics");
+    }
+
+
     // =========================
     // CONFIRMATION
     // =========================

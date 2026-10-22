@@ -87,6 +87,19 @@
                        class="hh-btn hh-btn-outline">
                         Book return flight
                     </a>
+
+                    <a asp-controller="Flights"
+                       asp-action="CalendarFile"
+                       asp-route-confirmationCode="@Model.ConfirmationCode"
+                       class="hh-btn hh-btn-outline">
+                        <i class="bi bi-calendar-plus"></i> Add to calendar
+                    </a>
+
+                    <a href="@(HotelTravel.Application.Services.CalendarRules.GoogleUrl(HotelTravel.Application.Services.CalendarRules.ForFlight(Model.ConfirmationCode, Model.Airline, Model.FlightNumber, Model.FromCity, Model.FromCode, Model.ToCity, Model.ToCode, Model.DepartureTime, Model.ArrivalTime)))"
+                       target="_blank" rel="noopener"
+                       class="hh-btn hh-btn-outline">
+                        <i class="bi bi-google"></i> Google Calendar
+                    </a>
                 </div>
 
                 <!-- Səfəri tamamla: otel + taksi -->

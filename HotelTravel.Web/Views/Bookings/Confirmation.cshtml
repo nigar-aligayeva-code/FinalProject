@@ -156,6 +156,25 @@
                             Download PDF voucher
                         </a>
 
+                        @{
+                            var calEvent = HotelTravel.Application.Services.CalendarRules.ForHotel(
+                                Model.ConfirmationCode, Model.HotelName ?? "Hotel", Model.HotelAddress, Model.HotelCity,
+                                Model.CheckInDate, Model.CheckOutDate, Model.RoomName);
+                        }
+                        <a asp-controller="Bookings"
+                           asp-action="CalendarFile"
+                           asp-route-confirmationCode="@Model.ConfirmationCode"
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-calendar-plus"></i>
+                            Add to calendar
+                        </a>
+                        <a href="@(HotelTravel.Application.Services.CalendarRules.GoogleUrl(calEvent))"
+                           target="_blank" rel="noopener"
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-google"></i>
+                            Google Calendar
+                        </a>
+
                         <form asp-controller="Bookings"
                               asp-action="SendVoucherEmail"
                               method="post"
@@ -200,4 +219,4 @@
         </div>
     </div>
 
-</div>
+</div>

@@ -1,5 +1,6 @@
 ﻿using HotelTravel.Application.DTOs.Bookings;
 using HotelTravel.Application.Interfaces;
+using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
 using HotelTravel.Web.ViewModels;
@@ -483,6 +484,25 @@ public class BookingsController : Controller
             return NotFound();
 
         return File(pdf, "application/pdf", $"Tripio-{confirmationCode.Trim().ToUpperInvariant()}.pdf");
+    }
+
+
+    // =========================
+    // ADD TO CALENDAR (.ics)
+    // =========================
+    [HttpGet]
+    public async Task<IActionResult> CalendarFile(string confirmationCode)
+    {
+        var booking = await _bookingService.GetByConfirmationCodeAsync(confirmationCode);
+
+        if (booking is null)
+            return NotFound();
+
+        var ics = CalendarRules.BuildIcs(CalendarRules.ForHotel(
+            booking.ConfirmationCode, booking.HotelName ?? "Hotel", booking.HotelAddress, booking.HotelCity,
+            booking.CheckInDate, booking.CheckOutDate, booking.RoomName));
+
+        return File(System.Text.Encoding.UTF8.GetBytes(ics), "text/calendar", $"Tripio-{booking.ConfirmationCode}.ics");
     }
 
 
