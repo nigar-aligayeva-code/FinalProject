@@ -115,6 +115,15 @@
                 </a>
 
                 <a asp-controller="Bookings"
+                   asp-action="CalendarFile"
+                   asp-route-confirmationCode="@Model.ConfirmationCode"
+                   class="btn btn-sm btn-outline-primary"
+                   title="Add to calendar (.ics)">
+                    <i class="bi bi-calendar-plus me-1"></i>
+                    Calendar
+                </a>
+
+                <a asp-controller="Bookings"
                    asp-action="VoucherPdf"
                    asp-route-confirmationCode="@Model.ConfirmationCode"
                    class="btn btn-sm btn-outline-dark">

@@ -49,6 +49,15 @@
                 Details
             </a>
 
+            <a asp-controller="Flights"
+               asp-action="CalendarFile"
+               asp-route-confirmationCode="@flight.ConfirmationCode"
+               class="btn btn-sm btn-outline-primary"
+               title="Add to calendar (.ics)">
+                <i class="bi bi-calendar-plus me-1"></i>
+                Calendar
+            </a>
+
             @if (flight.CanCancel)
             {
                 <form asp-controller="Flights"
