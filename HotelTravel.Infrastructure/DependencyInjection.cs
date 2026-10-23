@@ -62,6 +62,10 @@ public static class DependencyInjection
         services.AddScoped<IBookingEmailService, BookingEmailService>();
         services.AddScoped<IEmailLogService, EmailLogService>();
 
+        // EXCEL / CSV HESABATLAR
+        services.AddSingleton<IXlsxWriter, ClosedXmlWriter>();
+        services.AddScoped<IExportService, ExportService>();
+
         // TRIP PACKAGE
         services.AddScoped<ITripPackageService, TripPackageService>();
 

@@ -19,13 +19,17 @@
         <p>Manage the fleet in each city and see guests' car rentals.</p>
     </div>
 
-    <a asp-area="Admin"
-       asp-controller="Cars"
-       asp-action="Edit"
-       asp-route-city="@selectedCity"
-       class="cg-btn">
-        + Add car
-    </a>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <partial name="_ExportButtons" model="@("cars")" />
+
+        <a asp-area="Admin"
+           asp-controller="Cars"
+           asp-action="Edit"
+           asp-route-city="@selectedCity"
+           class="cg-btn">
+            + Add car
+        </a>
+    </div>
 </div>
 
 @if (TempData["SuccessMessage"] != null)

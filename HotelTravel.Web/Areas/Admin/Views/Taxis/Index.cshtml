@@ -23,6 +23,8 @@
         <h1>Airport Taxis</h1>
         <p>Transfers between airports and our hotels. Mark trips as completed or cancel them.</p>
     </div>
+
+    <partial name="_ExportButtons" model="@("taxis")" />
 </div>
 
 @if (TempData["SuccessMessage"] != null)

@@ -28,12 +28,16 @@
         <p>Daily flight schedule between hotel cities and guests' flight bookings.</p>
     </div>
 
-    <a asp-area="Admin"
-       asp-controller="Flights"
-       asp-action="Edit"
-       class="cg-btn">
-        + Add flight
-    </a>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <partial name="_ExportButtons" model="@("flights")" />
+
+        <a asp-area="Admin"
+           asp-controller="Flights"
+           asp-action="Edit"
+           class="cg-btn">
+            + Add flight
+        </a>
+    </div>
 </div>
 
 @if (TempData["SuccessMessage"] != null)

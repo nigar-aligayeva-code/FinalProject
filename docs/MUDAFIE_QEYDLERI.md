@@ -138,6 +138,13 @@ artıq olanda 429 qaytarılır (.NET 8-in öz `AddRateLimiter` aləti). (2) **Lo
 5 səhv şifrədən sonra hesab 5 dəqiqə bloklanır (ASP.NET Identity). Son 2 cəhddə istifadəçiyə
 xəbərdarlıq göstərilir.
 
+**Excel hesabatı necə yaranır?**
+API-də `ExportService` məlumatı servislərdən alıb formatdan asılı olmayan `ExportTable`-a çevirir.
+Sonra ya `ClosedXmlWriter` (Excel: başlıq, tarix/pul formatı, filtr, sabit başlıq sətri, `SUM`
+formulası ilə cəm sətri), ya da `CsvExport` (CSV) faylı yazır. Yalnız Admin yükləyə bilir.
+CSV-də `=`, `+`, `-`, `@` ilə başlayan mətnin qabağına `'` qoyulur ki, Excel onu formula kimi
+işlətməsin (CSV injection qoruması).
+
 **Swagger-də endpoint təsvirləri haradan gəlir?**
 Controller-lərdəki `/// <summary>` XML şərhlərindən. Layihə build olanda XML fayl yaranır
 (`GenerateDocumentationFile`), Swagger onu oxuyub hər endpoint-in və bölmənin təsvirini göstərir.
