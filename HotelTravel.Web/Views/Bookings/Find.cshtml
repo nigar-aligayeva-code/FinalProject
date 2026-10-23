@@ -13,11 +13,11 @@
                 <div class="card-body p-4">
 
                     <h2 class="text-center mb-3">
-                        Find My Booking
+                        @T["Find My Booking"]
                     </h2>
 
                     <p class="text-muted text-center mb-4">
-                        Enter your confirmation code to view your reservation.
+                        @T["Enter your confirmation code to view your reservation."]
                     </p>
 
                     @if (ViewBag.ErrorMessage != null)
@@ -36,13 +36,13 @@
                         <div class="mb-3">
 
                             <label class="form-label">
-                                Confirmation Code
+                                @T["Confirmation Code"]
                             </label>
 
                             <input type="text"
                                    name="confirmationCode"
                                    class="form-control"
-                                   placeholder="Example: BK-B6430474"
+                                   placeholder="@T["Example: BK-B6430474"]"
                                    autocomplete="off"
                                    required />
 
@@ -50,7 +50,7 @@
 
                         <button type="submit"
                                 class="btn btn-primary w-100">
-                            Find Booking
+                            @T["Find Booking"]
                         </button>
 
                     </form>

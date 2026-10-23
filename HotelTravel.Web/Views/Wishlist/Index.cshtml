@@ -1,22 +1,22 @@
-@model List<HotelTravel.Application.DTOs.Home.FeaturedRoomDto>
+﻿@model List<HotelTravel.Application.DTOs.Home.FeaturedRoomDto>
 
 @{
     ViewData["Title"] = "Saved";
 
     string RatingLabel(double rating) => rating switch
     {
-        >= 4.5 => "Exceptional",
-        >= 4.0 => "Excellent",
-        >= 3.5 => "Very good",
-        >= 3.0 => "Good",
-        _ => "Pleasant"
+        >= 4.5 => T["Exceptional"],
+        >= 4.0 => T["Excellent"],
+        >= 3.5 => T["Very good"],
+        >= 3.0 => T["Good"],
+        _ => T["Pleasant"]
     };
 }
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1><i class="bi bi-heart me-2"></i>Saved</h1>
-        <p>Rooms you liked, all in one place.</p>
+        <h1><i class="bi bi-heart me-2"></i>@T["Saved"]</h1>
+        <p>@T["Rooms you liked, all in one place."]</p>
     </div>
 </section>
 
@@ -24,13 +24,13 @@
 
     <div class="hh-empty @(Model.Any() ? "d-none" : "")" id="savedEmpty">
         <i class="bi bi-heart fs-2 d-block mb-2"></i>
-        <strong class="d-block mb-1">You haven't saved any rooms yet</strong>
+        <strong class="d-block mb-1">@T["You haven't saved any rooms yet"]</strong>
         Tap the <i class="bi bi-heart"></i> on any room to save it here.
         <div class="mt-3">
             <a asp-controller="Home"
                asp-action="Index"
                class="hh-btn hh-btn-primary">
-                Explore rooms
+                @T["Explore rooms"]
             </a>
         </div>
     </div>
@@ -45,7 +45,7 @@
                             class="hh-save saved"
                             data-room-id="@room.Id"
                             data-remove-card="1"
-                            aria-label="Remove from saved"
+                            aria-label="@T["Remove from saved"]"
                             aria-pressed="true">
                         <i class="bi bi-heart-fill"></i>
                     </button>
@@ -60,7 +60,7 @@
                             {
                                 <img src="@room.MainImage" alt="@room.Name" loading="lazy" />
                             }
-                            <span class="hh-room-type">@room.RoomType</span>
+                            <span class="hh-room-type">@T.Enum(room.RoomType)</span>
                         </div>
 
                         <div class="hh-room-body">
@@ -70,7 +70,7 @@
                                 @room.HotelName · @room.City
                                 <br />
                                 <i class="bi bi-people"></i>
-                                Up to @room.Capacity guest@(room.Capacity == 1 ? "" : "s")
+                                @T["Up to"] @T.Plural(room.Capacity, "guest", "guests")
                             </div>
 
                             <div class="hh-rating">
@@ -78,17 +78,17 @@
                                 {
                                     <span class="hh-score">@room.AverageRating.ToString("0.0")</span>
                                     <strong>@RatingLabel(room.AverageRating)</strong>
-                                    <span>@room.ReviewCount review@(room.ReviewCount == 1 ? "" : "s")</span>
+                                    <span>@T.Plural(room.ReviewCount, "review", "reviews")</span>
                                 }
                                 else
                                 {
-                                    <span class="hh-badge-new">New</span>
-                                    <span>No reviews yet</span>
+                                    <span class="hh-badge-new">@T["New"]</span>
+                                    <span>@T["No reviews yet"]</span>
                                 }
                             </div>
 
                             <div class="hh-room-price">
-                                <small>per night from</small>
+                                <small>@T["per night from"]</small>
                                 <strong>@room.PricePerNight.ToString("0.00") AZN</strong>
                             </div>
                         </div>

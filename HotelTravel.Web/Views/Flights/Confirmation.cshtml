@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Flights.FlightBookingDto
+﻿@model HotelTravel.Application.DTOs.Flights.FlightBookingDto
 @using HotelTravel.Application.Services
 
 @{
@@ -9,8 +9,8 @@
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1><i class="bi bi-check-circle me-2"></i>Your flight is booked</h1>
-        <p>We have saved your ticket. Use the code below at check-in.</p>
+        <h1><i class="bi bi-check-circle me-2"></i>@T["Your flight is booked"]</h1>
+        <p>@T["We have saved your ticket. Use the code below at check-in."]</p>
     </div>
 </section>
 
@@ -18,14 +18,14 @@
     <div class="hh-soon text-start">
         <div class="row g-4">
             <div class="col-lg-7">
-                <span class="hh-search-label">Booking reference</span>
+                <span class="hh-search-label">@T["Booking reference"]</span>
                 <div class="hh-car-code">@Model.ConfirmationCode</div>
 
                 <div class="hh-flight-airline mt-3">
                     <partial name="_AirlineBadge" model="Model.Airline" />
                     <div>
                         <strong>@Model.Airline</strong>
-                        <small>@Model.FlightNumber · @Model.Cabin</small>
+                        <small>@Model.FlightNumber · @T.Enum(Model.Cabin)</small>
                     </div>
                 </div>
 
@@ -36,9 +36,9 @@
                     </div>
 
                     <div class="hh-flight-path">
-                        <small>@Model.DepartureTime.ToString("ddd, MMM d")</small>
+                        <small>@Model.DepartureTime.ToString("ddd, MMM d", System.Globalization.CultureInfo.CurrentUICulture)</small>
                         <span class="hh-flight-line"><i class="fa-solid fa-plane"></i></span>
-                        <small class="text-success">Direct</small>
+                        <small class="text-success">@T["Direct"]</small>
                     </div>
 
                     <div class="hh-flight-point">
@@ -48,22 +48,22 @@
                 </div>
 
                 <div class="hh-summary-line">
-                    <span>Passengers</span>
+                    <span>@T["Passengers"]</span>
                     <strong class="text-end">@string.Join(", ", Model.PassengerList)</strong>
                 </div>
                 <div class="hh-summary-line">
-                    <span>Contact</span>
+                    <span>@T["Contact"]</span>
                     <strong>@Model.ContactName</strong>
                 </div>
                 <div class="hh-summary-line">
-                    <span>Status</span>
-                    <strong>@Model.Status</strong>
+                    <span>@T["Status"]</span>
+                    <strong>@T.Enum(Model.Status)</strong>
                 </div>
             </div>
 
             <div class="col-lg-5">
                 <div class="hh-summary-total">
-                    <span>Total (@Model.Passengers passenger@(Model.Passengers == 1 ? "" : "s"))</span>
+                    <span>@T["Total"] (@T.Plural(Model.Passengers, "passenger", "passengers"))</span>
                     <strong>@Model.TotalPrice.ToString("0.00") AZN</strong>
                 </div>
 
@@ -73,7 +73,7 @@
                         <a asp-controller="Bookings"
                            asp-action="MyBookings"
                            class="hh-btn hh-btn-primary">
-                            My Bookings
+                            @T["My Bookings"]
                         </a>
                     }
 
@@ -85,7 +85,7 @@
                        asp-route-passengers="@Model.Passengers"
                        asp-route-cabin="@Model.Cabin"
                        class="hh-btn hh-btn-outline">
-                        Book return flight
+                        @T["Book return flight"]
                     </a>
 
                     <a asp-controller="Flights"
@@ -104,7 +104,7 @@
 
                 <!-- Səfəri tamamla: otel + taksi -->
                 <div class="hh-flight-next mt-4">
-                    <strong>Complete your trip to @Model.ToCity</strong>
+                    <strong>@T["Complete your trip to {0}", Model.ToCity]</strong>
 
                     <form asp-controller="Rooms"
                           asp-action="Search"
@@ -117,7 +117,7 @@
 
                         <button type="submit">
                             <i class="fa-solid fa-bed"></i>
-                            Find a hotel in @Model.ToCity
+                            @T["Find a hotel in {0}", Model.ToCity]
                         </button>
                     </form>
 
@@ -129,13 +129,13 @@
                        asp-route-time="@Model.ArrivalTime.AddMinutes(30).ToString("HH:mm")"
                        asp-route-passengers="@Math.Min(Model.Passengers, TaxiRules.MaxPassengers)">
                         <i class="fa-solid fa-taxi"></i>
-                        Airport taxi from @Model.ToCode
+                        @T["Airport taxi from {0}", Model.ToCode]
                     </a>
                 </div>
 
                 <p class="small text-muted mt-3 mb-0">
-                    Please arrive at the airport at least 2 hours before departure with a valid passport.
-                    Signed-in guests can cancel for free up to @FlightRules.FreeCancelHours hours before departure from My Bookings.
+                    @T["Please arrive at the airport at least 2 hours before departure with a valid passport."]
+                    @T["Signed-in guests can cancel for free up to {0} hours before departure from My Bookings.", FlightRules.FreeCancelHours]
                 </p>
             </div>
         </div>

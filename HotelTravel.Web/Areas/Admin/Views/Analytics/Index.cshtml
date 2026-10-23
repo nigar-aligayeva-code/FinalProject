@@ -1,4 +1,4 @@
-@using System.Text.Json
+﻿@using System.Text.Json
 @model HotelTravel.Application.DTOs.Analytics.AnalyticsDto
 
 @{
@@ -61,31 +61,31 @@
 
 <div class="an-head">
     <div>
-        <h1>Analytics</h1>
-        <p>Revenue, occupancy and performance across hotels, cars, taxis and flights.</p>
+        <h1>@T["Analytics"]</h1>
+        <p>@T["Revenue, occupancy and performance across hotels, cars, taxis and flights."]</p>
     </div>
-    <div class="an-updated">Updated @Model.GeneratedAt.ToString("dd MMM yyyy, HH:mm")</div>
+    <div class="an-updated">Updated @Model.GeneratedAt.ToString("dd MMM yyyy, HH:mm", System.Globalization.CultureInfo.CurrentUICulture)</div>
 </div>
 
 <!-- ƏSAS RƏQƏMLƏR -->
 <div class="an-grid">
     <div class="an-card accent">
-        <div class="lbl">Total revenue</div>
+        <div class="lbl">@T["Total revenue"]</div>
         <div class="val">@Money(Model.TotalRevenue)</div>
         <div class="sub">@Model.TotalOrders orders in all services</div>
     </div>
     <div class="an-card">
-        <div class="lbl">Average booking value</div>
+        <div class="lbl">@T["Average booking value"]</div>
         <div class="val">@Money(Model.AverageBookingValue)</div>
-        <div class="sub">Hotel bookings, cancellations excluded</div>
+        <div class="sub">@T["Hotel bookings, cancellations excluded"]</div>
     </div>
     <div class="an-card">
-        <div class="lbl">Cancellation rate</div>
+        <div class="lbl">@T["Cancellation rate"]</div>
         <div class="val">@Model.CancellationRate%</div>
         <div class="sub">Out of @Model.HotelBookings hotel bookings</div>
     </div>
     <div class="an-card">
-        <div class="lbl">Promo discounts given</div>
+        <div class="lbl">@T["Promo discounts given"]</div>
         <div class="val">@Money(Model.DiscountGiven)</div>
         <div class="sub">@Model.DiscountedBookings bookings used a promo code</div>
     </div>
@@ -94,22 +94,22 @@
 <div class="an-panels">
     <!-- AYLIQ GƏLİR -->
     <div class="an-panel wide">
-        <h3>Monthly revenue by service</h3>
+        <h3>@T["Monthly revenue by service"]</h3>
         <p class="hint">Last 5 months and next 6 months (by stay, pickup or departure date).</p>
         <div class="an-chart"><canvas id="monthlyChart"></canvas></div>
     </div>
 
     <!-- GƏLİR PAYI -->
     <div class="an-panel">
-        <h3>Revenue split</h3>
-        <p class="hint">Share of each service in total revenue.</p>
+        <h3>@T["Revenue split"]</h3>
+        <p class="hint">@T["Share of each service in total revenue."]</p>
         <div class="an-chart"><canvas id="splitChart"></canvas></div>
     </div>
 
     <!-- DOLULUQ -->
     <div class="an-panel">
-        <h3>Occupancy forecast</h3>
-        <p class="hint">Booked room-nights in the next 30 days.</p>
+        <h3>@T["Occupancy forecast"]</h3>
+        <p class="hint">@T["Booked room-nights in the next 30 days."]</p>
         @{
             var occ = Model.OccupancyNext30Days;
             var deg = (int)Math.Round(occ * 3.6m);
@@ -120,36 +120,36 @@
                 <span>@occ%</span>
             </div>
             <div class="an-kv">
-                <div><span>Check-ins next 7 days</span><b>@Model.UpcomingCheckIns7Days</b></div>
-                <div><span>Average stay</span><b>@Model.AverageStayNights nights</b></div>
-                <div><span>Booked in advance</span><b>@Model.AverageLeadTimeDays days</b></div>
-                <div><span>Cars / Taxis / Flights</span><b>@Model.CarRentals / @Model.TaxiBookings / @Model.FlightBookings</b></div>
+                <div><span>@T["Check-ins next 7 days"]</span><b>@Model.UpcomingCheckIns7Days</b></div>
+                <div><span>@T["Average stay"]</span><b>@Model.AverageStayNights nights</b></div>
+                <div><span>@T["Booked in advance"]</span><b>@Model.AverageLeadTimeDays days</b></div>
+                <div><span>@T["Cars / Taxis / Flights"]</span><b>@Model.CarRentals / @Model.TaxiBookings / @Model.FlightBookings</b></div>
             </div>
         </div>
     </div>
 
     <!-- ŞƏHƏRLƏR -->
     <div class="an-panel wide">
-        <h3>Top cities</h3>
-        <p class="hint">Hotel revenue and number of bookings per city.</p>
+        <h3>@T["Top cities"]</h3>
+        <p class="hint">@T["Hotel revenue and number of bookings per city."]</p>
         @if (Model.TopCities.Any())
         {
             <div class="an-chart"><canvas id="citiesChart"></canvas></div>
         }
         else
         {
-            <div class="an-empty">No bookings yet.</div>
+            <div class="an-empty">@T["No bookings yet."]</div>
         }
     </div>
 
     <!-- TOP OTAQLAR -->
     <div class="an-panel">
-        <h3>Most booked rooms</h3>
-        <p class="hint">Top 5 by number of bookings.</p>
+        <h3>@T["Most booked rooms"]</h3>
+        <p class="hint">@T["Top 5 by number of bookings."]</p>
         @if (Model.TopRooms.Any())
         {
             <table class="an-table">
-                <thead><tr><th>Room</th><th>Hotel</th><th style="text-align:right">Bookings</th><th style="text-align:right">Revenue</th></tr></thead>
+                <thead><tr><th>@T["Room"]</th><th>@T["Hotel"]</th><th style="text-align:right">@T["Bookings"]</th><th style="text-align:right">@T["Revenue"]</th></tr></thead>
                 <tbody>
                     @foreach (var r in Model.TopRooms)
                     {
@@ -165,18 +165,18 @@
         }
         else
         {
-            <div class="an-empty">No bookings yet.</div>
+            <div class="an-empty">@T["No bookings yet."]</div>
         }
     </div>
 
     <!-- REYTİNQLƏR -->
     <div class="an-panel">
-        <h3>Guest ratings by hotel</h3>
-        <p class="hint">Average review score.</p>
+        <h3>@T["Guest ratings by hotel"]</h3>
+        <p class="hint">@T["Average review score."]</p>
         @if (Model.HotelRatings.Any())
         {
             <table class="an-table">
-                <thead><tr><th>Hotel</th><th>City</th><th>Rating</th><th style="text-align:right">Reviews</th></tr></thead>
+                <thead><tr><th>@T["Hotel"]</th><th>@T["City"]</th><th>@T["Rating"]</th><th style="text-align:right">@T["Reviews"]</th></tr></thead>
                 <tbody>
                     @foreach (var h in Model.HotelRatings.Take(8))
                     {
@@ -193,7 +193,7 @@
         }
         else
         {
-            <div class="an-empty">No reviews yet.</div>
+            <div class="an-empty">@T["No reviews yet."]</div>
         }
     </div>
 </div>

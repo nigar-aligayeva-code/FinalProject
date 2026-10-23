@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Flights.SaveFlightRouteDto
+﻿@model HotelTravel.Application.DTOs.Flights.SaveFlightRouteDto
 @using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
@@ -14,15 +14,15 @@
 
 <div class="cg-heading">
     <div>
-        <h1>@(isNew ? "Add a flight" : "Edit flight")</h1>
-        <p>The flight runs every day at the same local time.</p>
+        <h1>@(isNew ? T["Add a flight"] : T["Edit flight"])</h1>
+        <p>@T["The flight runs every day at the same local time."]</p>
     </div>
 
     <a asp-area="Admin"
        asp-controller="Flights"
        asp-action="Index"
        class="cg-btn cg-btn-light">
-        ← Back to list
+        @T["← Back to list"]
     </a>
 </div>
 
@@ -39,13 +39,13 @@
 
         <div class="cg-field">
             <label asp-for="FlightNumber"></label>
-            <input asp-for="FlightNumber" placeholder="e.g. J2 8011" />
+            <input asp-for="FlightNumber" placeholder="@T["e.g. J2 8011"]" />
             <span asp-validation-for="FlightNumber" class="text-danger"></span>
         </div>
 
         <div class="cg-field">
             <label asp-for="Airline"></label>
-            <input asp-for="Airline" placeholder="e.g. Azerbaijan Airlines" />
+            <input asp-for="Airline" placeholder="@T["e.g. Azerbaijan Airlines"]" />
             <span asp-validation-for="Airline" class="text-danger"></span>
         </div>
 
@@ -107,7 +107,7 @@
 
         <div class="cg-full">
             <button type="submit" class="cg-btn">
-                @(isNew ? "Add flight" : "Save changes")
+                @(isNew ? T["Add flight"] : T["Save changes"])
             </button>
         </div>
     </form>

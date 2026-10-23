@@ -9,8 +9,8 @@
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1><i class="fa-solid fa-landmark me-2"></i>Attractions</h1>
-        <p>Things to do, tours, food and shopping in every city where we have hotels.</p>
+        <h1><i class="fa-solid fa-landmark me-2"></i>@T["Attractions"]</h1>
+        <p>@T["Things to do, tours, food and shopping in every city where we have hotels."]</p>
     </div>
 </section>
 
@@ -32,7 +32,7 @@
 
     @if (selected == null)
     {
-        <div class="hh-empty mt-4">No city guides yet.</div>
+        <div class="hh-empty mt-4">@T["No city guides yet."]</div>
     }
     else
     {
@@ -48,7 +48,7 @@
                asp-fragment="search"
                class="hh-btn hh-btn-primary">
                 <i class="fa-solid fa-bed"></i>
-                Find a stay in @selected
+                @T["Find a stay in {0}", selected]
             </a>
         </div>
 

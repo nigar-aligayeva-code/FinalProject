@@ -1,4 +1,4 @@
-@using System.Globalization
+﻿@using System.Globalization
 @using HotelTravel.Domain.Enums
 @model HotelTravel.Web.ViewModels.TripsIndexViewModel
 
@@ -18,8 +18,8 @@
 
 <section class="tp-hero">
     <div class="container">
-        <span class="tp-eyebrow"><i class="fa-solid fa-suitcase-rolling"></i> TRIP PACKAGES</span>
-        <h1>Flight + hotel + airport taxi, booked together</h1>
+        <span class="tp-eyebrow"><i class="fa-solid fa-suitcase-rolling"></i> @T["TRIP PACKAGES"]</span>
+        <h1>@T["Flight + hotel + airport taxi, booked together"]</h1>
         <p>
             Save <b>@TripPackageBadge(8)</b> on flight + hotel, plus extra for a return flight and airport taxi —
             up to <b>@TripPackageBadge(12)</b> off the whole trip.
@@ -28,9 +28,9 @@
         <!-- AXTARIŞ -->
         <form method="get" asp-action="Index" class="tp-search">
             <div class="tp-field">
-                <label>From</label>
+                <label>@T["From"]</label>
                 <select name="FromCity" required>
-                    <option value="">Choose city</option>
+                    <option value="">@T["Choose city"]</option>
                     @foreach (var city in Model.Origins)
                     {
                         <option value="@city" selected="@(string.Equals(city, s.FromCity, StringComparison.OrdinalIgnoreCase))">@city</option>
@@ -38,9 +38,9 @@
                 </select>
             </div>
             <div class="tp-field">
-                <label>To</label>
+                <label>@T["To"]</label>
                 <select name="ToCity" required>
-                    <option value="">Choose city</option>
+                    <option value="">@T["Choose city"]</option>
                     @foreach (var city in Model.Destinations)
                     {
                         <option value="@city" selected="@(string.Equals(city, s.ToCity, StringComparison.OrdinalIgnoreCase))">@city</option>
@@ -48,29 +48,29 @@
                 </select>
             </div>
             <div class="tp-field">
-                <label>Depart</label>
+                <label>@T["Depart"]</label>
                 <input type="date" name="DepartDate" value="@s.DepartDate?.ToString("yyyy-MM-dd")" min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" required />
             </div>
             <div class="tp-field">
-                <label>Return</label>
+                <label>@T["Return"]</label>
                 <input type="date" name="ReturnDate" value="@s.ReturnDate?.ToString("yyyy-MM-dd")" min="@DateTime.Today.AddDays(2).ToString("yyyy-MM-dd")" required />
             </div>
             <div class="tp-field tp-small">
-                <label>Adults</label>
+                <label>@T["Adults"]</label>
                 <input type="number" name="Adults" value="@s.Adults" min="1" max="6" />
             </div>
             <div class="tp-field tp-small">
-                <label>Children</label>
+                <label>@T["Children"]</label>
                 <input type="number" name="Children" value="@s.Children" min="0" max="5" />
             </div>
             <div class="tp-field tp-small">
-                <label>Cabin</label>
+                <label>@T["Cabin"]</label>
                 <select name="Cabin">
-                    <option value="Economy" selected="@(s.Cabin == CabinClass.Economy)">Economy</option>
-                    <option value="Business" selected="@(s.Cabin == CabinClass.Business)">Business</option>
+                    <option value="Economy" selected="@(s.Cabin == CabinClass.Economy)">@T["Economy"]</option>
+                    <option value="Business" selected="@(s.Cabin == CabinClass.Business)">@T["Business"]</option>
                 </select>
             </div>
-            <button type="submit" class="tp-search-btn"><i class="bi bi-search"></i> Find trip</button>
+            <button type="submit" class="tp-search-btn"><i class="bi bi-search"></i> @T["Find trip"]</button>
         </form>
     </div>
 </section>
@@ -102,13 +102,13 @@
 
                 @if (Model.Weather != null)
                 {
-                    ViewData["WeatherTitle"] = $"Weather in {Model.Weather.Location} during your trip";
+                    ViewData["WeatherTitle"] = T["Weather in {0} during your trip", Model.Weather.Location].Value;
                     <partial name="_WeatherWidget" model="Model.Weather" />
                 }
 
                 <!-- 1. GEDİŞ -->
                 <section class="tp-step">
-                    <h2><span>1</span> Outbound flight · @s.FromCity → @s.ToCity · @s.DepartDate?.ToString("ddd, dd MMM")</h2>
+                    <h2><span>1</span> Outbound flight · @s.FromCity → @s.ToCity · @s.DepartDate?.ToString("ddd, dd MMM", System.Globalization.CultureInfo.CurrentUICulture)</h2>
                     <div class="tp-options">
                         @foreach (var f in plan!.OutboundFlights)
                         {
@@ -130,7 +130,7 @@
 
                 <!-- 2. DÖNÜŞ -->
                 <section class="tp-step">
-                    <h2><span>2</span> Return flight · @s.ToCity → @s.FromCity · @s.ReturnDate?.ToString("ddd, dd MMM")</h2>
+                    <h2><span>2</span> Return flight · @s.ToCity → @s.FromCity · @s.ReturnDate?.ToString("ddd, dd MMM", System.Globalization.CultureInfo.CurrentUICulture)</h2>
                     <div class="tp-options">
                         @foreach (var f in plan.ReturnFlights)
                         {
@@ -156,7 +156,7 @@
 
                 <!-- 3. OTEL -->
                 <section class="tp-step">
-                    <h2><span>3</span> Hotel in @s.ToCity · @plan.Nights night@(plan.Nights == 1 ? "" : "s")</h2>
+                    <h2><span>3</span> @T["Hotel in {0}", s.ToCity] · @T.Plural(plan.Nights, "night", "nights")</h2>
                     <div class="tp-rooms">
                         @foreach (var option in plan.Rooms)
                         {
@@ -184,11 +184,11 @@
                 @if (plan.Taxi != null)
                 {
                     <section class="tp-step">
-                        <h2><span>4</span> Airport taxi</h2>
+                        <h2><span>4</span> @T["Airport taxi"]</h2>
                         <label class="tp-option tp-taxi">
                             <input type="checkbox" name="IncludeTaxi" value="true" data-price="@Price(plan.Taxi.Price)" />
                             <div class="tp-flight">
-                                <div class="tp-flight-airline"><b><i class="fa-solid fa-taxi"></i> @plan.Taxi.VehicleName car</b><small>Meets you after landing</small></div>
+                                <div class="tp-flight-airline"><b><i class="fa-solid fa-taxi"></i> @plan.Taxi.VehicleName car</b><small>@T["Meets you after landing"]</small></div>
                                 <div class="tp-flight-times"><small>@plan.Taxi.AirportName → your hotel · @plan.Taxi.DistanceKm km</small></div>
                                 <div class="tp-price">@Money(plan.Taxi.Price)<small>+@plan.TaxiBonus% package discount</small></div>
                             </div>
@@ -198,24 +198,24 @@
 
                 <!-- 5. SƏYAHƏTÇİLƏR -->
                 <section class="tp-step">
-                    <h2><span>@(plan.Taxi != null ? 5 : 4)</span> Travelers & contact</h2>
+                    <h2><span>@(plan.Taxi != null ? 5 : 4)</span> @T["Travelers & contact"]</h2>
 
                     @if (!isAuthenticated)
                     {
                         <div class="tp-signin">
                             <i class="bi bi-person-lock"></i>
                             <div>
-                                <b>Sign in to book a trip package</b>
-                                <small>Your flights, hotel and taxi will be saved together in My Bookings.</small>
+                                <b>@T["Sign in to book a trip package"]</b>
+                                <small>@T["Your flights, hotel and taxi will be saved together in My Bookings."]</small>
                             </div>
                             <a asp-controller="Account" asp-action="Login"
                                asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
-                               class="tp-btn">Sign in</a>
+                               class="tp-btn">@T["Sign in"]</a>
                         </div>
                     }
                     else
                     {
-                        <p class="tp-muted">Names exactly as in passports — they go on the flight tickets.</p>
+                        <p class="tp-muted">@T["Names exactly as in passports — they go on the flight tickets."]</p>
                         <div class="tp-grid">
                             @for (var i = 0; i < s.Travelers; i++)
                             {
@@ -228,10 +228,10 @@
                         </div>
 
                         <div class="tp-grid">
-                            <div class="tp-input"><label>First name</label><input name="FirstName" value="@Model.FirstName" required maxlength="50" /></div>
-                            <div class="tp-input"><label>Last name</label><input name="LastName" value="@Model.LastName" required maxlength="50" /></div>
-                            <div class="tp-input"><label>Email</label><input type="email" name="Email" value="@Model.Email" required maxlength="150" /></div>
-                            <div class="tp-input"><label>Phone</label><input type="tel" name="Phone" value="@Model.Phone" required maxlength="30" placeholder="+994 50 000 00 00" /></div>
+                            <div class="tp-input"><label>@T["First name"]</label><input name="FirstName" value="@Model.FirstName" required maxlength="50" /></div>
+                            <div class="tp-input"><label>@T["Last name"]</label><input name="LastName" value="@Model.LastName" required maxlength="50" /></div>
+                            <div class="tp-input"><label>@T["Email"]</label><input type="email" name="Email" value="@Model.Email" required maxlength="150" /></div>
+                            <div class="tp-input"><label>@T["Phone"]</label><input type="tel" name="Phone" value="@Model.Phone" required maxlength="30" placeholder="+994 50 000 00 00" /></div>
                         </div>
                     }
                 </section>
@@ -239,21 +239,21 @@
 
             <!-- XÜLASƏ -->
             <aside class="tp-summary">
-                <h3>Your trip</h3>
-                <p class="tp-muted">@s.FromCity → @s.ToCity · @s.Travelers traveler@(s.Travelers == 1 ? "" : "s")</p>
+                <h3>@T["Your trip"]</h3>
+                <p class="tp-muted">@s.FromCity → @s.ToCity · @T.Plural(s.Travelers, "traveler", "travelers")</p>
                 <ul>
-                    <li><span>Flights</span><b id="sumFlights">—</b></li>
-                    <li><span>Hotel</span><b id="sumHotel">—</b></li>
-                    <li><span>Airport taxi</span><b id="sumTaxi">—</b></li>
-                    <li class="tp-sub"><span>Subtotal</span><b id="sumSubtotal">—</b></li>
+                    <li><span>@T["Flights"]</span><b id="sumFlights">—</b></li>
+                    <li><span>@T["Hotel"]</span><b id="sumHotel">—</b></li>
+                    <li><span>@T["Airport taxi"]</span><b id="sumTaxi">—</b></li>
+                    <li class="tp-sub"><span>@T["Subtotal"]</span><b id="sumSubtotal">—</b></li>
                     <li class="tp-save"><span>Package discount <em id="sumPercent">@plan.BaseDiscount%</em></span><b id="sumDiscount">—</b></li>
-                    <li class="tp-total"><span>Total</span><b id="sumTotal">—</b></li>
+                    <li class="tp-total"><span>@T["Total"]</span><b id="sumTotal">—</b></li>
                 </ul>
                 <small class="tp-muted">Hotel price may include your member discount; the final amount is confirmed after booking.</small>
 
                 @if (isAuthenticated)
                 {
-                    <button type="submit" class="tp-btn tp-btn-block" id="bookBtn" disabled>Book trip package</button>
+                    <button type="submit" class="tp-btn tp-btn-block" id="bookBtn" disabled>@T["Book trip package"]</button>
                 }
             </aside>
         </form>
@@ -261,24 +261,24 @@
     else if (plan == null)
     {
         <div class="tp-how">
-            <div><i class="fa-solid fa-plane-departure"></i><b>Pick your flights</b><small>Outbound and (optionally) return.</small></div>
-            <div><i class="bi bi-building"></i><b>Choose a room</b><small>Only rooms free for your dates.</small></div>
-            <div><i class="fa-solid fa-taxi"></i><b>Add a taxi</b><small>Driver waits after landing.</small></div>
-            <div><i class="bi bi-percent"></i><b>Save up to 12%</b><small>One booking, one discount.</small></div>
+            <div><i class="fa-solid fa-plane-departure"></i><b>@T["Pick your flights"]</b><small>@T["Outbound and (optionally) return."]</small></div>
+            <div><i class="bi bi-building"></i><b>@T["Choose a room"]</b><small>@T["Only rooms free for your dates."]</small></div>
+            <div><i class="fa-solid fa-taxi"></i><b>@T["Add a taxi"]</b><small>@T["Driver waits after landing."]</small></div>
+            <div><i class="bi bi-percent"></i><b>@T["Save up to 12%"]</b><small>@T["One booking, one discount."]</small></div>
         </div>
     }
 
     @if (Model.MyTrips.Any())
     {
         <section class="tp-mine">
-            <h2>Your trip packages</h2>
+            <h2>@T["Your trip packages"]</h2>
             <div class="tp-mine-grid">
                 @foreach (var trip in Model.MyTrips)
                 {
                     <a asp-action="Details" asp-route-code="@trip.Code" class="tp-mine-card">
                         <small>@trip.Code</small>
                         <b>@trip.FromCity → @trip.ToCity</b>
-                        <span>@trip.DepartDate.ToString("dd MMM") – @trip.ReturnDate.ToString("dd MMM yyyy") · @trip.HotelName</span>
+                        <span>@trip.DepartDate.ToString("dd MMM", System.Globalization.CultureInfo.CurrentUICulture) – @trip.ReturnDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture) · @trip.HotelName</span>
                         <em>@Money(trip.Total) <s>@Money(trip.Subtotal)</s></em>
                     </a>
                 }

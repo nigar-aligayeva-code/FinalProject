@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Taxis.CreateTaxiBookingDto
+﻿@model HotelTravel.Application.DTOs.Taxis.CreateTaxiBookingDto
 @using HotelTravel.Application.DTOs.Taxis
 @using HotelTravel.Application.Services
 @using HotelTravel.Domain.Enums
@@ -17,8 +17,8 @@
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1>Book an airport taxi</h1>
-        <p>Enter the lead passenger's details to confirm.</p>
+        <h1>@T["Book an airport taxi"]</h1>
+        <p>@T["Enter the lead passenger's details to confirm."]</p>
     </div>
 </section>
 
@@ -39,7 +39,7 @@
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <div class="hh-panel">
-                <h2 class="hh-panel-title">Lead passenger</h2>
+                <h2 class="hh-panel-title">@T["Lead passenger"]</h2>
 
                 <div class="row g-3">
                     <div class="col-12">
@@ -63,36 +63,36 @@
             </div>
 
             <div class="hh-panel">
-                <h2 class="hh-panel-title">Trip details</h2>
+                <h2 class="hh-panel-title">@T["Trip details"]</h2>
 
                 <div class="row g-3">
                     <div class="col-md-5">
                         <label asp-for="FlightNumber" class="form-label"></label>
-                        <input asp-for="FlightNumber" class="form-control text-uppercase" placeholder="J2 8012" />
+                        <input asp-for="FlightNumber" class="form-control text-uppercase" placeholder="@T["J2 8012"]" />
                         <div class="form-text">
                             @(fromAirport
-                                ? "We track your flight and adjust the pick-up if it is late."
-                                : "Optional. Helps the driver plan the trip.")
+                                ? T["We track your flight and adjust the pick-up if it is late."].Value
+                                : T["Optional. Helps the driver plan the trip."].Value)
                         </div>
                         <span asp-validation-for="FlightNumber" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-7">
                         <label asp-for="Notes" class="form-label"></label>
-                        <input asp-for="Notes" class="form-control" placeholder="Child seat, extra bag, ..." />
+                        <input asp-for="Notes" class="form-control" placeholder="@T["Child seat, extra bag, ..."]" />
                         <span asp-validation-for="Notes" class="text-danger small"></span>
                     </div>
                 </div>
             </div>
 
             <div class="hh-panel hh-perks">
-                <div><i class="bi bi-check-circle-fill"></i> Free cancellation up to @TaxiRules.FreeCancelHours hours before pick-up</div>
-                <div><i class="bi bi-check-circle-fill"></i> Fixed price: no meter, no surprises</div>
-                <div><i class="bi bi-check-circle-fill"></i> No payment now: pay the driver</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["Free cancellation up to {0} hours before pick-up", TaxiRules.FreeCancelHours]</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["Fixed price: no meter, no surprises"]</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["No payment now: pay the driver"]</div>
             </div>
 
             <button type="submit" class="hh-search-btn hh-confirm-btn" disabled="@(!fits)">
-                Confirm taxi
+                @T["Confirm taxi"]
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
@@ -112,42 +112,42 @@
 
                     <div class="hh-summary-dates">
                         <div>
-                            <small>From</small>
+                            <small>@T["From"]</small>
                             <strong>@(fromAirport ? airportText : hotel.Name)</strong>
                         </div>
                         <div>
-                            <small>To</small>
+                            <small>@T["To"]</small>
                             <strong>@(fromAirport ? hotel.Name : airportText)</strong>
                         </div>
                     </div>
 
                     <div class="hh-summary-line">
-                        <span>Pick-up</span>
-                        <span>@Model.PickupTime.ToString("ddd, MMM d, yyyy · HH:mm")</span>
+                        <span>@T["Pick-up"]</span>
+                        <span>@Model.PickupTime.ToString("ddd, MMM d, yyyy · HH:mm", System.Globalization.CultureInfo.CurrentUICulture)</span>
                     </div>
                     <div class="hh-summary-line">
-                        <span>Passengers / bags</span>
+                        <span>@T["Passengers / bags"]</span>
                         <span>@Model.Passengers / @Model.Luggage</span>
                     </div>
                     <div class="hh-summary-line">
-                        <span>Distance</span>
-                        <span>@hotel.DistanceKm km · ~@hotel.EstimatedMinutes min</span>
+                        <span>@T["Distance"]</span>
+                        <span>@hotel.DistanceKm @T["km"] · ~@hotel.EstimatedMinutes @T["min"]</span>
                     </div>
 
                     <div class="hh-summary-total">
-                        <span>Total</span>
+                        <span>@T["Total"]</span>
                         <strong>@price.ToString("0.00") AZN</strong>
                     </div>
 
                     @if (!fits)
                     {
                         <div class="alert alert-warning mt-3 mb-0">
-                            This vehicle is too small for your group.
+                            @T["This vehicle is too small for your group."]
                             <a asp-controller="Taxis"
                                asp-action="Index"
                                asp-route-hotelId="@hotel.Id"
                                asp-route-passengers="@Model.Passengers"
-                               asp-route-luggage="@Model.Luggage">Choose another taxi</a>.
+                               asp-route-luggage="@Model.Luggage">@T["Choose another taxi"]</a>.
                         </div>
                     }
                 }

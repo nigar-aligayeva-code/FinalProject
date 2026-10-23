@@ -1,4 +1,4 @@
-@model List<HotelTravel.Application.DTOs.Flights.FlightRouteDto>
+﻿@model List<HotelTravel.Application.DTOs.Flights.FlightRouteDto>
 @using HotelTravel.Application.DTOs.Flights
 @using HotelTravel.Application.Services
 @using HotelTravel.Domain.Enums
@@ -24,8 +24,8 @@
 
 <div class="cg-heading">
     <div>
-        <h1>Flights</h1>
-        <p>Daily flight schedule between hotel cities and guests' flight bookings.</p>
+        <h1>@T["Flights"]</h1>
+        <p>@T["Daily flight schedule between hotel cities and guests' flight bookings."]</p>
     </div>
 
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -35,7 +35,7 @@
            asp-controller="Flights"
            asp-action="Edit"
            class="cg-btn">
-            + Add flight
+            @T["+ Add flight"]
         </a>
     </div>
 </div>
@@ -56,7 +56,7 @@
        asp-controller="Flights"
        asp-action="Index"
        class="cg-chip @(string.IsNullOrEmpty(selectedCity) ? "active" : "")">
-        All cities
+        @T["All cities"]
     </a>
 
     @foreach (var city in cities)
@@ -78,13 +78,13 @@
         <table class="cg-table">
             <thead>
                 <tr>
-                    <th>Flight</th>
-                    <th>Route</th>
-                    <th>Daily at</th>
-                    <th>Economy</th>
-                    <th>Business</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>@T["Flight"]</th>
+                    <th>@T["Route"]</th>
+                    <th>@T["Daily at"]</th>
+                    <th>@T["Economy"]</th>
+                    <th>@T["Business"]</th>
+                    <th>@T["Status"]</th>
+                    <th>@T["Action"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -119,7 +119,7 @@
                         </td>
                         <td>
                             <span class="cg-badge @(route.IsActive ? "cg-Food" : "cg-Shopping")">
-                                @(route.IsActive ? "Active" : "Inactive")
+                                @(route.IsActive ? T["Active"] : T["Inactive"])
                             </span>
                         </td>
                         <td>
@@ -129,7 +129,7 @@
                                    asp-action="Edit"
                                    asp-route-id="@route.Id"
                                    class="cg-edit">
-                                    Edit
+                                    @T["Edit"]
                                 </a>
 
                                 <form asp-area="Admin"
@@ -139,7 +139,7 @@
                                       asp-route-city="@selectedCity"
                                       method="post">
                                     <button type="submit" class="cg-edit">
-                                        @(route.IsActive ? "Deactivate" : "Activate")
+                                        @(route.IsActive ? T["Deactivate"] : T["Activate"])
                                     </button>
                                 </form>
                             </div>
@@ -151,7 +151,7 @@
 
         @if (!Model.Any())
         {
-            <div class="cg-empty">No flights yet.</div>
+            <div class="cg-empty">@T["No flights yet."]</div>
         }
     </div>
 </div>
@@ -163,7 +163,7 @@
        asp-action="Index"
        asp-route-city="@selectedCity"
        class="cg-chip @(status == null ? "active" : "")">
-        All bookings
+        @T["All bookings"]
     </a>
 
     @foreach (var item in Enum.GetValues<FlightBookingStatus>())
@@ -186,14 +186,14 @@
         <table class="cg-table">
             <thead>
                 <tr>
-                    <th>Reference</th>
-                    <th>Flight</th>
-                    <th>Departure</th>
-                    <th>Passengers</th>
-                    <th>Contact</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>@T["Reference"]</th>
+                    <th>@T["Flight"]</th>
+                    <th>@T["Departure"]</th>
+                    <th>@T["Passengers"]</th>
+                    <th>@T["Contact"]</th>
+                    <th>@T["Total"]</th>
+                    <th>@T["Status"]</th>
+                    <th>@T["Action"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -202,11 +202,11 @@
                     <tr>
                         <td><strong>@booking.ConfirmationCode</strong></td>
                         <td>
-                            @booking.FlightNumber · @booking.Cabin
+                            @booking.FlightNumber · @T.Enum(booking.Cabin)
                             <div class="cg-desc">@booking.FromCode → @booking.ToCode</div>
                         </td>
                         <td style="white-space:nowrap">
-                            @booking.DepartureTime.ToString("dd MMM yyyy")
+                            @booking.DepartureTime.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                             <div class="cg-desc">@booking.DepartureTime.ToString("HH:mm") → @booking.ArrivalTime.ToString("HH:mm")</div>
                         </td>
                         <td class="cg-desc">
@@ -221,7 +221,7 @@
                         </td>
                         <td style="white-space:nowrap">@booking.TotalPrice.ToString("0.00") AZN</td>
                         <td>
-                            <span class="cg-badge @StatusClass(booking.Status)">@booking.Status</span>
+                            <span class="cg-badge @StatusClass(booking.Status)">@T.Enum(booking.Status)</span>
                         </td>
                         <td>
                             @if (booking.Status == FlightBookingStatus.Confirmed)
@@ -234,7 +234,7 @@
                                           asp-route-status="@FlightBookingStatus.Completed"
                                           asp-route-filter="@status"
                                           method="post">
-                                        <button type="submit" class="cg-edit">Complete</button>
+                                        <button type="submit" class="cg-edit">@T["Complete"]</button>
                                     </form>
 
                                     <form asp-area="Admin"
@@ -245,7 +245,7 @@
                                           asp-route-filter="@status"
                                           method="post"
                                           onsubmit="return confirm('Cancel this flight booking?');">
-                                        <button type="submit" class="cg-delete">Cancel</button>
+                                        <button type="submit" class="cg-delete">@T["Cancel"]</button>
                                     </form>
                                 </div>
                             }
@@ -257,7 +257,7 @@
 
         @if (!bookings.Any())
         {
-            <div class="cg-empty">No flight bookings yet.</div>
+            <div class="cg-empty">@T["No flight bookings yet."]</div>
         }
     </div>
 </div>

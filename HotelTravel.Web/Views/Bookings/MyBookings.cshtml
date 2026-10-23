@@ -152,9 +152,9 @@
 
         <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
             <div>
-                <h1 class="my-bookings-title mb-1">My Bookings</h1>
+                <h1 class="my-bookings-title mb-1">@T["My Bookings"]</h1>
                 <p class="text-muted mb-0">
-                    View, modify or cancel your reservations.
+                    @T["View, modify or cancel your reservations."]
                 </p>
             </div>
 
@@ -162,7 +162,7 @@
                asp-action="Search"
                class="btn btn-dark rounded-pill px-4">
                 <i class="bi bi-plus-lg me-1"></i>
-                New Booking
+                @T["New Booking"]
             </a>
         </div>
 
@@ -184,23 +184,23 @@
         {
             <div class="my-empty mt-4">
                 <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
-                You have no bookings yet.
+                @T["You have no bookings yet."]
                 <div class="small mt-1">
-                    Bookings made while logged in will appear here.
-                    For older bookings use
-                    <a asp-controller="Bookings" asp-action="Find">Find My Booking</a>.
+                    @T["Bookings made while logged in will appear here."]
+                    @T["For older bookings use"]
+                    <a asp-controller="Bookings" asp-action="Find">@T["Find My Booking"]</a>.
                 </div>
             </div>
         }
         else
         {
             <h2 class="my-section-title">
-                Upcoming &amp; Current (@upcoming.Count)
+                @T["Upcoming & Current"] (@upcoming.Count)
             </h2>
 
             @if (!upcoming.Any())
             {
-                <div class="my-empty">No upcoming trips.</div>
+                <div class="my-empty">@T["No upcoming trips."]</div>
             }
 
             @foreach (var item in upcoming)
@@ -209,12 +209,12 @@
             }
 
             <h2 class="my-section-title">
-                Past &amp; Cancelled (@past.Count)
+                @T["Past & Cancelled"] (@past.Count)
             </h2>
 
             @if (!past.Any())
             {
-                <div class="my-empty">No past bookings.</div>
+                <div class="my-empty">@T["No past bookings."]</div>
             }
 
             @foreach (var item in past)

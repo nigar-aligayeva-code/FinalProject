@@ -8,8 +8,8 @@
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1>Rent a car</h1>
-        <p>Enter the main driver's details to confirm.</p>
+        <h1>@T["Rent a car"]</h1>
+        <p>@T["Enter the main driver's details to confirm."]</p>
     </div>
 </section>
 
@@ -27,23 +27,23 @@
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <div class="hh-panel">
-                <h2 class="hh-panel-title">Main driver</h2>
+                <h2 class="hh-panel-title">@T["Main driver"]</h2>
 
                 <div class="row g-3">
                     <div class="col-12">
-                        <label asp-for="DriverName" class="form-label">Full name</label>
+                        <label asp-for="DriverName" class="form-label">@T["Full name"]</label>
                         <input asp-for="DriverName" class="form-control" autocomplete="name" />
                         <span asp-validation-for="DriverName" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Email" class="form-label">Email</label>
+                        <label asp-for="Email" class="form-label">@T["Email"]</label>
                         <input asp-for="Email" type="email" class="form-control" autocomplete="email" />
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <label asp-for="Phone" class="form-label">@T["Phone"]</label>
                         <input asp-for="Phone" class="form-control" autocomplete="tel" placeholder="+994 ..." />
                         <span asp-validation-for="Phone" class="text-danger small"></span>
                     </div>
@@ -51,7 +51,7 @@
                     <div class="col-12">
                         <label class="hh-check">
                             <input asp-for="HasLicence" type="checkbox" />
-                            <span>The driver has a valid driving licence and will bring it at pick-up.</span>
+                            <span>@T["The driver has a valid driving licence and will bring it at pick-up."]</span>
                         </label>
                         <span asp-validation-for="HasLicence" class="text-danger small"></span>
                     </div>
@@ -59,13 +59,13 @@
             </div>
 
             <div class="hh-panel hh-perks">
-                <div><i class="bi bi-check-circle-fill"></i> Free cancellation before the pick-up day</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["Free cancellation before the pick-up day"]</div>
                 <div><i class="bi bi-check-circle-fill"></i> Pick up at your hotel in @car?.City</div>
-                <div><i class="bi bi-check-circle-fill"></i> No payment now: pay at pick-up</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["No payment now: pay at pick-up"]</div>
             </div>
 
             <button type="submit" class="hh-search-btn hh-confirm-btn">
-                Confirm rental
+                @T["Confirm rental"]
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
@@ -87,35 +87,35 @@
 
                     <h3>@car.Model</h3>
                     <div class="hh-room-meta">
-                        @car.Category · @car.Seats seats · @(car.IsAutomatic ? "Automatic" : "Manual")
+                        @T.Enum(car.Category) · @T.Plural(car.Seats, "seat", "seats") · @(car.IsAutomatic ? T["Automatic"] : T["Manual"])
                     </div>
 
                     <div class="hh-summary-dates">
                         <div>
-                            <small>Pick-up</small>
-                            <strong>@Model.PickupDate.ToString("ddd, MMM d, yyyy")</strong>
+                            <small>@T["Pick-up"]</small>
+                            <strong>@Model.PickupDate.ToString("ddd, MMM d, yyyy", System.Globalization.CultureInfo.CurrentUICulture)</strong>
                         </div>
                         <div>
-                            <small>Return</small>
-                            <strong>@Model.ReturnDate.ToString("ddd, MMM d, yyyy")</strong>
+                            <small>@T["Return"]</small>
+                            <strong>@Model.ReturnDate.ToString("ddd, MMM d, yyyy", System.Globalization.CultureInfo.CurrentUICulture)</strong>
                         </div>
                     </div>
 
                     <div class="hh-summary-line">
-                        <span>@car.PricePerDay.ToString("0.00") AZN × @car.Days day@(car.Days == 1 ? "" : "s")</span>
+                        <span>@car.PricePerDay.ToString("0.00") AZN × @T.Plural(car.Days, "day", "days")</span>
                         <span>@car.TotalPrice.ToString("0.00") AZN</span>
                     </div>
 
                     <div class="hh-summary-total">
-                        <span>Total</span>
+                        <span>@T["Total"]</span>
                         <strong>@car.TotalPrice.ToString("0.00") AZN</strong>
                     </div>
 
                     @if (!car.IsAvailable)
                     {
                         <div class="alert alert-warning mt-3 mb-0">
-                            This car is already booked for these dates.
-                            <a asp-controller="Cars" asp-action="Index" asp-route-city="@car.City">Choose another car</a>.
+                            @T["This car is already booked for these dates."]
+                            <a asp-controller="Cars" asp-action="Index" asp-route-city="@car.City">@T["Choose another car"]</a>.
                         </div>
                     }
                 }

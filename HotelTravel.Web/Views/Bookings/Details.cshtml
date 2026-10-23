@@ -6,77 +6,77 @@
 
 <div class="container mt-5 mb-5">
 
-    <h2 class="mb-4">Booking Details</h2>
+    <h2 class="mb-4">@T["Booking Details"]</h2>
 
     <div class="card">
         <div class="card-body">
 
             <h4 class="card-title mb-4">
-                Confirmation: @Model.ConfirmationCode
+                @T["Confirmation code"]: @Model.ConfirmationCode
             </h4>
 
             <hr />
 
-            <h5>Guest Information</h5>
+            <h5>@T["Guest Information"]</h5>
 
             <p>
-                <strong>Name:</strong>
+                <strong>@T["Name:"]</strong>
                 @Model.GuestName
             </p>
 
             <p>
-                <strong>Email:</strong>
+                <strong>@T["Email:"]</strong>
                 @Model.GuestEmail
             </p>
 
             <hr />
 
-            <h5>Room Information</h5>
+            <h5>@T["Room Information"]</h5>
 
             <p>
-                <strong>Room:</strong>
+                <strong>@T["Room:"]</strong>
                 @Model.RoomNumber - @Model.RoomName
             </p>
 
             <hr />
 
-            <h5>Booking Information</h5>
+            <h5>@T["Booking Information"]</h5>
 
             <p>
-                <strong>Check-in:</strong>
+                <strong>@T["Check-in:"]</strong>
                 @Model.CheckInDate.ToString("dd.MM.yyyy")
             </p>
 
             <p>
-                <strong>Check-out:</strong>
+                <strong>@T["Check-out:"]</strong>
                 @Model.CheckOutDate.ToString("dd.MM.yyyy")
             </p>
 
             <p>
-                <strong>Adults:</strong>
+                <strong>@T["Adults:"]</strong>
                 @Model.AdultCount
             </p>
 
             <p>
-                <strong>Children:</strong>
+                <strong>@T["Children:"]</strong>
                 @Model.ChildrenCount
             </p>
 
             <p>
-                <strong>Total Price:</strong>
+                <strong>@T["Total Price:"]</strong>
                 @Model.TotalPrice.ToString("0.00") AZN
             </p>
 
             <p>
-                <strong>Status:</strong>
-                @Model.Status
+                <strong>@T["Status:"]</strong>
+                @T.Enum(Model.Status)
             </p>
 
             <hr />
 
             <a asp-action="Index"
                class="btn btn-secondary">
-                Back to Bookings
+                @T["Back to Bookings"]
             </a>
 
         </div>

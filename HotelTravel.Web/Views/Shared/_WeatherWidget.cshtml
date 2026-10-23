@@ -1,7 +1,7 @@
-@model HotelTravel.Application.DTOs.Weather.TripWeatherDto
+﻿@model HotelTravel.Application.DTOs.Weather.TripWeatherDto
 @{
     // ViewData["WeatherTitle"] ilə başlığı dəyişmək olar
-    var title = ViewData["WeatherTitle"] as string ?? $"Weather in {Model.Location}";
+    var title = ViewData["WeatherTitle"] as string ?? T["Weather in {0}", Model.Location].Value;
     var first = Model.Days.First().Date;
     var last = Model.Days.Last().Date;
 }
@@ -11,26 +11,26 @@
         <div>
             <h3><span>🌤️</span> @title</h3>
             <p>
-                @first.ToString("ddd dd MMM")@(first != last ? " – " + last.ToString("ddd dd MMM") : "")
-                · avg @Model.AverageMin.ToString("0")° / @Model.AverageMax.ToString("0")°C
+                @first.ToString("ddd dd MMM", System.Globalization.CultureInfo.CurrentUICulture)@(first != last ? " – " + last.ToString("ddd dd MMM", System.Globalization.CultureInfo.CurrentUICulture) : "")
+                · @T["avg"] @Model.AverageMin.ToString("0")° / @Model.AverageMax.ToString("0")°C
             </p>
         </div>
         @if (Model.IsForecast)
         {
-            <span class="wx-badge">Forecast</span>
+            <span class="wx-badge">@T["Forecast"]</span>
         }
         else
         {
-            <span class="wx-badge wx-badge-typical" title="Your dates are more than 16 days away, so we show the weather on the same days last year.">Typical weather · last year</span>
+            <span class="wx-badge wx-badge-typical" title="@T["Your dates are more than 16 days away, so we show the weather on the same days last year."]">@T["Typical weather · last year"]</span>
         }
     </div>
 
     <div class="wx-days">
         @foreach (var day in Model.Days)
         {
-            <div class="wx-day" title="@day.Summary">
-                <small>@day.Date.ToString("ddd")</small>
-                <em>@day.Date.ToString("dd MMM")</em>
+            <div class="wx-day" title="@T[day.Summary]">
+                <small>@day.Date.ToString("ddd", System.Globalization.CultureInfo.CurrentUICulture)</small>
+                <em>@day.Date.ToString("dd MMM", System.Globalization.CultureInfo.CurrentUICulture)</em>
                 <span class="wx-icon">@day.Icon</span>
                 <b>@day.TempMax.ToString("0")°</b>
                 <small>@day.TempMin.ToString("0")°</small>
@@ -48,10 +48,10 @@
 
     @if (!string.IsNullOrWhiteSpace(Model.Advice))
     {
-        <p class="wx-advice">@Model.Advice</p>
+        <p class="wx-advice">@T[Model.Advice]</p>
     }
 
-    <p class="wx-source">Weather data: Open-Meteo</p>
+    <p class="wx-source">@T["Weather data: Open-Meteo"]</p>
 </div>
 
 <style>

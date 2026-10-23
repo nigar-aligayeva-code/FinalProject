@@ -45,10 +45,10 @@
             <div>
                 <span class="hotels-eyebrow">
                     <i class="bi bi-compass"></i>
-                    CURATED STAYS
+                    @T["CURATED STAYS"]
                 </span>
 
-                <h1>Discover Exceptional Stays</h1>
+                <h1>@T["Discover Exceptional Stays"]</h1>
 
                 <p>
                     Handpicked hotels designed for memorable journeys,
@@ -63,7 +63,7 @@
                    class="add-hotel-btn">
 
                     <i class="bi bi-plus-lg"></i>
-                    Add Hotel
+                    @T["Add Hotel"]
 
                 </a>
             }
@@ -77,10 +77,10 @@
 
                 <i class="bi bi-building"></i>
 
-                <h3>No hotels found</h3>
+                <h3>@T["No hotels found"]</h3>
 
                 <p>
-                    There are currently no hotels available.
+                    @T["There are currently no hotels available."]
                 </p>
 
             </div>
@@ -93,11 +93,11 @@
                 <div class="hotels-map-card">
                     <div class="hotels-map-head">
                         <div>
-                            <h3><i class="bi bi-map"></i> Hotels on the map</h3>
-                            <p>@mapHotels.Count hotels in @mapHotels.Select(h => h.city).Distinct().Count() cities. Click a pin to see the hotel.</p>
+                            <h3><i class="bi bi-map"></i> @T["Hotels on the map"]</h3>
+                            <p>@(T["{0} hotels across {1} cities. Tap a pin to see the hotel.", mapHotels.Count, mapHotels.Select(h => h.city).Distinct().Count()])</p>
                         </div>
                         <button type="button" class="hotels-map-toggle" id="mapToggle">
-                            <i class="bi bi-eye-slash"></i> <span>Hide map</span>
+                            <i class="bi bi-eye-slash"></i> <span>@T["Hide map"]</span>
                         </button>
                     </div>
                     <div id="hotelsMap" class="hotels-map"></div>
@@ -179,7 +179,7 @@
                                     <a asp-action="Edit"
                                        asp-route-id="@hotel.Id"
                                        class="hotel-admin-btn"
-                                       title="Edit hotel">
+                                       title="@T["Edit hotel"]">
 
                                         <i class="bi bi-pencil"></i>
 
@@ -188,7 +188,7 @@
                                     <a asp-action="Delete"
                                        asp-route-id="@hotel.Id"
                                        class="hotel-admin-btn delete"
-                                       title="Delete hotel">
+                                       title="@T["Delete hotel"]">
 
                                         <i class="bi bi-trash"></i>
 
@@ -232,7 +232,7 @@
                                 else
                                 {
                                     <span>
-                                        Independent Hotel
+                                        @T["Independent Hotel"]
                                     </span>
                                 }
 
@@ -263,7 +263,7 @@
                                    asp-route-id="@hotel.Id"
                                    class="view-hotel-btn">
 
-                                    View Hotel
+                                    @T["View Hotel"]
 
                                     <i class="bi bi-arrow-right"></i>
 

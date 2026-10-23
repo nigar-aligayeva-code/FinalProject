@@ -328,11 +328,11 @@
 <div class="bd-page">
     <div class="bd-header">
         <div>
-            <div class="bd-eyebrow">Reservation overview</div>
-            <h1 class="bd-title">Booking Details</h1>
+            <div class="bd-eyebrow">@T["Reservation overview"]</div>
+            <h1 class="bd-title">@T["Booking Details"]</h1>
             <p class="bd-sub">Confirmation <span class="bd-code">#@Model.ConfirmationCode</span></p>
         </div>
-        <span class="bd-status @statusClass">@Model.Status</span>
+        <span class="bd-status @statusClass">@T.Enum(Model.Status)</span>
     </div>
 
     @if (TempData["Success"] != null)
@@ -346,22 +346,22 @@
 
     <div class="bd-summary">
         <div class="bd-stat">
-            <div class="bd-stat-label">Check-in</div>
-            <div class="bd-stat-value">@Model.CheckInDate.ToString("dd MMM yyyy")</div>
-            <div class="bd-stat-note">Arrival date</div>
+            <div class="bd-stat-label">@T["Check-in"]</div>
+            <div class="bd-stat-value">@Model.CheckInDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)</div>
+            <div class="bd-stat-note">@T["Arrival date"]</div>
         </div>
         <div class="bd-stat">
-            <div class="bd-stat-label">Check-out</div>
-            <div class="bd-stat-value">@Model.CheckOutDate.ToString("dd MMM yyyy")</div>
-            <div class="bd-stat-note">Departure date</div>
+            <div class="bd-stat-label">@T["Check-out"]</div>
+            <div class="bd-stat-value">@Model.CheckOutDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)</div>
+            <div class="bd-stat-note">@T["Departure date"]</div>
         </div>
         <div class="bd-stat">
-            <div class="bd-stat-label">Length of stay</div>
+            <div class="bd-stat-label">@T["Length of stay"]</div>
             <div class="bd-stat-value">@nights @(nights == 1 ? "night" : "nights")</div>
             <div class="bd-stat-note">@(Model.AdultCount + Model.ChildrenCount) total guests</div>
         </div>
         <div class="bd-stat">
-            <div class="bd-stat-label">Total amount</div>
+            <div class="bd-stat-label">@T["Total amount"]</div>
             <div class="bd-stat-value">@Model.TotalPrice.ToString("0.00") AZN</div>
             <div class="bd-stat-note">
                 @if (Model.DiscountAmount > 0)
@@ -370,7 +370,7 @@
                 }
                 else
                 {
-                    <span>Booking total</span>
+                    <span>@T["Booking total"]</span>
                 }
             </div>
         </div>
@@ -379,30 +379,30 @@
     <div class="bd-grid">
         <div>
             <section class="bd-card">
-                <h2 class="bd-card-title"><span class="bd-icon">♙</span> Guest Information</h2>
+                <h2 class="bd-card-title"><span class="bd-icon">♙</span> @T["Guest Information"]</h2>
                 <div class="bd-info">
-                    <div><div class="bd-field-label">Full name</div><div class="bd-field-value">@Model.GuestName</div></div>
-                    <div><div class="bd-field-label">Email address</div><div class="bd-field-value">@Model.GuestEmail</div></div>
-                    <div><div class="bd-field-label">Adults</div><div class="bd-field-value">@Model.AdultCount</div></div>
-                    <div><div class="bd-field-label">Children</div><div class="bd-field-value">@Model.ChildrenCount</div></div>
+                    <div><div class="bd-field-label">@T["Full name"]</div><div class="bd-field-value">@Model.GuestName</div></div>
+                    <div><div class="bd-field-label">@T["Email address"]</div><div class="bd-field-value">@Model.GuestEmail</div></div>
+                    <div><div class="bd-field-label">@T["Adults"]</div><div class="bd-field-value">@Model.AdultCount</div></div>
+                    <div><div class="bd-field-label">@T["Children"]</div><div class="bd-field-value">@Model.ChildrenCount</div></div>
                 </div>
             </section>
             <section class="bd-card">
-                <h2 class="bd-card-title"><span class="bd-icon">▣</span> Room Information</h2>
+                <h2 class="bd-card-title"><span class="bd-icon">▣</span> @T["Room Information"]</h2>
                 <div class="bd-info">
-                    <div><div class="bd-field-label">Room name</div><div class="bd-field-value">@Model.RoomName</div></div>
-                    <div><div class="bd-field-label">Room number</div><div class="bd-field-value">#@Model.RoomNumber</div></div>
+                    <div><div class="bd-field-label">@T["Room name"]</div><div class="bd-field-value">@Model.RoomName</div></div>
+                    <div><div class="bd-field-label">@T["Room number"]</div><div class="bd-field-value">#@Model.RoomNumber</div></div>
                 </div>
             </section>
         </div>
         <div>
             <section class="bd-card">
-                <h2 class="bd-card-title"><span class="bd-icon">✓</span> Booking Management</h2>
-                <div class="bd-field-label">Current status</div>
-                <div style="margin:10px 0 18px"><span class="bd-status @statusClass">@Model.Status</span></div>
+                <h2 class="bd-card-title"><span class="bd-icon">✓</span> @T["Booking Management"]</h2>
+                <div class="bd-field-label">@T["Current status"]</div>
+                <div style="margin:10px 0 18px"><span class="bd-status @statusClass">@T.Enum(Model.Status)</span></div>
                 @if (canCheckIn || canCheckOut || canCancel)
                 {
-                    <div class="bd-management-note">Choose an available action below to update the booking status.</div>
+                    <div class="bd-management-note">@T["Choose an available action below to update the booking status."]</div>
                     <div class="bd-actions">
                         @if (canCheckIn)
                         {
@@ -410,7 +410,7 @@
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@Model.Id" />
                                 <input type="hidden" name="status" value="@BookingStatus.CheckedIn" />
-                                <button class="bd-action checkin" type="submit" onclick="return confirm('Check in this guest?');">Check In</button>
+                                <button class="bd-action checkin" type="submit" onclick="return confirm('Check in this guest?');">@T["Check In"]</button>
                             </form>
                         }
                         @if (canCheckOut)
@@ -419,7 +419,7 @@
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@Model.Id" />
                                 <input type="hidden" name="status" value="@BookingStatus.CheckedOut" />
-                                <button class="bd-action checkout" type="submit" onclick="return confirm('Check out this guest?');">Check Out</button>
+                                <button class="bd-action checkout" type="submit" onclick="return confirm('Check out this guest?');">@T["Check Out"]</button>
                             </form>
                         }
                         @if (canCancel)
@@ -428,14 +428,14 @@
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@Model.Id" />
                                 <input type="hidden" name="status" value="@BookingStatus.Cancelled" />
-                                <button class="bd-action cancel" type="submit" onclick="return confirm('Are you sure you want to cancel this booking?');">Cancel Booking</button>
+                                <button class="bd-action cancel" type="submit" onclick="return confirm('Are you sure you want to cancel this booking?');">@T["Cancel Booking"]</button>
                             </form>
                         }
                     </div>
                 }
                 else
                 {
-                    <div class="bd-management-note">This reservation has no further status changes available.</div>
+                    <div class="bd-management-note">@T["This reservation has no further status changes available."]</div>
                 }
             </section>
             @if (fromDashboard)
@@ -445,7 +445,7 @@
                    asp-action="Index"
                    asp-fragment="recent-bookings"
                    class="btn btn-secondary">
-                    ← Back to Dashboard
+                    @T["← Back to Dashboard"]
                 </a>
             }
             else
@@ -454,7 +454,7 @@
                    asp-controller="Bookings"
                    asp-action="Index"
                    class="btn btn-secondary">
-                    ← Back to Bookings
+                    @T["← Back to Bookings"]
                 </a>
             }
         </div>

@@ -4,15 +4,15 @@
 @{
     var (title, icon, text) = Model switch
     {
-        "flights" => ("Flights", "fa-plane",
-            "Soon you will be able to search and book flights together with your hotel."),
-        "cars" => ("Car rental", "fa-car",
-            "Soon you will be able to rent a car for your trip right here."),
-        "attractions" => ("Attractions", "fa-landmark",
-            "Soon you will be able to discover tours, museums and things to do in every city."),
-        "taxis" => ("Airport taxis", "fa-taxi",
-            "Soon you will be able to book a taxi from the airport to your hotel."),
-        _ => ("This service", "fa-hourglass-half", "")
+        "flights" => (T["Flights"].Value, "fa-plane",
+            T["Soon you will be able to search and book flights together with your hotel."].Value),
+        "cars" => (T["Car rental"].Value, "fa-car",
+            T["Soon you will be able to rent a car for your trip right here."].Value),
+        "attractions" => (T["Attractions"].Value, "fa-landmark",
+            T["Soon you will be able to discover tours, museums and things to do in every city."].Value),
+        "taxis" => (T["Airport taxis"].Value, "fa-taxi",
+            T["Soon you will be able to book a taxi from the airport to your hotel."].Value),
+        _ => (T["This service"].Value, "fa-hourglass-half", "")
     };
 
     ViewData["Title"] = title;
@@ -35,7 +35,7 @@
         <p>
             @text
             <br />
-            Right now @(Config["Brand:Name"] ?? "Tripio") is focused on hotel stays.
+            @T["Right now {0} is focused on hotel stays.", Config["Brand:Name"] ?? "Tripio"]
         </p>
 
         <div class="hh-cta-actions justify-content-center">
@@ -44,14 +44,14 @@
                asp-fragment="search"
                class="hh-btn hh-btn-primary">
                 <i class="fa-solid fa-bed"></i>
-                Search stays
+                @T["Search stays"]
             </a>
 
             <a asp-controller="Home"
                asp-action="Index"
                asp-fragment="destinations"
                class="hh-btn hh-btn-outline">
-                Popular destinations
+                @T["Popular destinations"]
             </a>
         </div>
     </div>

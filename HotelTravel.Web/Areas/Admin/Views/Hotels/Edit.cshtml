@@ -146,15 +146,15 @@
 
 <div class="edit-header">
     <div>
-        <h1>Edit Hotel</h1>
-        <p>Update hotel information and settings.</p>
+        <h1>@T["Edit Hotel"]</h1>
+        <p>@T["Update hotel information and settings."]</p>
     </div>
 
     <a asp-area="Admin"
        asp-controller="Hotels"
        asp-action="Index"
        class="cancel-button">
-        ← Back to Hotels
+        @T["← Back to Hotels"]
     </a>
 </div>
 
@@ -164,7 +164,7 @@
     <div asp-validation-summary="All" class="field-error"></div>
 
     <div class="edit-card">
-        <h3>Basic Information</h3>
+        <h3>@T["Basic Information"]</h3>
 
         <div class="form-grid">
             <div class="form-group">
@@ -186,7 +186,7 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="StarRating">Star Rating</label>
+                <label asp-for="StarRating">@T["Star Rating"]</label>
                 <input asp-for="StarRating" type="number" min="1" max="5" />
                 <span asp-validation-for="StarRating" class="field-error"></span>
             </div>
@@ -200,7 +200,7 @@
     </div>
 
     <div class="edit-card">
-        <h3>Contact Information</h3>
+        <h3>@T["Contact Information"]</h3>
 
         <div class="form-grid">
             <div class="form-group full-width">
@@ -224,7 +224,7 @@
     </div>
 
     <div class="edit-card">
-        <h3>Hotel Details</h3>
+        <h3>@T["Hotel Details"]</h3>
 
         <div class="form-grid">
             <div class="form-group">
@@ -238,12 +238,12 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="HotelChainId">Hotel Chain ID</label>
+                <label asp-for="HotelChainId">@T["Hotel Chain ID"]</label>
                 <input asp-for="HotelChainId" type="number" />
             </div>
 
             <div class="form-group full-width">
-                <label asp-for="MainImage">Main Image Path</label>
+                <label asp-for="MainImage">@T["Main Image Path"]</label>
                 <input asp-for="MainImage" id="mainImageInput" />
                 <span asp-validation-for="MainImage" class="field-error"></span>
 
@@ -260,11 +260,11 @@
            asp-controller="Hotels"
            asp-action="Index"
            class="cancel-button">
-            Cancel
+            @T["Cancel"]
         </a>
 
         <button type="submit" class="save-button">
-            Save Changes
+            @T["Save Changes"]
         </button>
     </div>
 </form>

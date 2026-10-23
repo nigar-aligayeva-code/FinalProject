@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Taxis.TaxiBookingDto
+﻿@model HotelTravel.Application.DTOs.Taxis.TaxiBookingDto
 @using HotelTravel.Application.Services
 @using HotelTravel.Domain.Enums
 
@@ -10,8 +10,8 @@
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1><i class="bi bi-check-circle me-2"></i>Your taxi is booked</h1>
-        <p>We have saved your transfer. Show the code below to your driver.</p>
+        <h1><i class="bi bi-check-circle me-2"></i>@T["Your taxi is booked"]</h1>
+        <p>@T["We have saved your transfer. Show the code below to your driver."]</p>
     </div>
 </section>
 
@@ -19,53 +19,53 @@
     <div class="hh-soon text-start">
         <div class="row g-4 align-items-center">
             <div class="col-md-7">
-                <span class="hh-search-label">Confirmation code</span>
+                <span class="hh-search-label">@T["Confirmation code"]</span>
                 <div class="hh-car-code">@Model.ConfirmationCode</div>
 
                 <h2 class="h4 mt-3 mb-1">@vehicle.Name taxi <small class="text-muted fs-6">@vehicle.Example</small></h2>
                 <div class="text-muted">
-                    @Model.Passengers passenger@(Model.Passengers == 1 ? "" : "s")
-                    · @Model.Luggage bag@(Model.Luggage == 1 ? "" : "s")
+                    @T.Plural(Model.Passengers, "passenger", "passengers")
+                    · @T.Plural(Model.Luggage, "bag", "bags")
                     · @Model.DistanceKm km
                 </div>
 
                 <div class="hh-summary-dates mt-3">
                     <div>
-                        <small>From</small>
+                        <small>@T["From"]</small>
                         <strong>@Model.FromText</strong>
                     </div>
                     <div>
-                        <small>To</small>
+                        <small>@T["To"]</small>
                         <strong>@Model.ToText</strong>
                     </div>
                 </div>
 
                 <div class="hh-summary-line">
-                    <span>Pick-up</span>
-                    <strong>@Model.PickupTime.ToString("ddd, MMM d, yyyy · HH:mm")</strong>
+                    <span>@T["Pick-up"]</span>
+                    <strong>@Model.PickupTime.ToString("ddd, MMM d, yyyy · HH:mm", System.Globalization.CultureInfo.CurrentUICulture)</strong>
                 </div>
 
                 @if (!string.IsNullOrWhiteSpace(Model.FlightNumber))
                 {
                     <div class="hh-summary-line">
-                        <span>Flight</span>
+                        <span>@T["Flight"]</span>
                         <strong>@Model.FlightNumber</strong>
                     </div>
                 }
 
                 <div class="hh-summary-line">
-                    <span>Lead passenger</span>
+                    <span>@T["Lead passenger"]</span>
                     <strong>@Model.PassengerName</strong>
                 </div>
                 <div class="hh-summary-line">
-                    <span>Status</span>
-                    <strong>@Model.Status</strong>
+                    <span>@T["Status"]</span>
+                    <strong>@T.Enum(Model.Status)</strong>
                 </div>
             </div>
 
             <div class="col-md-5">
                 <div class="hh-summary-total">
-                    <span>Fixed price</span>
+                    <span>@T["Fixed price"]</span>
                     <strong>@Model.Price.ToString("0.00") AZN</strong>
                 </div>
 
@@ -75,7 +75,7 @@
                         <a asp-controller="Bookings"
                            asp-action="MyBookings"
                            class="hh-btn hh-btn-primary">
-                            My Bookings
+                            @T["My Bookings"]
                         </a>
                     }
 
@@ -84,20 +84,20 @@
                        asp-route-hotelId="@Model.HotelId"
                        asp-route-direction="@(Model.Direction == TaxiDirection.FromAirport ? TaxiDirection.ToAirport : TaxiDirection.FromAirport)"
                        class="hh-btn hh-btn-outline">
-                        Book return trip
+                        @T["Book return trip"]
                     </a>
                 </div>
 
                 <p class="small text-muted mt-3 mb-0">
                     @if (Model.Direction == TaxiDirection.FromAirport)
                     {
-                        <text>Your driver will wait in the arrivals hall with a sign showing your name.</text>
+                        <text>@T["Your driver will wait in the arrivals hall with a sign showing your name."]</text>
                     }
                     else
                     {
-                        <text>Your driver will meet you at the hotel reception.</text>
+                        <text>@T["Your driver will meet you at the hotel reception."]</text>
                     }
-                    Signed-in guests can cancel for free up to @TaxiRules.FreeCancelHours hours before pick-up from My Bookings.
+                    @T["Signed-in guests can cancel for free up to {0} hours before pick-up from My Bookings.", TaxiRules.FreeCancelHours]
                 </p>
             </div>
         </div>

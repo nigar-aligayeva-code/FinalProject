@@ -16,18 +16,18 @@
                     <div class="text-center mb-4">
 
                         <h2 class="text-success">
-                            Booking Confirmed
+                            @T["Booking Confirmed"]
                         </h2>
 
                         <p class="text-muted">
-                            Your reservation has been created successfully.
+                            @T["Your reservation has been created successfully."]
                         </p>
 
                     </div>
 
                     <div class="alert alert-success text-center">
 
-                        <strong>Confirmation Code</strong>
+                        <strong>@T["Confirmation Code"]</strong>
 
                         <h3 class="mt-2 mb-0">
                             @Model.ConfirmationCode
@@ -56,21 +56,21 @@
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
-                            <strong>Guest</strong>
+                            <strong>@T["Guest"]</strong>
                             <p>
                                 @Model.GuestName
                             </p>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <strong>Email</strong>
+                            <strong>@T["Email"]</strong>
                             <p>
                                 @Model.GuestEmail
                             </p>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <strong>Room</strong>
+                            <strong>@T["Room"]</strong>
                             <p>
                                 @Model.RoomNumber -
                                 @Model.RoomName
@@ -78,39 +78,39 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <strong>Status</strong>
+                            <strong>@T["Status"]</strong>
                             <p>
                                 <span class="badge bg-success">
-                                    @Model.Status
+                                    @T.Enum(Model.Status)
                                 </span>
                             </p>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <strong>Check-in</strong>
+                            <strong>@T["Check-in"]</strong>
                             <p>
-                                @Model.CheckInDate.ToString("dd MMMM yyyy")
+                                @Model.CheckInDate.ToString("dd MMMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                             </p>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <strong>Check-out</strong>
+                            <strong>@T["Check-out"]</strong>
                             <p>
-                                @Model.CheckOutDate.ToString("dd MMMM yyyy")
+                                @Model.CheckOutDate.ToString("dd MMMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                             </p>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <strong>Guests</strong>
+                            <strong>@T["Guests"]</strong>
                             <p>
-                                Adults: @Model.AdultCount
+                                @T["Adults:"] @Model.AdultCount
                                 <br />
-                                Children: @Model.ChildrenCount
+                                @T["Children:"] @Model.ChildrenCount
                             </p>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <strong>Total Price</strong>
+                            <strong>@T["Total Price"]</strong>
 
                             @if (Model.DiscountAmount > 0)
                             {
@@ -136,15 +136,15 @@
 
                     @if (ViewBag.Weather is HotelTravel.Application.DTOs.Weather.TripWeatherDto weather)
                     {
-                        ViewData["WeatherTitle"] = $"Weather during your stay in {weather.Location}";
+                        ViewData["WeatherTitle"] = T["Weather during your stay in {0}", weather.Location].Value;
                         <partial name="_WeatherWidget" model="weather" />
                     }
 
                     <hr />
 
                     <div class="alert alert-warning">
-                        Please save your confirmation code.
-                        You can use it later to find your booking.
+                        @T["Please save your confirmation code."]
+                        @T["You can use it later to find your booking."]
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
@@ -153,7 +153,7 @@
                            asp-route-confirmationCode="@Model.ConfirmationCode"
                            class="btn btn-dark">
                             <i class="bi bi-file-earmark-pdf"></i>
-                            Download PDF voucher
+                            @T["Download PDF voucher"]
                         </a>
 
                         @{
@@ -166,13 +166,13 @@
                            asp-route-confirmationCode="@Model.ConfirmationCode"
                            class="btn btn-outline-primary">
                             <i class="bi bi-calendar-plus"></i>
-                            Add to calendar
+                            @T["Add to calendar"]
                         </a>
                         <a href="@(HotelTravel.Application.Services.CalendarRules.GoogleUrl(calEvent))"
                            target="_blank" rel="noopener"
                            class="btn btn-outline-primary">
                             <i class="bi bi-google"></i>
-                            Google Calendar
+                            @T["Google Calendar"]
                         </a>
 
                         <form asp-controller="Bookings"
@@ -182,7 +182,7 @@
                             <input type="hidden" name="confirmationCode" value="@Model.ConfirmationCode" />
                             <button type="submit" class="btn btn-outline-dark">
                                 <i class="bi bi-envelope"></i>
-                                Email me a copy
+                                @T["Email me a copy"]
                             </button>
                         </form>
                     </div>
@@ -192,7 +192,7 @@
                         <a asp-controller="Home"
                            asp-action="Index"
                            class="btn btn-outline-secondary">
-                            Back to Home
+                            @T["Back to Home"]
                         </a>
 
                         <a asp-controller="Bookings"
@@ -201,13 +201,13 @@
                            target="_blank"
                            class="btn btn-success">
                             <i class="bi bi-qr-code"></i>
-                            Voucher / Print
+                            @T["Voucher / Print"]
                         </a>
 
                         <a asp-controller="Bookings"
                            asp-action="Find"
                            class="btn btn-primary">
-                            Find My Booking
+                            @T["Find My Booking"]
                         </a>
 
                     </div>

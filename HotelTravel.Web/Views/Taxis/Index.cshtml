@@ -1,4 +1,4 @@
-@model List<HotelTravel.Application.DTOs.Taxis.TaxiOptionDto>
+﻿@model List<HotelTravel.Application.DTOs.Taxis.TaxiOptionDto>
 @using HotelTravel.Application.DTOs.Taxis
 @using HotelTravel.Application.Services
 @using HotelTravel.Domain.Enums
@@ -19,8 +19,8 @@
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1><i class="fa-solid fa-taxi me-2"></i>Airport taxis</h1>
-        <p>A fixed price transfer between the airport and your hotel. The driver waits for you.</p>
+        <h1><i class="fa-solid fa-taxi me-2"></i>@T["Airport taxis"]</h1>
+        <p>@T["A fixed price transfer between the airport and your hotel. The driver waits for you."]</p>
     </div>
 </section>
 
@@ -35,10 +35,10 @@
         <div class="hh-search-field">
             <i class="bi bi-arrow-left-right"></i>
             <div class="hh-search-body">
-                <label for="direction">Route</label>
+                <label for="direction">@T["Route"]</label>
                 <select id="direction" name="direction">
-                    <option value="@TaxiDirection.FromAirport" selected="@fromAirport">Airport → Hotel</option>
-                    <option value="@TaxiDirection.ToAirport" selected="@(!fromAirport)">Hotel → Airport</option>
+                    <option value="@TaxiDirection.FromAirport" selected="@fromAirport">@T["Airport → Hotel"]</option>
+                    <option value="@TaxiDirection.ToAirport" selected="@(!fromAirport)">@T["Hotel → Airport"]</option>
                 </select>
             </div>
         </div>
@@ -46,7 +46,7 @@
         <div class="hh-search-field">
             <i class="bi bi-building"></i>
             <div class="hh-search-body">
-                <label for="hotelId">Hotel</label>
+                <label for="hotelId">@T["Hotel"]</label>
                 <select id="hotelId" name="hotelId">
                     @foreach (var group in hotels.GroupBy(h => h.City))
                     {
@@ -64,7 +64,7 @@
         <div class="hh-search-field">
             <i class="bi bi-calendar3"></i>
             <div class="hh-search-body">
-                <label for="date">Pick-up date</label>
+                <label for="date">@T["Pick-up date"]</label>
                 <input type="date"
                        id="date"
                        name="date"
@@ -76,7 +76,7 @@
         <div class="hh-search-field">
             <i class="bi bi-clock"></i>
             <div class="hh-search-body">
-                <label for="time">Time</label>
+                <label for="time">@T["Time"]</label>
                 <input type="time"
                        id="time"
                        name="time"
@@ -88,7 +88,7 @@
         <div class="hh-search-field">
             <i class="bi bi-people"></i>
             <div class="hh-search-body">
-                <label for="passengers">Passengers</label>
+                <label for="passengers">@T["Passengers"]</label>
                 <select id="passengers" name="passengers">
                     @for (var i = 1; i <= TaxiRules.MaxPassengers; i++)
                     {
@@ -101,7 +101,7 @@
         <div class="hh-search-field">
             <i class="bi bi-briefcase"></i>
             <div class="hh-search-body">
-                <label for="luggage">Bags</label>
+                <label for="luggage">@T["Bags"]</label>
                 <select id="luggage" name="luggage">
                     @for (var i = 0; i <= TaxiRules.MaxLuggage; i++)
                     {
@@ -113,7 +113,7 @@
 
         <button type="submit" class="hh-search-btn">
             <i class="bi bi-search"></i>
-            Search
+            @T["Search"]
         </button>
     </form>
 
@@ -125,7 +125,7 @@
     @if (hotel == null)
     {
         <section class="hh-section">
-            <div class="hh-empty">Airport taxis are not available yet.</div>
+            <div class="hh-empty">@T["Airport taxis are not available yet."]</div>
         </section>
     }
     else
@@ -136,20 +136,20 @@
                 <div class="hh-taxi-stop">
                     <span class="hh-taxi-dot"><i class="fa-solid @(fromAirport ? "fa-plane-arrival" : "fa-hotel")"></i></span>
                     <div>
-                        <small>From</small>
+                        <small>@T["From"]</small>
                         <strong>@(fromAirport ? $"{hotel.AirportName} ({hotel.AirportCode})" : hotel.Name)</strong>
                         <span>@(fromAirport ? hotel.City : hotel.Address)</span>
                     </div>
                 </div>
 
                 <div class="hh-taxi-line">
-                    <span>@hotel.DistanceKm km · ~@hotel.EstimatedMinutes min</span>
+                    <span>@hotel.DistanceKm @T["km"] · ~@hotel.EstimatedMinutes @T["min"]</span>
                 </div>
 
                 <div class="hh-taxi-stop">
                     <span class="hh-taxi-dot"><i class="fa-solid @(fromAirport ? "fa-hotel" : "fa-plane-departure")"></i></span>
                     <div>
-                        <small>To</small>
+                        <small>@T["To"]</small>
                         <strong>@(fromAirport ? hotel.Name : $"{hotel.AirportName} ({hotel.AirportCode})")</strong>
                         <span>@(fromAirport ? hotel.Address : hotel.City)</span>
                     </div>
@@ -161,18 +161,18 @@
         <section class="hh-section">
             <div class="hh-section-head">
                 <div>
-                    <h2 class="hh-section-title">Choose your taxi</h2>
+                    <h2 class="hh-section-title">@T["Choose your taxi"]</h2>
                     <p class="hh-section-sub">
-                        @pickupTime.ToString("ddd, MMM d · HH:mm")
-                        · @passengers passenger@(passengers == 1 ? "" : "s")
-                        · @luggage bag@(luggage == 1 ? "" : "s")
+                        @pickupTime.ToString("ddd, MMM d · HH:mm", System.Globalization.CultureInfo.CurrentUICulture)
+                        · @T.Plural(passengers, "passenger", "passengers")
+                        · @T.Plural(luggage, "bag", "bags")
                     </p>
                 </div>
             </div>
 
             @if (!Model.Any())
             {
-                <div class="hh-empty">Change the search to see prices.</div>
+                <div class="hh-empty">@T["Change the search to see prices."]</div>
             }
             else
             {
@@ -193,14 +193,14 @@
                                     <li><i class="bi bi-people"></i> Up to @option.MaxPassengers</li>
                                     <li><i class="bi bi-briefcase"></i> @option.MaxLuggage bags</li>
                                     <li><i class="bi bi-person-badge"></i> Meet &amp; greet</li>
-                                    <li><i class="bi bi-check-circle"></i> Free cancellation</li>
+                                    <li><i class="bi bi-check-circle"></i> @T["Free cancellation"]</li>
                                 </ul>
 
                                 <div class="hh-car-foot">
                                     <div class="hh-room-price text-start">
-                                        <small>Fixed price</small>
+                                        <small>@T["Fixed price"]</small>
                                         <strong>@option.Price.ToString("0.00") AZN</strong>
-                                        <small>per vehicle, one way</small>
+                                        <small>@T["per vehicle, one way"]</small>
                                     </div>
 
                                     @if (option.Fits)
@@ -214,12 +214,12 @@
                                            asp-route-luggage="@luggage"
                                            asp-route-vehicleType="@option.Type"
                                            class="hh-btn hh-btn-primary">
-                                            Select
+                                            @T["Select"]
                                         </a>
                                     }
                                     else
                                     {
-                                        <span class="hh-car-busy">Too small</span>
+                                        <span class="hh-car-busy">@T["Too small"]</span>
                                     }
                                 </div>
                             </div>
@@ -232,23 +232,23 @@
             <div class="hh-taxi-perks">
                 <div>
                     <i class="fa-solid fa-plane-circle-check"></i>
-                    <strong>Flight tracking</strong>
-                    <span>Your driver follows your flight, so a delay is no problem.</span>
+                    <strong>@T["Flight tracking"]</strong>
+                    <span>@T["Your driver follows your flight, so a delay is no problem."]</span>
                 </div>
                 <div>
                     <i class="fa-solid fa-hourglass-half"></i>
-                    <strong>60 min free waiting</strong>
-                    <span>After landing the driver waits up to an hour at no cost.</span>
+                    <strong>@T["60 min free waiting"]</strong>
+                    <span>@T["After landing the driver waits up to an hour at no cost."]</span>
                 </div>
                 <div>
                     <i class="fa-solid fa-sign-hanging"></i>
                     <strong>Meet &amp; greet</strong>
-                    <span>Find the driver in arrivals with a sign showing your name.</span>
+                    <span>@T["Find the driver in arrivals with a sign showing your name."]</span>
                 </div>
                 <div>
                     <i class="fa-solid fa-rotate-left"></i>
-                    <strong>Free cancellation</strong>
-                    <span>Cancel for free up to @TaxiRules.FreeCancelHours hours before pick-up.</span>
+                    <strong>@T["Free cancellation"]</strong>
+                    <span>@T["Cancel for free up to {0} hours before pick-up.", TaxiRules.FreeCancelHours]</span>
                 </div>
             </div>
         </section>

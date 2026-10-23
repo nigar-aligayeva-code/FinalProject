@@ -201,8 +201,8 @@
 </style>
 
 <div class="edit-heading">
-    <h1>Edit Room</h1>
-    <p>Manage room information, amenities and photos.</p>
+    <h1>@T["Edit Room"]</h1>
+    <p>@T["Manage room information, amenities and photos."]</p>
 </div>
 
 <form asp-area="Admin"
@@ -223,30 +223,30 @@
 
         <div>
             <div class="edit-card">
-                <h3>Basic Information</h3>
+                <h3>@T["Basic Information"]</h3>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label asp-for="Name">Room Name</label>
+                        <label asp-for="Name">@T["Room Name"]</label>
                         <input asp-for="Name" class="form-control" />
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="RoomNumber">Room Number</label>
+                        <label asp-for="RoomNumber">@T["Room Number"]</label>
                         <input asp-for="RoomNumber"
                                class="form-control" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Description">Description</label>
+                    <label asp-for="Description">@T["Description"]</label>
                     <textarea asp-for="Description"
                               class="form-control"></textarea>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label asp-for="RoomType">Room Type</label>
+                        <label asp-for="RoomType">@T["Room Type"]</label>
                         <select asp-for="RoomType"
                                 asp-items="Html.GetEnumSelectList<RoomType>()"
                                 class="form-control">
@@ -254,7 +254,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="HotelId">Hotel</label>
+                        <label asp-for="HotelId">@T["Hotel"]</label>
                         <select asp-for="HotelId"
                                 class="form-control">
                             @foreach (var hotel in ViewBag.Hotels)
@@ -280,7 +280,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="Capacity">Capacity</label>
+                        <label asp-for="Capacity">@T["Capacity"]</label>
                         <input asp-for="Capacity"
                                type="number"
                                min="1"
@@ -290,7 +290,7 @@
             </div>
 
             <div class="edit-card">
-                <h3>Room Amenities</h3>
+                <h3>@T["Room Amenities"]</h3>
 
                 <div class="amenities-grid">
                     @foreach (var amenity in ViewBag.Amenities)
@@ -306,15 +306,15 @@
                 </div>
 
                 <p class="help-text">
-                    Select the facilities available in this room.
+                    @T["Select the facilities available in this room."]
                 </p>
             </div>
 
             <div class="edit-card">
-                <h3>Upload Images</h3>
+                <h3>@T["Upload Images"]</h3>
 
                 <div class="form-group">
-                    <label>@(string.IsNullOrWhiteSpace(Model.MainImage) ? "Add New Main Image" : "Replace Main Image")</label>
+                    <label>@(string.IsNullOrWhiteSpace(Model.MainImage) ? T["Add New Main Image"] : T["Replace Main Image"])</label>
                     <input type="file"
                            name="mainImage"
                            id="mainImageFile"
@@ -323,13 +323,13 @@
 
                     <p class="help-text">
                         @(string.IsNullOrWhiteSpace(Model.MainImage)
-                            ? "Upload a main image (JPG, PNG or WEBP, maximum 5 MB)."
-                            : "Upload a new image to replace the current one.")
+                            ? T["Upload a main image (JPG, PNG or WEBP, maximum 5 MB)."].Value
+                            : T["Upload a new image to replace the current one."].Value)
                     </p>
                 </div>
 
                 <div class="form-group">
-                    <label>New Gallery Images</label>
+                    <label>@T["New Gallery Images"]</label>
                     <input type="file"
                            name="galleryImages"
                            multiple
@@ -337,13 +337,13 @@
                            class="form-control" />
 
                     <p class="help-text">
-                        You can select multiple images. Maximum 5 MB each.
+                        @T["You can select multiple images. Maximum 5 MB each."]
                     </p>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="PanoramaImage">
-                        Panorama Image URL
+                        @T["Panorama Image URL"]
                     </label>
                     <input asp-for="PanoramaImage"
                            class="form-control" />
@@ -352,21 +352,21 @@
 
             <div class="form-actions">
                 <button type="submit" class="save-btn">
-                    Save Changes
+                    @T["Save Changes"]
                 </button>
 
                 <a asp-area="Admin"
                    asp-controller="Rooms"
                    asp-action="Index"
                    class="back-btn">
-                    Cancel
+                    @T["Cancel"]
                 </a>
             </div>
         </div>
 
         <div>
             <div class="edit-card">
-                <h3>Main Image</h3>
+                <h3>@T["Main Image"]</h3>
 
                 @if (!string.IsNullOrWhiteSpace(Model.MainImage))
                 {
@@ -376,14 +376,14 @@
                          alt="Room main image" />
 
                     <div id="emptyMainImage" class="empty-main-image" style="display:none;">
-                        No main image uploaded
+                        @T["No main image uploaded"]
                     </div>
 
                     <label id="removeMainImageLabel" style="display:flex;gap:8px;align-items:center;">
                         <input asp-for="RemoveMainImage"
                                type="checkbox"
                                id="removeMainImage" />
-                        <span>Remove current main image</span>
+                        <span>@T["Remove current main image"]</span>
                     </label>
                 }
                 else
@@ -394,19 +394,19 @@
                          style="display:none;" />
 
                     <div id="emptyMainImage" class="empty-main-image">
-                        No main image uploaded
+                        @T["No main image uploaded"]
                     </div>
                 }
 
                 <p class="help-text">
                     @(string.IsNullOrWhiteSpace(Model.MainImage)
-                        ? "Use Add New Main Image to upload a photo."
-                        : "Changes take effect after Save Changes.")
+                        ? T["Use Add New Main Image to upload a photo."].Value
+                        : T["Changes take effect after Save Changes."].Value)
                 </p>
             </div>
 
             <div class="edit-card">
-                <h3>Room Gallery</h3>
+                <h3>@T["Room Gallery"]</h3>
 
                 @if (Model.Images != null && Model.Images.Any())
                 {
@@ -421,7 +421,7 @@
                                     <input type="checkbox"
                                            name="DeletedImageIds"
                                            value="@image.Id" />
-                                    Delete image
+                                    @T["Delete image"]
                                 </label>
                             </div>
                         }
@@ -430,12 +430,12 @@
                 else
                 {
                     <p class="help-text">
-                        No gallery images available.
+                        @T["No gallery images available."]
                     </p>
                 }
 
                 <p class="help-text">
-                    Select images to remove, then click Save Changes.
+                    @T["Select images to remove, then click Save Changes."]
                 </p>
             </div>
         </div>

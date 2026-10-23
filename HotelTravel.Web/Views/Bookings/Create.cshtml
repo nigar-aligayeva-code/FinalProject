@@ -17,8 +17,8 @@
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1>Complete your booking</h1>
-        <p>Just one step left. Enter your details to confirm the stay.</p>
+        <h1>@T["Complete your booking"]</h1>
+        <p>@T["Just one step left. Enter your details to confirm the stay."]</p>
     </div>
 </section>
 
@@ -44,30 +44,30 @@
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <div class="hh-panel">
-                <h2 class="hh-panel-title">Enter your details</h2>
+                <h2 class="hh-panel-title">@T["Enter your details"]</h2>
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label asp-for="FirstName" class="form-label">First name</label>
+                        <label asp-for="FirstName" class="form-label">@T["First name"]</label>
                         <input asp-for="FirstName" class="form-control" autocomplete="given-name" />
                         <span asp-validation-for="FirstName" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="LastName" class="form-label">Last name</label>
+                        <label asp-for="LastName" class="form-label">@T["Last name"]</label>
                         <input asp-for="LastName" class="form-control" autocomplete="family-name" />
                         <span asp-validation-for="LastName" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Email" class="form-label">Email</label>
+                        <label asp-for="Email" class="form-label">@T["Email"]</label>
                         <input asp-for="Email" type="email" class="form-control" autocomplete="email" />
-                        <div class="form-text">Your confirmation code will be linked to this email.</div>
+                        <div class="form-text">@T["Your confirmation code will be linked to this email."]</div>
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Phone" class="form-label">Phone</label>
+                        <label asp-for="Phone" class="form-label">@T["Phone"]</label>
                         <input asp-for="Phone" class="form-control" autocomplete="tel" placeholder="+994 ..." />
                         <span asp-validation-for="Phone" class="text-danger small"></span>
                     </div>
@@ -78,16 +78,16 @@
             <div class="hh-panel">
                 <h2 class="hh-panel-title">
                     <i class="bi bi-tag me-1"></i>
-                    Have a promo code?
+                    @T["Have a promo code?"]
                 </h2>
 
                 <div class="hh-promo">
                     <input asp-for="PromoCode"
                            class="form-control"
-                           placeholder="Enter code"
+                           placeholder="@T["Enter code"]"
                            style="text-transform:uppercase" />
                     <button type="button" class="hh-btn hh-btn-outline" id="applyPromo">
-                        Apply
+                        @T["Apply"]
                     </button>
                 </div>
 
@@ -100,13 +100,13 @@
             </div>
 
             <div class="hh-panel hh-perks">
-                <div><i class="bi bi-check-circle-fill"></i> Free cancellation before the check-in day</div>
-                <div><i class="bi bi-check-circle-fill"></i> Instant confirmation code</div>
-                <div><i class="bi bi-check-circle-fill"></i> Change dates or guests any time before check-in</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["Free cancellation before the check-in day"]</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["Instant confirmation code"]</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["Change dates or guests any time before check-in"]</div>
             </div>
 
             <button type="submit" class="hh-search-btn hh-confirm-btn">
-                Confirm booking
+                @T["Confirm booking"]
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
@@ -134,47 +134,47 @@
 
                 <div class="hh-summary-dates">
                     <div>
-                        <small>Check-in</small>
-                        <strong>@Model.CheckInDate.ToString("ddd, MMM d, yyyy")</strong>
+                        <small>@T["Check-in"]</small>
+                        <strong>@Model.CheckInDate.ToString("ddd, MMM d, yyyy", System.Globalization.CultureInfo.CurrentUICulture)</strong>
                     </div>
                     <div>
-                        <small>Check-out</small>
-                        <strong>@Model.CheckOutDate.ToString("ddd, MMM d, yyyy")</strong>
+                        <small>@T["Check-out"]</small>
+                        <strong>@Model.CheckOutDate.ToString("ddd, MMM d, yyyy", System.Globalization.CultureInfo.CurrentUICulture)</strong>
                     </div>
                 </div>
 
                 <div class="hh-summary-line">
-                    <span>Length of stay</span>
-                    <strong>@nights night@(nights == 1 ? "" : "s")</strong>
+                    <span>@T["Length of stay"]</span>
+                    <strong>@T.Plural(nights, "night", "nights")</strong>
                 </div>
                 <div class="hh-summary-line">
-                    <span>Guests</span>
+                    <span>@T["Guests"]</span>
                     <strong>@guestsText</strong>
                 </div>
 
                 <hr />
 
-                <h4 class="hh-summary-sub">Price summary</h4>
+                <h4 class="hh-summary-sub">@T["Price summary"]</h4>
 
                 <div class="hh-summary-line">
                     <span>
-                        @(room?.PricePerNight.ToString("0.00") ?? "0.00") AZN × @nights night@(nights == 1 ? "" : "s")
+                        @(room?.PricePerNight.ToString("0.00") ?? "0.00") AZN × @T.Plural(nights, "night", "nights")
                     </span>
                     <span id="sumBase">@baseTotal.ToString("0.00") AZN</span>
                 </div>
 
                 <div class="hh-summary-line hh-discount-line d-none" id="sumDiscountRow">
-                    <span id="sumDiscountNote">Discount</span>
+                    <span id="sumDiscountNote">@T["Discount"]</span>
                     <span id="sumDiscount"></span>
                 </div>
 
                 <div class="hh-summary-total">
-                    <span>Total</span>
+                    <span>@T["Total"]</span>
                     <strong id="sumTotal">@baseTotal.ToString("0.00") AZN</strong>
                 </div>
 
                 <small class="text-muted d-block mt-1">
-                    Final price is calculated and confirmed when you book.
+                    @T["Final price is calculated and confirmed when you book."]
                 </small>
             </div>
         </aside>

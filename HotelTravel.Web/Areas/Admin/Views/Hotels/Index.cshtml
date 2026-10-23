@@ -112,14 +112,14 @@
 
 <div class="hotels-header">
     <div>
-        <h1>Hotels Management</h1>
-        <p>Manage and organize all hotels in your system.</p>
+        <h1>@T["Hotels Management"]</h1>
+        <p>@T["Manage and organize all hotels in your system."]</p>
     </div>
 
     <input type="search"
            id="hotelSearch"
            class="hotel-search"
-           placeholder="Search hotels..." />
+           placeholder="@T["Search hotels..."]" />
 </div>
 
 <div class="admin-card">
@@ -129,11 +129,11 @@
         <table class="hotel-table" id="hotelsTable">
             <thead>
                 <tr>
-                    <th>Hotel</th>
-                    <th>Country</th>
-                    <th>Rating</th>
-                    <th>Hotel Chain</th>
-                    <th>Actions</th>
+                    <th>@T["Hotel"]</th>
+                    <th>@T["Country"]</th>
+                    <th>@T["Rating"]</th>
+                    <th>@T["Hotel Chain"]</th>
+                    <th>@T["Actions"]</th>
                 </tr>
             </thead>
 
@@ -163,7 +163,7 @@
                             </span>
                         </td>
 
-                        <td>@(hotel.HotelChainName ?? "Independent")</td>
+                        <td>@(hotel.HotelChainName ?? T["Independent"].Value)</td>
 
                         <td>
                             <a asp-area="Admin"
@@ -171,7 +171,7 @@
                                asp-action="Edit"
                                asp-route-id="@hotel.Id"
                                class="edit-button">
-                                Edit
+                                @T["Edit"]
                             </a>
                         </td>
                     </tr>

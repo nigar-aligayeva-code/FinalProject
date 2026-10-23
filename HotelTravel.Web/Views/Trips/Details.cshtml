@@ -1,4 +1,4 @@
-@using System.Globalization
+﻿@using System.Globalization
 @model HotelTravel.Application.DTOs.Trips.TripPackageDto
 
 @{
@@ -20,9 +20,9 @@
             <div>
                 <span class="td-eyebrow"><i class="fa-solid fa-suitcase-rolling"></i> TRIP PACKAGE · @Model.Code</span>
                 <h1>@Model.FromCity → @Model.ToCity</h1>
-                <p>@Model.DepartDate.ToString("ddd, dd MMM") – @Model.ReturnDate.ToString("ddd, dd MMM yyyy") · @Model.Nights night@(Model.Nights == 1 ? "" : "s") · @Model.Travelers traveler@(Model.Travelers == 1 ? "" : "s")</p>
+                <p>@Model.DepartDate.ToString("ddd, dd MMM", System.Globalization.CultureInfo.CurrentUICulture) – @Model.ReturnDate.ToString("ddd, dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture) · @T.Plural(Model.Nights, "night", "nights") · @T.Plural(Model.Travelers, "traveler", "travelers")</p>
             </div>
-            <a asp-action="Index" class="td-btn td-btn-light"><i class="bi bi-arrow-left"></i> All trips</a>
+            <a asp-action="Index" class="td-btn td-btn-light"><i class="bi bi-arrow-left"></i> @T["All trips"]</a>
         </div>
 
         <div class="td-grid">
@@ -30,7 +30,7 @@
 
                 @if (ViewBag.Weather is HotelTravel.Application.DTOs.Weather.TripWeatherDto weather)
                 {
-                    ViewData["WeatherTitle"] = $"Weather in {weather.Location}";
+                    ViewData["WeatherTitle"] = T["Weather in {0}", weather.Location].Value;
                     <partial name="_WeatherWidget" model="weather" />
                 }
 
@@ -40,11 +40,11 @@
                     <div class="td-part">
                         <div class="td-icon"><i class="fa-solid fa-plane-departure"></i></div>
                         <div class="td-info">
-                            <small>Outbound flight · @outFlight.ConfirmationCode · @outFlight.Status</small>
+                            <small>Outbound flight · @outFlight.ConfirmationCode · @T.Enum(outFlight.Status)</small>
                             <b>@outFlight.Airline @outFlight.FlightNumber · @outFlight.FromCode → @outFlight.ToCode</b>
-                            <span>@outFlight.DepartureTime.ToString("ddd dd MMM, HH:mm") → @outFlight.ArrivalTime.ToString("HH:mm") · @outFlight.Cabin</span>
+                            <span>@outFlight.DepartureTime.ToString("ddd dd MMM, HH:mm", System.Globalization.CultureInfo.CurrentUICulture) → @outFlight.ArrivalTime.ToString("HH:mm") · @T.Enum(outFlight.Cabin)</span>
                         </div>
-                        <a asp-controller="Flights" asp-action="Confirmation" asp-route-confirmationCode="@outFlight.ConfirmationCode" class="td-link">Details</a>
+                        <a asp-controller="Flights" asp-action="Confirmation" asp-route-confirmationCode="@outFlight.ConfirmationCode" class="td-link">@T["Details"]</a>
                     </div>
                 }
 
@@ -54,9 +54,9 @@
                     <div class="td-part">
                         <div class="td-icon"><i class="bi bi-building"></i></div>
                         <div class="td-info">
-                            <small>Hotel · @hotel.ConfirmationCode · @hotel.Status</small>
+                            <small>Hotel · @hotel.ConfirmationCode · @T.Enum(hotel.Status)</small>
                             <b>@hotel.HotelName · @hotel.RoomName</b>
-                            <span>Check-in @hotel.CheckInDate.ToString("dd MMM") from 14:00 · check-out @hotel.CheckOutDate.ToString("dd MMM") until 12:00</span>
+                            <span>Check-in @hotel.CheckInDate.ToString("dd MMM", System.Globalization.CultureInfo.CurrentUICulture) from 14:00 · check-out @hotel.CheckOutDate.ToString("dd MMM", System.Globalization.CultureInfo.CurrentUICulture) until 12:00</span>
                         </div>
                         <a asp-controller="Bookings" asp-action="VoucherPdf" asp-route-confirmationCode="@hotel.ConfirmationCode" class="td-link">
                             <i class="bi bi-file-earmark-pdf"></i> Voucher
@@ -70,11 +70,11 @@
                     <div class="td-part">
                         <div class="td-icon"><i class="fa-solid fa-taxi"></i></div>
                         <div class="td-info">
-                            <small>Airport taxi · @taxi.ConfirmationCode · @taxi.Status</small>
-                            <b>@taxi.VehicleType car · @taxi.AirportCode → @taxi.HotelName</b>
-                            <span>Pick-up @taxi.PickupTime.ToString("ddd dd MMM, HH:mm") · driver tracks flight @taxi.FlightNumber</span>
+                            <small>Airport taxi · @taxi.ConfirmationCode · @T.Enum(taxi.Status)</small>
+                            <b>@T.Enum(taxi.VehicleType) car · @taxi.AirportCode → @taxi.HotelName</b>
+                            <span>Pick-up @taxi.PickupTime.ToString("ddd dd MMM, HH:mm", System.Globalization.CultureInfo.CurrentUICulture) · driver tracks flight @taxi.FlightNumber</span>
                         </div>
-                        <a asp-controller="Taxis" asp-action="Confirmation" asp-route-confirmationCode="@taxi.ConfirmationCode" class="td-link">Details</a>
+                        <a asp-controller="Taxis" asp-action="Confirmation" asp-route-confirmationCode="@taxi.ConfirmationCode" class="td-link">@T["Details"]</a>
                     </div>
                 }
 
@@ -84,35 +84,35 @@
                     <div class="td-part">
                         <div class="td-icon"><i class="fa-solid fa-plane-arrival"></i></div>
                         <div class="td-info">
-                            <small>Return flight · @backFlight.ConfirmationCode · @backFlight.Status</small>
+                            <small>Return flight · @backFlight.ConfirmationCode · @T.Enum(backFlight.Status)</small>
                             <b>@backFlight.Airline @backFlight.FlightNumber · @backFlight.FromCode → @backFlight.ToCode</b>
-                            <span>@backFlight.DepartureTime.ToString("ddd dd MMM, HH:mm") → @backFlight.ArrivalTime.ToString("HH:mm") · @backFlight.Cabin</span>
+                            <span>@backFlight.DepartureTime.ToString("ddd dd MMM, HH:mm", System.Globalization.CultureInfo.CurrentUICulture) → @backFlight.ArrivalTime.ToString("HH:mm") · @T.Enum(backFlight.Cabin)</span>
                         </div>
-                        <a asp-controller="Flights" asp-action="Confirmation" asp-route-confirmationCode="@backFlight.ConfirmationCode" class="td-link">Details</a>
+                        <a asp-controller="Flights" asp-action="Confirmation" asp-route-confirmationCode="@backFlight.ConfirmationCode" class="td-link">@T["Details"]</a>
                     </div>
                 }
 
                 <p class="td-note">
                     <i class="bi bi-info-circle"></i>
-                    Each part also appears in <a asp-controller="Bookings" asp-action="MyBookings">My Bookings</a>,
-                    where you can manage or cancel it separately.
+                    @T["Each part also appears in"] <a asp-controller="Bookings" asp-action="MyBookings">@T["My Bookings"]</a>,
+                    @T["where you can manage or cancel it separately."]
                 </p>
             </div>
 
             <aside class="td-price">
-                <h3>Price</h3>
+                <h3>@T["Price"]</h3>
                 <ul>
-                    <li><span>Flights</span><b>@Money(Model.FlightsPrice)</b></li>
-                    <li><span>Hotel</span><b>@Money(Model.HotelPrice)</b></li>
+                    <li><span>@T["Flights"]</span><b>@Money(Model.FlightsPrice)</b></li>
+                    <li><span>@T["Hotel"]</span><b>@Money(Model.HotelPrice)</b></li>
                     @if (Model.TaxiPrice > 0)
                     {
-                        <li><span>Airport taxi</span><b>@Money(Model.TaxiPrice)</b></li>
+                        <li><span>@T["Airport taxi"]</span><b>@Money(Model.TaxiPrice)</b></li>
                     }
-                    <li class="td-sub"><span>Subtotal</span><b>@Money(Model.Subtotal)</b></li>
+                    <li class="td-sub"><span>@T["Subtotal"]</span><b>@Money(Model.Subtotal)</b></li>
                     <li class="td-save"><span>Package discount (@Model.DiscountPercent%)</span><b>-@Money(Model.DiscountAmount)</b></li>
-                    <li class="td-total"><span>Total</span><b>@Money(Model.Total)</b></li>
+                    <li class="td-total"><span>@T["Total"]</span><b>@Money(Model.Total)</b></li>
                 </ul>
-                <small>Booked @Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</small>
+                <small>Booked @Model.CreatedAt.ToString("dd MMM yyyy, HH:mm", System.Globalization.CultureInfo.CurrentUICulture)</small>
             </aside>
         </div>
     </div>

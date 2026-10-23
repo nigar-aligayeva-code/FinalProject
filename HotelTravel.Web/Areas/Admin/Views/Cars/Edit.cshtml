@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Cars.SaveCarDto
+﻿@model HotelTravel.Application.DTOs.Cars.SaveCarDto
 @using HotelTravel.Domain.Enums
 
 @{
@@ -14,8 +14,8 @@
 
 <div class="cg-heading">
     <div>
-        <h1>@(isNew ? "Add a car" : "Edit car")</h1>
-        <p>Cars appear on the Car rental page for the selected city.</p>
+        <h1>@(isNew ? T["Add a car"] : T["Edit car"])</h1>
+        <p>@T["Cars appear on the Car rental page for the selected city."]</p>
     </div>
 
     <a asp-area="Admin"
@@ -23,7 +23,7 @@
        asp-action="Index"
        asp-route-city="@Model.City"
        class="cg-btn cg-btn-light">
-        ← Back to list
+        @T["← Back to list"]
     </a>
 </div>
 
@@ -39,8 +39,8 @@
         <div asp-validation-summary="ModelOnly" class="cg-alert cg-alert-error cg-full"></div>
 
         <div class="cg-field">
-            <label asp-for="City">City</label>
-            <input asp-for="City" list="cityList" placeholder="e.g. Baku" />
+            <label asp-for="City">@T["City"]</label>
+            <input asp-for="City" list="cityList" placeholder="@T["e.g. Baku"]" />
             <datalist id="cityList">
                 @foreach (var city in cities)
                 {
@@ -51,18 +51,18 @@
         </div>
 
         <div class="cg-field">
-            <label asp-for="Model">Model</label>
-            <input asp-for="Model" placeholder="e.g. Toyota Corolla" />
+            <label asp-for="Model">@T["Model"]</label>
+            <input asp-for="Model" placeholder="@T["e.g. Toyota Corolla"]" />
             <span asp-validation-for="Model" class="text-danger"></span>
         </div>
 
         <div class="cg-field">
-            <label asp-for="Category">Category</label>
+            <label asp-for="Category">@T["Category"]</label>
             <select asp-for="Category" asp-items="Html.GetEnumSelectList<CarCategory>()"></select>
         </div>
 
         <div class="cg-field">
-            <label asp-for="Seats">Seats</label>
+            <label asp-for="Seats">@T["Seats"]</label>
             <input asp-for="Seats" type="number" min="2" max="9" />
             <span asp-validation-for="Seats" class="text-danger"></span>
         </div>
@@ -81,12 +81,12 @@
         <div class="cg-field cg-full" style="display:flex;gap:24px;flex-wrap:wrap">
             <label style="display:flex;gap:8px;align-items:center;margin:0">
                 <input asp-for="IsAutomatic" type="checkbox" style="width:auto" />
-                Automatic transmission
+                @T["Automatic transmission"]
             </label>
 
             <label style="display:flex;gap:8px;align-items:center;margin:0">
                 <input asp-for="HasAirConditioning" type="checkbox" style="width:auto" />
-                Air conditioning
+                @T["Air conditioning"]
             </label>
 
             <label style="display:flex;gap:8px;align-items:center;margin:0">
@@ -97,7 +97,7 @@
 
         <div class="cg-full">
             <button type="submit" class="cg-btn">
-                @(isNew ? "Add car" : "Save changes")
+                @(isNew ? T["Add car"] : T["Save changes"])
             </button>
         </div>
     </form>

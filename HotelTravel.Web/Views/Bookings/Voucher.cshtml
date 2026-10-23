@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
+﻿@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
 @inject Microsoft.Extensions.Configuration.IConfiguration Config
 @using HotelTravel.Domain.Enums
 
@@ -19,10 +19,10 @@
 
     var (statusText, statusClass) = Model.Status switch
     {
-        BookingStatus.Confirmed => ("Confirmed", "ok"),
-        BookingStatus.CheckedIn => ("Checked in", "ok"),
-        BookingStatus.CheckedOut => ("Checked out", "muted"),
-        BookingStatus.Cancelled => ("Cancelled", "bad"),
+        BookingStatus.Confirmed => (T["Confirmed"].Value, "ok"),
+        BookingStatus.CheckedIn => (T["Checked In"].Value, "ok"),
+        BookingStatus.CheckedOut => (T["Checked Out"].Value, "muted"),
+        BookingStatus.Cancelled => (T["Cancelled"].Value, "bad"),
         _ => (Model.Status.ToString(), "muted")
     };
 }
@@ -310,71 +310,71 @@
                 @brand
             </div>
             <div>
-                <small>Booking voucher</small>
+                <small>@T["Booking voucher"]</small>
                 <strong>@Model.HotelName</strong>
             </div>
         </div>
 
         <div class="v-top">
             <div>
-                <span class="label">Confirmation code</span>
+                <span class="label">@T["Confirmation code"]</span>
                 <p class="code">@Model.ConfirmationCode</p>
                 <span class="status @statusClass">@statusText</span>
 
                 <div class="guest">
-                    <span class="label">Guest</span>
+                    <span class="label">@T["Guest"]</span>
                     @Model.GuestName
                 </div>
             </div>
 
             <div class="qr-box">
                 <div id="qrcode" data-url="@qrUrl"></div>
-                <small>Show this code at reception</small>
+                <small>@T["Show this code at reception"]</small>
             </div>
         </div>
 
         <div class="v-grid">
             <div class="v-cell">
-                <span class="label">Check-in</span>
-                <strong>@Model.CheckInDate.ToString("dddd, d MMMM yyyy")</strong>
+                <span class="label">@T["Check-in"]</span>
+                <strong>@Model.CheckInDate.ToString("dddd, d MMMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)</strong>
             </div>
 
             <div class="v-cell">
-                <span class="label">Check-out</span>
-                <strong>@Model.CheckOutDate.ToString("dddd, d MMMM yyyy")</strong>
+                <span class="label">@T["Check-out"]</span>
+                <strong>@Model.CheckOutDate.ToString("dddd, d MMMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)</strong>
             </div>
 
             <div class="v-cell">
-                <span class="label">Room</span>
+                <span class="label">@T["Room"]</span>
                 <strong>@Model.RoomName</strong>
-                <span class="sub">Room @Model.RoomNumber</span>
+                <span class="sub">@T["Room {0}", Model.RoomNumber]</span>
             </div>
 
             <div class="v-cell">
-                <span class="label">Stay</span>
-                <strong>@nights night@(nights == 1 ? "" : "s")</strong>
+                <span class="label">@T["Stay"]</span>
+                <strong>@T.Plural(nights, "night", "nights")</strong>
                 <span class="sub">@guestsText</span>
             </div>
 
             <div class="v-cell">
-                <span class="label">Hotel address</span>
+                <span class="label">@T["Hotel address"]</span>
                 <strong>@Model.HotelName</strong>
                 <span class="sub">@Model.HotelAddress, @Model.HotelCity, @Model.HotelCountry</span>
             </div>
 
             <div class="v-cell">
-                <span class="label">Hotel phone</span>
+                <span class="label">@T["Hotel phone"]</span>
                 <strong>@Model.HotelPhone</strong>
             </div>
         </div>
 
         <div class="v-price">
-            <span class="label">Payment summary</span>
+            <span class="label">@T["Payment summary"]</span>
 
             @if (Model.DiscountAmount > 0)
             {
                 <div class="line">
-                    <span>Room price (@nights night@(nights == 1 ? "" : "s"))</span>
+                    <span>@T["Room price"] (@T.Plural(nights, "night", "nights"))</span>
                     <span>@Model.OriginalPrice.ToString("0.00") AZN</span>
                 </div>
                 <div class="line discount">
@@ -384,15 +384,15 @@
             }
 
             <div class="total">
-                <span>Total</span>
+                <span>@T["Total"]</span>
                 <strong>@Model.TotalPrice.ToString("0.00") AZN</strong>
             </div>
         </div>
 
         <div class="v-foot">
-            <div><i class="bi bi-check-circle-fill"></i>Free cancellation and changes before the check-in day.</div>
-            <div><i class="bi bi-person-badge"></i>Please bring a valid ID. The name must match the booking.</div>
-            <div><i class="bi bi-qr-code"></i>Scan the QR code to open this booking online.</div>
+            <div><i class="bi bi-check-circle-fill"></i>@T["Free cancellation and changes before the check-in day."]</div>
+            <div><i class="bi bi-person-badge"></i>@T["Please bring a valid ID. The name must match the booking."]</div>
+            <div><i class="bi bi-qr-code"></i>@T["Scan the QR code to open this booking online."]</div>
         </div>
     </div>
 

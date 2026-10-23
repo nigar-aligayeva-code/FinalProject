@@ -1,4 +1,4 @@
-@using HotelTravel.Application.Services
+﻿@using HotelTravel.Application.Services
 @model HotelTravel.Web.ViewModels.ProfileViewModel
 
 @{
@@ -28,7 +28,7 @@
 
         <!-- HEADER -->
         <div class="pf-hero">
-            <button type="button" class="pf-avatar" id="openAvatars" title="Change avatar">
+            <button type="button" class="pf-avatar" id="openAvatars" title="@T["Change avatar"]">
                 @if (avatarUrl != null)
                 {
                     <img src="@avatarUrl" alt="Avatar" />
@@ -41,15 +41,15 @@
             </button>
 
             <div class="pf-hero-text">
-                <span class="pf-eyebrow"><i class="bi bi-person-badge"></i> MY ACCOUNT</span>
+                <span class="pf-eyebrow"><i class="bi bi-person-badge"></i> @T["MY ACCOUNT"]</span>
                 <h1>@u.FirstName @u.LastName</h1>
                 <p>@u.Email @if (!string.IsNullOrWhiteSpace(u.PhoneNumber)) { <span>· @u.PhoneNumber</span> }</p>
             </div>
 
             <div class="pf-level">
-                <span class="pf-level-badge"><i class="bi bi-award"></i> @s.Level</span>
+                <span class="pf-level-badge"><i class="bi bi-award"></i> @T[s.Level ?? ""]</span>
                 <small>
-                    @(toNext > 0 ? $"{toNext} more trip{(toNext == 1 ? "" : "s")} to the next level" : "Top traveler level reached")
+                    @(toNext > 0 ? T["{0} to the next level", T.Plural(toNext, "more trip", "more trips")].Value : T["Top traveler level reached"].Value)
                 </small>
             </div>
         </div>
@@ -57,8 +57,8 @@
         <!-- AVATAR SEÇİMİ -->
         <details class="pf-card pf-avatars" id="avatarPicker">
             <summary>
-                <span><i class="bi bi-person-bounding-box"></i> Choose your avatar</span>
-                <small>Pick a picture or keep your initials</small>
+                <span><i class="bi bi-person-bounding-box"></i> @T["Choose your avatar"]</span>
+                <small>@T["Pick a picture or keep your initials"]</small>
             </summary>
 
             <form asp-action="Avatar" method="post">
@@ -66,7 +66,7 @@
                     <label class="pf-av">
                         <input type="radio" name="avatarKey" value="" @(avatarUrl == null ? "checked" : "") />
                         <span class="pf-av-img pf-av-initials">@initials</span>
-                        <small>Initials</small>
+                        <small>@T["Initials"]</small>
                     </label>
 
                     @foreach (var option in AvatarCatalog.All)
@@ -79,17 +79,17 @@
                     }
                 </div>
 
-                <button type="submit" class="pf-btn pf-btn-dark">Save avatar</button>
+                <button type="submit" class="pf-btn pf-btn-dark">@T["Save avatar"]</button>
             </form>
         </details>
 
         <!-- STATISTIKA -->
         <div class="pf-stats">
-            <div class="pf-stat"><span>Total trips</span><strong>@s.TotalTrips</strong></div>
-            <div class="pf-stat"><span>Upcoming</span><strong>@s.UpcomingTrips</strong></div>
-            <div class="pf-stat"><span>Nights booked</span><strong>@s.NightsBooked</strong></div>
-            <div class="pf-stat"><span>Cities</span><strong>@s.CitiesVisited</strong></div>
-            <div class="pf-stat"><span>Total spent</span><strong>@s.TotalSpent.ToString("N0") AZN</strong></div>
+            <div class="pf-stat"><span>@T["Total trips"]</span><strong>@s.TotalTrips</strong></div>
+            <div class="pf-stat"><span>@T["Upcoming"]</span><strong>@s.UpcomingTrips</strong></div>
+            <div class="pf-stat"><span>@T["Nights booked"]</span><strong>@s.NightsBooked</strong></div>
+            <div class="pf-stat"><span>@T["Cities"]</span><strong>@s.CitiesVisited</strong></div>
+            <div class="pf-stat"><span>@T["Total spent"]</span><strong>@s.TotalSpent.ToString("N0") AZN</strong></div>
         </div>
 
         <div class="pf-grid">
@@ -98,29 +98,29 @@
             <aside class="pf-side">
 
                 <div class="pf-card">
-                    <h3>Next trip</h3>
+                    <h3>@T["Next trip"]</h3>
                     @if (s.NextTripDate.HasValue)
                     {
                         <div class="pf-next">
                             <div class="pf-next-date">
-                                <span>@s.NextTripDate.Value.ToString("MMM")</span>
+                                <span>@s.NextTripDate.Value.ToString("MMM", System.Globalization.CultureInfo.CurrentUICulture)</span>
                                 <strong>@s.NextTripDate.Value.Day</strong>
                             </div>
                             <div>
                                 <strong>@s.NextTripTitle</strong>
-                                <p>@s.NextTripDate.Value.ToString("dddd, dd MMM yyyy")</p>
+                                <p>@s.NextTripDate.Value.ToString("dddd, dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)</p>
                             </div>
                         </div>
                     }
                     else
                     {
-                        <p class="pf-muted">No upcoming trips yet.</p>
+                        <p class="pf-muted">@T["No upcoming trips yet."]</p>
                         <a asp-controller="Hotels" asp-action="Index" class="pf-link">Find a hotel <i class="bi bi-arrow-right"></i></a>
                     }
                 </div>
 
                 <div class="pf-card">
-                    <h3>My bookings</h3>
+                    <h3>@T["My bookings"]</h3>
                     <ul class="pf-services">
                         <li><i class="bi bi-building"></i> Hotels <b>@s.HotelBookings</b></li>
                         <li><i class="bi bi-airplane"></i> Flights <b>@s.FlightBookings</b></li>
@@ -129,7 +129,7 @@
                         <li><i class="bi bi-heart"></i> Saved rooms <b>@s.SavedRooms</b></li>
                     </ul>
                     <a asp-controller="Bookings" asp-action="MyBookings" class="pf-btn pf-btn-dark w-100">
-                        View all bookings
+                        @T["View all bookings"]
                     </a>
                 </div>
 
@@ -157,12 +157,12 @@
 
                         <div class="pf-row">
                             <div class="pf-field">
-                                <label asp-for="Profile.FirstName">First name</label>
+                                <label asp-for="Profile.FirstName">@T["First name"]</label>
                                 <input asp-for="Profile.FirstName" />
                                 <span asp-validation-for="Profile.FirstName" class="pf-error"></span>
                             </div>
                             <div class="pf-field">
-                                <label asp-for="Profile.LastName">Last name</label>
+                                <label asp-for="Profile.LastName">@T["Last name"]</label>
                                 <input asp-for="Profile.LastName" />
                                 <span asp-validation-for="Profile.LastName" class="pf-error"></span>
                             </div>
@@ -170,18 +170,18 @@
 
                         <div class="pf-row">
                             <div class="pf-field">
-                                <label>Email</label>
+                                <label>@T["Email"]</label>
                                 <input value="@u.Email" disabled />
-                                <small class="pf-muted">Email is used to sign in and cannot be changed.</small>
+                                <small class="pf-muted">@T["Email is used to sign in and cannot be changed."]</small>
                             </div>
                             <div class="pf-field">
-                                <label asp-for="Profile.PhoneNumber">Phone</label>
+                                <label asp-for="Profile.PhoneNumber">@T["Phone"]</label>
                                 <input asp-for="Profile.PhoneNumber" placeholder="+994 50 000 00 00" />
                                 <span asp-validation-for="Profile.PhoneNumber" class="pf-error"></span>
                             </div>
                         </div>
 
-                        <button type="submit" class="pf-btn pf-btn-dark">Save changes</button>
+                        <button type="submit" class="pf-btn pf-btn-dark">@T["Save changes"]</button>
                     </form>
                 </div>
 
@@ -194,27 +194,27 @@
                         }
 
                         <div class="pf-field">
-                            <label asp-for="Password.CurrentPassword">Current password</label>
+                            <label asp-for="Password.CurrentPassword">@T["Current password"]</label>
                             <input asp-for="Password.CurrentPassword" autocomplete="current-password" />
                             <span asp-validation-for="Password.CurrentPassword" class="pf-error"></span>
                         </div>
 
                         <div class="pf-row">
                             <div class="pf-field">
-                                <label asp-for="Password.NewPassword">New password</label>
+                                <label asp-for="Password.NewPassword">@T["New password"]</label>
                                 <input asp-for="Password.NewPassword" autocomplete="new-password" />
                                 <span asp-validation-for="Password.NewPassword" class="pf-error"></span>
                             </div>
                             <div class="pf-field">
-                                <label asp-for="Password.ConfirmPassword">Confirm new password</label>
+                                <label asp-for="Password.ConfirmPassword">@T["Confirm new password"]</label>
                                 <input asp-for="Password.ConfirmPassword" autocomplete="new-password" />
                                 <span asp-validation-for="Password.ConfirmPassword" class="pf-error"></span>
                             </div>
                         </div>
 
-                        <p class="pf-muted">At least 6 characters, with an uppercase letter, a lowercase letter and a digit.</p>
+                        <p class="pf-muted">@T["At least 6 characters, with an uppercase letter, a lowercase letter and a digit."]</p>
 
-                        <button type="submit" class="pf-btn pf-btn-dark">Change password</button>
+                        <button type="submit" class="pf-btn pf-btn-dark">@T["Change password"]</button>
                     </form>
                 </div>
 

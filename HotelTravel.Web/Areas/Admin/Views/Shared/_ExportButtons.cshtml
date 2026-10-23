@@ -1,16 +1,16 @@
-@model string
+﻿@model string
 @* Model = hesabatın növü: bookings | flights | taxis | cars *@
 
 <div class="export-buttons">
     <a asp-area="Admin" asp-controller="Exports" asp-action="Download"
        asp-route-type="@Model" asp-route-format="xlsx"
-       class="export-btn export-btn-excel" title="Download as Excel">
-        ⬇ Excel
+       class="export-btn export-btn-excel" title="@T["Download as Excel"]">
+        @T["⬇ Excel"]
     </a>
     <a asp-area="Admin" asp-controller="Exports" asp-action="Download"
        asp-route-type="@Model" asp-route-format="csv"
-       class="export-btn" title="Download as CSV">
-        ⬇ CSV
+       class="export-btn" title="@T["Download as CSV"]">
+        @T["⬇ CSV"]
     </a>
 </div>
 

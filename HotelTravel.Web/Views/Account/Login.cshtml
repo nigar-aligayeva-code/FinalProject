@@ -12,7 +12,7 @@
                 <div class="card-body p-4">
 
                     <h2 class="text-center mb-4">
-                        Login
+                        @T["Login"]
                     </h2>
 
                     <form asp-controller="Account"
@@ -37,12 +37,12 @@
                         <div class="mb-3">
                             <label asp-for="Email"
                                    class="form-label">
-                                Email
+                                @T["Email"]
                             </label>
 
                             <input asp-for="Email"
                                    class="form-control"
-                                   placeholder="Enter your email" />
+                                   placeholder="@T["Enter your email"]" />
 
                             <span asp-validation-for="Email"
                                   class="text-danger">
@@ -52,12 +52,12 @@
                         <div class="mb-3">
                             <label asp-for="Password"
                                    class="form-label">
-                                Password
+                                @T["Password"]
                             </label>
 
                             <input asp-for="Password"
                                    class="form-control"
-                                   placeholder="Enter your password" />
+                                   placeholder="@T["Enter your password"]" />
 
                             <span asp-validation-for="Password"
                                   class="text-danger">
@@ -65,7 +65,7 @@
                         </div>
 
                         <div class="text-end mb-2">
-                            <a asp-controller="Account" asp-action="ForgotPassword" class="small">Forgot password?</a>
+                            <a asp-controller="Account" asp-action="ForgotPassword" class="small">@T["Forgot password?"]</a>
                         </div>
 
                         <div class="form-check mb-3">
@@ -75,24 +75,24 @@
 
                             <label asp-for="RememberMe"
                                    class="form-check-label">
-                                Remember me
+                                @T["Remember me"]
                             </label>
 
                         </div>
 
                         <button type="submit"
                                 class="btn btn-primary w-100">
-                            Login
+                            @T["Login"]
                         </button>
 
                     </form>
 
                     <div class="text-center mt-3">
-                        Don't have an account?
+                        @T["Don't have an account?"]
 
                         <a asp-controller="Account"
                            asp-action="Register">
-                            Register
+                            @T["Register"]
                         </a>
                     </div>
 
@@ -107,4 +107,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+}
