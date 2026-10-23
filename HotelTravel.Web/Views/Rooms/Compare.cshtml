@@ -1,0 +1,209 @@
+@model HotelTravel.Application.DTOs.Rooms.RoomComparisonDto
+@{
+    ViewData["Title"] = "Compare rooms";
+    var rooms = Model.Rooms;
+    var colWidth = rooms.Count == 0 ? 100 : 75 / rooms.Count;
+
+    string RatingText(HotelTravel.Application.DTOs.Rooms.GetRoomDto r) =>
+        r.ReviewCount > 0 ? $"{r.AverageRating:0.0} / 5 ({r.ReviewCount} review{(r.ReviewCount == 1 ? "" : "s")})" : "No reviews yet";
+}
+
+<div class="container cmp-page">
+    <div class="cmp-head">
+        <div>
+            <h1>Compare rooms</h1>
+            <p>See up to @HotelTravel.Application.Services.RoomComparisonRules.MaxRooms rooms side by side. Highlights show the best value in each row.</p>
+        </div>
+        <a asp-action="Search" class="hh-btn hh-btn-outline">
+            <i class="bi bi-plus-lg"></i> Add more rooms
+        </a>
+    </div>
+
+    @if (rooms.Count == 0)
+    {
+        <div class="cmp-empty">
+            <i class="bi bi-layout-three-columns"></i>
+            <h2>Nothing to compare yet</h2>
+            <p>Search for rooms and press <strong>Compare</strong> on two or three of them.</p>
+            <a asp-action="Search" class="hh-btn hh-btn-primary">Search rooms</a>
+        </div>
+    }
+    else
+    {
+        @if (rooms.Count == 1)
+        {
+            <div class="cmp-hint">
+                <i class="bi bi-info-circle"></i> Add at least one more room to see which one is better.
+            </div>
+        }
+
+        <div class="cmp-scroll">
+            <table class="cmp-table">
+                <colgroup>
+                    <col style="width:25%" />
+                    @foreach (var _ in rooms)
+                    {
+                        <col style="width:@(colWidth)%" />
+                    }
+                </colgroup>
+
+                <thead>
+                    <tr>
+                        <th></th>
+                        @foreach (var room in rooms)
+                        {
+                            <th>
+                                <div class="cmp-room">
+                                    <button type="button" class="cmp-remove" data-compare-remove="@room.Id" title="Remove">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+
+                                    <a asp-action="Details" asp-route-id="@room.Id" class="cmp-img">
+                                        @if (!string.IsNullOrWhiteSpace(room.MainImage))
+                                        {
+                                            <img src="@room.MainImage" alt="@room.Name" />
+                                        }
+                                        else
+                                        {
+                                            <span><i class="bi bi-image"></i></span>
+                                        }
+                                    </a>
+
+                                    <a asp-action="Details" asp-route-id="@room.Id" class="cmp-name">@room.Name</a>
+                                    <small><i class="bi bi-geo-alt"></i> @room.HotelName · @room.City</small>
+                                </div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Price per night</td>
+                        @foreach (var room in rooms)
+                        {
+                            var best = room.Id == Model.CheapestRoomId;
+                            <td class="@(best ? "cmp-best" : "")">
+                                <strong>@room.PricePerNight.ToString("0.00") AZN</strong>
+                                @if (best) { <span class="cmp-badge"><i class="bi bi-tag-fill"></i> Cheapest</span> }
+                            </td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td>Guest rating</td>
+                        @foreach (var room in rooms)
+                        {
+                            var best = room.Id == Model.BestRatedRoomId;
+                            <td class="@(best ? "cmp-best" : "")">
+                                @RatingText(room)
+                                @if (best) { <span class="cmp-badge"><i class="bi bi-star-fill"></i> Top rated</span> }
+                            </td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td>Guests</td>
+                        @foreach (var room in rooms)
+                        {
+                            var best = room.Id == Model.LargestRoomId;
+                            <td class="@(best ? "cmp-best" : "")">
+                                <i class="bi bi-people"></i> Up to @room.Capacity
+                                @if (best) { <span class="cmp-badge"><i class="bi bi-arrows-fullscreen"></i> Most space</span> }
+                            </td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td>Room type</td>
+                        @foreach (var room in rooms)
+                        {
+                            <td>@room.RoomType</td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td>Hotel</td>
+                        @foreach (var room in rooms)
+                        {
+                            <td>@room.HotelName</td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td>360° view</td>
+                        @foreach (var room in rooms)
+                        {
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(room.PanoramaImage))
+                                {
+                                    <i class="bi bi-check-circle-fill cmp-yes"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-dash cmp-no"></i>
+                                }
+                            </td>
+                        }
+                    </tr>
+
+                    <tr class="cmp-section">
+                        <td colspan="@(rooms.Count + 1)">
+                            Amenities
+                            @if (Model.MostAmenitiesRoomId is int richest)
+                            {
+                                <span class="cmp-badge"><i class="bi bi-gem"></i> Most amenities: @rooms.First(r => r.Id == richest).Name</span>
+                            }
+                        </td>
+                    </tr>
+
+                    @foreach (var amenity in Model.AllAmenities)
+                    {
+                        <tr>
+                            <td>@amenity</td>
+                            @foreach (var room in rooms)
+                            {
+                                <td>
+                                    @if (Model.HasAmenity(room, amenity))
+                                    {
+                                        <i class="bi bi-check-circle-fill cmp-yes" aria-label="Yes"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle cmp-no" aria-label="No"></i>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+
+                    @if (!Model.AllAmenities.Any())
+                    {
+                        <tr>
+                            <td colspan="@(rooms.Count + 1)" class="text-muted">No amenities listed for these rooms.</td>
+                        </tr>
+                    }
+
+                    <tr>
+                        <td></td>
+                        @foreach (var room in rooms)
+                        {
+                            <td>
+                                <a asp-action="Details" asp-route-id="@room.Id" class="hh-btn hh-btn-primary w-100">
+                                    View &amp; book <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </td>
+                        }
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Server-dəki siyahını brauzerdəki seçimlə eyniləşdiririk (məs. link paylaşılanda)
+        window.tripioCompare && window.tripioCompare.sync(@Json.Serialize(rooms.Select(r => new { id = r.Id, name = r.Name, img = r.MainImage })));
+    </script>
+}

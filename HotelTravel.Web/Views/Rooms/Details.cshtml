@@ -456,6 +456,7 @@
             <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
                 <h1 class="room-title">@Model.Name</h1>
 
+                <div class="d-flex gap-2 flex-wrap">
                 <button type="button"
                         class="hh-save hh-save-inline @(isSaved ? "saved" : "")"
                         data-room-id="@Model.Id"
@@ -464,6 +465,17 @@
                     <i class="bi @(isSaved ? "bi-heart-fill" : "bi-heart")"></i>
                     <span class="hh-save-text">@(isSaved ? "Saved" : "Save")</span>
                 </button>
+
+                <button type="button"
+                        class="cmp-toggle"
+                        data-compare-id="@Model.Id"
+                        data-compare-name="@Model.Name"
+                        data-compare-img="@Model.MainImage"
+                        aria-pressed="false">
+                    <i class="bi bi-layout-three-columns"></i>
+                    <span class="cmp-toggle-text">Compare</span>
+                </button>
+                </div>
             </div>
 
             <p class="room-subtitle">

@@ -79,6 +79,29 @@ public class RoomsController : Controller
 
 
     // =========================
+    // PUBLIC - COMPARE ROOMS (ən çox 3)
+    // /Rooms/Compare?ids=3,7,12
+    // =========================
+    [HttpGet]
+    public async Task<IActionResult> Compare(string? ids)
+    {
+        var roomIds = HotelTravel.Application.Services.RoomComparisonRules.ParseIds(ids);
+        var rooms = new List<GetRoomDto>();
+
+        foreach (var id in roomIds)
+        {
+            // Silinmiş və ya tapılmayan otaq sadəcə atlanır
+            var room = await _roomService.GetByIdAsync(id);
+
+            if (room is not null)
+                rooms.Add(room);
+        }
+
+        return View(HotelTravel.Application.Services.RoomComparisonRules.Build(rooms));
+    }
+
+
+    // =========================
     // ADMIN - CREATE ROOM
     // =========================
     [Authorize(Roles = "Admin")]
