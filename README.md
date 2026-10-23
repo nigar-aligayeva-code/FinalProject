@@ -140,6 +140,9 @@ sequenceDiagram
   the nearest airport, directions and a one-click airport taxi.
 * **User profile** — travel stats and traveler level, edit details, change password,
   **12 illustrated avatars** (or initials).
+* **Reports** — admins download bookings, flights, taxis and car rentals as **Excel** (formatted,
+  with filters and totals, ClosedXML) or **CSV** (UTF-8, protected against formula injection).
+* **Add to calendar** — hotel stays and flights as an `.ics` file or a Google Calendar link.
 * **Account security** — "Forgot password" with an emailed one-time link (24 h), account lockout
   after 5 failed logins, and rate limiting (10 auth requests per minute per IP).
 
