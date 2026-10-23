@@ -5,6 +5,15 @@
     const MAX = 3;
     const root = document.body.dataset.compareUrl || '/Rooms/Compare';
 
+    // Tərcümələr _Layout-dan gəlir (window.tripioText); yoxdursa ingiliscə
+    const text = Object.assign({
+        compare: 'Compare',
+        added: 'Added to compare',
+        addRoom: 'Add room',
+        clear: 'Clear',
+        max: 'You can compare up to 3 rooms. Remove one first.'
+    }, window.tripioText || {});
+
     function read() {
         try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; }
     }
@@ -43,15 +52,15 @@
                        <span>${esc(it.name)}</span>
                        <button type="button" data-compare-remove="${it.id}" aria-label="Remove"><i class="bi bi-x"></i></button>
                    </div>`
-                : `<div class="cmp-slot empty"><i class="bi bi-plus"></i><span>Add room</span></div>`);
+                : `<div class="cmp-slot empty"><i class="bi bi-plus"></i><span>${esc(text.addRoom)}</span></div>`);
         }
 
         bar.innerHTML = `
             <div class="cmp-slots">${slots.join('')}</div>
             <div class="cmp-actions">
-                <button type="button" class="cmp-clear" data-compare-clear>Clear</button>
+                <button type="button" class="cmp-clear" data-compare-clear>${esc(text.clear)}</button>
                 <a class="hh-btn hh-btn-primary ${items.length < 2 ? 'disabled' : ''}" href="${url()}">
-                    Compare (${items.length})
+                    ${esc(text.compare)} (${items.length})
                 </a>
             </div>`;
         bar.classList.add('show');
@@ -63,7 +72,7 @@
             btn.classList.toggle('on', on);
             btn.setAttribute('aria-pressed', on ? 'true' : 'false');
             const label = btn.querySelector('.cmp-toggle-text');
-            if (label) label.textContent = on ? 'Added to compare' : 'Compare';
+            if (label) label.textContent = on ? text.added : text.compare;
         });
     }
 
@@ -87,7 +96,7 @@
             if (items.some(i => i.id === id)) {
                 items = items.filter(i => i.id !== id);
             } else if (items.length >= MAX) {
-                toast('You can compare up to ' + MAX + ' rooms. Remove one first.');
+                toast(text.max);
                 return;
             } else {
                 items.push({ id: id, name: toggle.dataset.compareName, img: toggle.dataset.compareImg });

@@ -2,14 +2,18 @@
 @{
     // Brend adı appsettings.json -> "Brand:Name" dəyərindən gəlir
     var brand = Config["Brand:Name"] ?? "Tripio";
+
+    // Seçilmiş interfeys dili (en / az / ru)
+    var uiLang = HotelTravel.Application.Services.LanguageRules.Normalize(
+        System.Globalization.CultureInfo.CurrentUICulture.Name);
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@uiLang">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>@ViewData["Title"] - @brand</title>
+    <title>@(T[ViewData["Title"]?.ToString() ?? ""]) - @brand</title>
 
     <!-- Dark mode: səhifə çəkilməmişdən əvvəl tətbiq olunur (ağ "yanıb-sönmə" olmasın) -->
     <script>
@@ -43,6 +47,17 @@
     <link rel="stylesheet" href="~/css/hotelhub-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/compare.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/dark-mode.css" asp-append-version="true" />
+    <style>
+        /* Dil seçimi (JS-siz, <details> ilə) */
+        .hh-lang-menu { position: relative; }
+        .hh-lang-btn { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border: 1px solid rgba(255,255,255,.25); border-radius: 6px; color: #fff; font-weight: 600; font-size: 14px; }
+        .hh-lang-btn::-webkit-details-marker { display: none; }
+        .hh-lang-btn:hover { background: rgba(255,255,255,.1); }
+        .hh-lang-list { position: absolute; right: 0; top: calc(100% + 8px); min-width: 190px; background: #fff; border-radius: 14px; box-shadow: 0 18px 40px rgba(31,36,33,.2); padding: 6px; z-index: 2000; }
+        .hh-lang-list a { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; color: #1F2421; font-weight: 600; font-size: 14px; text-decoration: none; }
+        .hh-lang-list a:hover { background: #F3EEE5; }
+        .hh-lang-list a.active { background: #e6efe3; color: #2f4a2b; }
+    </style>
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -109,19 +124,38 @@
 
                 <div class="hh-actions">
 
+                    <!-- DİL SEÇİMİ -->
+                    <details class="hh-lang-menu">
+                        <summary class="hh-lang-btn" title="@T["Language"]">
+                            <i class="bi bi-translate"></i>
+                            <span>@uiLang.ToUpperInvariant()</span>
+                        </summary>
+                        <div class="hh-lang-list">
+                            @foreach (var lang in HotelTravel.Application.Services.LanguageRules.Languages)
+                            {
+                                <a asp-area="" asp-controller="Language" asp-action="Set"
+                                   asp-route-culture="@lang.Code"
+                                   asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"
+                                   class="@(lang.Code == uiLang ? "active" : "")">
+                                    <span class="no-dark-invert">@lang.Flag</span> @lang.Label
+                                </a>
+                            }
+                        </div>
+                    </details>
+
                     <!-- DARK MODE -->
-                    <button type="button" class="hh-theme-toggle" id="themeToggle" title="Dark mode" aria-label="Toggle dark mode">
+                    <button type="button" class="hh-theme-toggle" id="themeToggle" title="@T["Dark mode"]" aria-label="@T["Dark mode"]">
                         <i class="bi bi-moon-stars"></i>
                     </button>
 
                     <!-- VALYUTA SEÇİMİ (yalnız göstəriş; ödəniş AZN-dədir) -->
                     <div class="hh-currency-menu" id="currencyMenu" data-no-currency>
-                        <button type="button" class="hh-currency" id="currencyBtn" title="Change currency">
+                        <button type="button" class="hh-currency" id="currencyBtn" title="@T["Change currency"]">
                             <span>AZN</span> <i class="bi bi-chevron-down"></i>
                         </button>
                         <div class="hh-currency-list" id="currencyList" hidden>
                             <div class="hh-currency-head">
-                                <b>Currency</b>
+                                <b>@T["Currency"]</b>
                                 <small id="currencyUpdated"></small>
                             </div>
                             <button type="button" data-code="AZN"><b>₼</b> AZN <small>Azerbaijani manat</small></button>
@@ -130,7 +164,7 @@
                             <button type="button" data-code="TRY"><b>₺</b> TRY <small>Turkish lira</small></button>
                             <button type="button" data-code="GEL"><b>₾</b> GEL <small>Georgian lari</small></button>
                             <button type="button" data-code="AED"><b>د.إ</b> AED <small>UAE dirham</small></button>
-                            <p class="hh-currency-foot">You always pay in AZN. Other currencies are shown for convenience.</p>
+                            <p class="hh-currency-foot">@T["You always pay in AZN. Other currencies are shown for convenience."]</p>
                         </div>
                     </div>
 
@@ -138,9 +172,9 @@
                        asp-controller="Bookings"
                        asp-action="Find"
                        class="hh-btn hh-btn-ghost"
-                       title="Find my booking">
+                       title="@T["Find my booking"]">
                         <i class="bi bi-ticket-perforated"></i>
-                        <span class="d-none d-lg-inline">Find booking</span>
+                        <span class="d-none d-lg-inline">@T["Find booking"]</span>
                     </a>
 
                     @if (isAuthenticated)
@@ -153,7 +187,7 @@
                                class="hh-btn hh-btn-ghost"
                                title="Admin Panel">
                                 <i class="bi bi-speedometer2"></i>
-                                <span class="d-none d-md-inline">Admin Panel</span>
+                                <span class="d-none d-md-inline">@T["Admin Panel"]</span>
                             </a>
                         }
 
@@ -161,25 +195,25 @@
                            asp-controller="Wishlist"
                            asp-action="Index"
                            class="hh-btn hh-btn-ghost"
-                           title="Saved">
+                           title="@T["Saved"]">
                             <i class="bi bi-heart"></i>
-                            <span class="d-none d-lg-inline">Saved</span>
+                            <span class="d-none d-lg-inline">@T["Saved"]</span>
                         </a>
 
                         <a asp-area=""
                            asp-controller="Bookings"
                            asp-action="MyBookings"
                            class="hh-btn hh-btn-ghost"
-                           title="My Bookings">
+                           title="@T["My bookings"]">
                             <i class="bi bi-briefcase"></i>
-                            <span class="d-none d-xl-inline">Trips</span>
+                            <span class="d-none d-xl-inline">@T["Trips"]</span>
                         </a>
 
                         <a asp-area=""
                            asp-controller="Profile"
                            asp-action="Index"
                            class="hh-user"
-                           title="My Profile">
+                           title="@T["My profile"]">
                             @if (avatarUrl != null)
                             {
                                 <img class="hh-avatar" src="@avatarUrl" alt="" style="padding:0;object-fit:cover;" />
@@ -190,7 +224,7 @@
                             }
                             <span class="hh-user-text d-none d-sm-flex">
                                 <strong>@userName</strong>
-                                <small>My Profile</small>
+                                <small>@T["My profile"]</small>
                             </span>
                         </a>
 
@@ -199,12 +233,13 @@
                               asp-action="Logout"
                               method="post"
                               class="m-0"
-                              onsubmit="return confirm('Are you sure you want to log out?');">
+                              onsubmit="return confirm(this.dataset.confirm);"
+                              data-confirm="@T["Are you sure you want to log out?"]">
                             <button type="submit"
                                     class="hh-btn hh-btn-ghost"
-                                    title="Logout">
+                                    title="@T["Log out"]">
                                 <i class="bi bi-box-arrow-right"></i>
-                                <span class="d-none d-md-inline">Logout</span>
+                                <span class="d-none d-md-inline">@T["Log out"]</span>
                             </button>
                         </form>
                     }
@@ -214,28 +249,28 @@
                            asp-controller="Account"
                            asp-action="Register"
                            class="hh-btn hh-btn-light">
-                            Register
+                            @T["Register"]
                         </a>
 
                         <a asp-area=""
                            asp-controller="Account"
                            asp-action="Login"
                            class="hh-btn hh-btn-light">
-                            Sign in
+                            @T["Sign in"]
                         </a>
                     }
                 </div>
             </div>
 
             <!-- TABS (Booking-style xidmətlər) -->
-            <nav class="hh-tabs" aria-label="Services">
+            <nav class="hh-tabs" aria-label="@T["Services"]">
 
                 <a asp-area=""
                    asp-controller="Home"
                    asp-action="Index"
                    class="@(isStays ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-bed"></i>
-                    Stays
+                    @T["Stays"]
                 </a>
 
                 <a asp-area=""
@@ -243,7 +278,7 @@
                    asp-action="Index"
                    class="@(currentController == "Hotels" ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-hotel"></i>
-                    Hotels
+                    @T["Hotels"]
                 </a>
 
                 <a asp-area=""
@@ -251,7 +286,7 @@
                    asp-action="Index"
                    class="@(currentController == "Trips" ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-suitcase-rolling"></i>
-                    Packages
+                    @T["Packages"]
                 </a>
 
                 <a asp-area=""
@@ -259,7 +294,7 @@
                    asp-action="Index"
                    class="@(currentController == "Flights" ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-plane"></i>
-                    Flights
+                    @T["Flights"]
                 </a>
 
                 <a asp-area=""
@@ -267,7 +302,7 @@
                    asp-action="Index"
                    class="@(currentController == "Cars" ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-car"></i>
-                    Car rental
+                    @T["Car rental"]
                 </a>
 
                 <a asp-area=""
@@ -275,7 +310,7 @@
                    asp-action="Index"
                    class="@(currentController == "Guide" ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-landmark"></i>
-                    Attractions
+                    @T["Attractions"]
                 </a>
 
                 <a asp-area=""
@@ -283,7 +318,7 @@
                    asp-action="Index"
                    class="@(currentController == "Taxis" ? "hh-tab active" : "hh-tab")">
                     <i class="fa-solid fa-taxi"></i>
-                    Airport taxis
+                    @T["Airport taxis"]
                 </a>
             </nav>
 
@@ -314,55 +349,53 @@
                     </div>
 
                     <p class="hh-footer-text">
-                        Search hotels, compare rooms and book your stay in a few
-                        clicks. Manage or cancel your reservations any time
-                        before check-in.
+                        @T["Search hotels, compare rooms and book your stay in a few clicks. Manage or cancel your reservations any time before check-in."]
                     </p>
                 </div>
 
                 <div class="col-lg-2 col-md-6 col-6">
-                    <h4 class="hh-footer-title">Explore</h4>
+                    <h4 class="hh-footer-title">@T["Explore"]</h4>
                     <ul class="hh-footer-links">
-                        <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                        <li><a asp-area="" asp-controller="Rooms" asp-action="Search">Search rooms</a></li>
-                        <li><a asp-area="" asp-controller="Hotels" asp-action="Index">All hotels &amp; map</a></li>
-                        <li><a asp-area="" asp-controller="Trips" asp-action="Index">Trip packages</a></li>
-                        <li><a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="destinations">Destinations</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index">@T["Home"]</a></li>
+                        <li><a asp-area="" asp-controller="Rooms" asp-action="Search">@T["Search rooms"]</a></li>
+                        <li><a asp-area="" asp-controller="Hotels" asp-action="Index">@T["All hotels & map"]</a></li>
+                        <li><a asp-area="" asp-controller="Trips" asp-action="Index">@T["Trip packages"]</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index" asp-fragment="destinations">@T["Destinations"]</a></li>
                     </ul>
                 </div>
 
                 <div class="col-lg-3 col-md-6 col-6">
-                    <h4 class="hh-footer-title">Your trips</h4>
+                    <h4 class="hh-footer-title">@T["Your trips"]</h4>
                     <ul class="hh-footer-links">
-                        <li><a asp-area="" asp-controller="Bookings" asp-action="Find">Find my booking</a></li>
+                        <li><a asp-area="" asp-controller="Bookings" asp-action="Find">@T["Find my booking"]</a></li>
 
                         @if (isAuthenticated)
                         {
-                            <li><a asp-area="" asp-controller="Bookings" asp-action="MyBookings">My bookings</a></li>
-                            <li><a asp-area="" asp-controller="Profile" asp-action="Index">My profile</a></li>
-                            <li><a asp-area="" asp-controller="Wishlist" asp-action="Index">Saved rooms</a></li>
+                            <li><a asp-area="" asp-controller="Bookings" asp-action="MyBookings">@T["My bookings"]</a></li>
+                            <li><a asp-area="" asp-controller="Profile" asp-action="Index">@T["My profile"]</a></li>
+                            <li><a asp-area="" asp-controller="Wishlist" asp-action="Index">@T["Saved rooms"]</a></li>
                         }
                         else
                         {
-                            <li><a asp-area="" asp-controller="Account" asp-action="Login">Sign in</a></li>
-                            <li><a asp-area="" asp-controller="Account" asp-action="Register">Create account</a></li>
+                            <li><a asp-area="" asp-controller="Account" asp-action="Login">@T["Sign in"]</a></li>
+                            <li><a asp-area="" asp-controller="Account" asp-action="Register">@T["Create account"]</a></li>
                         }
                     </ul>
                 </div>
 
                 <div class="col-lg-3 col-md-6">
-                    <h4 class="hh-footer-title">Good to know</h4>
+                    <h4 class="hh-footer-title">@T["Good to know"]</h4>
                     <ul class="hh-footer-links hh-footer-facts">
-                        <li><i class="bi bi-check2-circle"></i> Instant confirmation code</li>
-                        <li><i class="bi bi-check2-circle"></i> Free cancellation before check-in</li>
-                        <li><i class="bi bi-check2-circle"></i> Reviews from real guests</li>
+                        <li><i class="bi bi-check2-circle"></i> @T["Instant confirmation code"]</li>
+                        <li><i class="bi bi-check2-circle"></i> @T["Free cancellation before check-in"]</li>
+                        <li><i class="bi bi-check2-circle"></i> @T["Reviews from real guests"]</li>
                     </ul>
                 </div>
             </div>
 
             <div class="hh-footer-bottom">
-                <span>© @DateTime.Now.Year @brand. All rights reserved.</span>
-                <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                <span>© @DateTime.Now.Year @brand. @T["All rights reserved."]</span>
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">@T["Privacy"]</a>
             </div>
         </div>
     </footer>
@@ -375,7 +408,7 @@
     <!-- CANLI FƏALİYYƏT: "Someone just booked..." (anonim) -->
     <div class="live-activity" id="liveActivity" role="status" aria-live="polite">
         <span class="la-icon">✨</span>
-        <span class="la-text"></span>
+        <span class="la-text" data-ago="@T["just now"]"></span>
         <button type="button" class="la-close" aria-label="Close">×</button>
     </div>
     <style>
@@ -383,10 +416,31 @@
         .live-activity.show { opacity: 1; transform: none; pointer-events: auto; }
         .la-icon { width: 36px; height: 36px; border-radius: 10px; background: #F3EEE5; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
         .la-text { font-size: 14px; font-weight: 600; flex: 1; }
-        .la-text::after { content: "just now"; display: block; font-size: 11px; font-weight: 500; color: #6b7280; }
+        .la-text::after { content: attr(data-ago); display: block; font-size: 11px; font-weight: 500; color: #6b7280; }
         .la-close { border: none; background: none; font-size: 20px; color: #9ca3af; line-height: 1; }
     </style>
     <script>
+        // compare.js və digər skriptlər üçün tərcümələr
+        window.tripioText = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, string>
+        {
+            ["compare"] = T["Compare"],
+            ["added"] = T["Added to compare"],
+            ["addRoom"] = T["Add room"],
+            ["clear"] = T["Clear"],
+            ["max"] = T["You can compare up to 3 rooms. Remove one first."],
+            ["light"] = T["Light mode"],
+            ["dark"] = T["Dark mode"],
+            ["save"] = T["Save"],
+            ["saved"] = T["Saved"],
+            ["act_hotel"] = T["Someone just booked a stay in {0}"],
+            ["act_hotel_any"] = T["Someone just booked a stay"],
+            ["act_flight"] = T["Someone just booked a flight to {0}"],
+            ["act_taxi"] = T["Someone just booked an airport taxi in {0}"],
+            ["act_taxi_any"] = T["Someone just booked an airport taxi"],
+            ["act_car"] = T["Someone just rented a car in {0}"],
+            ["act_car_any"] = T["Someone just rented a car"],
+            ["act_trip"] = T["Someone just booked a trip package to {0}"]
+        }));
         window.tripioLive = { apiBase: @Html.Raw(System.Text.Json.JsonSerializer.Serialize((Config["Api:BaseUrl"] ?? "").TrimEnd('/'))) };
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
@@ -394,7 +448,7 @@
 
     <!-- Seçilmiş valyutada göstərilir -->
     <div class="hh-currency-note" id="currencyNote" hidden data-no-currency>
-        <i class="bi bi-info-circle"></i> Prices converted from AZN · you pay in AZN
+        <i class="bi bi-info-circle"></i> @T["Prices converted from AZN · you pay in AZN"]
     </div>
     <style>
         .hh-currency-menu { position: relative; }
@@ -429,7 +483,8 @@
             function render() {
                 var dark = root.getAttribute('data-theme') === 'dark';
                 button.innerHTML = dark ? '<i class="bi bi-sun"></i>' : '<i class="bi bi-moon-stars"></i>';
-                button.title = dark ? 'Light mode' : 'Dark mode';
+                var text = window.tripioText || {};
+                button.title = dark ? (text.light || 'Light mode') : (text.dark || 'Dark mode');
             }
 
             button.addEventListener('click', function () {
@@ -448,6 +503,22 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    @if (uiLang != "en")
+    {
+        <!-- Təqvim (flatpickr) ay və gün adları seçilmiş dildə (flatpickr-dan SONRA yüklənməlidir) -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/@(uiLang).js"></script>
+    }
+
+    <script>
+        // flatpickr səhifədə varsa, DOMContentLoaded-dan əvvəl dili tətbiq edirik
+        (function () {
+            var lang = '@uiLang';
+            if (lang !== 'en' && window.flatpickr && flatpickr.l10ns && flatpickr.l10ns[lang]) {
+                flatpickr.localize(flatpickr.l10ns[lang]);
+            }
+        })();
+    </script>
 
 </body>
 </html>

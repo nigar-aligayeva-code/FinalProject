@@ -15,8 +15,8 @@
     string? firstName = ViewBag.FirstName as string;
 
     var heroTitle = string.IsNullOrWhiteSpace(firstName)
-        ? "Find your next stay"
-        : $"{firstName}, where to next?";
+        ? T["Find your next stay"].Value
+        : string.Format(T["{0}, where to next?"].Value, firstName);
 
     var isAuthenticated =
         User.Identity != null && User.Identity.IsAuthenticated;
@@ -44,11 +44,11 @@
 
     string RatingLabel(double rating) => rating switch
     {
-        >= 4.5 => "Exceptional",
-        >= 4.0 => "Excellent",
-        >= 3.5 => "Very good",
-        >= 3.0 => "Good",
-        _ => "Pleasant"
+        >= 4.5 => T["Exceptional"],
+        >= 4.0 => T["Excellent"],
+        >= 3.5 => T["Very good"],
+        >= 3.0 => T["Good"],
+        _ => T["Pleasant"]
     };
 }
 
@@ -59,7 +59,7 @@
 <section class="hh-hero">
     <div class="container">
         <h1>@heroTitle</h1>
-        <p>Search hotels, compare rooms and book your stay in a few clicks.</p>
+        <p>@T["Search hotels, compare rooms and book your stay in a few clicks."]</p>
     </div>
 </section>
 
@@ -79,10 +79,10 @@
         <div class="hh-search-field">
             <i class="bi bi-geo-alt"></i>
             <div class="hh-search-body">
-                <label asp-for="Destination">Where are you going?</label>
+                <label asp-for="Destination">@T["Where are you going?"]</label>
                 <input asp-for="Destination"
                        type="text"
-                       placeholder="City, country or hotel" />
+                       placeholder="@T["City, country or hotel"]" />
             </div>
         </div>
 
@@ -90,18 +90,18 @@
         <div class="hh-search-field">
             <i class="bi bi-calendar3"></i>
             <div class="hh-search-body">
-                <span class="hh-search-label">Check-in — Check-out</span>
+                <span class="hh-search-label">@T["Check-in"] — @T["Check-out"]</span>
                 <div class="hh-search-split">
                     <input asp-for="CheckInDate"
                            type="text"
                            id="homeCheckIn"
-                           placeholder="Check-in"
+                           placeholder="@T["Check-in"]"
                            value="@Model.CheckInDate?.ToString("yyyy-MM-dd")" />
                     <span>—</span>
                     <input asp-for="CheckOutDate"
                            type="text"
                            id="homeCheckOut"
-                           placeholder="Check-out"
+                           placeholder="@T["Check-out"]"
                            value="@Model.CheckOutDate?.ToString("yyyy-MM-dd")" />
                 </div>
             </div>
@@ -111,19 +111,19 @@
         <div class="hh-search-field">
             <i class="bi bi-person"></i>
             <div class="hh-search-body">
-                <span class="hh-search-label">Guests</span>
+                <span class="hh-search-label">@T["Guests"]</span>
                 <div class="hh-search-split">
-                    <select asp-for="AdultCount" aria-label="Adults">
+                    <select asp-for="AdultCount" aria-label="@T["Adults"]">
                         @for (int i = 1; i <= 6; i++)
                         {
-                            <option value="@i">@i adult@(i == 1 ? "" : "s")</option>
+                            <option value="@i">@i @(i == 1 ? T["adult"] : T["adults"])</option>
                         }
                     </select>
                     <span>·</span>
-                    <select asp-for="ChildrenCount" aria-label="Children">
+                    <select asp-for="ChildrenCount" aria-label="@T["Children"]">
                         @for (int i = 0; i <= 4; i++)
                         {
-                            <option value="@i">@i @(i == 1 ? "child" : "children")</option>
+                            <option value="@i">@i @(i == 1 ? T["child"] : T["children"])</option>
                         }
                     </select>
                 </div>
@@ -132,7 +132,7 @@
 
         <button type="submit" class="hh-search-btn">
             <i class="bi bi-search"></i>
-            Search
+            @T["Search"]
         </button>
     </form>
 
@@ -151,24 +151,24 @@
             <div class="hh-benefit">
                 <span class="hh-benefit-icon"><i class="bi bi-lightning-charge"></i></span>
                 <div>
-                    <h3>Instant confirmation</h3>
-                    <p>Get your booking code right away. No waiting, no phone calls.</p>
+                    <h3>@T["Instant confirmation"]</h3>
+                    <p>@T["Get your booking code right away. No waiting, no phone calls."]</p>
                 </div>
             </div>
 
             <div class="hh-benefit">
                 <span class="hh-benefit-icon"><i class="bi bi-calendar-x"></i></span>
                 <div>
-                    <h3>Free cancellation</h3>
-                    <p>Change or cancel your booking any time before the check-in day.</p>
+                    <h3>@T["Free cancellation"]</h3>
+                    <p>@T["Change or cancel your booking any time before the check-in day."]</p>
                 </div>
             </div>
 
             <div class="hh-benefit">
                 <span class="hh-benefit-icon"><i class="bi bi-patch-check"></i></span>
                 <div>
-                    <h3>Real guest reviews</h3>
-                    <p>Only guests who completed their stay can leave a review.</p>
+                    <h3>@T["Real guest reviews"]</h3>
+                    <p>@T["Only guests who completed their stay can leave a review."]</p>
                 </div>
             </div>
         </div>
@@ -183,8 +183,8 @@
         <section class="hh-section" id="destinations">
             <div class="hh-section-head">
                 <div>
-                    <h2 class="hh-section-title">Popular destinations</h2>
-                    <p class="hh-section-sub">Cities where our guests love to stay</p>
+                    <h2 class="hh-section-title">@T["Popular destinations"]</h2>
+                    <p class="hh-section-sub">@T["Cities where our guests love to stay"]</p>
                 </div>
             </div>
 
@@ -223,13 +223,13 @@
 
                                 <div class="hh-dest-meta">
                                     <span>
-                                        @destination.HotelCount hotel@(destination.HotelCount == 1 ? "" : "s")
-                                        · @destination.RoomCount room@(destination.RoomCount == 1 ? "" : "s")
+                                        @destination.HotelCount @(destination.HotelCount == 1 ? T["hotel"] : T["hotels"])
+                                        · @destination.RoomCount @(destination.RoomCount == 1 ? T["room"] : T["rooms"])
                                     </span>
 
                                     @if (destination.MinPrice.HasValue)
                                     {
-                                        <span>from <strong>@destination.MinPrice.Value.ToString("0") AZN</strong></span>
+                                        <span>@T["from"] <strong>@destination.MinPrice.Value.ToString("0") AZN</strong></span>
                                     }
                                 </div>
                             </div>
@@ -253,14 +253,14 @@
     <section class="hh-section">
         <div class="hh-section-head">
             <div>
-                <h2 class="hh-section-title">Rooms guests love</h2>
-                <p class="hh-section-sub">Top-rated rooms based on verified guest reviews</p>
+                <h2 class="hh-section-title">@T["Rooms guests love"]</h2>
+                <p class="hh-section-sub">@T["Top-rated rooms based on verified guest reviews"]</p>
             </div>
 
             <a asp-controller="Rooms"
                asp-action="Search"
                class="hh-link-more">
-                Search all rooms <i class="bi bi-arrow-right"></i>
+                @T["Search all rooms"] <i class="bi bi-arrow-right"></i>
             </a>
         </div>
 
@@ -292,7 +292,7 @@
                                      alt="@room.Name"
                                      loading="lazy" />
                             }
-                            <span class="hh-room-type">@room.RoomType</span>
+                            <span class="hh-room-type">@T.Enum(room.RoomType)</span>
                         </div>
 
                         <div class="hh-room-body">
@@ -302,7 +302,7 @@
                                 @room.HotelName · @room.City
                                 <br />
                                 <i class="bi bi-people"></i>
-                                Up to @room.Capacity guest@(room.Capacity == 1 ? "" : "s")
+                                @T["Up to"] @room.Capacity @(room.Capacity == 1 ? T["guest"] : T["guests"])
                             </div>
 
                             <div class="hh-rating">
@@ -311,18 +311,18 @@
                                     <span class="hh-score">@room.AverageRating.ToString("0.0")</span>
                                     <strong>@RatingLabel(room.AverageRating)</strong>
                                     <span>
-                                        @room.ReviewCount review@(room.ReviewCount == 1 ? "" : "s")
+                                        @room.ReviewCount @(room.ReviewCount == 1 ? T["review"] : T["reviews"])
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="hh-badge-new">New</span>
-                                    <span>No reviews yet</span>
+                                    <span class="hh-badge-new">@T["New"]</span>
+                                    <span>@T["No reviews yet"]</span>
                                 }
                             </div>
 
                             <div class="hh-room-price">
-                                <small>per night from</small>
+                                <small>@T["per night from"]</small>
                                 <strong>@room.PricePerNight.ToString("0.00") AZN</strong>
                             </div>
                         </div>
@@ -334,7 +334,7 @@
         else
         {
             <div class="hh-empty">
-                No rooms are available yet.
+                @T["No rooms are available yet."]
             </div>
         }
     </section>
@@ -348,14 +348,14 @@
         <section class="hh-section" id="map">
             <div class="hh-section-head">
                 <div>
-                    <h2 class="hh-section-title">Explore on the map</h2>
-                    <p class="hh-section-sub">@mapHotels.Count hotels across @mapHotels.Select(h => h.city).Distinct().Count() cities. Tap a pin to see the hotel.</p>
+                    <h2 class="hh-section-title">@T["Explore on the map"]</h2>
+                    <p class="hh-section-sub">@(string.Format(T["{0} hotels across {1} cities. Tap a pin to see the hotel."].Value, mapHotels.Count, mapHotels.Select(h => h.city).Distinct().Count()))</p>
                 </div>
 
                 <a asp-controller="Hotels"
                    asp-action="Index"
                    class="hh-link-more">
-                    Browse all hotels <i class="bi bi-arrow-right"></i>
+                    @T["Browse all hotels"] <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
 
@@ -401,7 +401,7 @@
             const markers = hotels.map(h => L.marker([h.lat, h.lng], {
                 icon: L.divIcon({ className: '', html: `<span class="home-pin"><i class="bi bi-star-fill"></i>${h.stars} ${esc(h.city)}</span>`, iconSize: null })
             })
-                .bindPopup(`<div class="home-popup"><strong>${esc(h.name)}</strong><span>${esc(h.city)}, ${esc(h.country)}</span><br><a href="${h.url}">View hotel &rarr;</a></div>`)
+                .bindPopup(`<div class="home-popup"><strong>${esc(h.name)}</strong><span>${esc(h.city)}, ${esc(h.country)}</span><br><a href="${h.url}">@T["View hotel"] &rarr;</a></div>`)
                 .addTo(map));
 
             map.fitBounds(L.featureGroup(markers).getBounds().pad(0.2));

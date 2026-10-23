@@ -1,4 +1,4 @@
-@model List<HotelTravel.Application.DTOs.Cars.CarDto>
+﻿@model List<HotelTravel.Application.DTOs.Cars.CarDto>
 @using HotelTravel.Domain.Enums
 
 @{
@@ -15,8 +15,8 @@
 
 <div class="cg-heading">
     <div>
-        <h1>Car Rental</h1>
-        <p>Manage the fleet in each city and see guests' car rentals.</p>
+        <h1>@T["Car Rental"]</h1>
+        <p>@T["Manage the fleet in each city and see guests' car rentals."]</p>
     </div>
 
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -27,7 +27,7 @@
            asp-action="Edit"
            asp-route-city="@selectedCity"
            class="cg-btn">
-            + Add car
+            @T["+ Add car"]
         </a>
     </div>
 </div>
@@ -48,7 +48,7 @@
        asp-controller="Cars"
        asp-action="Index"
        class="cg-chip @(string.IsNullOrEmpty(selectedCity) ? "active" : "")">
-        All cities
+        @T["All cities"]
     </a>
 
     @foreach (var city in cities)
@@ -70,13 +70,13 @@
         <table class="cg-table">
             <thead>
                 <tr>
-                    <th>City</th>
-                    <th>Car</th>
-                    <th>Category</th>
-                    <th>Details</th>
-                    <th>Price / day</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>@T["City"]</th>
+                    <th>@T["Car"]</th>
+                    <th>@T["Category"]</th>
+                    <th>@T["Details"]</th>
+                    <th>@T["Price / day"]</th>
+                    <th>@T["Status"]</th>
+                    <th>@T["Action"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -85,15 +85,15 @@
                     <tr>
                         <td><strong>@car.City</strong></td>
                         <td><strong>@car.Model</strong></td>
-                        <td><span class="cg-badge cg-Sight">@car.Category</span></td>
+                        <td><span class="cg-badge cg-Sight">@T.Enum(car.Category)</span></td>
                         <td class="cg-desc">
-                            @car.Seats seats · @(car.IsAutomatic ? "Automatic" : "Manual")
+                            @T.Plural(car.Seats, "seat", "seats") · @(car.IsAutomatic ? T["Automatic"] : T["Manual"])
                             @(car.HasAirConditioning ? " · A/C" : "")
                         </td>
                         <td style="white-space:nowrap">@car.PricePerDay.ToString("0.00") AZN</td>
                         <td>
                             <span class="cg-badge @(car.IsActive ? "cg-Food" : "cg-Shopping")">
-                                @(car.IsActive ? "Active" : "Inactive")
+                                @(car.IsActive ? T["Active"] : T["Inactive"])
                             </span>
                         </td>
                         <td>
@@ -103,7 +103,7 @@
                                    asp-action="Edit"
                                    asp-route-id="@car.Id"
                                    class="cg-edit">
-                                    Edit
+                                    @T["Edit"]
                                 </a>
 
                                 <form asp-area="Admin"
@@ -113,7 +113,7 @@
                                       asp-route-city="@selectedCity"
                                       method="post">
                                     <button type="submit" class="cg-edit">
-                                        @(car.IsActive ? "Deactivate" : "Activate")
+                                        @(car.IsActive ? T["Deactivate"] : T["Activate"])
                                     </button>
                                 </form>
                             </div>
@@ -125,7 +125,7 @@
 
         @if (!Model.Any())
         {
-            <div class="cg-empty">No cars yet.</div>
+            <div class="cg-empty">@T["No cars yet."]</div>
         }
     </div>
 </div>
@@ -138,13 +138,13 @@
         <table class="cg-table">
             <thead>
                 <tr>
-                    <th>Code</th>
-                    <th>Car</th>
-                    <th>Driver</th>
-                    <th>Dates</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>@T["Code"]</th>
+                    <th>@T["Car"]</th>
+                    <th>@T["Driver"]</th>
+                    <th>@T["Dates"]</th>
+                    <th>@T["Total"]</th>
+                    <th>@T["Status"]</th>
+                    <th>@T["Action"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -161,13 +161,13 @@
                             <div class="cg-desc">@rental.Email · @rental.Phone</div>
                         </td>
                         <td style="white-space:nowrap">
-                            @rental.PickupDate.ToString("dd MMM") → @rental.ReturnDate.ToString("dd MMM yyyy")
-                            <div class="cg-desc">@rental.Days day@(rental.Days == 1 ? "" : "s")</div>
+                            @rental.PickupDate.ToString("dd MMM", System.Globalization.CultureInfo.CurrentUICulture) → @rental.ReturnDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
+                            <div class="cg-desc">@T.Plural(rental.Days, "day", "days")</div>
                         </td>
                         <td style="white-space:nowrap">@rental.TotalPrice.ToString("0.00") AZN</td>
                         <td>
                             <span class="cg-badge @(rental.Status == CarRentalStatus.Confirmed ? "cg-Food" : rental.Status == CarRentalStatus.Completed ? "cg-Sight" : "cg-Shopping")">
-                                @rental.Status
+                                @T.Enum(rental.Status)
                             </span>
                         </td>
                         <td>
@@ -180,7 +180,7 @@
                                           asp-route-id="@rental.Id"
                                           asp-route-status="@CarRentalStatus.Completed"
                                           method="post">
-                                        <button type="submit" class="cg-edit">Complete</button>
+                                        <button type="submit" class="cg-edit">@T["Complete"]</button>
                                     </form>
 
                                     <form asp-area="Admin"
@@ -190,7 +190,7 @@
                                           asp-route-status="@CarRentalStatus.Cancelled"
                                           method="post"
                                           onsubmit="return confirm('Cancel this rental?');">
-                                        <button type="submit" class="cg-delete">Cancel</button>
+                                        <button type="submit" class="cg-delete">@T["Cancel"]</button>
                                     </form>
                                 </div>
                             }
@@ -202,7 +202,7 @@
 
         @if (!rentals.Any())
         {
-            <div class="cg-empty">No car rentals yet.</div>
+            <div class="cg-empty">@T["No car rentals yet."]</div>
         }
     </div>
 </div>

@@ -19,14 +19,14 @@
             </div>
 
             <span class="my-booking-status @(taxi.Status == TaxiBookingStatus.Cancelled ? "status-cancelled" : taxi.Status == TaxiBookingStatus.Completed ? "status-checkedout" : "status-confirmed")">
-                @taxi.Status
+                @T.Enum(taxi.Status)
             </span>
         </div>
 
         <div class="row mt-3 my-booking-meta">
             <div class="col-sm-8 mb-2">
                 <i class="bi bi-clock me-1"></i>
-                @taxi.PickupTime.ToString("dd MMM yyyy, HH:mm")
+                @taxi.PickupTime.ToString("dd MMM yyyy, HH:mm", System.Globalization.CultureInfo.CurrentUICulture)
                 <span class="mx-1">•</span>
                 <i class="bi bi-people me-1"></i>
                 @taxi.Passengers
@@ -47,7 +47,7 @@
                asp-action="Confirmation"
                asp-route-confirmationCode="@taxi.ConfirmationCode"
                class="btn btn-sm btn-outline-secondary">
-                Details
+                @T["Details"]
             </a>
 
             @if (taxi.CanCancel)
@@ -60,7 +60,7 @@
                       onsubmit="return confirm('Cancel this airport taxi?');">
                     <button type="submit" class="btn btn-sm btn-outline-danger">
                         <i class="bi bi-x-circle me-1"></i>
-                        Cancel
+                        @T["Cancel"]
                     </button>
                 </form>
             }

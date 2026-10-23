@@ -1,5 +1,8 @@
 // Admin paneli: canlı bildirişlər (SignalR, API-dəki /hubs/notifications)
 (function () {
+    // Tərcümə: admin _Layout window.tripioAdminText-i (ingiliscə mətn -> seçilmiş dil) verir
+    const texts = window.tripioAdminText || {};
+    const tr = s => texts[s] || s;
     // =========================
     // 1. ?highlight=KOD -> həmin sətrə sürüş və vurğula (bildirişə klik edəndə)
     // =========================
@@ -54,9 +57,9 @@
     };
 
     function renderSettings() {
-        soundBtn.textContent = settings.sound ? '🔊 Sound on' : '🔇 Sound off';
+        soundBtn.textContent = settings.sound ? tr('🔊 Sound on') : tr('🔇 Sound off');
         soundBtn.classList.toggle('off', !settings.sound);
-        popupBtn.textContent = settings.popups ? '💬 Pop-ups on' : '🚫 Pop-ups off';
+        popupBtn.textContent = settings.popups ? tr('💬 Pop-ups on') : tr('🚫 Pop-ups off');
         popupBtn.classList.toggle('off', !settings.popups);
         bellIcon.textContent = settings.sound || settings.popups ? '🔔' : '🔕';
     }
@@ -103,7 +106,7 @@
         const a = document.createElement('a');
         a.className = 'live-item live-' + n.type;
         a.href = n.url || '#';
-        a.title = 'Open';
+        a.title = tr('Open');
 
         const icon = document.createElement('span');
         icon.className = 'live-icon';
@@ -113,14 +116,14 @@
         body.className = 'live-body';
 
         const title = document.createElement('b');
-        title.textContent = n.title;
+        title.textContent = tr(n.title);
 
         const msg = document.createElement('small');
         msg.textContent = n.message;
 
         const time = document.createElement('em');
         time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
-            (n.code ? ' · ' + n.code : '') + ' · click to open';
+            (n.code ? ' · ' + n.code : '') + ' · ' + tr('click to open');
 
         body.append(title, msg, time);
         a.append(icon, body);
@@ -174,11 +177,11 @@
         .build();
 
     connection.on('adminNotification', onNotification);
-    connection.onreconnecting(() => setStatus('reconnecting…', false));
-    connection.onreconnected(() => setStatus('live', true));
-    connection.onclose(() => setStatus('offline', false));
+    connection.onreconnecting(() => setStatus(tr('reconnecting…'), false));
+    connection.onreconnected(() => setStatus(tr('live'), true));
+    connection.onclose(() => setStatus(tr('offline'), false));
 
     connection.start()
-        .then(() => setStatus('live', true))
-        .catch(() => setStatus('offline', false));
+        .then(() => setStatus(tr('live'), true))
+        .catch(() => setStatus(tr('offline'), false));
 })();

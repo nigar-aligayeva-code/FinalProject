@@ -48,27 +48,27 @@
             <div>
                 <div class="my-booking-room">@Model.RoomName</div>
                 <div class="my-booking-meta">
-                    Room @Model.RoomNumber
+                    @T["Room {0}", Model.RoomNumber]
                     <span class="mx-1">•</span>
                     <strong>@Model.ConfirmationCode</strong>
                 </div>
             </div>
 
             <span class="my-booking-status @statusClass">
-                @Model.Status
+                @T.Enum(Model.Status)
             </span>
         </div>
 
         <div class="row mt-3 my-booking-meta">
             <div class="col-sm-4 mb-2">
                 <i class="bi bi-calendar-event me-1"></i>
-                @Model.CheckInDate.ToString("dd MMM yyyy")
+                @Model.CheckInDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                 &rarr;
-                @Model.CheckOutDate.ToString("dd MMM yyyy")
+                @Model.CheckOutDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
             </div>
             <div class="col-sm-4 mb-2">
                 <i class="bi bi-moon me-1"></i>
-                @nights night@(nights == 1 ? "" : "s")
+                @T.Plural(nights, "night", "nights")
                 <span class="mx-1">•</span>
                 <i class="bi bi-people me-1"></i>
                 @guestsText
@@ -100,7 +100,7 @@
                asp-action="Details"
                asp-route-id="@Model.RoomId"
                class="btn btn-sm btn-outline-secondary">
-                View Room
+                @T["View Room"]
             </a>
 
             @if (Model.Status != BookingStatus.Cancelled)
@@ -111,7 +111,7 @@
                    target="_blank"
                    class="btn btn-sm btn-outline-success">
                     <i class="bi bi-qr-code me-1"></i>
-                    Voucher
+                    @T["Voucher"]
                 </a>
 
                 <a asp-controller="Bookings"
@@ -120,7 +120,7 @@
                    class="btn btn-sm btn-outline-primary"
                    title="Add to calendar (.ics)">
                     <i class="bi bi-calendar-plus me-1"></i>
-                    Calendar
+                    @T["Calendar"]
                 </a>
 
                 <a asp-controller="Bookings"
@@ -128,7 +128,7 @@
                    asp-route-confirmationCode="@Model.ConfirmationCode"
                    class="btn btn-sm btn-outline-dark">
                     <i class="bi bi-file-earmark-pdf me-1"></i>
-                    PDF
+                    @T["PDF"]
                 </a>
             }
 
@@ -140,7 +140,7 @@
                    asp-route-date="@Model.CheckInDate.ToString("yyyy-MM-dd")"
                    class="btn btn-sm btn-outline-dark">
                     <i class="fa-solid fa-taxi me-1"></i>
-                    Airport taxi
+                    @T["Airport taxi"]
                 </a>
             }
 
@@ -151,7 +151,7 @@
                    asp-route-confirmationCode="@Model.ConfirmationCode"
                    class="btn btn-sm btn-outline-primary">
                     <i class="bi bi-pencil me-1"></i>
-                    Modify
+                    @T["Modify"]
                 </a>
 
                 <form asp-controller="Bookings"
@@ -162,7 +162,7 @@
                       onsubmit="return confirm('Are you sure you want to cancel this booking?');">
                     <button type="submit" class="btn btn-sm btn-outline-danger">
                         <i class="bi bi-x-circle me-1"></i>
-                        Cancel
+                        @T["Cancel"]
                     </button>
                 </form>
             }
@@ -174,14 +174,14 @@
                    asp-route-confirmationCode="@Model.ConfirmationCode"
                    class="btn btn-sm btn-warning">
                     <i class="bi bi-star-fill me-1"></i>
-                    Write a Review
+                    @T["Write a Review"]
                 </a>
             }
             else if (Model.HasReview)
             {
                 <span class="small text-muted align-self-center">
                     <i class="bi bi-check2-circle me-1"></i>
-                    Reviewed
+                    @T["Reviewed"]
                 </span>
             }
         </div>

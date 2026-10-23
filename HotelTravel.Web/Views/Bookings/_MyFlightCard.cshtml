@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Flights.FlightBookingDto
+﻿@model HotelTravel.Application.DTOs.Flights.FlightBookingDto
 @using HotelTravel.Domain.Enums
 @{ var flight = Model; }
 
@@ -12,21 +12,21 @@
             <div>
                 <div class="my-booking-room">@flight.FromCity → @flight.ToCity</div>
                 <div class="my-booking-meta">
-                    @flight.Airline · @flight.FlightNumber · @flight.Cabin
+                    @flight.Airline · @flight.FlightNumber · @T.Enum(flight.Cabin)
                     <span class="mx-1">•</span>
                     <strong>@flight.ConfirmationCode</strong>
                 </div>
             </div>
 
             <span class="my-booking-status @(flight.Status == FlightBookingStatus.Cancelled ? "status-cancelled" : flight.Status == FlightBookingStatus.Completed ? "status-checkedout" : "status-confirmed")">
-                @flight.Status
+                @T.Enum(flight.Status)
             </span>
         </div>
 
         <div class="row mt-3 my-booking-meta">
             <div class="col-sm-8 mb-2">
                 <i class="bi bi-calendar-event me-1"></i>
-                @flight.DepartureTime.ToString("dd MMM yyyy")
+                @flight.DepartureTime.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                 <span class="mx-1">•</span>
                 <i class="bi bi-clock me-1"></i>
                 @flight.DepartureTime.ToString("HH:mm") @flight.FromCode
@@ -46,7 +46,7 @@
                asp-action="Confirmation"
                asp-route-confirmationCode="@flight.ConfirmationCode"
                class="btn btn-sm btn-outline-secondary">
-                Details
+                @T["Details"]
             </a>
 
             <a asp-controller="Flights"
@@ -55,7 +55,7 @@
                class="btn btn-sm btn-outline-primary"
                title="Add to calendar (.ics)">
                 <i class="bi bi-calendar-plus me-1"></i>
-                Calendar
+                @T["Calendar"]
             </a>
 
             @if (flight.CanCancel)
@@ -68,7 +68,7 @@
                       onsubmit="return confirm('Cancel this flight?');">
                     <button type="submit" class="btn btn-sm btn-outline-danger">
                         <i class="bi bi-x-circle me-1"></i>
-                        Cancel
+                        @T["Cancel"]
                     </button>
                 </form>
             }

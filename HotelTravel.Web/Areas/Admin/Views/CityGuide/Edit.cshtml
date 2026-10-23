@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.CityGuide.SaveCityPlaceDto
+﻿@model HotelTravel.Application.DTOs.CityGuide.SaveCityPlaceDto
 @using HotelTravel.Domain.Enums
 
 @{
@@ -14,8 +14,8 @@
 
 <div class="cg-heading">
     <div>
-        <h1>@(isNew ? "Add a place" : "Edit place")</h1>
-        <p>Tours can have a price and duration. Other places only need a description.</p>
+        <h1>@(isNew ? T["Add a place"] : T["Edit place"])</h1>
+        <p>@T["Tours can have a price and duration. Other places only need a description."]</p>
     </div>
 
     <a asp-area="Admin"
@@ -23,7 +23,7 @@
        asp-action="Index"
        asp-route-city="@Model.City"
        class="cg-btn cg-btn-light">
-        ← Back to list
+        @T["← Back to list"]
     </a>
 </div>
 
@@ -39,31 +39,31 @@
         <div asp-validation-summary="ModelOnly" class="cg-alert cg-alert-error cg-full"></div>
 
         <div class="cg-field">
-            <label asp-for="City">City</label>
-            <input asp-for="City" list="cityList" placeholder="e.g. Baku" />
+            <label asp-for="City">@T["City"]</label>
+            <input asp-for="City" list="cityList" placeholder="@T["e.g. Baku"]" />
             <datalist id="cityList">
                 @foreach (var city in cities)
                 {
                     <option value="@city"></option>
                 }
             </datalist>
-            <div class="cg-hint">Must match the hotel's city name exactly.</div>
+            <div class="cg-hint">@T["Must match the hotel's city name exactly."]</div>
             <span asp-validation-for="City" class="text-danger"></span>
         </div>
 
         <div class="cg-field">
-            <label asp-for="Category">Category</label>
+            <label asp-for="Category">@T["Category"]</label>
             <select asp-for="Category" asp-items="Html.GetEnumSelectList<PlaceCategory>()"></select>
         </div>
 
         <div class="cg-field cg-full">
-            <label asp-for="Name">Name</label>
-            <input asp-for="Name" placeholder="e.g. Maiden Tower" />
+            <label asp-for="Name">@T["Name"]</label>
+            <input asp-for="Name" placeholder="@T["e.g. Maiden Tower"]" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
         <div class="cg-field cg-full">
-            <label asp-for="Description">Description</label>
+            <label asp-for="Description">@T["Description"]</label>
             <textarea asp-for="Description" rows="3" maxlength="600"></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
@@ -76,7 +76,7 @@
         <div class="cg-field">
             <label asp-for="ImageUrl">Image URL (optional)</label>
             <input asp-for="ImageUrl" placeholder="/assets/images/guide/maiden-tower.jpg" />
-            <div class="cg-hint">Leave empty to show an icon.</div>
+            <div class="cg-hint">@T["Leave empty to show an icon."]</div>
         </div>
 
         <div class="cg-field">
@@ -87,18 +87,18 @@
 
         <div class="cg-field">
             <label asp-for="Duration">Duration (optional)</label>
-            <input asp-for="Duration" placeholder="e.g. 4 hours" />
+            <input asp-for="Duration" placeholder="@T["e.g. 4 hours"]" />
         </div>
 
         <div class="cg-field">
-            <label asp-for="SortOrder">Sort order</label>
+            <label asp-for="SortOrder">@T["Sort order"]</label>
             <input asp-for="SortOrder" type="number" min="0" />
-            <div class="cg-hint">Smaller numbers appear first.</div>
+            <div class="cg-hint">@T["Smaller numbers appear first."]</div>
         </div>
 
         <div class="cg-full">
             <button type="submit" class="cg-btn">
-                @(isNew ? "Add place" : "Save changes")
+                @(isNew ? T["Add place"] : T["Save changes"])
             </button>
         </div>
     </form>

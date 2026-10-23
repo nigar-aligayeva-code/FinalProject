@@ -27,7 +27,7 @@
         <!-- BACK -->
         <a asp-action="Index" class="hotel-back-link">
             <i class="bi bi-arrow-left"></i>
-            Back to Hotels
+            @T["Back to Hotels"]
         </a>
 
 
@@ -64,7 +64,7 @@
                         }
                         else
                         {
-                            <span>Independent Hotel</span>
+                            <span>@T["Independent Hotel"]</span>
                         }
                     </div>
 
@@ -79,7 +79,7 @@
                    class="hotel-edit-btn">
 
                     <i class="bi bi-pencil"></i>
-                    Edit Hotel
+                    @T["Edit Hotel"]
 
                 </a>
             }
@@ -108,7 +108,7 @@
                 {
                     <button type="button"
                             class="slider-arrow slider-prev"
-                            aria-label="Previous image">
+                            aria-label="@T["Previous image"]">
 
                         <i class="bi bi-chevron-left"></i>
 
@@ -116,7 +116,7 @@
 
                     <button type="button"
                             class="slider-arrow slider-next"
-                            aria-label="Next image">
+                            aria-label="@T["Next image"]">
 
                         <i class="bi bi-chevron-right"></i>
 
@@ -147,7 +147,7 @@
             {
                 <div class="hotel-no-image">
                     <i class="bi bi-image"></i>
-                    <span>No images available</span>
+                    <span>@T["No images available"]</span>
                 </div>
             }
 
@@ -164,10 +164,10 @@
 
                 <span class="section-eyebrow">
                     <i class="bi bi-gem"></i>
-                    THE EXPERIENCE
+                    @T["THE EXPERIENCE"]
                 </span>
 
-                <h2>About the Hotel</h2>
+                <h2>@T["About the Hotel"]</h2>
 
                 <p>
                     @Model.Description
@@ -186,7 +186,7 @@
                     </div>
 
                     <div>
-                        <span>Location</span>
+                        <span>@T["Location"]</span>
 
                         <strong>
                             @Model.Address
@@ -208,13 +208,13 @@
                     </div>
 
                     <div>
-                        <span>Reservations</span>
+                        <span>@T["Reservations"]</span>
 
                         <strong>
                             @Model.Phone
                         </strong>
 
-                        <p>Available for enquiries</p>
+                        <p>@T["Available for enquiries"]</p>
                     </div>
 
                 </div>
@@ -228,13 +228,13 @@
                     </div>
 
                     <div>
-                        <span>Email</span>
+                        <span>@T["Email"]</span>
 
                         <strong>
                             @Model.Email
                         </strong>
 
-                        <p>Guest assistance</p>
+                        <p>@T["Guest assistance"]</p>
                     </div>
 
                 </div>
@@ -248,7 +248,7 @@
                     </div>
 
                     <div>
-                        <span>Hotel Type</span>
+                        <span>@T["Hotel Type"]</span>
 
                         <strong>
                             @Model.StarRating Star Hotel
@@ -256,7 +256,7 @@
 
                         <p>
                             @(string.IsNullOrWhiteSpace(Model.HotelChainName)
-                                ? "Independent Hotel"
+                                ? T["Independent Hotel"].Value
                                 : Model.HotelChainName)
                         </p>
                     </div>
@@ -278,10 +278,10 @@
                 <div class="hotel-location-info">
                     <span class="section-eyebrow">
                         <i class="bi bi-geo-alt"></i>
-                        WHERE YOU'LL STAY
+                        @T["WHERE YOU'LL STAY"]
                     </span>
 
-                    <h2>Location</h2>
+                    <h2>@T["Location"]</h2>
 
                     <p class="loc-address">@Model.Address<br />@Model.City, @Model.Country</p>
 
@@ -293,7 +293,7 @@
                                 <strong>@airport.Name (@airport.Code)</strong>
                                 <span>
                                     @airport.DistanceKm km ·
-                                    about @HotelTravel.Application.Services.TaxiRules.EstimateMinutes(airport.DistanceKm) min by car
+                                    @T["about {0} min by car", HotelTravel.Application.Services.TaxiRules.EstimateMinutes(airport.DistanceKm)]
                                 </span>
                             </div>
                         </div>
@@ -322,7 +322,7 @@
                 <div class="hotel-map-col">
                 @if (ViewBag.Weather is HotelTravel.Application.DTOs.Weather.TripWeatherDto weather)
                 {
-                    ViewData["WeatherTitle"] = $"Next {weather.Days.Count} days in {weather.Location}";
+                    ViewData["WeatherTitle"] = T["Next {0} days in {1}", weather.Days.Count, weather.Location].Value;
                     <partial name="_WeatherWidget" model="weather" />
                 }
 
@@ -355,7 +355,7 @@
             <div>
 
                 <span class="gallery-small-title">
-                    PHOTO GALLERY
+                    @T["PHOTO GALLERY"]
                 </span>
 
                 <h2>@Model.Name</h2>
@@ -383,7 +383,7 @@
                         class="gallery-filter active"
                         data-category="All">
 
-                    All
+                    @T["All"]
                     <span>@images.Count</span>
 
                 </button>
@@ -400,7 +400,7 @@
                             class="gallery-filter"
                             data-category="@category">
 
-                        @category
+                        @T[category]
                         <span>@count</span>
 
                     </button>
@@ -420,12 +420,12 @@
                             data-image="@image.ImageUrl">
 
                         <img src="@image.ImageUrl"
-                             alt="@Model.Name - @image.Category" />
+                             alt="@Model.Name - @T.Enum(image.Category)" />
 
                         <div class="gallery-image-overlay">
 
                             <span>
-                                @image.Category
+                                @T.Enum(image.Category)
                             </span>
 
                             <i class="bi bi-arrows-fullscreen"></i>

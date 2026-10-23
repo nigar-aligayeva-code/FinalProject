@@ -1,21 +1,23 @@
-@model HotelTravel.Application.DTOs.Rooms.RoomComparisonDto
+﻿@model HotelTravel.Application.DTOs.Rooms.RoomComparisonDto
 @{
     ViewData["Title"] = "Compare rooms";
     var rooms = Model.Rooms;
     var colWidth = rooms.Count == 0 ? 100 : 75 / rooms.Count;
 
     string RatingText(HotelTravel.Application.DTOs.Rooms.GetRoomDto r) =>
-        r.ReviewCount > 0 ? $"{r.AverageRating:0.0} / 5 ({r.ReviewCount} review{(r.ReviewCount == 1 ? "" : "s")})" : "No reviews yet";
+        r.ReviewCount > 0
+            ? $"{r.AverageRating:0.0} / 5 ({r.ReviewCount} {(r.ReviewCount == 1 ? T["review"] : T["reviews"])})"
+            : T["No reviews yet"];
 }
 
 <div class="container cmp-page">
     <div class="cmp-head">
         <div>
-            <h1>Compare rooms</h1>
-            <p>See up to @HotelTravel.Application.Services.RoomComparisonRules.MaxRooms rooms side by side. Highlights show the best value in each row.</p>
+            <h1>@T["Compare rooms"]</h1>
+            <p>@T["See up to 3 rooms side by side. Highlights show the best value in each row."]</p>
         </div>
         <a asp-action="Search" class="hh-btn hh-btn-outline">
-            <i class="bi bi-plus-lg"></i> Add more rooms
+            <i class="bi bi-plus-lg"></i> @T["Add more rooms"]
         </a>
     </div>
 
@@ -23,9 +25,9 @@
     {
         <div class="cmp-empty">
             <i class="bi bi-layout-three-columns"></i>
-            <h2>Nothing to compare yet</h2>
-            <p>Search for rooms and press <strong>Compare</strong> on two or three of them.</p>
-            <a asp-action="Search" class="hh-btn hh-btn-primary">Search rooms</a>
+            <h2>@T["Nothing to compare yet"]</h2>
+            <p>@T["Search for rooms and press Compare on two or three of them."]</p>
+            <a asp-action="Search" class="hh-btn hh-btn-primary">@T["Search rooms"]</a>
         </div>
     }
     else
@@ -33,7 +35,7 @@
         @if (rooms.Count == 1)
         {
             <div class="cmp-hint">
-                <i class="bi bi-info-circle"></i> Add at least one more room to see which one is better.
+                <i class="bi bi-info-circle"></i> @T["Add at least one more room to see which one is better."]
             </div>
         }
 
@@ -54,7 +56,7 @@
                         {
                             <th>
                                 <div class="cmp-room">
-                                    <button type="button" class="cmp-remove" data-compare-remove="@room.Id" title="Remove">
+                                    <button type="button" class="cmp-remove" data-compare-remove="@room.Id" title="@T["Remove"]">
                                         <i class="bi bi-x-lg"></i>
                                     </button>
 
@@ -79,51 +81,51 @@
 
                 <tbody>
                     <tr>
-                        <td>Price per night</td>
+                        <td>@T["Price per night"]</td>
                         @foreach (var room in rooms)
                         {
                             var best = room.Id == Model.CheapestRoomId;
                             <td class="@(best ? "cmp-best" : "")">
                                 <strong>@room.PricePerNight.ToString("0.00") AZN</strong>
-                                @if (best) { <span class="cmp-badge"><i class="bi bi-tag-fill"></i> Cheapest</span> }
+                                @if (best) { <span class="cmp-badge"><i class="bi bi-tag-fill"></i> @T["Cheapest"]</span> }
                             </td>
                         }
                     </tr>
 
                     <tr>
-                        <td>Guest rating</td>
+                        <td>@T["Guest rating"]</td>
                         @foreach (var room in rooms)
                         {
                             var best = room.Id == Model.BestRatedRoomId;
                             <td class="@(best ? "cmp-best" : "")">
                                 @RatingText(room)
-                                @if (best) { <span class="cmp-badge"><i class="bi bi-star-fill"></i> Top rated</span> }
+                                @if (best) { <span class="cmp-badge"><i class="bi bi-star-fill"></i> @T["Top rated"]</span> }
                             </td>
                         }
                     </tr>
 
                     <tr>
-                        <td>Guests</td>
+                        <td>@T["Guests"]</td>
                         @foreach (var room in rooms)
                         {
                             var best = room.Id == Model.LargestRoomId;
                             <td class="@(best ? "cmp-best" : "")">
-                                <i class="bi bi-people"></i> Up to @room.Capacity
-                                @if (best) { <span class="cmp-badge"><i class="bi bi-arrows-fullscreen"></i> Most space</span> }
+                                <i class="bi bi-people"></i> @T["Up to"] @room.Capacity
+                                @if (best) { <span class="cmp-badge"><i class="bi bi-arrows-fullscreen"></i> @T["Most space"]</span> }
                             </td>
                         }
                     </tr>
 
                     <tr>
-                        <td>Room type</td>
+                        <td>@T["Room type"]</td>
                         @foreach (var room in rooms)
                         {
-                            <td>@room.RoomType</td>
+                            <td>@T.Enum(room.RoomType)</td>
                         }
                     </tr>
 
                     <tr>
-                        <td>Hotel</td>
+                        <td>@T["Hotel"]</td>
                         @foreach (var room in rooms)
                         {
                             <td>@room.HotelName</td>
@@ -131,7 +133,7 @@
                     </tr>
 
                     <tr>
-                        <td>360° view</td>
+                        <td>@T["360° view"]</td>
                         @foreach (var room in rooms)
                         {
                             <td>
@@ -149,10 +151,10 @@
 
                     <tr class="cmp-section">
                         <td colspan="@(rooms.Count + 1)">
-                            Amenities
+                            @T["Amenities"]
                             @if (Model.MostAmenitiesRoomId is int richest)
                             {
-                                <span class="cmp-badge"><i class="bi bi-gem"></i> Most amenities: @rooms.First(r => r.Id == richest).Name</span>
+                                <span class="cmp-badge"><i class="bi bi-gem"></i> @T["Most amenities"]: @rooms.First(r => r.Id == richest).Name</span>
                             }
                         </td>
                     </tr>
@@ -180,7 +182,7 @@
                     @if (!Model.AllAmenities.Any())
                     {
                         <tr>
-                            <td colspan="@(rooms.Count + 1)" class="text-muted">No amenities listed for these rooms.</td>
+                            <td colspan="@(rooms.Count + 1)" class="text-muted">@T["No amenities listed for these rooms."]</td>
                         </tr>
                     }
 
@@ -190,7 +192,7 @@
                         {
                             <td>
                                 <a asp-action="Details" asp-route-id="@room.Id" class="hh-btn hh-btn-primary w-100">
-                                    View &amp; book <i class="bi bi-chevron-right"></i>
+                                    @T["View & book"] <i class="bi bi-chevron-right"></i>
                                 </a>
                             </td>
                         }

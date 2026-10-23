@@ -1,4 +1,4 @@
-@model List<HotelTravel.Application.DTOs.Reviews.GetReviewDto>
+﻿@model List<HotelTravel.Application.DTOs.Reviews.GetReviewDto>
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
@@ -164,8 +164,8 @@
 </style>
 
 <div class="review-heading">
-    <h1>Guest Reviews</h1>
-    <p>Ratings and comments left by guests after completed stays.</p>
+    <h1>@T["Guest Reviews"]</h1>
+    <p>@T["Ratings and comments left by guests after completed stays."]</p>
 </div>
 
 @if (TempData["SuccessMessage"] != null)
@@ -185,12 +185,12 @@
 <div class="review-stats">
     <div class="review-stat">
         <strong>@Model.Count</strong>
-        <span>Reviews shown</span>
+        <span>@T["Reviews shown"]</span>
     </div>
 
     <div class="review-stat">
         <strong>@average.ToString("0.0") ★</strong>
-        <span>Average rating</span>
+        <span>@T["Average rating"]</span>
     </div>
 </div>
 
@@ -205,11 +205,11 @@
         <input type="text"
                name="search"
                value="@search"
-               placeholder="Code, guest, room or comment..."
+               placeholder="@T["Code, guest, room or comment..."]"
                class="review-input" />
 
         <select name="rating" class="review-input">
-            <option value="">All Ratings</option>
+            <option value="">@T["All Ratings"]</option>
 
             @for (int star = 5; star >= 1; star--)
             {
@@ -225,14 +225,14 @@
         </select>
 
         <button type="submit" class="review-btn">
-            Search
+            @T["Search"]
         </button>
 
         <a asp-area="Admin"
            asp-controller="Reviews"
            asp-action="Index"
            class="review-reset">
-            Reset
+            @T["Reset"]
         </a>
     </form>
 
@@ -240,13 +240,13 @@
         <table class="review-table">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Guest</th>
-                    <th>Room</th>
-                    <th>Booking</th>
-                    <th>Rating</th>
-                    <th>Comment</th>
-                    <th>Action</th>
+                    <th>@T["Date"]</th>
+                    <th>@T["Guest"]</th>
+                    <th>@T["Room"]</th>
+                    <th>@T["Booking"]</th>
+                    <th>@T["Rating"]</th>
+                    <th>@T["Comment"]</th>
+                    <th>@T["Action"]</th>
                 </tr>
             </thead>
 
@@ -255,7 +255,7 @@
                 {
                     <tr>
                         <td style="white-space:nowrap">
-                            @review.CreatedAt.ToString("dd MMM yyyy")
+                            @review.CreatedAt.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                         </td>
 
                         <td style="white-space:nowrap">
@@ -297,7 +297,7 @@
                                   onsubmit="return confirm('Delete this review? This cannot be undone.');">
 
                                 <button type="submit" class="review-delete">
-                                    Delete
+                                    @T["Delete"]
                                 </button>
                             </form>
                         </td>
@@ -309,7 +309,7 @@
         @if (!Model.Any())
         {
             <div class="review-empty">
-                No reviews found.
+                @T["No reviews found."]
             </div>
         }
     </div>

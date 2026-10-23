@@ -184,8 +184,8 @@
 
 <div class="rooms-heading">
     <div>
-        <h1>Rooms Management</h1>
-        <p>Manage hotel rooms, prices and availability details.</p>
+        <h1>@T["Rooms Management"]</h1>
+        <p>@T["Manage hotel rooms, prices and availability details."]</p>
     </div>
 </div>
 
@@ -204,19 +204,19 @@
         <input type="text"
                id="roomSearch"
                class="rooms-search"
-               placeholder="Search rooms, hotels, numbers..." />
+               placeholder="@T["Search rooms, hotels, numbers..."]" />
     </div>
 
     <div class="rooms-table-wrap">
         <table class="rooms-table">
             <thead>
                 <tr>
-                    <th>Room</th>
-                    <th>Hotel</th>
-                    <th>Type</th>
-                    <th>Capacity</th>
-                    <th>Price / Night</th>
-                    <th>Actions</th>
+                    <th>@T["Room"]</th>
+                    <th>@T["Hotel"]</th>
+                    <th>@T["Type"]</th>
+                    <th>@T["Capacity"]</th>
+                    <th>@T["Price / Night"]</th>
+                    <th>@T["Actions"]</th>
                 </tr>
             </thead>
 
@@ -226,7 +226,7 @@
                     var hotelName = hotelNames.TryGetValue(
                         room.HotelId, out var name)
                         ? name
-                        : "Unknown Hotel";
+                        : T["Unknown Hotel"].Value;
 
                     <tr>
                         <td>
@@ -268,7 +268,7 @@
 
                         <td>
                             <span class="room-type">
-                                @room.RoomType
+                                @T.Enum(room.RoomType)
                             </span>
                         </td>
 
@@ -287,7 +287,7 @@
                                    asp-action="Edit"
                                    asp-route-id="@room.Id"
                                    class="edit-btn">
-                                    Edit
+                                    @T["Edit"]
                                 </a>
 
                                 <button type="button"
@@ -295,7 +295,7 @@
                                         data-room-id="@room.Id"
                                         data-room-name="@room.Name"
                                         onclick="openDeleteDialog(this)">
-                                    Delete
+                                    @T["Delete"]
                                 </button>
                             </div>
                         </td>
@@ -307,20 +307,20 @@
 
     <p id="noRoomsFound"
        style="display:none; text-align:center; padding:25px; color:#64748b;">
-        No matching rooms found.
+        @T["No matching rooms found."]
     </p>
 </div>
 
 <dialog id="deleteDialog" class="delete-dialog">
-    <h3 style="margin-top:0;">Delete Room?</h3>
+    <h3 style="margin-top:0;">@T["Delete Room?"]</h3>
 
     <p style="color:#64748b;">
-        Are you sure you want to delete
+        @T["Are you sure you want to delete"]
         <strong id="deleteRoomName"></strong>?
     </p>
 
     <p style="color:#dc2626;font-size:13px;">
-        This room will no longer appear in active room listings.
+        @T["This room will no longer appear in active room listings."]
     </p>
 
     <form id="deleteRoomForm"
@@ -335,11 +335,11 @@
             <button type="button"
                     class="edit-btn"
                     onclick="document.getElementById('deleteDialog').close()">
-                Cancel
+                @T["Cancel"]
             </button>
 
             <button type="submit" class="delete-btn">
-                Yes, Delete
+                @T["Yes, Delete"]
             </button>
         </div>
     </form>

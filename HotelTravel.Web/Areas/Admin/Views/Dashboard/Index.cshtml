@@ -153,8 +153,8 @@
 </style>
 
 <div class="dashboard-heading">
-    <h1>Dashboard Overview</h1>
-    <p>Welcome back! Here is your hotel management overview.</p>
+    <h1>@T["Dashboard Overview"]</h1>
+    <p>@T["Welcome back! Here is your hotel management overview."]</p>
 </div>
 
 <!-- STATISTICS -->
@@ -162,19 +162,19 @@
 
     <div class="stat-card">
         <div class="stat-icon icon-hotels">⌂</div>
-        <div class="stat-label">Total Hotels</div>
+        <div class="stat-label">@T["Total Hotels"]</div>
         <div class="stat-value">@ViewBag.TotalHotels</div>
     </div>
 
     <div class="stat-card">
         <div class="stat-icon icon-rooms">▤</div>
-        <div class="stat-label">Total Rooms</div>
+        <div class="stat-label">@T["Total Rooms"]</div>
         <div class="stat-value">@ViewBag.TotalRooms</div>
     </div>
 
     <div class="stat-card">
         <div class="stat-icon icon-bookings">▦</div>
-        <div class="stat-label">Total Bookings</div>
+        <div class="stat-label">@T["Total Bookings"]</div>
         <div class="stat-value">@ViewBag.TotalBookings</div>
     </div>
 
@@ -198,7 +198,7 @@
         </div>
 
         <div class="stat-label">
-            Today's Check-ins
+            @T["Today's Check-ins"]
         </div>
 
         <div class="stat-value">
@@ -206,7 +206,7 @@
         </div>
 
         <div class="stat-description">
-            Guests scheduled to arrive today
+            @T["Guests scheduled to arrive today"]
         </div>
     </div>
 
@@ -217,7 +217,7 @@
         </div>
 
         <div class="stat-label">
-            Today's Check-outs
+            @T["Today's Check-outs"]
         </div>
 
         <div class="stat-value">
@@ -225,7 +225,7 @@
         </div>
 
         <div class="stat-description">
-            Guests scheduled to leave today
+            @T["Guests scheduled to leave today"]
         </div>
     </div>
 
@@ -236,7 +236,7 @@
         </div>
 
         <div class="stat-label">
-            Monthly Occupancy Rate
+            @T["Monthly Occupancy Rate"]
         </div>
 
         <div class="stat-value">
@@ -244,7 +244,7 @@
         </div>
 
         <div class="stat-description">
-            Room occupancy for the current month
+            @T["Room occupancy for the current month"]
         </div>
     </div>
 
@@ -254,7 +254,7 @@
 <div class="charts-grid">
 
     <div class="chart-card">
-        <h3>Monthly Bookings</h3>
+        <h3>@T["Monthly Bookings"]</h3>
         <p>Bookings by check-in month — @ViewBag.ChartYear</p>
         <div class="chart-container">
             <canvas id="bookingsChart"></canvas>
@@ -262,15 +262,15 @@
     </div>
 
     <div class="chart-card">
-        <h3>Booking Status</h3>
-        <p>Distribution of reservation statuses</p>
+        <h3>@T["Booking Status"]</h3>
+        <p>@T["Distribution of reservation statuses"]</p>
         <div class="chart-container">
             <canvas id="statusChart"></canvas>
         </div>
     </div>
 
     <div class="chart-card full-width">
-        <h3>Monthly Revenue</h3>
+        <h3>@T["Monthly Revenue"]</h3>
         <p>Non-cancelled booking value by check-in month — @ViewBag.ChartYear</p>
         <div class="chart-container">
             <canvas id="revenueChart"></canvas>
@@ -506,15 +506,15 @@
 
     <div class="recent-bookings-header">
         <div>
-            <h3>Recent Bookings</h3>
-            <p>Five bookings with the latest check-in dates</p>
+            <h3>@T["Recent Bookings"]</h3>
+            <p>@T["Five bookings with the latest check-in dates"]</p>
         </div>
 
         <a asp-area="Admin"
            asp-controller="Bookings"
            asp-action="Index"
            class="recent-view-all">
-            View All Bookings →
+            @T["View All Bookings →"]
         </a>
     </div>
 
@@ -523,13 +523,13 @@
         <table class="recent-table">
             <thead>
                 <tr>
-                    <th>Confirmation</th>
-                    <th>Guest</th>
-                    <th>Room</th>
-                    <th>Check-in</th>
-                    <th>Check-out</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>@T["Confirmation"]</th>
+                    <th>@T["Guest"]</th>
+                    <th>@T["Room"]</th>
+                    <th>@T["Check-in"]</th>
+                    <th>@T["Check-out"]</th>
+                    <th>@T["Status"]</th>
+                    <th>@T["Action"]</th>
                 </tr>
             </thead>
 
@@ -538,7 +538,7 @@
                 {
                     <tr>
                         <td colspan="7" style="text-align:center;padding:30px;">
-                            No bookings found.
+                            @T["No bookings found."]
                         </td>
                     </tr>
                 }
@@ -575,16 +575,16 @@
                             <td>@booking.RoomNumber</td>
 
                             <td>
-                                @booking.CheckInDate.ToString("dd MMM yyyy")
+                                @booking.CheckInDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                             </td>
 
                             <td>
-                                @booking.CheckOutDate.ToString("dd MMM yyyy")
+                                @booking.CheckOutDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                             </td>
 
                             <td>
                                 <span class="recent-status @statusClass">
-                                    @booking.Status
+                                    @T.Enum(booking.Status)
                                 </span>
                             </td>
 
@@ -596,7 +596,7 @@
                                    asp-route-id="@booking.Id"
                                    asp-route-returnTo="dashboard"
                                    class="recent-details-btn">
-                                    Details
+                                    @T["Details"]
                                 </a>
 
                             </td>

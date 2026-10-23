@@ -1,4 +1,4 @@
-@model List<HotelTravel.Application.DTOs.Cars.CarDto>
+﻿@model List<HotelTravel.Application.DTOs.Cars.CarDto>
 
 @{
     ViewData["Title"] = "Car rental";
@@ -14,8 +14,8 @@
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1><i class="fa-solid fa-car me-2"></i>Car rental</h1>
-        <p>Pick up a car in the city of your hotel. No hidden fees.</p>
+        <h1><i class="fa-solid fa-car me-2"></i>@T["Car rental"]</h1>
+        <p>@T["Pick up a car in the city of your hotel. No hidden fees."]</p>
     </div>
 </section>
 
@@ -30,7 +30,7 @@
         <div class="hh-search-field">
             <i class="bi bi-geo-alt"></i>
             <div class="hh-search-body">
-                <label for="city">Pick-up city</label>
+                <label for="city">@T["Pick-up city"]</label>
                 <select id="city" name="city">
                     @foreach (var city in cities)
                     {
@@ -50,7 +50,7 @@
         <div class="hh-search-field">
             <i class="bi bi-calendar3"></i>
             <div class="hh-search-body">
-                <label for="pickupDate">Pick-up date</label>
+                <label for="pickupDate">@T["Pick-up date"]</label>
                 <input type="date"
                        id="pickupDate"
                        name="pickupDate"
@@ -62,7 +62,7 @@
         <div class="hh-search-field">
             <i class="bi bi-calendar-check"></i>
             <div class="hh-search-body">
-                <label for="returnDate">Return date</label>
+                <label for="returnDate">@T["Return date"]</label>
                 <input type="date"
                        id="returnDate"
                        name="returnDate"
@@ -73,7 +73,7 @@
 
         <button type="submit" class="hh-search-btn">
             <i class="bi bi-search"></i>
-            Search
+            @T["Search"]
         </button>
     </form>
 
@@ -88,15 +88,15 @@
             <div>
                 <h2 class="hh-section-title">Cars in @selected</h2>
                 <p class="hh-section-sub">
-                    @pickup.ToString("ddd, MMM d") — @dropoff.ToString("ddd, MMM d")
-                    · @days day@(days == 1 ? "" : "s")
+                    @pickup.ToString("ddd, MMM d", System.Globalization.CultureInfo.CurrentUICulture) — @dropoff.ToString("ddd, MMM d", System.Globalization.CultureInfo.CurrentUICulture)
+                    · @T.Plural(days, "day", "days")
                 </p>
             </div>
         </div>
 
         @if (!Model.Any())
         {
-            <div class="hh-empty">No cars found for this search.</div>
+            <div class="hh-empty">@T["No cars found for this search."]</div>
         }
         else
         {
@@ -113,28 +113,28 @@
                             {
                                 <partial name="_CarIcon" model="car.Category" />
                             }
-                            <span class="hh-room-type">@car.Category</span>
+                            <span class="hh-room-type">@T.Enum(car.Category)</span>
                         </div>
 
                         <div class="hh-car-body">
                             <h3>@car.Model</h3>
-                            <small class="text-muted">or similar</small>
+                            <small class="text-muted">@T["or similar"]</small>
 
                             <ul class="hh-car-specs">
                                 <li><i class="bi bi-people"></i> @car.Seats seats</li>
-                                <li><i class="bi bi-gear"></i> @(car.IsAutomatic ? "Automatic" : "Manual")</li>
+                                <li><i class="bi bi-gear"></i> @(car.IsAutomatic ? T["Automatic"] : T["Manual"])</li>
                                 @if (car.HasAirConditioning)
                                 {
-                                    <li><i class="bi bi-snow"></i> Air conditioning</li>
+                                    <li><i class="bi bi-snow"></i> @T["Air conditioning"]</li>
                                 }
-                                <li><i class="bi bi-check-circle"></i> Free cancellation</li>
+                                <li><i class="bi bi-check-circle"></i> @T["Free cancellation"]</li>
                             </ul>
 
                             <div class="hh-car-foot">
                                 <div class="hh-room-price text-start">
                                     <small>@car.PricePerDay.ToString("0") AZN / day</small>
                                     <strong>@car.TotalPrice.ToString("0.00") AZN</strong>
-                                    <small>total for @car.Days day@(car.Days == 1 ? "" : "s")</small>
+                                    <small>@T["total for {0}", T.Plural(car.Days, "day", "days")]</small>
                                 </div>
 
                                 @if (car.IsAvailable)
@@ -145,12 +145,12 @@
                                        asp-route-pickupDate="@pickup.ToString("yyyy-MM-dd")"
                                        asp-route-returnDate="@dropoff.ToString("yyyy-MM-dd")"
                                        class="hh-btn hh-btn-primary">
-                                        Rent
+                                        @T["Rent"]
                                     </a>
                                 }
                                 else
                                 {
-                                    <span class="hh-car-busy">Not available</span>
+                                    <span class="hh-car-busy">@T["Not available"]</span>
                                 }
                             </div>
                         </div>

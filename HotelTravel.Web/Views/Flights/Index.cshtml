@@ -1,4 +1,4 @@
-@model List<HotelTravel.Application.DTOs.Flights.FlightOptionDto>
+﻿@model List<HotelTravel.Application.DTOs.Flights.FlightOptionDto>
 @using HotelTravel.Application.DTOs.Flights
 @using HotelTravel.Application.Services
 @using HotelTravel.Domain.Enums
@@ -20,8 +20,8 @@
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1><i class="fa-solid fa-plane me-2"></i>Flights</h1>
-        <p>Direct flights between our hotel cities. Add a hotel and an airport taxi in one trip.</p>
+        <h1><i class="fa-solid fa-plane me-2"></i>@T["Flights"]</h1>
+        <p>@T["Direct flights between our hotel cities. Add a hotel and an airport taxi in one trip."]</p>
     </div>
 </section>
 
@@ -36,7 +36,7 @@
         <div class="hh-search-field">
             <i class="fa-solid fa-plane-departure"></i>
             <div class="hh-search-body">
-                <label for="from">From</label>
+                <label for="from">@T["From"]</label>
                 <select id="from" name="from">
                     @foreach (var city in cities)
                     {
@@ -46,14 +46,14 @@
             </div>
         </div>
 
-        <button type="button" class="hh-flight-swap" id="swapCities" title="Swap cities" aria-label="Swap cities">
+        <button type="button" class="hh-flight-swap" id="swapCities" title="@T["Swap cities"]" aria-label="@T["Swap cities"]">
             <i class="bi bi-arrow-left-right"></i>
         </button>
 
         <div class="hh-search-field">
             <i class="fa-solid fa-plane-arrival"></i>
             <div class="hh-search-body">
-                <label for="to">To</label>
+                <label for="to">@T["To"]</label>
                 <select id="to" name="to">
                     @foreach (var city in cities)
                     {
@@ -66,7 +66,7 @@
         <div class="hh-search-field">
             <i class="bi bi-calendar3"></i>
             <div class="hh-search-body">
-                <label for="date">Departure</label>
+                <label for="date">@T["Departure"]</label>
                 <input type="date"
                        id="date"
                        name="date"
@@ -79,7 +79,7 @@
         <div class="hh-search-field">
             <i class="bi bi-people"></i>
             <div class="hh-search-body">
-                <label for="passengers">Passengers</label>
+                <label for="passengers">@T["Passengers"]</label>
                 <select id="passengers" name="passengers">
                     @for (var i = 1; i <= FlightRules.MaxPassengers; i++)
                     {
@@ -92,17 +92,17 @@
         <div class="hh-search-field">
             <i class="bi bi-star"></i>
             <div class="hh-search-body">
-                <label for="cabin">Cabin</label>
+                <label for="cabin">@T["Cabin"]</label>
                 <select id="cabin" name="cabin">
-                    <option value="@CabinClass.Economy" selected="@(cabin == CabinClass.Economy)">Economy</option>
-                    <option value="@CabinClass.Business" selected="@(cabin == CabinClass.Business)">Business</option>
+                    <option value="@CabinClass.Economy" selected="@(cabin == CabinClass.Economy)">@T["Economy"]</option>
+                    <option value="@CabinClass.Business" selected="@(cabin == CabinClass.Business)">@T["Business"]</option>
                 </select>
             </div>
         </div>
 
         <button type="submit" class="hh-search-btn">
             <i class="bi bi-search"></i>
-            Search
+            @T["Search"]
         </button>
     </form>
 
@@ -116,7 +116,7 @@
         <!-- DATE STRIP -->
         @if (dayFares.Any())
         {
-            <nav class="hh-flight-days" aria-label="Nearby dates">
+            <nav class="hh-flight-days" aria-label="@T["Nearby dates"]">
                 @foreach (var day in dayFares)
                 {
                     <a asp-controller="Flights"
@@ -127,7 +127,7 @@
                        asp-route-passengers="@passengers"
                        asp-route-cabin="@cabin"
                        class="hh-flight-day @(day.Date == date ? "active" : "")">
-                        <span>@day.Date.ToString("ddd, MMM d")</span>
+                        <span>@day.Date.ToString("ddd, MMM d", System.Globalization.CultureInfo.CurrentUICulture)</span>
                         <strong>@(day.LowestFare.HasValue ? day.LowestFare.Value.ToString("0") + " AZN" : "—")</strong>
                     </a>
                 }
@@ -140,9 +140,9 @@
                 <div>
                     <h2 class="hh-section-title">@from → @to</h2>
                     <p class="hh-section-sub">
-                        @date.ToString("dddd, MMMM d")
-                        · @passengers passenger@(passengers == 1 ? "" : "s")
-                        · @cabin
+                        @date.ToString("dddd, MMMM d", System.Globalization.CultureInfo.CurrentUICulture)
+                        · @T.Plural(passengers, "passenger", "passengers")
+                        · @T.Enum(cabin)
                     </p>
                 </div>
             </div>
@@ -150,7 +150,7 @@
             @if (!Model.Any())
             {
                 <div class="hh-empty">
-                    No direct @cabin.ToString().ToLower() flights on this route.
+                    @T["No direct {0} flights on this route.", T.Enum(cabin).ToLower()]
                     @if (cabin == CabinClass.Business)
                     {
                         <a asp-controller="Flights"
@@ -158,7 +158,7 @@
                            asp-route-from="@from"
                            asp-route-to="@to"
                            asp-route-date="@date.ToString("yyyy-MM-dd")"
-                           asp-route-passengers="@passengers">Try economy</a>
+                           asp-route-passengers="@passengers">@T["Try economy"]</a>
                     }
                 </div>
             }
@@ -172,7 +172,7 @@
                                 <partial name="_AirlineBadge" model="flight.Airline" />
                                 <div>
                                     <strong>@flight.Airline</strong>
-                                    <small>@flight.FlightNumber · @flight.Cabin</small>
+                                    <small>@flight.FlightNumber · @T.Enum(flight.Cabin)</small>
                                 </div>
                             </div>
 
@@ -185,7 +185,7 @@
                                 <div class="hh-flight-path">
                                     <small>@FlightRules.FormatDuration(flight.DurationMinutes)</small>
                                     <span class="hh-flight-line"><i class="fa-solid fa-plane"></i></span>
-                                    <small class="text-success">Direct</small>
+                                    <small class="text-success">@T["Direct"]</small>
                                 </div>
 
                                 <div class="hh-flight-point">
@@ -203,13 +203,13 @@
                             <div class="hh-flight-buy">
                                 @if (cheapest.HasValue && flight.IsAvailable && flight.Fare == cheapest.Value)
                                 {
-                                    <span class="hh-flight-tag">Cheapest</span>
+                                    <span class="hh-flight-tag">@T["Cheapest"]</span>
                                 }
 
                                 <div class="hh-room-price">
                                     <strong>@flight.Fare.ToString("0") AZN</strong>
                                     <small>
-                                        per passenger
+                                        @T["per passenger"]
                                         @if (passengers > 1)
                                         {
                                             <text>· @flight.Total.ToString("0") AZN total</text>
@@ -221,7 +221,7 @@
                                 {
                                     @if (flight.SeatsLeft <= 9)
                                     {
-                                        <small class="hh-flight-seats">Only @flight.SeatsLeft seat@(flight.SeatsLeft == 1 ? "" : "s") left</small>
+                                        <small class="hh-flight-seats">@T["Only {0} left", T.Plural(flight.SeatsLeft, "seat", "seats")]</small>
                                     }
 
                                     <a asp-controller="Flights"
@@ -231,13 +231,13 @@
                                        asp-route-passengers="@passengers"
                                        asp-route-cabin="@cabin"
                                        class="hh-btn hh-btn-primary">
-                                        Select
+                                        @T["Select"]
                                     </a>
                                 }
                                 else
                                 {
                                     <span class="hh-car-busy">
-                                        @(flight.SeatsLeft < passengers ? "Sold out" : "Closed")
+                                        @(flight.SeatsLeft < passengers ? T["Sold out"] : T["Closed"])
                                     </span>
                                 }
                             </div>
@@ -248,8 +248,8 @@
 
             <p class="small text-muted mt-3 mb-0">
                 <i class="bi bi-info-circle me-1"></i>
-                All times are local. Prices are per passenger, one way, including taxes.
-                Booking early is cheaper: fares rise 14 and 3 days before departure.
+                @T["All times are local. Prices are per passenger, one way, including taxes."]
+                @T["Booking early is cheaper: fares rise 14 and 3 days before departure."]
             </p>
         </section>
     }

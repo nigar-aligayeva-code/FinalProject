@@ -21,7 +21,8 @@
 
         const text = button.querySelector(".hh-save-text");
         if (text) {
-            text.textContent = saved ? "Saved" : "Save";
+            const t = window.tripioText || {};
+            text.textContent = saved ? (t.saved || "Saved") : (t.save || "Save");
         }
     }
 

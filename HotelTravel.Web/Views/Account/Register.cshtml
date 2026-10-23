@@ -12,7 +12,7 @@
                 <div class="card-body p-4">
 
                     <h2 class="text-center mb-4">
-                        Create Account
+                        @T["Create Account"]
                     </h2>
 
                     <form asp-controller="Account"
@@ -28,12 +28,12 @@
                         <div class="mb-3">
                             <label asp-for="FirstName"
                                    class="form-label">
-                                First Name
+                                @T["First Name"]
                             </label>
 
                             <input asp-for="FirstName"
                                    class="form-control"
-                                   placeholder="Enter your first name" />
+                                   placeholder="@T["Enter your first name"]" />
 
                             <span asp-validation-for="FirstName"
                                   class="text-danger">
@@ -43,12 +43,12 @@
                         <div class="mb-3">
                             <label asp-for="LastName"
                                    class="form-label">
-                                Last Name
+                                @T["Last Name"]
                             </label>
 
                             <input asp-for="LastName"
                                    class="form-control"
-                                   placeholder="Enter your last name" />
+                                   placeholder="@T["Enter your last name"]" />
 
                             <span asp-validation-for="LastName"
                                   class="text-danger">
@@ -58,12 +58,12 @@
                         <div class="mb-3">
                             <label asp-for="Email"
                                    class="form-label">
-                                Email
+                                @T["Email"]
                             </label>
 
                             <input asp-for="Email"
                                    class="form-control"
-                                   placeholder="Enter your email" />
+                                   placeholder="@T["Enter your email"]" />
 
                             <span asp-validation-for="Email"
                                   class="text-danger">
@@ -73,12 +73,12 @@
                         <div class="mb-3">
                             <label asp-for="Password"
                                    class="form-label">
-                                Password
+                                @T["Password"]
                             </label>
 
                             <input asp-for="Password"
                                    class="form-control"
-                                   placeholder="Enter password" />
+                                   placeholder="@T["Enter password"]" />
 
                             <span asp-validation-for="Password"
                                   class="text-danger">
@@ -88,12 +88,12 @@
                         <div class="mb-3">
                             <label asp-for="ConfirmPassword"
                                    class="form-label">
-                                Confirm Password
+                                @T["Confirm Password"]
                             </label>
 
                             <input asp-for="ConfirmPassword"
                                    class="form-control"
-                                   placeholder="Confirm password" />
+                                   placeholder="@T["Confirm password"]" />
 
                             <span asp-validation-for="ConfirmPassword"
                                   class="text-danger">
@@ -102,17 +102,17 @@
 
                         <button type="submit"
                                 class="btn btn-primary w-100">
-                            Register
+                            @T["Register"]
                         </button>
 
                     </form>
 
                     <div class="text-center mt-3">
-                        Already have an account?
+                        @T["Already have an account?"]
 
                         <a asp-controller="Account"
                            asp-action="Login">
-                            Login
+                            @T["Login"]
                         </a>
                     </div>
 

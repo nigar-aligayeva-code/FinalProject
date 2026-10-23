@@ -1,4 +1,4 @@
-@using HotelTravel.Application.DTOs.Email
+﻿@using HotelTravel.Application.DTOs.Email
 @model List<EmailLogDto>
 
 @{
@@ -9,8 +9,8 @@
 
     string TypeLabel(string type) => type switch
     {
-        "BookingConfirmation" => "Confirmation",
-        "BookingCancellation" => "Cancellation",
+        "BookingConfirmation" => T["Confirmation"].Value,
+        "BookingCancellation" => T["Cancellation"].Value,
         _ => type
     };
 }
@@ -43,14 +43,14 @@
 </style>
 
 <div class="em-head">
-    <h1>Emails</h1>
+    <h1>@T["Emails"]</h1>
     <p>Booking confirmations and cancellations sent to guests (with the PDF voucher attached).</p>
 </div>
 
 @if (!Model.Any())
 {
     <div class="em-card em-empty">
-        No emails yet. Make a booking on the site and the confirmation will appear here.
+        @T["No emails yet. Make a booking on the site and the confirmation will appear here."]
     </div>
 }
 else
@@ -63,7 +63,7 @@ else
                    asp-action="Index"
                    asp-route-id="@email.Id">
                     <div class="top">
-                        <span>@email.SentAt.ToString("dd MMM, HH:mm")</span>
+                        <span>@email.SentAt.ToString("dd MMM, HH:mm", System.Globalization.CultureInfo.CurrentUICulture)</span>
                         <span>
                             <span class="em-badge type">@TypeLabel(email.Type)</span>
                             <span class="em-badge @(email.Delivered ? "ok" : "fail")">@(email.Delivered ? "Sent" : "Failed")</span>
@@ -74,7 +74,7 @@ else
                         To: @email.To
                         @if (email.HasAttachment)
                         {
-                            <i class="bi bi-paperclip" title="PDF attached"></i>
+                            <i class="bi bi-paperclip" title="@T["PDF attached"]"></i>
                         }
                     </div>
                 </a>
@@ -87,12 +87,12 @@ else
                 <div class="em-preview-head">
                     <h3>@selected.Subject</h3>
                     <div class="em-meta">
-                        <span><b>To:</b> @selected.To</span>
-                        <span><b>Sent:</b> @selected.SentAt.ToString("dd MMM yyyy, HH:mm")</span>
+                        <span><b>@T["To:"]</b> @selected.To</span>
+                        <span><b>@T["Sent:"]</b> @selected.SentAt.ToString("dd MMM yyyy, HH:mm", System.Globalization.CultureInfo.CurrentUICulture)</span>
                         @if (!string.IsNullOrWhiteSpace(selected.ReferenceCode))
                         {
                             <span>
-                                <b>Booking:</b> @selected.ReferenceCode ·
+                                <b>@T["Booking:"]</b> @selected.ReferenceCode ·
                                 <a asp-area="" asp-controller="Bookings" asp-action="VoucherPdf"
                                    asp-route-confirmationCode="@selected.ReferenceCode">
                                     <i class="bi bi-file-earmark-pdf"></i> PDF
@@ -108,11 +108,11 @@ else
                 }
 
                 <!-- Məktub ayrıca, skriptsiz "sandbox" çərçivədə göstərilir; linklər klik olunmur -->
-                <iframe class="em-frame" sandbox="" title="Email preview"
+                <iframe class="em-frame" sandbox="" title="@T["Email preview"]"
                         srcdoc="@("<style>a{pointer-events:none!important;cursor:default!important}</style>" + selected.HtmlBody)"></iframe>
                 <p class="em-tip" style="margin:10px 22px 16px">
                     <i class="bi bi-shield-lock"></i>
-                    Preview only — links are disabled. Password reset links are never stored in the log.
+                    @T["Preview only — links are disabled. Password reset links are never stored in the log."]
                 </p>
             }
         </div>
@@ -120,7 +120,7 @@ else
 
     <p class="em-tip">
         <i class="bi bi-info-circle"></i>
-        Without SMTP settings, emails are also saved as <code>.eml</code> files in <code>HotelTravel.API/App_Data/Emails</code>
+        Without SMTP settings, emails are also saved as <code>.eml</code> files in <code>@T["HotelTravel.API/App_Data/Emails"]</code>
         (open them with Outlook or Windows Mail to see the PDF attachment).
     </p>
 }

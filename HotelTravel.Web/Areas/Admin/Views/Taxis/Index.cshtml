@@ -1,4 +1,4 @@
-@model List<HotelTravel.Application.DTOs.Taxis.TaxiBookingDto>
+﻿@model List<HotelTravel.Application.DTOs.Taxis.TaxiBookingDto>
 @using HotelTravel.Application.Services
 @using HotelTravel.Domain.Enums
 
@@ -20,8 +20,8 @@
 
 <div class="cg-heading">
     <div>
-        <h1>Airport Taxis</h1>
-        <p>Transfers between airports and our hotels. Mark trips as completed or cancel them.</p>
+        <h1>@T["Airport Taxis"]</h1>
+        <p>@T["Transfers between airports and our hotels. Mark trips as completed or cancel them."]</p>
     </div>
 
     <partial name="_ExportButtons" model="@("taxis")" />
@@ -42,7 +42,7 @@
        asp-controller="Taxis"
        asp-action="Index"
        class="cg-chip @(status == null ? "active" : "")">
-        All
+        @T["All"]
     </a>
 
     @foreach (var item in Enum.GetValues<TaxiBookingStatus>())
@@ -64,14 +64,14 @@
         <table class="cg-table">
             <thead>
                 <tr>
-                    <th>Code</th>
-                    <th>Pick-up</th>
-                    <th>Route</th>
-                    <th>Passenger</th>
-                    <th>Vehicle</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>@T["Code"]</th>
+                    <th>@T["Pick-up"]</th>
+                    <th>@T["Route"]</th>
+                    <th>@T["Passenger"]</th>
+                    <th>@T["Vehicle"]</th>
+                    <th>@T["Price"]</th>
+                    <th>@T["Status"]</th>
+                    <th>@T["Action"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,7 +80,7 @@
                     <tr>
                         <td><strong>@taxi.ConfirmationCode</strong></td>
                         <td style="white-space:nowrap">
-                            @taxi.PickupTime.ToString("dd MMM yyyy")
+                            @taxi.PickupTime.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                             <div class="cg-desc">@taxi.PickupTime.ToString("HH:mm")</div>
                         </td>
                         <td>
@@ -107,7 +107,7 @@
                         </td>
                         <td style="white-space:nowrap">@taxi.Price.ToString("0.00") AZN</td>
                         <td>
-                            <span class="cg-badge @StatusClass(taxi.Status)">@taxi.Status</span>
+                            <span class="cg-badge @StatusClass(taxi.Status)">@T.Enum(taxi.Status)</span>
                         </td>
                         <td>
                             @if (taxi.Status == TaxiBookingStatus.Confirmed)
@@ -120,7 +120,7 @@
                                           asp-route-status="@TaxiBookingStatus.Completed"
                                           asp-route-filter="@status"
                                           method="post">
-                                        <button type="submit" class="cg-edit">Complete</button>
+                                        <button type="submit" class="cg-edit">@T["Complete"]</button>
                                     </form>
 
                                     <form asp-area="Admin"
@@ -131,7 +131,7 @@
                                           asp-route-filter="@status"
                                           method="post"
                                           onsubmit="return confirm('Cancel this taxi booking?');">
-                                        <button type="submit" class="cg-delete">Cancel</button>
+                                        <button type="submit" class="cg-delete">@T["Cancel"]</button>
                                     </form>
                                 </div>
                             }
@@ -143,7 +143,7 @@
 
         @if (!Model.Any())
         {
-            <div class="cg-empty">No taxi bookings yet.</div>
+            <div class="cg-empty">@T["No taxi bookings yet."]</div>
         }
     </div>
 </div>

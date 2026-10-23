@@ -25,18 +25,18 @@
             </div>
 
             <span class="my-booking-status @(rental.Status == HotelTravel.Domain.Enums.CarRentalStatus.Cancelled ? "status-cancelled" : rental.Status == HotelTravel.Domain.Enums.CarRentalStatus.Completed ? "status-checkedout" : "status-confirmed")">
-                @rental.Status
+                @T.Enum(rental.Status)
             </span>
         </div>
 
         <div class="row mt-3 my-booking-meta">
             <div class="col-sm-8 mb-2">
                 <i class="bi bi-calendar-event me-1"></i>
-                @rental.PickupDate.ToString("dd MMM yyyy")
+                @rental.PickupDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                 &rarr;
-                @rental.ReturnDate.ToString("dd MMM yyyy")
+                @rental.ReturnDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                 <span class="mx-1">•</span>
-                @rental.Days day@(rental.Days == 1 ? "" : "s")
+                @T.Plural(rental.Days, "day", "days")
             </div>
             <div class="col-sm-4 mb-2 text-sm-end">
                 <strong class="text-dark fs-5">@rental.TotalPrice.ToString("0.00") AZN</strong>
@@ -48,7 +48,7 @@
                asp-action="Confirmation"
                asp-route-confirmationCode="@rental.ConfirmationCode"
                class="btn btn-sm btn-outline-secondary">
-                Details
+                @T["Details"]
             </a>
 
             @if (rental.CanCancel)
@@ -61,7 +61,7 @@
                       onsubmit="return confirm('Cancel this car rental?');">
                     <button type="submit" class="btn btn-sm btn-outline-danger">
                         <i class="bi bi-x-circle me-1"></i>
-                        Cancel
+                        @T["Cancel"]
                     </button>
                 </form>
             }

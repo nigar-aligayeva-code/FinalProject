@@ -10,14 +10,14 @@
         .Select(g => new
         {
             Id = g.Key,
-            Name = $"Room {g.First().RoomNumber} - {g.First().RoomName}"
+            Name = T["Room {0}", g.First().RoomNumber].Value + " - " + g.First().RoomName
         })
         .OrderBy(r => r.Name)
         .ToList();
 
     var events = Model.Select(b => new
     {
-        title = $"Room {b.RoomNumber} - {b.GuestName}",
+        title = T["Room {0}", b.RoomNumber].Value + " - " + b.GuestName,
         roomId = b.RoomId,
         start = b.CheckInDate.ToString("yyyy-MM-dd"),
         end = b.CheckOutDate.ToString("yyyy-MM-dd"),
@@ -333,13 +333,13 @@
     <div class="oc-top">
         <div>
             <p class="oc-eyebrow">
-                Reservation Overview
+                @T["Reservation Overview"]
             </p>
 
-            <h1>Occupancy Calendar</h1>
+            <h1>@T["Occupancy Calendar"]</h1>
 
             <p class="oc-subtitle">
-                Track room reservations and manage stays in one place.
+                @T["Track room reservations and manage stays in one place."]
             </p>
         </div>
 
@@ -347,16 +347,16 @@
            asp-controller="Bookings"
            asp-action="Index"
            class="oc-back">
-            ← Back to Bookings
+            @T["← Back to Bookings"]
         </a>
     </div>
 
     <div class="oc-filterbar">
         <div class="oc-filtergroup">
-            <label for="ocRoomFilter">Filter by Room</label>
+            <label for="ocRoomFilter">@T["Filter by Room"]</label>
 
             <select id="ocRoomFilter">
-                <option value="all">All Rooms</option>
+                <option value="all">@T["All Rooms"]</option>
 
                 @foreach (var room in rooms)
                 {
@@ -368,44 +368,44 @@
         </div>
 
         <div class="oc-filter-note">
-            Statistics show the selected month.
-            Occupancy is based on rooms appearing in booking records.
+            @T["Statistics show the selected month."]
+            @T["Occupancy is based on rooms appearing in booking records."]
         </div>
     </div>
 
     <div class="oc-stats">
 
         <div class="oc-stat" style="--accent:#3467e8">
-            <p class="oc-stat-label">Total Reservations</p>
+            <p class="oc-stat-label">@T["Total Reservations"]</p>
             <p class="oc-stat-value" id="ocTotal">0</p>
             <p class="oc-stat-foot">
-                Reservations overlapping selected month
+                @T["Reservations overlapping selected month"]
             </p>
         </div>
 
         <div class="oc-stat" style="--accent:#4d7df0">
-            <p class="oc-stat-label">Confirmed</p>
+            <p class="oc-stat-label">@T["Confirmed"]</p>
             <p class="oc-stat-value" id="ocConfirmed">0</p>
-            <p class="oc-stat-foot">Awaiting check-in</p>
+            <p class="oc-stat-foot">@T["Awaiting check-in"]</p>
         </div>
 
         <div class="oc-stat" style="--accent:#0d9488">
-            <p class="oc-stat-label">Checked In</p>
+            <p class="oc-stat-label">@T["Checked In"]</p>
             <p class="oc-stat-value" id="ocCheckedIn">0</p>
             <p class="oc-stat-foot">
-                Marked as checked in
+                @T["Marked as checked in"]
             </p>
         </div>
 
         <div class="oc-stat" style="--accent:#a17be0">
             <p class="oc-stat-label">
-                Monthly Occupancy Rate
+                @T["Monthly Occupancy Rate"]
             </p>
 
             <p class="oc-stat-value" id="ocOccupancy">—</p>
 
             <p class="oc-stat-foot" id="ocOccupancyFoot">
-                Booked room-nights / tracked room-nights
+                @T["Booked room-nights / tracked room-nights"]
             </p>
         </div>
     </div>
@@ -415,28 +415,28 @@
         <div class="oc-card-head">
             <div>
                 <h2 class="oc-card-title">
-                    Reservation Timeline
+                    @T["Reservation Timeline"]
                 </h2>
 
                 <p class="oc-card-hint">
-                    Click a reservation to open its details.
+                    @T["Click a reservation to open its details."]
                 </p>
             </div>
 
             <div class="oc-legend">
                 <span>
                     <i class="oc-dot" style="background:#3467e8"></i>
-                    Confirmed
+                    @T["Confirmed"]
                 </span>
 
                 <span>
                     <i class="oc-dot" style="background:#0d9488"></i>
-                    Checked In
+                    @T["Checked In"]
                 </span>
 
                 <span>
                     <i class="oc-dot" style="background:#64748b"></i>
-                    Checked Out
+                    @T["Checked Out"]
                 </span>
             </div>
         </div>

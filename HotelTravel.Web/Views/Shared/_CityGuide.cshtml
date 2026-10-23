@@ -1,4 +1,4 @@
-@model List<HotelTravel.Application.DTOs.CityGuide.CityPlaceDto>
+﻿@model List<HotelTravel.Application.DTOs.CityGuide.CityPlaceDto>
 @using HotelTravel.Domain.Enums
 
 @{
@@ -9,10 +9,10 @@
 
     var categories = new[]
     {
-        (Key: PlaceCategory.Sight, Title: "Things to do", Icon: "bi-camera"),
-        (Key: PlaceCategory.Tour, Title: "Tours & trips", Icon: "bi-compass"),
-        (Key: PlaceCategory.Food, Title: "Food & drink", Icon: "bi-cup-hot"),
-        (Key: PlaceCategory.Shopping, Title: "Shopping", Icon: "bi-bag")
+        (Key: PlaceCategory.Sight, Title: T["Things to do"].Value, Icon: "bi-camera"),
+        (Key: PlaceCategory.Tour, Title: T["Tours & trips"].Value, Icon: "bi-compass"),
+        (Key: PlaceCategory.Food, Title: T["Food & drink"].Value, Icon: "bi-cup-hot"),
+        (Key: PlaceCategory.Shopping, Title: T["Shopping"].Value, Icon: "bi-bag")
     }
     .Where(c => Model.Any(p => p.Category == c.Key))
     .ToList();
@@ -27,7 +27,7 @@
             <div class="hh-section-head">
                 <div>
                     <h2 class="hh-section-title">Explore @city</h2>
-                    <p class="hh-section-sub">Places to see, tours, food and shopping near your stay</p>
+                    <p class="hh-section-sub">@T["Places to see, tours, food and shopping near your stay"]</p>
                 </div>
                 <a asp-controller="Guide"
                    asp-action="Index"
@@ -97,8 +97,8 @@
                             @if (place.PriceFrom.HasValue)
                             {
                                 <div class="hh-place-price">
-                                    <span>from <strong>@place.PriceFrom.Value.ToString("0") AZN</strong> per person</span>
-                                    <small>Book at hotel reception</small>
+                                    <span>from <strong>@place.PriceFrom.Value.ToString("0") AZN</strong> @T["per person"]</span>
+                                    <small>@T["Book at hotel reception"]</small>
                                 </div>
                             }
                         </div>

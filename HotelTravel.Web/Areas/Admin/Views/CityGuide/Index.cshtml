@@ -1,4 +1,4 @@
-@model List<HotelTravel.Application.DTOs.CityGuide.CityPlaceDto>
+﻿@model List<HotelTravel.Application.DTOs.CityGuide.CityPlaceDto>
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
@@ -12,8 +12,8 @@
 
 <div class="cg-heading">
     <div>
-        <h1>City Guide</h1>
-        <p>Places to see, tours, food and shopping shown on room pages and on the Attractions page.</p>
+        <h1>@T["City Guide"]</h1>
+        <p>@T["Places to see, tours, food and shopping shown on room pages and on the Attractions page."]</p>
     </div>
 
     <a asp-area="Admin"
@@ -21,7 +21,7 @@
        asp-action="Edit"
        asp-route-city="@selectedCity"
        class="cg-btn">
-        + Add place
+        @T["+ Add place"]
     </a>
 </div>
 
@@ -40,7 +40,7 @@
        asp-controller="CityGuide"
        asp-action="Index"
        class="cg-chip @(string.IsNullOrEmpty(selectedCity) ? "active" : "")">
-        All cities
+        @T["All cities"]
     </a>
 
     @foreach (var city in cities)
@@ -60,11 +60,11 @@
         <table class="cg-table">
             <thead>
                 <tr>
-                    <th>City</th>
-                    <th>Place</th>
-                    <th>Category</th>
-                    <th>Tour info</th>
-                    <th>Action</th>
+                    <th>@T["City"]</th>
+                    <th>@T["Place"]</th>
+                    <th>@T["Category"]</th>
+                    <th>@T["Tour info"]</th>
+                    <th>@T["Action"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -77,7 +77,7 @@
                             <div class="cg-desc">@place.Description</div>
                         </td>
                         <td>
-                            <span class="cg-badge cg-@place.Category">@place.Category</span>
+                            <span class="cg-badge cg-@place.Category">@T.Enum(place.Category)</span>
                         </td>
                         <td style="white-space:nowrap">
                             @if (place.PriceFrom.HasValue)
@@ -96,7 +96,7 @@
                                    asp-action="Edit"
                                    asp-route-id="@place.Id"
                                    class="cg-edit">
-                                    Edit
+                                    @T["Edit"]
                                 </a>
 
                                 <form asp-area="Admin"
@@ -106,7 +106,7 @@
                                       asp-route-city="@selectedCity"
                                       method="post"
                                       onsubmit="return confirm('Delete this place?');">
-                                    <button type="submit" class="cg-delete">Delete</button>
+                                    <button type="submit" class="cg-delete">@T["Delete"]</button>
                                 </form>
                             </div>
                         </td>
@@ -117,7 +117,7 @@
 
         @if (!Model.Any())
         {
-            <div class="cg-empty">No places yet for this city.</div>
+            <div class="cg-empty">@T["No places yet for this city."]</div>
         }
     </div>
 </div>

@@ -14,14 +14,14 @@
 
                 <div class="card-header">
                     <h3 class="mb-0">
-                        Booking Details
+                        @T["Booking Details"]
                     </h3>
                 </div>
 
                 <div class="card-body">
 
                     <div class="alert alert-success">
-                        Booking found successfully.
+                        @T["Booking found successfully."]
                     </div>
 
                     <table class="table table-bordered">
@@ -29,7 +29,7 @@
                         <tbody>
 
                             <tr>
-                                <th>Confirmation Code</th>
+                                <th>@T["Confirmation Code"]</th>
                                 <td>
                                     <strong>
                                         @Model.ConfirmationCode
@@ -38,43 +38,43 @@
                             </tr>
 
                             <tr>
-                                <th>Guest</th>
+                                <th>@T["Guest"]</th>
                                 <td>@Model.GuestName</td>
                             </tr>
 
                             <tr>
-                                <th>Room</th>
+                                <th>@T["Room"]</th>
                                 <td>
                                     @Model.RoomNumber - @Model.RoomName
                                 </td>
                             </tr>
 
                             <tr>
-                                <th>Check-in</th>
+                                <th>@T["Check-in"]</th>
                                 <td>
                                     @Model.CheckInDate.ToString("dd.MM.yyyy")
                                 </td>
                             </tr>
 
                             <tr>
-                                <th>Check-out</th>
+                                <th>@T["Check-out"]</th>
                                 <td>
                                     @Model.CheckOutDate.ToString("dd.MM.yyyy")
                                 </td>
                             </tr>
 
                             <tr>
-                                <th>Adults</th>
+                                <th>@T["Adults"]</th>
                                 <td>@Model.AdultCount</td>
                             </tr>
 
                             <tr>
-                                <th>Children</th>
+                                <th>@T["Children"]</th>
                                 <td>@Model.ChildrenCount</td>
                             </tr>
 
                             <tr>
-                                <th>Total Price</th>
+                                <th>@T["Total Price"]</th>
                                 <td>
                                     @if (Model.DiscountAmount > 0)
                                     {
@@ -98,31 +98,31 @@
                             </tr>
 
                             <tr>
-                                <th>Status</th>
+                                <th>@T["Status"]</th>
 
                                 <td>
                                     @if (Model.Status.ToString() == "Confirmed")
                                     {
                                         <span class="badge bg-success">
-                                            Confirmed
+                                            @T["Confirmed"]
                                         </span>
                                     }
                                     else if (Model.Status.ToString() == "CheckedIn")
                                     {
                                         <span class="badge bg-primary">
-                                            Checked In
+                                            @T["Checked In"]
                                         </span>
                                     }
                                     else if (Model.Status.ToString() == "CheckedOut")
                                     {
                                         <span class="badge bg-secondary">
-                                            Checked Out
+                                            @T["Checked Out"]
                                         </span>
                                     }
                                     else if (Model.Status.ToString() == "Cancelled")
                                     {
                                         <span class="badge bg-danger">
-                                            Cancelled
+                                            @T["Cancelled"]
                                         </span>
                                     }
                                 </td>
@@ -151,7 +151,7 @@
                         <a asp-controller="Bookings"
                            asp-action="Find"
                            class="btn btn-outline-secondary">
-                            Search Another Booking
+                            @T["Search Another Booking"]
                         </a>
 
                         @if (Model.Status ==
@@ -161,7 +161,7 @@
                                     class="btn btn-danger"
                                     data-bs-toggle="collapse"
                                     data-bs-target="#cancelBookingForm">
-                                Cancel Booking
+                                @T["Cancel Booking"]
                             </button>
                         }
 
@@ -176,7 +176,7 @@
                                asp-route-confirmationCode="@Model.ConfirmationCode"
                                class="btn btn-primary">
                                 <i class="bi bi-pencil me-1"></i>
-                                Modify Booking
+                                @T["Modify Booking"]
                             </a>
                         }
 
@@ -190,7 +190,7 @@
                                asp-route-confirmationCode="@Model.ConfirmationCode"
                                class="btn btn-warning">
                                 <i class="bi bi-star-fill me-1"></i>
-                                Write a Review
+                                @T["Write a Review"]
                             </a>
                         }
 
@@ -198,7 +198,7 @@
                            asp-action="Details"
                            asp-route-id="@Model.RoomId"
                            class="btn btn-outline-primary">
-                            View Room
+                            @T["View Room"]
                         </a>
 
                         @if (Model.Status != HotelTravel.Domain.Enums.BookingStatus.Cancelled)
@@ -209,7 +209,7 @@
                                target="_blank"
                                class="btn btn-success">
                                 <i class="bi bi-qr-code"></i>
-                                Voucher
+                                @T["Voucher"]
                             </a>
 
                             <a asp-controller="Bookings"
@@ -217,7 +217,7 @@
                                asp-route-confirmationCode="@Model.ConfirmationCode"
                                class="btn btn-dark">
                                 <i class="bi bi-file-earmark-pdf"></i>
-                                PDF
+                                @T["PDF"]
                             </a>
                         }
 
@@ -229,7 +229,7 @@
                     {
                         <div class="alert alert-info mt-3 mb-0">
                             <i class="bi bi-check2-circle me-1"></i>
-                            Thank you! You have already reviewed this stay.
+                            @T["Thank you! You have already reviewed this stay."]
                         </div>
                     }
 
@@ -241,11 +241,10 @@
 
                             <div class="card card-body">
 
-                                <h5>Cancel Booking</h5>
+                                <h5>@T["Cancel Booking"]</h5>
 
                                 <p class="text-muted">
-                                    Enter the email address used when making
-                                    this reservation.
+                                    @T["Enter the email address used when making this reservation."]
                                 </p>
 
                                 <form asp-controller="Bookings"
@@ -262,7 +261,7 @@
                                     <div class="mb-3">
 
                                         <label class="form-label">
-                                            Email
+                                            @T["Email"]
                                         </label>
 
                                         <input type="email"
@@ -274,7 +273,7 @@
 
                                     <button type="submit"
                                             class="btn btn-danger">
-                                        Confirm Cancellation
+                                        @T["Confirm Cancellation"]
                                     </button>
 
                                 </form>
@@ -291,4 +290,4 @@
 
     </div>
 
-</div>
+</div>

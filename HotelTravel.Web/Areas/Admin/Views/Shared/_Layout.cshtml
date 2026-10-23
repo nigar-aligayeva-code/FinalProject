@@ -6,14 +6,27 @@
     // Canlı bildirişlər: brauzer API-dəki SignalR hub-a admin token-i ilə qoşulur
     var liveApiBase = (Config["Api:BaseUrl"] ?? "").TrimEnd('/');
     var liveToken = User.FindFirst(HotelTravel.Web.Services.AuthClaimTypes.AccessToken)?.Value ?? "";
+
+    // Seçilmiş interfeys dili (en / az / ru)
+    var uiLang = HotelTravel.Application.Services.LanguageRules.Normalize(
+        System.Globalization.CultureInfo.CurrentUICulture.Name);
+
+    // live-admin.js üçün tərcümələr
+    var adminTexts = new[]
+    {
+        "🔊 Sound on", "🔇 Sound off", "💬 Pop-ups on", "🚫 Pop-ups off", "Open", "click to open",
+        "reconnecting…", "live", "offline",
+        "New hotel booking", "Booking cancelled", "New flight booking", "New airport taxi",
+        "New car rental", "New trip package"
+    }.ToDictionary(k => k, k => T[k].Value);
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@uiLang">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] - @brand Admin</title>
+    <title>@(T[ViewData["Title"]?.ToString() ?? ""]) - @brand Admin</title>
 
     <style>
             * {
@@ -257,7 +270,7 @@
             @brand<span>.</span>
         </div>
 
-        <div class="menu-label">MAIN MENU</div>
+        <div class="menu-label">@T["MAIN MENU"]</div>
 
         <nav>
             <a asp-area="Admin"
@@ -265,7 +278,7 @@
                asp-action="Index"
                class="@(currentController == "Dashboard" ? "active" : "")">
                 <span class="menu-icon">▦</span>
-                <span class="menu-text">Dashboard</span>
+                <span class="menu-text">@T["Dashboard"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -273,7 +286,7 @@
                asp-action="Index"
                class="@(currentController == "Analytics" ? "active" : "")">
                 <span class="menu-icon">◔</span>
-                <span class="menu-text">Analytics</span>
+                <span class="menu-text">@T["Analytics"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -281,7 +294,7 @@
                asp-action="Index"
                class="@(currentController == "Emails" ? "active" : "")">
                 <span class="menu-icon">✉</span>
-                <span class="menu-text">Emails</span>
+                <span class="menu-text">@T["Emails"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -289,7 +302,7 @@
                asp-action="Index"
                class="@(currentController == "Hotels" ? "active" : "")">
                 <span class="menu-icon">⌂</span>
-                <span class="menu-text">Hotels</span>
+                <span class="menu-text">@T["Hotels"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -297,7 +310,7 @@
                asp-action="Index"
                class="@(currentController == "Rooms" ? "active" : "")">
                 <span class="menu-icon">▤</span>
-                <span class="menu-text">Rooms</span>
+                <span class="menu-text">@T["Rooms"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -305,7 +318,7 @@
                asp-action="Index"
                class="@(currentController == "Bookings" ? "active" : "")">
                 <span class="menu-icon">▣</span>
-                <span class="menu-text">Bookings</span>
+                <span class="menu-text">@T["Bookings"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -313,7 +326,7 @@
                asp-action="Index"
                class="@(currentController == "Reviews" ? "active" : "")">
                 <span class="menu-icon">★</span>
-                <span class="menu-text">Reviews</span>
+                <span class="menu-text">@T["Reviews"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -321,7 +334,7 @@
                asp-action="Index"
                class="@(currentController == "PromoCodes" ? "active" : "")">
                 <span class="menu-icon">%</span>
-                <span class="menu-text">Promo Codes</span>
+                <span class="menu-text">@T["Promo Codes"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -329,7 +342,7 @@
                asp-action="Index"
                class="@(currentController == "CityGuide" ? "active" : "")">
                 <span class="menu-icon">⌖</span>
-                <span class="menu-text">City Guide</span>
+                <span class="menu-text">@T["City Guide"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -337,7 +350,7 @@
                asp-action="Index"
                class="@(currentController == "Cars" ? "active" : "")">
                 <span class="menu-icon">⛟</span>
-                <span class="menu-text">Car Rental</span>
+                <span class="menu-text">@T["Car Rental"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -345,7 +358,7 @@
                asp-action="Index"
                class="@(currentController == "Taxis" ? "active" : "")">
                 <span class="menu-icon">✈</span>
-                <span class="menu-text">Airport Taxis</span>
+                <span class="menu-text">@T["Airport Taxis"]</span>
             </a>
 
             <a asp-area="Admin"
@@ -353,7 +366,7 @@
                asp-action="Index"
                class="@(currentController == "Flights" ? "active" : "")">
                 <span class="menu-icon">✦</span>
-                <span class="menu-text">Flights</span>
+                <span class="menu-text">@T["Flights"]</span>
             </a>
 
             <!-- Əsas sayta qayıt -->
@@ -362,7 +375,7 @@
                asp-action="Index"
                class="menu-site">
                 <span class="menu-icon">↗</span>
-                <span class="menu-text">View website</span>
+                <span class="menu-text">@T["View website"]</span>
             </a>
         </nav>
     </aside>
@@ -370,35 +383,47 @@
     <div class="main-area">
         <header class="topbar">
             <div class="topbar-title">
-                @ViewData["Title"]
+                @(T[ViewData["Title"]?.ToString() ?? ""])
             </div>
 
             <div class="topbar-actions">
                 <!-- CANLI BİLDİRİŞLƏR -->
                 <div class="live-bell" id="liveBell">
-                    <button type="button" class="topbar-btn" id="liveBellBtn" title="Live activity">
+                    <button type="button" class="topbar-btn" id="liveBellBtn" title="@T["Live activity"]">
                         <span id="liveBellIcon">🔔</span> <span class="live-count" id="liveCount" hidden>0</span>
                     </button>
                     <div class="live-panel" id="livePanel" hidden>
                         <div class="live-panel-head">
-                            <b>Live activity</b>
+                            <b>@T["Live activity"]</b>
                             <span class="live-status off" id="liveStatus">connecting…</span>
                         </div>
                         <div class="live-settings">
-                            <button type="button" class="live-toggle" id="liveSoundToggle">🔊 Sound on</button>
-                            <button type="button" class="live-toggle" id="livePopupToggle">💬 Pop-ups on</button>
+                            <button type="button" class="live-toggle" id="liveSoundToggle">@T["🔊 Sound on"]</button>
+                            <button type="button" class="live-toggle" id="livePopupToggle">@T["💬 Pop-ups on"]</button>
                         </div>
                         <div class="live-list" id="liveList">
-                            <div class="live-empty">New bookings will appear here instantly.</div>
+                            <div class="live-empty">@T["New bookings will appear here instantly."]</div>
                         </div>
                     </div>
+                </div>
+
+                <!-- DİL SEÇİMİ -->
+                <div class="admin-lang">
+                    @foreach (var lang in HotelTravel.Application.Services.LanguageRules.Languages)
+                    {
+                        <a asp-area="" asp-controller="Language" asp-action="Set"
+                           asp-route-culture="@lang.Code"
+                           asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"
+                           class="@(lang.Code == uiLang ? "active" : "")"
+                           title="@lang.Label">@lang.Code.ToUpperInvariant()</a>
+                    }
                 </div>
 
                 <a asp-area=""
                    asp-controller="Home"
                    asp-action="Index"
                    class="topbar-btn">
-                    ↗ View website
+                    @T["↗ View website"]
                 </a>
 
                 <form asp-area=""
@@ -406,17 +431,18 @@
                       asp-action="Logout"
                       method="post"
                       style="margin:0"
-                      onsubmit="return confirm('Are you sure you want to log out?');">
+                      onsubmit="return confirm(this.dataset.confirm);"
+                      data-confirm="@T["Are you sure you want to log out?"]">
                     <button type="submit" class="topbar-btn topbar-btn-danger">
-                        ⎋ Logout
+                        @T["⎋ Logout"]
                     </button>
                 </form>
 
             <div class="admin-profile">
                 <div>
-                    <strong>Administrator</strong>
+                    <strong>@T["Administrator"]</strong>
                     <div style="font-size:12px;color:#94a3b8;">
-                        Admin Panel
+                        @T["Admin Panel"]
                     </div>
                 </div>
                 <div class="avatar">A</div>
@@ -467,7 +493,14 @@
         @@keyframes liveRing { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-15deg); } 40% { transform: rotate(12deg); } 60% { transform: rotate(-8deg); } 80% { transform: rotate(5deg); } }
     </style>
 
+    <style>
+        .admin-lang { display: inline-flex; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+        .admin-lang a { padding: 7px 10px; font-size: 12px; font-weight: 700; color: #64748b; text-decoration: none; }
+        .admin-lang a:hover { background: #f1f5f9; }
+        .admin-lang a.active { background: #1F2421; color: #fff; }
+    </style>
     <script>
+        window.tripioAdminText = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(adminTexts));
         window.tripioLive = {
             apiBase: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(liveApiBase)),
             token: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(liveToken))

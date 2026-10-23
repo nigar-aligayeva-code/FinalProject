@@ -96,8 +96,8 @@
 </style>
 
 <div class="pc-heading">
-    <h1>Promo Codes</h1>
-    <p>Create discount codes guests can enter when booking.</p>
+    <h1>@T["Promo Codes"]</h1>
+    <p>@T["Create discount codes guests can enter when booking."]</p>
 </div>
 
 @if (TempData["SuccessMessage"] != null)
@@ -114,7 +114,7 @@
 
     <!-- CREATE -->
     <div class="pc-card">
-        <h2>New promo code</h2>
+        <h2>@T["New promo code"]</h2>
 
         <form asp-area="Admin"
               asp-controller="PromoCodes"
@@ -124,8 +124,8 @@
             <div asp-validation-summary="ModelOnly" class="pc-alert pc-alert-error"></div>
 
             <div class="pc-field">
-                <label asp-for="Code">Code</label>
-                <input asp-for="Code" placeholder="e.g. WELCOME10" style="text-transform:uppercase" />
+                <label asp-for="Code">@T["Code"]</label>
+                <input asp-for="Code" placeholder="@T["e.g. WELCOME10"]" style="text-transform:uppercase" />
                 <span asp-validation-for="Code" class="text-danger"></span>
             </div>
 
@@ -137,16 +137,16 @@
 
             <div class="pc-field">
                 <label asp-for="Description">Description (optional)</label>
-                <input asp-for="Description" placeholder="e.g. Welcome offer" />
+                <input asp-for="Description" placeholder="@T["e.g. Welcome offer"]" />
             </div>
 
             <div class="pc-row">
                 <div class="pc-field">
-                    <label asp-for="ValidFrom">Valid from</label>
+                    <label asp-for="ValidFrom">@T["Valid from"]</label>
                     <input asp-for="ValidFrom" type="date" />
                 </div>
                 <div class="pc-field">
-                    <label asp-for="ValidUntil">Valid until</label>
+                    <label asp-for="ValidUntil">@T["Valid until"]</label>
                     <input asp-for="ValidUntil" type="date" />
                 </div>
             </div>
@@ -157,13 +157,13 @@
                 <span asp-validation-for="MaxUses" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="pc-btn">Create code</button>
+            <button type="submit" class="pc-btn">@T["Create code"]</button>
         </form>
 
         <div class="pc-info">
-            <strong>Explorer reward:</strong> guests who completed a stay at one of
-            our hotels in another city automatically get 10% off.
-            Discounts don't stack — the bigger one is applied.
+            <strong>@T["Explorer reward:"]</strong> guests who completed a stay at one of
+            @T["our hotels in another city automatically get 10% off."]
+            @T["Discounts don't stack — the bigger one is applied."]
         </div>
     </div>
 
@@ -175,12 +175,12 @@
             <table class="pc-table">
                 <thead>
                     <tr>
-                        <th>Code</th>
-                        <th>Discount</th>
-                        <th>Valid</th>
-                        <th>Used</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th>@T["Code"]</th>
+                        <th>@T["Discount"]</th>
+                        <th>@T["Valid"]</th>
+                        <th>@T["Used"]</th>
+                        <th>@T["Status"]</th>
+                        <th>@T["Action"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -196,9 +196,9 @@
                             </td>
                             <td><strong>@promo.DiscountPercent%</strong></td>
                             <td>
-                                @(promo.ValidFrom?.ToString("dd MMM yyyy") ?? "Any time")
+                                @(promo.ValidFrom?.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture) ?? "Any time")
                                 &rarr;
-                                @(promo.ValidUntil?.ToString("dd MMM yyyy") ?? "No end")
+                                @(promo.ValidUntil?.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture) ?? "No end")
                             </td>
                             <td>
                                 @promo.UsedCount
@@ -220,7 +220,7 @@
                                           asp-route-id="@promo.Id"
                                           method="post">
                                         <button type="submit" class="pc-toggle">
-                                            @(promo.IsActive ? "Deactivate" : "Activate")
+                                            @(promo.IsActive ? T["Deactivate"] : T["Activate"])
                                         </button>
                                     </form>
 
@@ -230,7 +230,7 @@
                                           asp-route-id="@promo.Id"
                                           method="post"
                                           onsubmit="return confirm('Delete promo code @promo.Code?');">
-                                        <button type="submit" class="pc-delete">Delete</button>
+                                        <button type="submit" class="pc-delete">@T["Delete"]</button>
                                     </form>
                                 </div>
                             </td>
@@ -241,7 +241,7 @@
 
             @if (!promos.Any())
             {
-                <div class="pc-empty">No promo codes yet. Create your first one on the left.</div>
+                <div class="pc-empty">@T["No promo codes yet. Create your first one on the left."]</div>
             }
         </div>
     </div>

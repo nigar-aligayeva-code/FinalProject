@@ -1,4 +1,4 @@
-@model HotelTravel.Application.DTOs.Reviews.CreateReviewDto
+﻿@model HotelTravel.Application.DTOs.Reviews.CreateReviewDto
 
 @{
     ViewData["Title"] = "Write a Review";
@@ -84,18 +84,18 @@
 
                     <h1 class="review-title">
                         <i class="bi bi-chat-heart me-2" style="color:#C69B45"></i>
-                        How was your stay?
+                        @T["How was your stay?"]
                     </h1>
 
                     <p class="text-muted mb-0">
-                        Your feedback helps other guests choose the right room.
+                        @T["Your feedback helps other guests choose the right room."]
                     </p>
 
                     @if (eligibility != null)
                     {
                         <div class="review-stay">
                             <div>
-                                <strong>Room @eligibility.RoomNumber</strong>
+                                <strong>@T["Room {0}", eligibility.RoomNumber]</strong>
                                 &mdash; @eligibility.RoomName
                             </div>
                             <div class="small mt-1">
@@ -103,7 +103,7 @@
                                 &rarr;
                                 @eligibility.CheckOutDate.ToString("dd.MM.yyyy")
                                 <span class="mx-2">•</span>
-                                Booking @eligibility.ConfirmationCode
+                                @T["Booking"] @eligibility.ConfirmationCode
                             </div>
                         </div>
                     }
@@ -120,7 +120,7 @@
                         <!-- RATING -->
                         <div class="mb-4">
                             <label class="form-label d-block fw-semibold">
-                                Your rating
+                                @T["Your rating"]
                             </label>
 
                             <div class="star-picker">
@@ -133,7 +133,7 @@
                                            @(Model.Rating == star ? "checked" : "") />
 
                                     <label for="star@(star)"
-                                           title="@star star@(star > 1 ? "s" : "")">
+                                           title="@T.Plural(star, "star", "stars")">
                                         <i class="bi bi-star-fill"></i>
                                     </label>
                                 }
@@ -147,14 +147,14 @@
                         <div class="mb-4">
                             <label asp-for="Comment"
                                    class="form-label fw-semibold">
-                                Your review
+                                @T["Your review"]
                             </label>
 
                             <textarea asp-for="Comment"
                                       class="form-control"
                                       rows="5"
                                       maxlength="1000"
-                                      placeholder="Tell us about the room, cleanliness, comfort, service..."></textarea>
+                                      placeholder="@T["Tell us about the room, cleanliness, comfort, service..."]"></textarea>
 
                             <span asp-validation-for="Comment"
                                   class="text-danger small"></span>
@@ -164,17 +164,17 @@
                         <div class="mb-4">
                             <label asp-for="Email"
                                    class="form-label fw-semibold">
-                                Booking email
+                                @T["Booking email"]
                             </label>
 
                             <input asp-for="Email"
                                    type="email"
                                    class="form-control"
-                                   placeholder="The email used for this reservation" />
+                                   placeholder="@T["The email used for this reservation"]" />
 
                             <div class="form-text">
-                                We use it only to confirm that this booking is yours.
-                                It will not be shown publicly.
+                                @T["We use it only to confirm that this booking is yours."]
+                                @T["It will not be shown publicly."]
                             </div>
 
                             <span asp-validation-for="Email"
@@ -184,14 +184,14 @@
                         <div class="d-flex gap-2">
                             <button type="submit" class="review-btn">
                                 <i class="bi bi-send me-1"></i>
-                                Submit Review
+                                @T["Submit Review"]
                             </button>
 
                             <a asp-controller="Bookings"
                                asp-action="Find"
                                asp-route-confirmationCode="@Model.ConfirmationCode"
                                class="btn btn-outline-secondary rounded-pill px-4">
-                                Cancel
+                                @T["Cancel"]
                             </a>
                         </div>
                     </form>

@@ -450,7 +450,7 @@
         <div class="mb-4">
             <div class="room-eyebrow">
                 <i class="bi bi-stars me-1"></i>
-                Premium Accommodation
+                @T["Premium Accommodation"]
             </div>
 
             <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
@@ -460,10 +460,10 @@
                 <button type="button"
                         class="hh-save hh-save-inline @(isSaved ? "saved" : "")"
                         data-room-id="@Model.Id"
-                        aria-label="Save room"
+                        aria-label="@T["Save room"]"
                         aria-pressed="@(isSaved ? "true" : "false")">
                     <i class="bi @(isSaved ? "bi-heart-fill" : "bi-heart")"></i>
-                    <span class="hh-save-text">@(isSaved ? "Saved" : "Save")</span>
+                    <span class="hh-save-text">@(isSaved ? T["Saved"] : T["Save"])</span>
                 </button>
 
                 <button type="button"
@@ -473,16 +473,16 @@
                         data-compare-img="@Model.MainImage"
                         aria-pressed="false">
                     <i class="bi bi-layout-three-columns"></i>
-                    <span class="cmp-toggle-text">Compare</span>
+                    <span class="cmp-toggle-text">@T["Compare"]</span>
                 </button>
                 </div>
             </div>
 
             <p class="room-subtitle">
                 <i class="bi bi-geo-alt me-1"></i>
-                Room @Model.RoomNumber
+                @T["Room {0}", Model.RoomNumber]
                 <span class="mx-2">•</span>
-                @Model.RoomType
+                @T.Enum(Model.RoomType)
                 <span class="mx-2">•</span>
                 Up to @Model.Capacity guests
 
@@ -493,7 +493,7 @@
                         <i class="bi bi-star-fill"></i>
                         @Model.AverageRating.ToString("0.0")
                         <span class="text-muted fw-normal">
-                            (@Model.ReviewCount review@(Model.ReviewCount > 1 ? "s" : ""))
+                            (@T.Plural(Model.ReviewCount, "review", "reviews"))
                         </span>
                     </a>
                 }
@@ -530,7 +530,7 @@
                     {
                         <div class="gallery-placeholder">
                             <i class="bi bi-image"></i>
-                            No images available
+                            @T["No images available"]
                         </div>
                     }
                 </div>
@@ -559,7 +559,7 @@
                 {
                     <div class="gallery-empty">
                         <i class="bi bi-images fs-3 d-block mb-2"></i>
-                        No additional gallery images.
+                        @T["No additional gallery images."]
                     </div>
                 }
             </div>
@@ -569,7 +569,7 @@
         <div class="room-panel">
 
             <h2 class="section-heading">
-                Room Information
+                @T["Room Information"]
             </h2>
 
             <div class="row gx-5">
@@ -580,7 +580,7 @@
                             <i class="bi bi-door-open"></i>
                         </div>
                         <div>
-                            <span class="detail-label">Room Number</span>
+                            <span class="detail-label">@T["Room Number"]</span>
                             <span class="detail-value">@Model.RoomNumber</span>
                         </div>
                     </div>
@@ -590,8 +590,8 @@
                             <i class="bi bi-house-door"></i>
                         </div>
                         <div>
-                            <span class="detail-label">Room Type</span>
-                            <span class="detail-value">@Model.RoomType</span>
+                            <span class="detail-label">@T["Room Type"]</span>
+                            <span class="detail-value">@T.Enum(Model.RoomType)</span>
                         </div>
                     </div>
 
@@ -600,7 +600,7 @@
                             <i class="bi bi-people"></i>
                         </div>
                         <div>
-                            <span class="detail-label">Capacity</span>
+                            <span class="detail-label">@T["Capacity"]</span>
                             <span class="detail-value">
                                 @Model.Capacity guests
                             </span>
@@ -614,7 +614,7 @@
                             <i class="bi bi-cash-coin"></i>
                         </div>
                         <div>
-                            <span class="detail-label">Price Per Night</span>
+                            <span class="detail-label">@T["Price Per Night"]</span>
                             <span class="detail-value">
                                 @Model.PricePerNight.ToString("0.00") AZN
                             </span>
@@ -626,9 +626,9 @@
                             <i class="bi bi-building"></i>
                         </div>
                         <div>
-                            <span class="detail-label">Hotel Reference</span>
+                            <span class="detail-label">@T["Hotel Reference"]</span>
                             <span class="detail-value">
-                                Hotel #@Model.HotelId
+                                @(Model.HotelName ?? "#" + Model.HotelId)
                             </span>
                         </div>
                     </div>
@@ -641,13 +641,13 @@
             <h2 class="section-heading">
                 <i class="bi bi-card-text me-2"
                    style="color:#C69B45"></i>
-                About This Room
+                @T["About This Room"]
             </h2>
 
             <p class="room-description">
                 @(!string.IsNullOrWhiteSpace(Model.Description)
                     ? Model.Description
-                    : "No description available for this room.")
+                    : T["No description available for this room."].Value)
             </p>
         </div>
 
@@ -656,7 +656,7 @@
             <h2 class="section-heading">
                 <i class="bi bi-check2-circle me-2"
                    style="color:#C69B45"></i>
-                Room Amenities
+                @T["Room Amenities"]
             </h2>
 
             @if (Model.AmenityNames != null && Model.AmenityNames.Any())
@@ -709,7 +709,7 @@
             else
             {
                 <p class="room-description">
-                    No amenities available.
+                    @T["No amenities available."]
                 </p>
             }
         </div>
@@ -723,10 +723,10 @@
                         <h3>
                             <i class="bi bi-badge-3d me-2"
                                style="color:#C69B45"></i>
-                            Explore in 360°
+                            @T["Explore in 360°"]
                         </h3>
                         <p class="mb-0">
-                            Look around the room with an interactive panoramic view.
+                            @T["Look around the room with an interactive panoramic view."]
                         </p>
                     </div>
 
@@ -734,7 +734,7 @@
                             id="toggleRoomPanorama"
                             class="room-btn room-btn-gold">
                         <i class="bi bi-arrows-fullscreen"></i>
-                        <span>360° Room View</span>
+                        <span>@T["360° Room View"]</span>
                     </button>
                 </div>
 
@@ -750,7 +750,7 @@
             <h2 class="section-heading">
                 <i class="bi bi-chat-quote me-2"
                    style="color:#C69B45"></i>
-                Guest Reviews
+                @T["Guest Reviews"]
             </h2>
 
             @if (ratingSummary != null && ratingSummary.ReviewCount > 0)
@@ -772,7 +772,7 @@
                             }
                         </div>
                         <div class="small text-muted">
-                            @ratingSummary.ReviewCount review@(ratingSummary.ReviewCount > 1 ? "s" : "")
+                            @T.Plural(ratingSummary.ReviewCount, "review", "reviews")
                         </div>
                     </div>
 
@@ -812,9 +812,9 @@
                             </div>
 
                             <span class="review-date">
-                                Stayed @review.CheckInDate.ToString("MMM yyyy")
+                                @T["Stayed"] @review.CheckInDate.ToString("MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                                 <span class="mx-1">•</span>
-                                @review.CreatedAt.ToString("dd MMM yyyy")
+                                @review.CreatedAt.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
                             </span>
                         </div>
 
@@ -827,8 +827,7 @@
             else
             {
                 <p class="room-description mb-0">
-                    No reviews yet. Guests can leave a review after their stay
-                    is completed.
+                    @T["No reviews yet. Guests can leave a review after their stay is completed."]
                 </p>
             }
         </div>
@@ -850,14 +849,14 @@
                     <a asp-action="Index"
                        class="room-btn room-btn-outline">
                         <i class="bi bi-arrow-left"></i>
-                        Back to Rooms
+                        @T["Back to Rooms"]
                     </a>
 
                     <a asp-action="Edit"
                        asp-route-id="@Model.Id"
                        class="room-btn room-btn-gold">
                         <i class="bi bi-pencil-square"></i>
-                        Edit Room
+                        @T["Edit Room"]
                     </a>
                 }
                 else
@@ -876,7 +875,7 @@
                            asp-route-childrenCount="@ViewBag.ChildrenCount"
                            class="room-btn room-btn-gold">
                             <i class="bi bi-calendar-check"></i>
-                            Book Now
+                            @T["Book Now"]
                         </a>
                     }
                     else
@@ -886,14 +885,14 @@
                            asp-route-roomId="@Model.Id"
                            class="room-btn room-btn-gold">
                             <i class="bi bi-calendar-check"></i>
-                            Book Now
+                            @T["Book Now"]
                         </a>
                     }
 
                     <a asp-action="Search"
                        class="room-btn room-btn-outline">
                         <i class="bi bi-arrow-left"></i>
-                        Back to Search
+                        @T["Back to Search"]
                     </a>
                 }
             </div>
@@ -912,19 +911,19 @@
         <div class="modal-content bg-dark border-0">
             <div class="modal-header border-0">
                 <h5 class="modal-title text-white">
-                    Room Photo
+                    @T["Room Photo"]
                 </h5>
 
                 <button type="button"
                         class="btn-close btn-close-white"
                         data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                        aria-label="@T["Close"]"></button>
             </div>
 
             <div class="modal-body text-center">
                 <img id="roomModalImage"
                      src=""
-                     alt="Room photo preview"
+                     alt="@T["Room Photo"]"
                      class="img-fluid rounded"
                      style="max-height:75vh;object-fit:contain;" />
             </div>
@@ -988,7 +987,7 @@
                 const isOpen = panoramaContainer.classList.contains("open");
 
                 panoramaButton.querySelector("span").textContent =
-                    isOpen ? "Hide 360° View" : "360° Room View";
+                    isOpen ? @Json.Serialize(T["Hide 360° View"].Value) : @Json.Serialize(T["360° Room View"].Value);
 
                 if (isOpen && !panoramaInitialized && window.pannellum) {
                     panoramaViewer = pannellum.viewer("roomPanoramaViewer", {

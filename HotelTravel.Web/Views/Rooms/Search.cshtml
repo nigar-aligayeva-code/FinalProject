@@ -11,7 +11,7 @@
 
 <div class="container mt-5 mb-5">
 
-    <h2 class="mb-4">Search Available Rooms</h2>
+    <h2 class="mb-4">@T["Search Available Rooms"]</h2>
 
     <form asp-controller="Rooms"
           asp-action="Search"
@@ -27,14 +27,14 @@
         <div class="mb-3">
 
             <label class="form-label">
-                Check-in Date
+                @T["Check-in Date"]
             </label>
 
             <input asp-for="CheckInDate"
                    type="text"
                    id="checkInDate"
                    class="form-control"
-                   placeholder="Select check-in date"
+                   placeholder="@T["Select check-in date"]"
                    autocomplete="off" />
 
             <span asp-validation-for="CheckInDate"
@@ -45,12 +45,12 @@
 
                 <div class="calendar-info-item">
                     <span class="past-date-example"></span>
-                    Past date
+                    @T["Past date"]
                 </div>
 
                 <div class="calendar-info-item">
                     <span class="fully-booked-example"></span>
-                    Fully booked
+                    @T["Fully booked"]
                 </div>
 
             </div>
@@ -61,14 +61,14 @@
         <div class="mb-3">
 
             <label class="form-label">
-                Check-out Date
+                @T["Check-out Date"]
             </label>
 
             <input asp-for="CheckOutDate"
                    type="text"
                    id="checkOutDate"
                    class="form-control"
-                   placeholder="Select check-out date"
+                   placeholder="@T["Select check-out date"]"
                    autocomplete="off" />
 
             <span asp-validation-for="CheckOutDate"
@@ -82,16 +82,16 @@
 
             <label asp-for="AdultCount"
                    class="form-label">
-                Adults
+                @T["Adults"]
             </label>
 
             <select asp-for="AdultCount"
                     class="form-control">
 
-                <option value="1">1 Adult</option>
-                <option value="2">2 Adults</option>
-                <option value="3">3 Adults</option>
-                <option value="4">4 Adults</option>
+                <option value="1">@T["1 Adult"]</option>
+                <option value="2">@T["2 Adults"]</option>
+                <option value="3">@T["3 Adults"]</option>
+                <option value="4">@T["4 Adults"]</option>
 
             </select>
 
@@ -102,17 +102,17 @@
 
             <label asp-for="ChildrenCount"
                    class="form-label">
-                Children
+                @T["Children"]
             </label>
 
             <select asp-for="ChildrenCount"
                     class="form-control">
 
-                <option value="0">0 Children</option>
-                <option value="1">1 Child</option>
-                <option value="2">2 Children</option>
-                <option value="3">3 Children</option>
-                <option value="4">4 Children</option>
+                <option value="0">@T["0 Children"]</option>
+                <option value="1">@T["1 Child"]</option>
+                <option value="2">@T["2 Children"]</option>
+                <option value="3">@T["3 Children"]</option>
+                <option value="4">@T["4 Children"]</option>
 
             </select>
 
@@ -120,7 +120,7 @@
 
         <button type="submit"
                 class="btn btn-primary">
-            Search Rooms
+            @T["Search Rooms"]
         </button>
 
     </form>

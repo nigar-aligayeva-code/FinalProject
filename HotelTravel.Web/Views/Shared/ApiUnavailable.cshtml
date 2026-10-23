@@ -1,11 +1,11 @@
-@{
+﻿@{
     ViewData["Title"] = "Service unavailable";
 }
 
 <section class="hh-hero hh-hero-small">
     <div class="container">
-        <h1><i class="bi bi-plug me-2"></i>We can't reach our server</h1>
-        <p>The booking service is temporarily unavailable.</p>
+        <h1><i class="bi bi-plug me-2"></i>@T["We can't reach our server"]</h1>
+        <p>@T["The booking service is temporarily unavailable."]</p>
     </div>
 </section>
 
@@ -20,10 +20,10 @@
 
         <p class="small text-muted mb-4">
             Developer tip: start both projects (HotelTravel.API and HotelTravel.Web).
-            In Visual Studio: right-click the solution → Configure Startup Projects → Multiple startup projects.
+            @T["In Visual Studio: right-click the solution → Configure Startup Projects → Multiple startup projects."]
         </p>
 
-        <button type="button" class="hh-btn hh-btn-primary" onclick="location.reload()">Try again now</button>
+        <button type="button" class="hh-btn hh-btn-primary" onclick="location.reload()">@T["Try again now"]</button>
     </div>
 </div>
 

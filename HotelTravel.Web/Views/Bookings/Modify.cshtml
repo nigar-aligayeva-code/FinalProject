@@ -20,7 +20,7 @@
             <div class="card shadow-sm">
 
                 <div class="card-header">
-                    <h3 class="mb-0">Modify Booking</h3>
+                    <h3 class="mb-0">@T["Modify Booking"]</h3>
                 </div>
 
                 <div class="card-body">
@@ -31,10 +31,10 @@
                             <div>
                                 <strong>@booking.ConfirmationCode</strong>
                                 <span class="mx-2">•</span>
-                                Room @booking.RoomNumber - @booking.RoomName
+                                @T["Room {0}", booking.RoomNumber] - @booking.RoomName
                             </div>
                             <div class="small text-muted mt-1">
-                                Current stay:
+                                @T["Current stay:"]
                                 @booking.CheckInDate.ToString("dd.MM.yyyy")
                                 &rarr;
                                 @booking.CheckOutDate.ToString("dd.MM.yyyy")
@@ -57,7 +57,7 @@
 
                             <div class="col-md-6">
                                 <label asp-for="CheckInDate" class="form-label">
-                                    Check-in
+                                    @T["Check-in"]
                                 </label>
                                 <input asp-for="CheckInDate"
                                        type="date"
@@ -69,7 +69,7 @@
 
                             <div class="col-md-6">
                                 <label asp-for="CheckOutDate" class="form-label">
-                                    Check-out
+                                    @T["Check-out"]
                                 </label>
                                 <input asp-for="CheckOutDate"
                                        type="date"
@@ -81,7 +81,7 @@
 
                             <div class="col-md-6">
                                 <label asp-for="AdultCount" class="form-label">
-                                    Adults
+                                    @T["Adults"]
                                 </label>
                                 <input asp-for="AdultCount"
                                        type="number"
@@ -94,7 +94,7 @@
 
                             <div class="col-md-6">
                                 <label asp-for="ChildrenCount" class="form-label">
-                                    Children
+                                    @T["Children"]
                                 </label>
                                 <input asp-for="ChildrenCount"
                                        type="number"
@@ -107,8 +107,8 @@
 
                             <div class="col-12">
                                 <div class="form-text">
-                                    This room allows up to @capacity guests.
-                                    Price per night: @pricePerNight.ToString("0.00") AZN.
+                                    @T["This room allows up to {0} guests.", capacity]
+                                    @T["Price per night"]: @pricePerNight.ToString("0.00") AZN.
                                 </div>
                             </div>
 
@@ -116,15 +116,15 @@
                             {
                                 <div class="col-12">
                                     <label asp-for="Email" class="form-label">
-                                        Booking email
+                                        @T["Booking email"]
                                     </label>
                                     <input asp-for="Email"
                                            type="email"
                                            class="form-control"
-                                           placeholder="The email used for this reservation"
+                                           placeholder="@T["The email used for this reservation"]"
                                            required />
                                     <div class="form-text">
-                                        Needed to confirm that this booking is yours.
+                                        @T["Needed to confirm that this booking is yours."]
                                     </div>
                                     <span asp-validation-for="Email"
                                           class="text-danger small"></span>
@@ -136,11 +136,11 @@
                         <!-- F6 - Yeni qiymətin ilkin hesablanması -->
                         <div class="alert alert-info mt-4 mb-0 d-flex justify-content-between">
                             <span>
-                                New total
+                                @T["New total"]
                                 (<span id="nightCount">0</span> nights)
                                 @if ((booking?.DiscountPercent ?? 0) > 0)
                                 {
-                                    <span class="small">· your -@(booking!.DiscountPercent)% discount is kept</span>
+                                    <span class="small">· @T["your -{0}% discount is kept", booking!.DiscountPercent]</span>
                                 }
                             </span>
                             <strong>
@@ -150,14 +150,14 @@
 
                         <div class="d-flex gap-2 mt-4">
                             <button type="submit" class="btn btn-primary">
-                                Save Changes
+                                @T["Save Changes"]
                             </button>
 
                             <a asp-controller="Bookings"
                                asp-action="Find"
                                asp-route-confirmationCode="@Model.ConfirmationCode"
                                class="btn btn-outline-secondary">
-                                Back
+                                @T["Back"]
                             </a>
                         </div>
                     </form>
