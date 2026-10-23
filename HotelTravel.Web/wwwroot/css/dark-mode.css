@@ -1,0 +1,59 @@
+/* =========================================================
+   DARK MODE
+   Səhifənin rəngləri tərsinə çevrilir (invert + hue-rotate),
+   şəkillər, xəritə və emojilər isə ikinci dəfə çevrilərək
+   öz təbii rəngində qalır. Seçim: <html data-theme="dark">
+   ========================================================= */
+
+html[data-theme="dark"] {
+    filter: invert(0.92) hue-rotate(180deg);
+    background: #fff;
+}
+
+/* Təbii rəngdə qalmalı olanlar */
+html[data-theme="dark"] img,
+html[data-theme="dark"] picture,
+html[data-theme="dark"] video,
+html[data-theme="dark"] iframe,
+html[data-theme="dark"] canvas,
+html[data-theme="dark"] svg:not(.bi),
+html[data-theme="dark"] .leaflet-container,
+html[data-theme="dark"] .wx-icon,
+html[data-theme="dark"] .la-icon,
+html[data-theme="dark"] .no-dark-invert {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* Xəritənin içindəki şəkillər (kafellər) yenidən çevrilməsin */
+html[data-theme="dark"] .leaflet-container img {
+    filter: none;
+}
+
+/* Kölgələr qaranlıqda yumşaq görünsün */
+html[data-theme="dark"] * {
+    text-shadow: none !important;
+}
+
+/* Keçid zamanı yumşaq dəyişmə */
+html.theme-transition,
+html.theme-transition * {
+    transition: background-color .25s ease, color .25s ease, filter .25s ease !important;
+}
+
+/* Header-dəki düymə */
+.hh-theme-toggle {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, .25);
+    color: #fff;
+    border-radius: 6px;
+    width: 38px;
+    height: 36px;
+    display: inline-grid;
+    place-items: center;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.hh-theme-toggle:hover {
+    background: rgba(255, 255, 255, .1);
+}
