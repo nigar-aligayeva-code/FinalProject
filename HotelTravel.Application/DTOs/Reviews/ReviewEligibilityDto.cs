@@ -12,6 +12,7 @@ public class ReviewEligibilityDto
     public int RoomId { get; set; }
     public string RoomName { get; set; } = string.Empty;
     public string RoomNumber { get; set; } = string.Empty;
+    public string HotelName { get; set; } = string.Empty;
 
     public DateTime CheckInDate { get; set; }
     public DateTime CheckOutDate { get; set; }

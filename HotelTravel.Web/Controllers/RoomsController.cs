@@ -106,12 +106,13 @@ public class RoomsController : Controller
     // =========================
     [Authorize(Roles = "Admin")]
     [HttpGet]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(int? hotelId)
     {
-        await LoadHotelsAsync();
+        await LoadHotelsAsync(hotelId);
         await LoadAmenitiesAsync();
 
-        return View();
+        // Admin "otelə otaq əlavə et" ilə gəlibsə otel artıq seçilib
+        return View(hotelId is int id ? new CreateRoomDto { HotelId = id } : null);
     }
 
 
@@ -161,7 +162,9 @@ public class RoomsController : Controller
 
         await _roomService.CreateAsync(dto);
 
-        return RedirectToAction(nameof(Index));
+        // Otaq yaradıldıqdan sonra admin paneldə həmin otelin səhifəsinə qayıdırıq
+        TempData["SuccessMessage"] = "Room created.";
+        return RedirectToAction("Edit", "Hotels", new { area = "Admin", id = dto.HotelId });
     }
 
 
@@ -881,4 +884,4 @@ public class RoomsController : Controller
                     d.ToString("yyyy-MM-dd"))
                 .ToList();
     }
-}
+}

@@ -217,12 +217,13 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             TempData["Success"] =
                 "Room and images updated successfully.";
 
-            return RedirectToAction(nameof(Index));
+            // Otel və otaqlar bir yerdə: redaktədən sonra otelin səhifəsinə qayıdırıq
+            return RedirectToAction("Edit", "Hotels", new { id = dto.HotelId });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string? returnUrl = null)
         {
             var deleted = await _roomService.DeleteAsync(id);
 
@@ -231,6 +232,10 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
 
             TempData["Success"] =
                 "Room deleted successfully.";
+
+            // Otelin səhifəsindən silinibsə ora qayıt
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return LocalRedirect(returnUrl);
 
             return RedirectToAction(nameof(Index));
         }

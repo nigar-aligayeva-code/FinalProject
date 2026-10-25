@@ -40,6 +40,12 @@ public class ReviewApiService : IReviewService
     public Task<RoomRatingSummaryDto> GetRoomSummaryAsync(int roomId)
         => _api.GetAsync<RoomRatingSummaryDto>($"api/reviews/room/{roomId}/summary");
 
+    public Task<List<GetReviewDto>> GetByHotelIdAsync(int hotelId)
+        => _api.GetAsync<List<GetReviewDto>>($"api/reviews/hotel/{hotelId}");
+
+    public Task<HotelRatingSummaryDto> GetHotelSummaryAsync(int hotelId)
+        => _api.GetAsync<HotelRatingSummaryDto>($"api/reviews/hotel/{hotelId}/summary");
+
     public Task<List<GetReviewDto>> GetAllAsync()
         => _api.GetAsync<List<GetReviewDto>>("api/reviews");
 

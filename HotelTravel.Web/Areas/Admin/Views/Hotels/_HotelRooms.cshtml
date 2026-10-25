@@ -1,0 +1,85 @@
+@model (int HotelId, List<HotelTravel.Application.DTOs.Rooms.GetRoomDto> Rooms)
+@*
+    Bir otelin otaqları: admin otellər siyahısında (açılan sətir) və otel redaktə səhifəsində.
+    Otaq əlavə etmək, redaktə etmək və silmək buradan edilir — otel və otaqlar bir yerdə.
+*@
+
+<div class="hr-admin">
+    <div class="hr-admin-head">
+        <strong>🛏 @T["Rooms in this hotel"] (@Model.Rooms.Count)</strong>
+
+        <a asp-area="" asp-controller="Rooms" asp-action="Create" asp-route-hotelId="@Model.HotelId" class="hr-admin-add">
+            @T["+ Add room"]
+        </a>
+    </div>
+
+    @if (!Model.Rooms.Any())
+    {
+        <p class="hr-admin-empty">@T["This hotel has no rooms yet."]</p>
+    }
+    else
+    {
+        <table class="hr-admin-table">
+            <thead>
+                <tr>
+                    <th>@T["Room"]</th>
+                    <th>@T["Type"]</th>
+                    <th>@T["Guests"]</th>
+                    <th>@T["Price / Night"]</th>
+                    <th>@T["Rating"]</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var room in Model.Rooms)
+                {
+                    <tr>
+                        <td>
+                            <div class="hr-admin-room">
+                                @if (!string.IsNullOrWhiteSpace(room.MainImage))
+                                {
+                                    <img src="@room.MainImage" alt="" onerror="this.style.visibility='hidden'" />
+                                }
+                                <div>
+                                    <b>@room.Name</b>
+                                    <small>#@room.RoomNumber</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@T.Enum(room.RoomType)</td>
+                        <td>@room.Capacity</td>
+                        <td>@room.PricePerNight.ToString("0.00") AZN</td>
+                        <td>@(room.ReviewCount > 0 ? $"★ {room.AverageRating:0.0} ({room.ReviewCount})" : "—")</td>
+                        <td class="hr-admin-actions">
+                            <a asp-area="Admin" asp-controller="Rooms" asp-action="Edit" asp-route-id="@room.Id">@T["Edit"]</a>
+                            <a asp-area="" asp-controller="Rooms" asp-action="Details" asp-route-id="@room.Id" target="_blank">@T["View"] ↗</a>
+                            <form asp-area="Admin" asp-controller="Rooms" asp-action="Delete" asp-route-id="@room.Id" method="post"
+                                  onsubmit="return confirm(this.dataset.confirm);" data-confirm="@T["Delete Room?"] @room.Name">
+                                <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                <button type="submit" class="danger">@T["Delete"]</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<style>
+    .hr-admin { display: grid; gap: 10px; }
+    .hr-admin-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .hr-admin-add { background: #1F2421; color: #fff; padding: 7px 14px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; }
+    .hr-admin-add:hover { background: #52614e; color: #fff; }
+    .hr-admin-empty { color: #64748b; margin: 0; }
+    .hr-admin-table { width: 100%; border-collapse: collapse; font-size: 14px; background: #fff; border-radius: 10px; overflow: hidden; }
+    .hr-admin-table th { text-align: left; font-size: 12px; text-transform: uppercase; color: #64748b; padding: 8px 10px; background: #f1f5f9; }
+    .hr-admin-table td { padding: 8px 10px; border-top: 1px solid #e2e8f0; vertical-align: middle; }
+    .hr-admin-room { display: flex; align-items: center; gap: 10px; }
+    .hr-admin-room img { width: 48px; height: 36px; object-fit: cover; border-radius: 6px; }
+    .hr-admin-room small { display: block; color: #64748b; }
+    .hr-admin-actions { white-space: nowrap; text-align: right; }
+    .hr-admin-actions a { margin-left: 10px; font-weight: 600; color: #2563eb; text-decoration: none; }
+    .hr-admin-actions form { display: inline; }
+    .hr-admin-actions button.danger { margin-left: 10px; border: 0; background: none; padding: 0; font-weight: 600; color: #dc2626; cursor: pointer; }
+</style>

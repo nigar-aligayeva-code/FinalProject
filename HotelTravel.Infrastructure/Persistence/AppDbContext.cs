@@ -364,10 +364,19 @@ public class AppDbContext
                 .HasMaxLength(1000)
                 .IsRequired();
 
+            entity.Property(r => r.HotelComment)
+                .HasMaxLength(1000);
+
             entity.ToTable(t =>
+            {
                 t.HasCheckConstraint(
                     "CK_Reviews_Rating",
-                    "[Rating] BETWEEN 1 AND 5"));
+                    "[Rating] BETWEEN 1 AND 5");
+
+                t.HasCheckConstraint(
+                    "CK_Reviews_HotelRating",
+                    "[HotelRating] IS NULL OR [HotelRating] BETWEEN 1 AND 5");
+            });
         });
     }
 }

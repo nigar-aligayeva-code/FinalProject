@@ -44,6 +44,7 @@ public class ReviewService : IReviewService
                 b.RoomId,
                 RoomName = b.Room.Name,
                 RoomNumber = b.Room.RoomNumber,
+                HotelName = b.Room.Hotel.Name,
                 b.CheckInDate,
                 b.CheckOutDate,
                 HasReview = b.Review != null
@@ -65,6 +66,7 @@ public class ReviewService : IReviewService
             RoomId = booking.RoomId,
             RoomName = booking.RoomName,
             RoomNumber = booking.RoomNumber,
+            HotelName = booking.HotelName,
             CheckInDate = booking.CheckInDate,
             CheckOutDate = booking.CheckOutDate
         };
@@ -103,6 +105,9 @@ public class ReviewService : IReviewService
 
         if (string.IsNullOrWhiteSpace(dto.Comment))
             return (false, "Please write a comment.", null);
+
+        if (dto.HotelRating is < 1 or > 5)
+            return (false, "Rating must be between 1 and 5.", null);
 
         if (string.IsNullOrWhiteSpace(dto.ConfirmationCode) ||
             string.IsNullOrWhiteSpace(dto.Email))
@@ -153,6 +158,13 @@ public class ReviewService : IReviewService
             Comment = dto.Comment.Trim(),
             BookingId = booking.Id,
             RoomId = booking.RoomId,
+
+            // Otel rəyi istəyə bağlıdır: ulduz verilməyibsə şərh də saxlanmır
+            HotelRating = dto.HotelRating,
+            HotelComment = dto.HotelRating is null || string.IsNullOrWhiteSpace(dto.HotelComment)
+                ? null
+                : dto.HotelComment.Trim(),
+
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             IsDeleted = false
@@ -226,6 +238,55 @@ public class ReviewService : IReviewService
 
 
     // =========================
+    // HOTEL REVIEWS (otelə qiymət verilmiş rəylər)
+    // =========================
+    public async Task<List<GetReviewDto>> GetByHotelIdAsync(int hotelId)
+    {
+        return await ProjectReviews(
+                _context.Reviews.Where(r =>
+                    !r.IsDeleted &&
+                    r.Room.HotelId == hotelId &&
+                    r.HotelRating != null))
+            .ToListAsync();
+    }
+
+
+    // =========================
+    // HOTEL RATING SUMMARY
+    // =========================
+    public async Task<HotelRatingSummaryDto> GetHotelSummaryAsync(int hotelId)
+    {
+        var reviews = await _context.Reviews
+            .Where(r =>
+                !r.IsDeleted &&
+                r.Room.HotelId == hotelId)
+            .Select(r => new { r.Rating, r.HotelRating })
+            .ToListAsync();
+
+        var hotelRatings = reviews
+            .Where(r => r.HotelRating != null)
+            .Select(r => r.HotelRating!.Value)
+            .ToList();
+
+        var summary = new HotelRatingSummaryDto
+        {
+            HotelId = hotelId,
+            ReviewCount = hotelRatings.Count,
+            AverageRating = hotelRatings.Count == 0 ? 0 : Math.Round(hotelRatings.Average(), 1),
+            RoomReviewCount = reviews.Count,
+            RoomAverageRating = reviews.Count == 0 ? 0 : Math.Round(reviews.Average(r => r.Rating), 1)
+        };
+
+        for (int star = 5; star >= 1; star--)
+        {
+            summary.StarCounts[star] = hotelRatings.Count(r => r == star);
+        }
+
+        return summary;
+    }
+
+
+    // =========================
     // ADMIN - ALL REVIEWS
     // =========================
     public async Task<List<GetReviewDto>> GetAllAsync()
@@ -285,7 +346,12 @@ public class ReviewService : IReviewService
                 ConfirmationCode = r.Booking.ConfirmationCode,
 
                 CheckInDate = r.Booking.CheckInDate,
-                CheckOutDate = r.Booking.CheckOutDate
+                CheckOutDate = r.Booking.CheckOutDate,
+
+                HotelId = r.Room.HotelId,
+                HotelName = r.Room.Hotel.Name,
+                HotelRating = r.HotelRating,
+                HotelComment = r.HotelComment
             });
     }
 }

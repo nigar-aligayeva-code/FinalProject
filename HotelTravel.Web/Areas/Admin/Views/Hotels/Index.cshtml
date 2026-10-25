@@ -3,6 +3,10 @@
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Hotels";
+
+    // Otel Id -> həmin otelin otaqları (controller-dən)
+    var roomsByHotel = ViewBag.RoomsByHotel as Dictionary<int, List<HotelTravel.Application.DTOs.Rooms.GetRoomDto>>
+        ?? new Dictionary<int, List<HotelTravel.Application.DTOs.Rooms.GetRoomDto>>();
 }
 
 <style>
@@ -104,6 +108,11 @@
         display: inline-block;
     }
 
+        .rooms-toggle { border: 1px solid #e2e8f0; background: #fff; border-radius: 999px; padding: 6px 12px; font-weight: 600; cursor: pointer; }
+        .rooms-toggle span { display: inline-block; transition: transform .2s; }
+        .rooms-toggle.open span { transform: rotate(180deg); }
+        .hotel-rooms-row td { background: #f8fafc; padding: 14px 18px !important; }
+
         .edit-button:hover {
             background: #2563eb;
             color: white;
@@ -116,14 +125,18 @@
         <p>@T["Manage and organize all hotels in your system."]</p>
     </div>
 
-    <input type="search"
-           id="hotelSearch"
-           class="hotel-search"
-           placeholder="@T["Search hotels..."]" />
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <input type="search"
+               id="hotelSearch"
+               class="hotel-search"
+               placeholder="@T["Search hotels..."]" />
+
+        <a asp-area="" asp-controller="Hotels" asp-action="Create" class="edit-button">@T["+ Add hotel"]</a>
+    </div>
 </div>
 
 <div class="admin-card">
-    <h3>All Hotels (@(Model?.Count ?? 0))</h3>
+    <h3>@T["All Hotels"] (@(Model?.Count ?? 0))</h3>
 
     <div class="hotel-table-wrapper">
         <table class="hotel-table" id="hotelsTable">
@@ -133,6 +146,7 @@
                     <th>@T["Country"]</th>
                     <th>@T["Rating"]</th>
                     <th>@T["Hotel Chain"]</th>
+                    <th>@T["Rooms"]</th>
                     <th>@T["Actions"]</th>
                 </tr>
             </thead>
@@ -140,7 +154,11 @@
             <tbody>
                 @foreach (var hotel in Model ?? new List<HotelTravel.Application.DTOs.Hotels.GetHotelDto>())
                 {
-                    <tr>
+                    var hotelRooms = roomsByHotel.TryGetValue(hotel.Id, out var list)
+                        ? list
+                        : new List<HotelTravel.Application.DTOs.Rooms.GetRoomDto>();
+
+                    <tr class="hotel-row">
                         <td>
                             <div class="hotel-info">
                                 <img class="hotel-image"
@@ -159,11 +177,17 @@
 
                         <td>
                             <span class="star-badge">
-                                ★ @hotel.StarRating Stars
+                                ★ @T.Plural(hotel.StarRating, "star", "stars")
                             </span>
                         </td>
 
                         <td>@(hotel.HotelChainName ?? T["Independent"].Value)</td>
+
+                        <td>
+                            <button type="button" class="rooms-toggle" data-rooms-for="@hotel.Id">
+                                🛏 @hotelRooms.Count <span>▾</span>
+                            </button>
+                        </td>
 
                         <td>
                             <a asp-area="Admin"
@@ -175,6 +199,13 @@
                             </a>
                         </td>
                     </tr>
+
+                    <!-- Bu otelin otaqları (açılan sətir) -->
+                    <tr class="hotel-rooms-row" id="rooms-@hotel.Id" hidden>
+                        <td colspan="6">
+                            <partial name="_HotelRooms" model="(hotel.Id, hotelRooms)" />
+                        </td>
+                    </tr>
                 }
             </tbody>
         </table>
@@ -184,7 +215,16 @@
 @section Scripts {
     <script>
         const searchInput = document.getElementById("hotelSearch");
-        const hotelRows = document.querySelectorAll("#hotelsTable tbody tr");
+        const hotelRows = document.querySelectorAll("#hotelsTable tbody tr.hotel-row");
+
+        // Otaqlar düyməsi: otelin altındakı otaqlar sətrini aç/bağla
+        document.querySelectorAll(".rooms-toggle").forEach(button => {
+            button.addEventListener("click", () => {
+                const row = document.getElementById("rooms-" + button.dataset.roomsFor);
+                row.hidden = !row.hidden;
+                button.classList.toggle("open", !row.hidden);
+            });
+        });
 
         searchInput.addEventListener("input", function() {
             const searchText = this.value.toLowerCase().trim();
@@ -195,6 +235,11 @@
                 row.style.display = hotelText.includes(searchText)
                     ? ""
                     : "none";
+
+                // Gizlədilən otelin otaqlar sətri də gizlənsin
+                const roomsRow = row.nextElementSibling;
+                if (roomsRow && roomsRow.classList.contains("hotel-rooms-row") && row.style.display === "none")
+                    roomsRow.hidden = true;
             });
         });
     </script>

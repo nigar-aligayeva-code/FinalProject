@@ -36,6 +36,12 @@
 
     /* STAR PICKER: radio-lar tərsinə düzülür ki,
        hover/checked soldakı ulduzları da rəngləsin */
+    .review-hotel {
+        background: #F8F5F0;
+        border-radius: 14px;
+        padding: 16px 18px;
+    }
+
     .star-picker {
         display: inline-flex;
         flex-direction: row-reverse;
@@ -97,6 +103,10 @@
                             <div>
                                 <strong>@T["Room {0}", eligibility.RoomNumber]</strong>
                                 &mdash; @eligibility.RoomName
+                                @if (!string.IsNullOrWhiteSpace(eligibility.HotelName))
+                                {
+                                    <span class="d-block small"><i class="bi bi-building"></i> @eligibility.HotelName</span>
+                                }
                             </div>
                             <div class="small mt-1">
                                 @eligibility.CheckInDate.ToString("dd.MM.yyyy")
@@ -158,6 +168,42 @@
 
                             <span asp-validation-for="Comment"
                                   class="text-danger small"></span>
+                        </div>
+
+                        <!-- OTEL HAQQINDA (istəyə bağlı) -->
+                        <div class="review-hotel mb-4">
+                            <label class="form-label d-block fw-semibold">
+                                <i class="bi bi-building me-1"></i>
+                                @T["How was the hotel?"]
+                                <small class="text-muted fw-normal">(@T["optional"])</small>
+                            </label>
+                            <div class="form-text mb-2">@T["Rate the hotel itself: service, location, breakfast, staff."]</div>
+
+                            <div class="star-picker">
+                                @for (int star = 5; star >= 1; star--)
+                                {
+                                    <input type="radio"
+                                           id="hstar@(star)"
+                                           name="HotelRating"
+                                           value="@star"
+                                           @(Model.HotelRating == star ? "checked" : "") />
+
+                                    <label for="hstar@(star)"
+                                           title="@T.Plural(star, "star", "stars")">
+                                        <i class="bi bi-star-fill"></i>
+                                    </label>
+                                }
+                            </div>
+
+                            <span asp-validation-for="HotelRating" class="text-danger d-block small"></span>
+
+                            <textarea asp-for="HotelComment"
+                                      class="form-control mt-3"
+                                      rows="3"
+                                      maxlength="1000"
+                                      placeholder="@T["What did you like about the hotel?"]"></textarea>
+
+                            <span asp-validation-for="HotelComment" class="text-danger small"></span>
                         </div>
 
                         <!-- EMAIL -->

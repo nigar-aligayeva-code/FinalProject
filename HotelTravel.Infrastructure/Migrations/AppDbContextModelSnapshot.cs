@@ -917,6 +917,13 @@ namespace HotelTravel.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("HotelComment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("HotelRating")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -938,6 +945,8 @@ namespace HotelTravel.Infrastructure.Migrations
 
                     b.ToTable("Reviews", t =>
                         {
+                            t.HasCheckConstraint("CK_Reviews_HotelRating", "[HotelRating] IS NULL OR [HotelRating] BETWEEN 1 AND 5");
+
                             t.HasCheckConstraint("CK_Reviews_Rating", "[Rating] BETWEEN 1 AND 5");
                         });
                 });

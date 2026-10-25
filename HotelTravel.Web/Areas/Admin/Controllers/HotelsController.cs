@@ -10,15 +10,22 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
     public class HotelsController : Controller
     {
         private readonly IHotelService _hotelService;
+        private readonly IRoomService _roomService;
 
-        public HotelsController(IHotelService hotelService)
+        public HotelsController(IHotelService hotelService, IRoomService roomService)
         {
             _hotelService = hotelService;
+            _roomService = roomService;
         }
 
         public async Task<IActionResult> Index()
         {
             var hotels = await _hotelService.GetAllAsync();
+
+            // Otellər və otaqlar bir yerdə: hər otelin altında öz otaqları
+            ViewBag.RoomsByHotel = (await _roomService.GetAllAsync())
+                .GroupBy(r => r.HotelId)
+                .ToDictionary(g => g.Key, g => g.OrderBy(r => r.RoomNumber).ToList());
 
             return View(hotels);
         }
@@ -49,6 +56,8 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
                 HotelChainId = hotel.HotelChainId
             };
 
+            await LoadHotelRoomsAsync(id);
+
             return View(dto);
         }
 
@@ -58,6 +67,7 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
+                await LoadHotelRoomsAsync(id);
                 return View(dto);
             }
 
@@ -68,7 +78,19 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            return RedirectToAction(nameof(Index));
+            TempData["SuccessMessage"] = "Hotel updated.";
+
+            return RedirectToAction(nameof(Edit), new { id });
+        }
+
+        // Otel redaktə səhifəsində bu otelin otaqları göstərilir
+        private async Task LoadHotelRoomsAsync(int hotelId)
+        {
+            ViewBag.HotelId = hotelId;
+            ViewBag.HotelRooms = (await _roomService.GetAllAsync())
+                .Where(r => r.HotelId == hotelId)
+                .OrderBy(r => r.RoomNumber)
+                .ToList();
         }
     }
 }

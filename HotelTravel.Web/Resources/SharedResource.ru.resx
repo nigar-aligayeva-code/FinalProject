@@ -7,7 +7,9 @@
   <data name="'{0}' and '{1}' do not match." xml:space="preserve"><value>«{0}» и «{1}» не совпадают.</value></data>
   <data name="+ Add car" xml:space="preserve"><value>+ Добавить машину</value></data>
   <data name="+ Add flight" xml:space="preserve"><value>+ Добавить рейс</value></data>
+  <data name="+ Add hotel" xml:space="preserve"><value>+ Добавить отель</value></data>
   <data name="+ Add place" xml:space="preserve"><value>+ Добавить место</value></data>
+  <data name="+ Add room" xml:space="preserve"><value>+ Добавить номер</value></data>
   <data name="0 Children" xml:space="preserve"><value>0 детей</value></data>
   <data name="1 Adult" xml:space="preserve"><value>1 взрослый</value></data>
   <data name="1 Child" xml:space="preserve"><value>1 ребёнок</value></data>
@@ -70,6 +72,7 @@
   <data name="All bookings" xml:space="preserve"><value>Все брони</value></data>
   <data name="All cities" xml:space="preserve"><value>Все города</value></data>
   <data name="All destinations" xml:space="preserve"><value>Все направления</value></data>
+  <data name="All Hotels" xml:space="preserve"><value>Все отели</value></data>
   <data name="All hotels &amp; map" xml:space="preserve"><value>Все отели и карта</value></data>
   <data name="All Ratings" xml:space="preserve"><value>Все оценки</value></data>
   <data name="All rights reserved." xml:space="preserve"><value>Все права защищены.</value></data>
@@ -305,6 +308,7 @@
   <data name="Delete hotel" xml:space="preserve"><value>Удалить отель</value></data>
   <data name="Delete image" xml:space="preserve"><value>Удалить фото</value></data>
   <data name="Delete Room?" xml:space="preserve"><value>Удалить номер?</value></data>
+  <data name="Delete this review? This cannot be undone." xml:space="preserve"><value>Удалить отзыв? Это нельзя отменить.</value></data>
   <data name="Deluxe" xml:space="preserve"><value>Делюкс</value></data>
   <data name="Depart" xml:space="preserve"><value>Отправление</value></data>
   <data name="Departure" xml:space="preserve"><value>Вылет</value></data>
@@ -475,6 +479,7 @@
   <data name="Guest rating" xml:space="preserve"><value>Оценка гостей</value></data>
   <data name="Guest ratings by hotel" xml:space="preserve"><value>Оценки гостей по отелям</value></data>
   <data name="Guest Reviews" xml:space="preserve"><value>Отзывы гостей</value></data>
+  <data name="GUEST REVIEWS" xml:space="preserve"><value>ОТЗЫВЫ ГОСТЕЙ</value></data>
   <data name="Guests" xml:space="preserve"><value>Гости</value></data>
   <data name="guests" xml:space="preserve"><value>гостей</value></data>
   <data name="Guests scheduled to arrive today" xml:space="preserve"><value>Гости, прибывающие сегодня</value></data>
@@ -517,6 +522,7 @@
   <data name="hotels" xml:space="preserve"><value>отелей</value></data>
   <data name="Hotels Management" xml:space="preserve"><value>Управление отелями</value></data>
   <data name="Hotels on the map" xml:space="preserve"><value>Отели на карте</value></data>
+  <data name="How was the hotel?" xml:space="preserve"><value>Как вам отель?</value></data>
   <data name="How was your stay?" xml:space="preserve"><value>Как прошло проживание?</value></data>
   <data name="If an account exists for this email, a reset link has been sent." xml:space="preserve"><value>Если аккаунт с этой почтой есть, ссылка отправлена.</value></data>
   <data name="Image deleted." xml:space="preserve"><value>Фото удалено.</value></data>
@@ -633,6 +639,7 @@
   <data name="No flight bookings yet." xml:space="preserve"><value>Броней рейсов пока нет.</value></data>
   <data name="No flights yet." xml:space="preserve"><value>Рейсов пока нет.</value></data>
   <data name="No gallery images available." xml:space="preserve"><value>Фото галереи нет.</value></data>
+  <data name="No hotel reviews yet. Guests can rate the hotel after their stay." xml:space="preserve"><value>Отзывов об отеле пока нет. Гости могут оценить отель после проживания.</value></data>
   <data name="No hotels found" xml:space="preserve"><value>Отели не найдены</value></data>
   <data name="No images available" xml:space="preserve"><value>Нет фотографий</value></data>
   <data name="No main image uploaded" xml:space="preserve"><value>Главное фото не загружено</value></data>
@@ -668,6 +675,7 @@
   <data name="Only {0} left" xml:space="preserve"><value>Осталось {0}</value></data>
   <data name="Only {0} left at this price." xml:space="preserve"><value>По этой цене осталось {0}.</value></data>
   <data name="Open" xml:space="preserve"><value>Открыть</value></data>
+  <data name="optional" xml:space="preserve"><value>необязательно</value></data>
   <data name="Optional. Helps the driver plan the trip." xml:space="preserve"><value>Необязательно. Поможет водителю спланировать поездку.</value></data>
   <data name="or similar" xml:space="preserve"><value>или аналог</value></data>
   <data name="Original" xml:space="preserve"><value>Исходный</value></data>
@@ -696,6 +704,7 @@
   <data name="PDF" xml:space="preserve"><value>PDF</value></data>
   <data name="PDF attached" xml:space="preserve"><value>PDF приложен</value></data>
   <data name="Penthouse" xml:space="preserve"><value>Пентхаус</value></data>
+  <data name="per night" xml:space="preserve"><value>за ночь</value></data>
   <data name="per night from" xml:space="preserve"><value>за ночь от</value></data>
   <data name="per passenger" xml:space="preserve"><value>за пассажира</value></data>
   <data name="per person" xml:space="preserve"><value>за человека</value></data>
@@ -766,6 +775,7 @@
   <data name="Promo discounts given" xml:space="preserve"><value>Выданные промоскидки</value></data>
   <data name="Rain" xml:space="preserve"><value>Дождь</value></data>
   <data name="Rain showers" xml:space="preserve"><value>Ливни</value></data>
+  <data name="Rate the hotel itself: service, location, breakfast, staff." xml:space="preserve"><value>Оцените сам отель: сервис, расположение, завтрак, персонал.</value></data>
   <data name="Rating" xml:space="preserve"><value>Оценка</value></data>
   <data name="Rating must be between 1 and 5." xml:space="preserve"><value>Оценка должна быть от 1 до 5.</value></data>
   <data name="Ratings and comments left by guests after completed stays." xml:space="preserve"><value>Оценки и отзывы гостей после проживания.</value></data>
@@ -809,7 +819,9 @@
   <data name="room" xml:space="preserve"><value>номер</value></data>
   <data name="Room" xml:space="preserve"><value>Номер</value></data>
   <data name="Room Amenities" xml:space="preserve"><value>Удобства в номере</value></data>
+  <data name="Room and images updated successfully." xml:space="preserve"><value>Номер и фото обновлены.</value></data>
   <data name="Room created." xml:space="preserve"><value>Номер создан.</value></data>
+  <data name="Room deleted successfully." xml:space="preserve"><value>Номер удалён.</value></data>
   <data name="Room deleted." xml:space="preserve"><value>Номер удалён.</value></data>
   <data name="Room Gallery" xml:space="preserve"><value>Галерея номера</value></data>
   <data name="Room Information" xml:space="preserve"><value>Информация о номере</value></data>
@@ -828,7 +840,10 @@
   <data name="Room:" xml:space="preserve"><value>Номер:</value></data>
   <data name="rooms" xml:space="preserve"><value>номеров</value></data>
   <data name="Rooms" xml:space="preserve"><value>Номера</value></data>
+  <data name="ROOMS" xml:space="preserve"><value>НОМЕРА</value></data>
+  <data name="Rooms are rated {0} on average ({1})." xml:space="preserve"><value>Средняя оценка номеров — {0} ({1}).</value></data>
   <data name="Rooms guests love" xml:space="preserve"><value>Номера, которые любят гости</value></data>
+  <data name="Rooms in this hotel" xml:space="preserve"><value>Номера в этом отеле</value></data>
   <data name="Rooms Management" xml:space="preserve"><value>Управление номерами</value></data>
   <data name="Rooms you liked, all in one place." xml:space="preserve"><value>Понравившиеся номера в одном месте.</value></data>
   <data name="Route" xml:space="preserve"><value>Маршрут</value></data>
@@ -970,6 +985,7 @@
   <data name="This flight is no longer available." xml:space="preserve"><value>Этот рейс больше недоступен.</value></data>
   <data name="This flight is sold out in the selected cabin." xml:space="preserve"><value>В выбранном классе мест нет.</value></data>
   <data name="This hotel chain cannot be deleted because it has active hotels." xml:space="preserve"><value>Сеть нельзя удалить: в ней есть активные отели.</value></data>
+  <data name="This hotel has no rooms yet." xml:space="preserve"><value>В этом отеле пока нет номеров.</value></data>
   <data name="This promo code has expired." xml:space="preserve"><value>Срок промокода истёк.</value></data>
   <data name="This promo code has reached its usage limit." xml:space="preserve"><value>Промокод исчерпал лимит.</value></data>
   <data name="This promo code is not active." xml:space="preserve"><value>Промокод не активен.</value></data>
@@ -1054,6 +1070,7 @@
   <data name="Van" xml:space="preserve"><value>Фургон</value></data>
   <data name="Vehicle" xml:space="preserve"><value>Машина</value></data>
   <data name="Very good" xml:space="preserve"><value>Очень хорошо</value></data>
+  <data name="View" xml:space="preserve"><value>Смотреть</value></data>
   <data name="View &amp; book" xml:space="preserve"><value>Смотреть и бронировать</value></data>
   <data name="View all bookings" xml:space="preserve"><value>Все брони</value></data>
   <data name="View All Bookings →" xml:space="preserve"><value>Все брони →</value></data>
@@ -1081,6 +1098,8 @@
   <data name="Weather is not available." xml:space="preserve"><value>Погода недоступна.</value></data>
   <data name="Welcome back! Here is your hotel management overview." xml:space="preserve"><value>С возвращением! Обзор управления отелями.</value></data>
   <data name="Wellness" xml:space="preserve"><value>Велнес</value></data>
+  <data name="What did you like about the hotel?" xml:space="preserve"><value>Что вам понравилось в отеле?</value></data>
+  <data name="What guests say about the hotel" xml:space="preserve"><value>Что гости говорят об отеле</value></data>
   <data name="Where are you going?" xml:space="preserve"><value>Куда вы едете?</value></data>
   <data name="where you can manage or cancel it separately." xml:space="preserve"><value>где её можно изменить или отменить отдельно.</value></data>
   <data name="WHERE YOU'LL STAY" xml:space="preserve"><value>ГДЕ ВЫ ОСТАНОВИТЕСЬ</value></data>

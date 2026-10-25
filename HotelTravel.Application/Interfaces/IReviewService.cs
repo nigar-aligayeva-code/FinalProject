@@ -16,6 +16,11 @@ public interface IReviewService
 
     Task<RoomRatingSummaryDto> GetRoomSummaryAsync(int roomId);
 
+    // Otel səhifəsi üçün: otelə verilən rəylər və reytinq
+    Task<List<GetReviewDto>> GetByHotelIdAsync(int hotelId);
+
+    Task<HotelRatingSummaryDto> GetHotelSummaryAsync(int hotelId);
+
     // Admin
     Task<List<GetReviewDto>> GetAllAsync();
 

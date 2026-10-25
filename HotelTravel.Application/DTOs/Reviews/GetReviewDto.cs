@@ -22,4 +22,10 @@ public class GetReviewDto
 
     public DateTime CheckInDate { get; set; }
     public DateTime CheckOutDate { get; set; }
+
+    // Otel haqqında rəy (varsa)
+    public int HotelId { get; set; }
+    public string HotelName { get; set; }
+    public int? HotelRating { get; set; }
+    public string? HotelComment { get; set; }
 }

@@ -1,0 +1,170 @@
+@using HotelTravel.Application.DTOs.Reviews
+@using HotelTravel.Application.DTOs.Rooms
+@{
+    // Otel səhifəsi: bu otelin otaqları və otelə yazılmış rəylər
+    var rooms = ViewData["HotelRooms"] as List<GetRoomDto> ?? new();
+    var reviews = ViewData["HotelReviews"] as List<GetReviewDto> ?? new();
+    var summary = ViewData["HotelRating"] as HotelRatingSummaryDto;
+}
+
+<!-- =========================
+     ROOMS OF THIS HOTEL
+========================== -->
+<div class="hr-block" id="rooms">
+    <span class="section-eyebrow"><i class="bi bi-door-open"></i> @T["ROOMS"]</span>
+    <h2>@T["Rooms in this hotel"]</h2>
+
+    @if (!rooms.Any())
+    {
+        <p class="text-muted">@T["No rooms are available yet."]</p>
+    }
+    else
+    {
+        <div class="hr-rooms">
+            @foreach (var room in rooms)
+            {
+                <article class="hr-room">
+                    <a asp-controller="Rooms" asp-action="Details" asp-route-id="@room.Id" class="hr-room-img">
+                        @if (!string.IsNullOrWhiteSpace(room.MainImage))
+                        {
+                            <img src="@room.MainImage" alt="@room.Name" loading="lazy" />
+                        }
+                        <span class="hr-room-type">@T.Enum(room.RoomType)</span>
+                    </a>
+
+                    <div class="hr-room-body">
+                        <h3><a asp-controller="Rooms" asp-action="Details" asp-route-id="@room.Id">@room.Name</a></h3>
+
+                        <div class="hr-room-meta">
+                            <span><i class="bi bi-people"></i> @T["Up to"] @T.Plural(room.Capacity, "guest", "guests")</span>
+                            @if (room.ReviewCount > 0)
+                            {
+                                <span><i class="bi bi-star-fill"></i> @room.AverageRating.ToString("0.0") (@room.ReviewCount)</span>
+                            }
+                        </div>
+
+                        <div class="hr-room-foot">
+                            <div>
+                                <strong>@room.PricePerNight.ToString("0.00") AZN</strong>
+                                <small>@T["per night"]</small>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="button" class="cmp-toggle"
+                                        data-compare-id="@room.Id"
+                                        data-compare-name="@room.Name"
+                                        data-compare-img="@room.MainImage"
+                                        aria-pressed="false">
+                                    <i class="bi bi-layout-three-columns"></i>
+                                    <span class="cmp-toggle-text">@T["Compare"]</span>
+                                </button>
+                                <a asp-controller="Rooms" asp-action="Details" asp-route-id="@room.Id" class="hh-btn hh-btn-primary">
+                                    @T["View"] <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</div>
+
+<!-- =========================
+     HOTEL REVIEWS
+========================== -->
+<div class="hr-block" id="hotel-reviews">
+    <span class="section-eyebrow"><i class="bi bi-chat-quote"></i> @T["GUEST REVIEWS"]</span>
+    <h2>@T["What guests say about the hotel"]</h2>
+
+    @if (summary is null || summary.ReviewCount == 0)
+    {
+        <p class="text-muted">@T["No hotel reviews yet. Guests can rate the hotel after their stay."]</p>
+    }
+    else
+    {
+        <div class="hr-reviews">
+            <div class="hr-summary">
+                <div class="hr-score">@summary.AverageRating.ToString("0.0")</div>
+                <div class="hr-stars">
+                    @for (var i = 1; i <= 5; i++)
+                    {
+                        <i class="bi @(i <= Math.Round(summary.AverageRating) ? "bi-star-fill" : "bi-star")"></i>
+                    }
+                </div>
+                <small>@T.Plural(summary.ReviewCount, "review", "reviews")</small>
+
+                @foreach (var star in summary.StarCounts.OrderByDescending(s => s.Key))
+                {
+                    var percent = summary.ReviewCount == 0 ? 0 : star.Value * 100 / summary.ReviewCount;
+                    <div class="hr-bar">
+                        <span>@star.Key <i class="bi bi-star-fill"></i></span>
+                        <div><i style="width:@(percent)%"></i></div>
+                        <span>@star.Value</span>
+                    </div>
+                }
+
+                @if (summary.RoomReviewCount > 0)
+                {
+                    <p class="hr-room-avg">
+                        @T["Rooms are rated {0} on average ({1}).", summary.RoomAverageRating.ToString("0.0"), T.Plural(summary.RoomReviewCount, "review", "reviews")]
+                    </p>
+                }
+            </div>
+
+            <div class="hr-list">
+                @foreach (var review in reviews.Take(8))
+                {
+                    <div class="hr-review">
+                        <div class="hr-review-head">
+                            <strong>@review.GuestDisplayName</strong>
+                            <span class="hr-review-stars">
+                                @for (var i = 1; i <= 5; i++)
+                                {
+                                    <i class="bi @(i <= (review.HotelRating ?? 0) ? "bi-star-fill" : "bi-star")"></i>
+                                }
+                            </span>
+                        </div>
+                        <small>
+                            @T["Stayed"] @review.CheckInDate.ToString("MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
+                            · @review.RoomName
+                        </small>
+                        <p>@(string.IsNullOrWhiteSpace(review.HotelComment) ? review.Comment : review.HotelComment)</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .hr-block { margin: 48px 0; }
+    .hr-block h2 { font-family: Georgia, "Times New Roman", serif; font-size: 30px; margin: 6px 0 20px; color: #1F2421; }
+    .hr-rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .hr-room { background: #fff; border-radius: 18px; overflow: hidden; border: 1px solid #eee7dc; display: flex; flex-direction: column; }
+    .hr-room-img { position: relative; display: block; aspect-ratio: 16 / 10; background: #F3EEE5; }
+    .hr-room-img img { width: 100%; height: 100%; object-fit: cover; }
+    .hr-room-type { position: absolute; left: 12px; top: 12px; background: rgba(31,36,33,.82); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+    .hr-room-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .hr-room-body h3 { font-size: 18px; margin: 0; }
+    .hr-room-body h3 a { color: #1F2421; text-decoration: none; }
+    .hr-room-meta { display: flex; gap: 14px; color: #6b7280; font-size: 14px; }
+    .hr-room-meta .bi-star-fill { color: #C69B45; }
+    .hr-room-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+    .hr-room-foot strong { display: block; font-size: 20px; color: #1F2421; }
+    .hr-room-foot small { color: #6b7280; }
+    .hr-reviews { display: grid; grid-template-columns: 280px 1fr; gap: 28px; }
+    .hr-summary { background: #fff; border: 1px solid #eee7dc; border-radius: 18px; padding: 20px; align-self: start; }
+    .hr-score { font-size: 46px; font-weight: 800; color: #1F2421; line-height: 1; }
+    .hr-stars, .hr-review-stars { color: #C69B45; }
+    .hr-bar { display: grid; grid-template-columns: 34px 1fr 24px; gap: 8px; align-items: center; font-size: 13px; color: #6b7280; margin-top: 6px; }
+    .hr-bar div { height: 8px; background: #F3EEE5; border-radius: 99px; overflow: hidden; }
+    .hr-bar div i { display: block; height: 100%; background: #52614e; }
+    .hr-room-avg { font-size: 13px; color: #6b7280; margin: 14px 0 0; }
+    .hr-list { display: grid; gap: 14px; }
+    .hr-review { background: #fff; border: 1px solid #eee7dc; border-radius: 16px; padding: 16px 18px; }
+    .hr-review-head { display: flex; justify-content: space-between; gap: 10px; }
+    .hr-review small { color: #6b7280; }
+    .hr-review p { margin: 8px 0 0; color: #374151; }
+    @@media (max-width: 860px) { .hr-reviews { grid-template-columns: 1fr; } }
+</style>
