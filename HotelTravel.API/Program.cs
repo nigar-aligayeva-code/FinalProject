@@ -63,6 +63,12 @@ namespace HotelTravel.API
             // HAVA: Open-Meteo (pulsuz, açarsız) + 30 dəqiqəlik keş
             builder.Services.AddMemoryCache();
 
+            // REAL REYSLƏR: "AviationStack:AccessKey" varsa admin real cədvəli idxal edə bilir
+            builder.Services.AddSingleton(
+                builder.Configuration.GetSection("AviationStack").Get<AviationStackOptions>() ?? new AviationStackOptions());
+            builder.Services.AddHttpClient<IRealFlightScheduleProvider, AviationStackScheduleProvider>(client =>
+                client.Timeout = TimeSpan.FromSeconds(15));
+
             // ÖDƏNİŞ: "Stripe:SecretKey" (sk_test_...) User Secrets-dədirsə onlayn ödəniş aktivdir
             builder.Services.AddSingleton(
                 builder.Configuration.GetSection("Stripe").Get<StripeOptions>() ?? new StripeOptions());
@@ -423,6 +429,9 @@ namespace HotelTravel.API
             await CityGuideSeeder.SeedAsync(context);
             await RentalCarSeeder.SeedAsync(context);
             await FlightRouteSeeder.SeedAsync(context);
+
+            // Otel şəhərləri arasında reysi olmayan istiqamətlər avtomatik yaradılır (admin əllə yaratmır)
+            await services.GetRequiredService<IFlightNetworkService>().GenerateMissingAsync();
         }
     }
 }

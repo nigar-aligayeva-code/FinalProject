@@ -1,9 +1,10 @@
-using HotelTravel.Application.DTOs.Flights;
+﻿using HotelTravel.Application.DTOs.Flights;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace HotelTravel.Web.Areas.Admin.Controllers
 {
@@ -12,10 +13,45 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
     public class FlightsController : Controller
     {
         private readonly IFlightService _flightService;
+        private readonly IFlightNetworkService _network;
+        private readonly IStringLocalizer<HotelTravel.Web.SharedResource> _t;
 
-        public FlightsController(IFlightService flightService)
+        public FlightsController(
+            IFlightService flightService,
+            IFlightNetworkService network,
+            IStringLocalizer<HotelTravel.Web.SharedResource> localizer)
         {
             _flightService = flightService;
+            _network = network;
+            _t = localizer;
+        }
+
+        // Bütün otel şəhərləri arasında çatışmayan reysləri avtomatik yarat
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Generate()
+        {
+            var result = await _network.GenerateMissingAsync();
+
+            TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Added > 0
+                ? _t["{0} new daily flights were created automatically.", result.Added].Value
+                : result.Message;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // AviationStack-dan real reys nömrələri və saatları
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportReal()
+        {
+            var result = await _network.ImportRealAsync();
+
+            TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Added > 0
+                ? _t["{0} real flights were imported.", result.Added].Value
+                : result.Message;
+
+            return RedirectToAction(nameof(Index));
         }
 
         // ROUTES + BOOKINGS
@@ -26,6 +62,7 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             ViewBag.Status = status;
             ViewBag.Cities = AirportCities();
             ViewBag.Bookings = await _flightService.GetBookingsAsync(status);
+            ViewBag.RealDataEnabled = await _network.IsRealDataEnabledAsync();
 
             var routes = await _flightService.GetRoutesAsync(city);
 

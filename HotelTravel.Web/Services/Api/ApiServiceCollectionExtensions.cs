@@ -55,6 +55,7 @@ public static class ApiServiceCollectionExtensions
         services.AddScoped<IProfileApiClient, ProfileApiClient>();
         services.AddScoped<IVoucherApiClient, VoucherApiClient>();
         services.AddScoped<IPaymentApiClient, PaymentApiClient>();
+        services.AddScoped<HotelTravel.Application.Interfaces.IFlightNetworkService, FlightNetworkApiService>();
         services.AddMemoryCache(); // PaymentApiClient: "ödəniş aktivdir?" cavabını qısa müddət saxlayır
         services.AddScoped<IEmailLogService, EmailLogApiService>();
         services.AddScoped<ITripPackageService, TripApiService>();

@@ -26,10 +26,29 @@
     <div>
         <h1>@T["Flights"]</h1>
         <p>@T["Daily flight schedule between hotel cities and guests' flight bookings."]</p>
+        <p style="font-size:13px;color:#64748b;margin-top:4px">
+            @T["Routes between hotel cities are created automatically when the API starts. You only edit prices or switch flights off."]
+        </p>
     </div>
 
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <partial name="_ExportButtons" model="@("flights")" />
+
+        <!-- Reyslər əllə yaradılmır: şəbəkə avtomatik qurulur -->
+        <form asp-area="Admin" asp-controller="Flights" asp-action="Generate" method="post" style="margin:0">
+            <button type="submit" class="cg-btn" style="background:#52614e" title="@T["Create daily flights for every pair of hotel cities that has none yet."]">
+                ✈ @T["Auto-generate missing routes"]
+            </button>
+        </form>
+
+        @if (ViewBag.RealDataEnabled is true)
+        {
+            <form asp-area="Admin" asp-controller="Flights" asp-action="ImportReal" method="post" style="margin:0">
+                <button type="submit" class="cg-btn" style="background:#1d4ed8" title="@T["Real flight numbers, airlines and times from AviationStack."]">
+                    🌍 @T["Import real schedules"]
+                </button>
+            </form>
+        }
 
         <a asp-area="Admin"
            asp-controller="Flights"

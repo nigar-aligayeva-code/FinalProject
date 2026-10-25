@@ -73,6 +73,7 @@
   <data name="All bookings" xml:space="preserve"><value>Bütün rezervasiyalar</value></data>
   <data name="All cities" xml:space="preserve"><value>Bütün şəhərlər</value></data>
   <data name="All destinations" xml:space="preserve"><value>Bütün istiqamətlər</value></data>
+  <data name="All hotel cities are already connected." xml:space="preserve"><value>Bütün otel şəhərləri artıq birləşdirilib.</value></data>
   <data name="All Hotels" xml:space="preserve"><value>Bütün otellər</value></data>
   <data name="All hotels &amp; map" xml:space="preserve"><value>Bütün otellər və xəritə</value></data>
   <data name="All Ratings" xml:space="preserve"><value>Bütün reytinqlər</value></data>
@@ -101,6 +102,7 @@
   <data name="At least one adult is required." xml:space="preserve"><value>Ən azı bir böyük olmalıdır.</value></data>
   <data name="Attractions" xml:space="preserve"><value>Görməli yerlər</value></data>
   <data name="Attractions &amp; city guides" xml:space="preserve"><value>Görməli yerlər və şəhər bələdçiləri</value></data>
+  <data name="Auto-generate missing routes" xml:space="preserve"><value>Çatışmayan reysləri avtomatik yarat</value></data>
   <data name="Automatic" xml:space="preserve"><value>Avtomat</value></data>
   <data name="Automatic transmission" xml:space="preserve"><value>Avtomat sürətlər qutusu</value></data>
   <data name="Available for enquiries" xml:space="preserve"><value>Suallar üçün əlçatandır</value></data>
@@ -288,6 +290,7 @@
   <data name="Create account" xml:space="preserve"><value>Hesab yarat</value></data>
   <data name="Create Account" xml:space="preserve"><value>Hesab yarat</value></data>
   <data name="Create code" xml:space="preserve"><value>Kod yarat</value></data>
+  <data name="Create daily flights for every pair of hotel cities that has none yet." xml:space="preserve"><value>Hələ reysi olmayan hər otel şəhəri cütü üçün gündəlik reys yarat.</value></data>
   <data name="Create discount codes guests can enter when booking." xml:space="preserve"><value>Qonaqların rezervasiyada yaza biləcəyi endirim kodları yaradın.</value></data>
   <data name="CURATED STAYS" xml:space="preserve"><value>SEÇİLMİŞ OTELLƏR</value></data>
   <data name="Curly hair" xml:space="preserve"><value>Qıvrım saç</value></data>
@@ -533,6 +536,7 @@
   <data name="If an account exists for this email, a reset link has been sent." xml:space="preserve"><value>Bu e-poçtla hesab varsa, bərpa linki göndərildi.</value></data>
   <data name="Image deleted." xml:space="preserve"><value>Şəkil silindi.</value></data>
   <data name="Image not found." xml:space="preserve"><value>Şəkil tapılmadı.</value></data>
+  <data name="Import real schedules" xml:space="preserve"><value>Real cədvəli idxal et</value></data>
   <data name="Inactive" xml:space="preserve"><value>Deaktiv</value></data>
   <data name="Independent" xml:space="preserve"><value>Müstəqil</value></data>
   <data name="Independent Hotel" xml:space="preserve"><value>Müstəqil otel</value></data>
@@ -650,6 +654,7 @@
   <data name="No images available" xml:space="preserve"><value>Şəkil yoxdur</value></data>
   <data name="No main image uploaded" xml:space="preserve"><value>Əsas şəkil yüklənməyib</value></data>
   <data name="No matching rooms found." xml:space="preserve"><value>Uyğun otaq tapılmadı.</value></data>
+  <data name="No new real flights were found between hotel cities today." xml:space="preserve"><value>Bu gün otel şəhərləri arasında yeni real reys tapılmadı.</value></data>
   <data name="No past bookings." xml:space="preserve"><value>Keçmiş rezervasiya yoxdur.</value></data>
   <data name="No payment now. Pay at check-in." xml:space="preserve"><value>İndi ödəniş yoxdur. Girişdə ödəyin.</value></data>
   <data name="No payment now: pay at check-in" xml:space="preserve"><value>İndi ödəniş yoxdur: qeydiyyatda ödəyin</value></data>
@@ -797,6 +802,8 @@
   <data name="Rating" xml:space="preserve"><value>Reytinq</value></data>
   <data name="Rating must be between 1 and 5." xml:space="preserve"><value>Reytinq 1-5 arası olmalıdır.</value></data>
   <data name="Ratings and comments left by guests after completed stays." xml:space="preserve"><value>Qonaqların qalmadan sonra yazdığı reytinq və şərhlər.</value></data>
+  <data name="Real flight data is not configured. Add an AviationStack access key." xml:space="preserve"><value>Real reys məlumatı qoşulmayıb. AviationStack açarını əlavə edin.</value></data>
+  <data name="Real flight numbers, airlines and times from AviationStack." xml:space="preserve"><value>AviationStack-dan real reys nömrələri, şirkətlər və saatlar.</value></data>
   <data name="Real guest reviews" xml:space="preserve"><value>Real qonaq rəyləri</value></data>
   <data name="Recent Bookings" xml:space="preserve"><value>Son rezervasiyalar</value></data>
   <data name="reconnecting…" xml:space="preserve"><value>yenidən qoşulur…</value></data>
@@ -866,6 +873,7 @@
   <data name="Rooms Management" xml:space="preserve"><value>Otaqların idarəsi</value></data>
   <data name="Rooms you liked, all in one place." xml:space="preserve"><value>Bəyəndiyiniz otaqlar bir yerdə.</value></data>
   <data name="Route" xml:space="preserve"><value>Marşrut</value></data>
+  <data name="Routes between hotel cities are created automatically when the API starts. You only edit prices or switch flights off." xml:space="preserve"><value>Otel şəhərləri arasındakı reyslər API açılanda avtomatik yaradılır. Siz yalnız qiyməti dəyişir və ya reysi söndürürsünüz.</value></data>
   <data name="Save" xml:space="preserve"><value>Saxla</value></data>
   <data name="Save avatar" xml:space="preserve"><value>Avatarı saxla</value></data>
   <data name="Save changes" xml:space="preserve"><value>Dəyişiklikləri saxla</value></data>
@@ -979,6 +987,7 @@
   <data name="The field {0} must be between {1} and {2}." xml:space="preserve"><value>{0} sahəsi {1} ilə {2} arasında olmalıdır.</value></data>
   <data name="The field {0} must have at least {1} characters." xml:space="preserve"><value>{0} sahəsi ən azı {1} simvol olmalıdır.</value></data>
   <data name="The field {0} must have at most {1} characters." xml:space="preserve"><value>{0} sahəsi ən çox {1} simvol ola bilər.</value></data>
+  <data name="The flight data service is not reachable right now." xml:space="preserve"><value>Reys məlumatı xidmətinə hazırda qoşulmaq mümkün deyil.</value></data>
   <data name="The flight runs every day at the same local time." xml:space="preserve"><value>Uçuş hər gün eyni yerli vaxtda olur.</value></data>
   <data name="The link is valid for 24 hours. Check your spam folder too." xml:space="preserve"><value>Link 24 saat etibarlıdır. Spam qovluğunu da yoxlayın.</value></data>
   <data name="The new password must be at least 6 characters." xml:space="preserve"><value>Yeni şifrə ən azı 6 simvol olmalıdır.</value></data>
@@ -1172,6 +1181,8 @@
   <data name="Your trips" xml:space="preserve"><value>Səfərləriniz</value></data>
   <data name="{0} found" xml:space="preserve"><value>{0} tapıldı</value></data>
   <data name="{0} hotels across {1} cities. Tap a pin to see the hotel." xml:space="preserve"><value>{1} şəhərdə {0} otel. Oteli görmək üçün nişana toxunun.</value></data>
+  <data name="{0} new daily flights were created automatically." xml:space="preserve"><value>{0} yeni gündəlik reys avtomatik yaradıldı.</value></data>
+  <data name="{0} real flights were imported." xml:space="preserve"><value>{0} real reys idxal olundu.</value></data>
   <data name="{0} to the next level" xml:space="preserve"><value>Növbəti səviyyəyə {0}</value></data>
   <data name="{0}, where to next?" xml:space="preserve"><value>{0}, növbəti səfər hara?</value></data>
   <data name="{0}: available rooms" xml:space="preserve"><value>{0}: boş otaqlar</value></data>

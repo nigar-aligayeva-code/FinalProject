@@ -65,6 +65,9 @@ public static class DependencyInjection
         // Onlayn ödəniş: Stripe Checkout (yalnız test açarı ilə aktivdir)
         services.AddScoped<IPaymentGateway, StripePaymentGateway>();
         services.AddScoped<IPaymentService, PaymentService>();
+
+        // Reys şəbəkəsi: avtomatik plan + real cədvəl (AviationStack HttpClient API Program-da qeydiyyatdadır)
+        services.AddScoped<IFlightNetworkService, FlightNetworkService>();
         services.AddSingleton<IVoucherPdfService, QuestPdfVoucherService>();
         services.AddScoped<IBookingEmailService, BookingEmailService>();
         services.AddScoped<IEmailLogService, EmailLogService>();

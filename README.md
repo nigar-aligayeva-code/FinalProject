@@ -203,6 +203,11 @@ Leaflet + OpenStreetMap · xUnit · GitHub Actions · Bootstrap 5 · jQuery · f
    **test** secret key (`sk_test_...`) and add `"Stripe": { "SecretKey": "sk_test_..." }` to the same
    secrets file. Guests then see **Pay now by card** (test card `4242 4242 4242 4242`). Live keys are ignored.
 
+   *Optional — real flight schedules:* get a free key at aviationstack.com and add
+   `"AviationStack": { "AccessKey": "..." }`. Admin → Flights → **Import real schedules** then adds real
+   flight numbers, airlines and times (one request per airport — the free plan allows 100 per month).
+   Without a key, flights between all hotel cities are generated automatically on API start.
+
    *Optional — real emails:* add an `Email` section to the same secrets file
    (`SmtpHost`, `SmtpPort`, `SmtpUser`, `SmtpPassword`, `From`). Without it, emails are written to
    `HotelTravel.API/App_Data/Emails` as `.eml` files and shown in **Admin → Emails**.

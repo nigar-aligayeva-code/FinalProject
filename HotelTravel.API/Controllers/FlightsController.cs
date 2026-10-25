@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Common;
+﻿using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Application.DTOs.Flights;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Enums;
@@ -13,9 +13,11 @@ public class FlightsController : ApiControllerBase
 {
     private readonly IFlightService _flightService;
     private readonly IActivityNotifier _notifier;
+    private readonly IFlightNetworkService _network;
 
-    public FlightsController(IFlightService flightService, IActivityNotifier notifier)
+    public FlightsController(IFlightService flightService, IActivityNotifier notifier, IFlightNetworkService network)
     {
+        _network = network;
         _flightService = flightService;
         _notifier = notifier;
     }
@@ -122,6 +124,32 @@ public class FlightsController : ApiControllerBase
 
     // GET: api/flights/routes?city=Baku
     /// <summary>All routes, optionally filtered by city (admin).</summary>
+    // GET: api/flights/network
+    /// <summary>Is real flight data (AviationStack) configured? (admin)</summary>
+    [HttpGet("network")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> NetworkStatus() => Ok(new { realDataEnabled = await _network.IsRealDataEnabledAsync() });
+
+    // POST: api/flights/routes/generate
+    /// <summary>Create daily flights automatically for every hotel-city pair that has no flight yet (admin).</summary>
+    [HttpPost("routes/generate")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(FlightNetworkResultDto), 200)]
+    public async Task<IActionResult> GenerateRoutes()
+        => Ok(await _network.GenerateMissingAsync(HttpContext.RequestAborted));
+
+    // POST: api/flights/routes/import-real
+    /// <summary>Import real flight numbers, airlines and times from AviationStack (admin, one request per airport).</summary>
+    [HttpPost("routes/import-real")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(FlightNetworkResultDto), 200)]
+    [ProducesResponseType(typeof(FlightNetworkResultDto), 400)]
+    public async Task<IActionResult> ImportRealRoutes()
+    {
+        var result = await _network.ImportRealAsync(HttpContext.RequestAborted);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
     [HttpGet("routes")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(List<FlightRouteDto>), 200)]
