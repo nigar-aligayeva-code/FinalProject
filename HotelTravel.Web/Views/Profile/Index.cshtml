@@ -48,7 +48,26 @@
             <div class="pf-hero-text">
                 <span class="pf-eyebrow"><i class="bi bi-person-badge"></i> @T["MY ACCOUNT"]</span>
                 <h1>@u.FirstName @u.LastName</h1>
-                <p>@u.Email @if (!string.IsNullOrWhiteSpace(u.PhoneNumber)) { <span>· @u.PhoneNumber</span> }</p>
+                <p>
+                    @u.Email
+                    @if (u.EmailConfirmed)
+                    {
+                        <span class="pf-verified" title="@T["Email confirmed"]"><i class="bi bi-patch-check-fill"></i> @T["Verified"]</span>
+                    }
+                    else
+                    {
+                        <span class="pf-unverified"><i class="bi bi-exclamation-circle"></i> @T["Not verified"]</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(u.PhoneNumber)) { <span>· @u.PhoneNumber</span> }
+                </p>
+
+                @if (!u.EmailConfirmed)
+                {
+                    <form asp-action="ResendConfirmation" method="post" class="pf-resend">
+                        <span>@T["Please confirm your email. Check your inbox for the link."]</span>
+                        <button type="submit">@T["Send the link again"]</button>
+                    </form>
+                }
             </div>
 
             <div class="pf-level">
@@ -267,6 +286,11 @@
     .pf-alert-error { background: #fdecea; color: #8a1f17; border-color: #f5c2bd; }
 
     .pf-avatars { margin-bottom: 22px; }
+    .pf-verified, .pf-unverified { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; margin-left: 6px; }
+    .pf-verified { background: #dcfce7; color: #166534; }
+    .pf-unverified { background: #fef3c7; color: #92400e; }
+    .pf-resend { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; }
+    .pf-resend button { border: 0; background: #fff; color: #1F2421; font-weight: 700; padding: 5px 12px; border-radius: 999px; cursor: pointer; }
     .pf-avatars summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
     .pf-avatars summary::-webkit-details-marker { display: none; }
     .pf-avatars summary span { font-family: Georgia, "Times New Roman", serif; font-size: 20px; color: #1F2421; }

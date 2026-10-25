@@ -1,4 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using HotelTravel.API.DTOs.Auth;
@@ -29,17 +29,20 @@ public class AuthController : ApiControllerBase
     private readonly IConfiguration _configuration;
     private readonly IEmailOutbox _outbox;
     private readonly EmailOptions _emailOptions;
+    private readonly IEmailAddressChecker _emailChecker;
 
     public AuthController(
         UserManager<AppUser> userManager,
         IConfiguration configuration,
         IEmailOutbox outbox,
-        EmailOptions emailOptions)
+        EmailOptions emailOptions,
+        IEmailAddressChecker emailChecker)
     {
         _userManager = userManager;
         _configuration = configuration;
         _outbox = outbox;
         _emailOptions = emailOptions;
+        _emailChecker = emailChecker;
     }
 
     // POST: api/auth/login
@@ -87,6 +90,16 @@ public class AuthController : ApiControllerBase
     [ProducesResponseType(typeof(ApiResultDto), 400)]
     public async Task<IActionResult> Register([FromBody] RegisterDto request)
     {
+        // E-poçt real olmalıdır: format, birdəfəlik (bot) domen, poçt serveri (MX)
+        var check = await _emailChecker.CheckAsync(request.Email, HttpContext.RequestAborted);
+
+        if (!check.IsValid)
+        {
+            return BadRequest(ApiResultDto.Fail(check.Suggestion is null
+                ? check.Reason!
+                : $"{check.Reason} Did you mean {check.Suggestion}?"));
+        }
+
         var existing = await _userManager.FindByEmailAsync(request.Email);
 
         if (existing != null)
@@ -116,7 +129,75 @@ public class AuthController : ApiControllerBase
                 string.Join(" ", roleResult.Errors.Select(e => e.Description))));
         }
 
+        // Təsdiq məktubu: link ilə e-poçtun həqiqətən bu istifadəçiyə aid olduğu yoxlanır
+        await SendConfirmationEmailAsync(user);
+
         return Ok(await CreateTokenAsync(user));
+    }
+
+    // GET: api/auth/check-email?email=...
+    /// <summary>Check an email before registration: format, disposable (temporary) domain, typo and mail server (MX).</summary>
+    [HttpGet("check-email")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
+    [ProducesResponseType(typeof(EmailCheckResult), 200)]
+    public async Task<IActionResult> CheckEmail([FromQuery] string email)
+        => Ok(await _emailChecker.CheckAsync(email ?? string.Empty, HttpContext.RequestAborted));
+
+    // POST: api/auth/confirm-email
+    /// <summary>Confirm the email address with the token from the welcome email.</summary>
+    [HttpPost("confirm-email")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
+    [ProducesResponseType(typeof(ApiResultDto), 200)]
+    [ProducesResponseType(typeof(ApiResultDto), 400)]
+    public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto dto)
+    {
+        const string invalid = "This confirmation link is invalid or has expired. Please request a new one from your profile.";
+
+        var user = await _userManager.FindByEmailAsync(dto.Email.Trim());
+
+        if (user == null)
+            return BadRequest(ApiResultDto.Fail(invalid));
+
+        if (user.EmailConfirmed)
+            return Ok(ApiResultDto.Ok("Your email is already confirmed."));
+
+        string token;
+
+        try
+        {
+            token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(dto.Token));
+        }
+        catch (FormatException)
+        {
+            return BadRequest(ApiResultDto.Fail(invalid));
+        }
+
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+
+        return result.Succeeded
+            ? Ok(ApiResultDto.Ok("Thank you! Your email has been confirmed."))
+            : BadRequest(ApiResultDto.Fail(invalid));
+    }
+
+    // POST: api/auth/resend-confirmation
+    /// <summary>Send the confirmation email again (signed-in user).</summary>
+    [HttpPost("resend-confirmation")]
+    [Authorize]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
+    [ProducesResponseType(typeof(ApiResultDto), 200)]
+    public async Task<IActionResult> ResendConfirmation()
+    {
+        var user = await _userManager.FindByIdAsync(CurrentUserId ?? string.Empty);
+
+        if (user == null)
+            return Unauthorized(ApiResultDto.Fail("User not found."));
+
+        if (user.EmailConfirmed)
+            return Ok(ApiResultDto.Ok("Your email is already confirmed."));
+
+        await SendConfirmationEmailAsync(user);
+
+        return Ok(ApiResultDto.Ok("We have sent a new confirmation link to your email."));
     }
 
     // POST: api/auth/forgot-password
@@ -216,8 +297,26 @@ public class AuthController : ApiControllerBase
             LastName = user.LastName ?? string.Empty,
             PhoneNumber = user.PhoneNumber,
             AvatarKey = user.AvatarKey,
+            EmailConfirmed = user.EmailConfirmed,
             Roles = roles.ToList()
         });
+    }
+
+    private async Task SendConfirmationEmailAsync(AppUser user)
+    {
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var encoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+        var link = AccountEmailTemplates.ConfirmLink(_emailOptions.PublicSiteUrl, user.Email!, encoded);
+        var (subject, html) = AccountEmailTemplates.EmailConfirmation(user.FirstName, link);
+
+        await _outbox.SendAsync(new EmailMessage
+        {
+            To = user.Email!,
+            Subject = subject,
+            HtmlBody = html,
+            LogHtmlBody = AccountEmailTemplates.EmailConfirmationForLog(user.FirstName).Html
+        }, AccountEmailTemplates.EmailConfirmationType, null);
     }
 
 
@@ -279,6 +378,7 @@ public class AuthController : ApiControllerBase
             LastName = user.LastName ?? string.Empty,
             PhoneNumber = user.PhoneNumber,
             AvatarKey = user.AvatarKey,
+            EmailConfirmed = user.EmailConfirmed,
             Roles = roles.ToList()
         };
     }

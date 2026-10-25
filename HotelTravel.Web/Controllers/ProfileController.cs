@@ -192,6 +192,18 @@ public class ProfileController : Controller
             System.IO.File.Delete(path);
     }
 
+    // POST: /Profile/ResendConfirmation  (təsdiq məktubunu yenidən göndər)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResendConfirmation()
+    {
+        var result = await _profileApi.ResendConfirmationAsync();
+
+        TempData[result.Success ? "ProfileSuccess" : "ProfileError"] = result.Message;
+
+        return RedirectToAction(nameof(Index));
+    }
+
     // POST: /Profile/ChangePassword
     [HttpPost]
     [ValidateAntiForgeryToken]

@@ -11,6 +11,7 @@ public interface IProfileApiClient
     Task<ApiResultDto> UpdateAsync(UpdateProfileDto dto);
     Task<ApiResultDto> ChangePasswordAsync(ChangePasswordDto dto);
     Task<ApiResultDto> UpdateAvatarAsync(string? avatarKey);
+    Task<ApiResultDto> ResendConfirmationAsync();
 }
 
 // Profil -> API (api/auth/me, api/profile)
@@ -37,4 +38,7 @@ public class ProfileApiClient : IProfileApiClient
 
     public Task<ApiResultDto> UpdateAvatarAsync(string? avatarKey)
         => _api.PutAsync("api/profile/avatar", new UpdateAvatarDto { AvatarKey = avatarKey });
+
+    public Task<ApiResultDto> ResendConfirmationAsync()
+        => _api.PostAsync("api/auth/resend-confirmation", new { });
 }

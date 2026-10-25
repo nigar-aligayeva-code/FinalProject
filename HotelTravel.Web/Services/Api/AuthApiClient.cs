@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using HotelTravel.Application.DTOs.Account;
 using HotelTravel.Application.DTOs.Auth;
 using HotelTravel.Application.DTOs.Common;
+using HotelTravel.Application.DTOs.Email;
 
 namespace HotelTravel.Web.Services.Api;
 
@@ -14,6 +15,10 @@ public interface IAuthApiClient
     Task<ApiResultDto> ForgotPasswordAsync(string email);
 
     Task<ApiResultDto> ResetPasswordAsync(ResetPasswordDto dto);
+
+    Task<ApiResultDto> ConfirmEmailAsync(ConfirmEmailDto dto);
+
+    Task<EmailCheckResult?> CheckEmailAsync(string email);
 }
 
 // Login / register: API-dən JWT token alır (api/auth)
@@ -37,6 +42,23 @@ public class AuthApiClient : IAuthApiClient
 
     public Task<ApiResultDto> ResetPasswordAsync(ResetPasswordDto dto)
         => PostForResultAsync("api/auth/reset-password", dto);
+
+    public Task<ApiResultDto> ConfirmEmailAsync(ConfirmEmailDto dto)
+        => PostForResultAsync("api/auth/confirm-email", dto);
+
+    // Qeydiyyat formunda canlı yoxlama; API cavab vermirsə null (forma bloklanmır)
+    public async Task<EmailCheckResult?> CheckEmailAsync(string email)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<EmailCheckResult>(
+                $"api/auth/check-email?email={Uri.EscapeDataString(email)}", ApiClient.JsonOptions);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
+        {
+            return null;
+        }
+    }
 
     // Cavab ApiResultDto-dur (token yoxdur)
     private async Task<ApiResultDto> PostForResultAsync(string url, object body)
