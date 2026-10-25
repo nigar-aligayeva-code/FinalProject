@@ -1,4 +1,4 @@
-namespace HotelTravel.Application.DTOs.Auth;
+﻿namespace HotelTravel.Application.DTOs.Auth;
 
 // API login / register cavabı: JWT token + istifadəçi məlumatı
 public class AuthResponseDto
@@ -21,6 +21,9 @@ public class AuthResponseDto
 
     // Seçilmiş avatar (null -> baş hərflər)
     public string? AvatarKey { get; set; }
+
+    // E-poçt təsdiqlənibmi (qeydiyyatdan sonra məktubdakı link ilə)
+    public bool EmailConfirmed { get; set; }
 
     public List<string> Roles { get; set; } = new();
 }

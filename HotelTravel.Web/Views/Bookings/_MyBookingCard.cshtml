@@ -54,9 +54,15 @@
                 </div>
             </div>
 
-            <span class="my-booking-status @statusClass">
-                @T.Enum(Model.Status)
-            </span>
+            <div class="d-flex flex-column align-items-end gap-1">
+                <span class="my-booking-status @statusClass">
+                    @T.Enum(Model.Status)
+                </span>
+                @if (Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Paid)
+                {
+                    <small class="text-success fw-semibold"><i class="bi bi-credit-card"></i> @T["Paid online"]</small>
+                }
+            </div>
         </div>
 
         <div class="row mt-3 my-booking-meta">

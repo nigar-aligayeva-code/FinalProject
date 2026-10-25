@@ -199,6 +199,15 @@ Leaflet + OpenStreetMap · xUnit · GitHub Actions · Bootstrap 5 · jQuery · f
    ```
    (`appsettings.Development.json` already contains a development-only JWT key.)
 
+   *Optional — online payments (Stripe test mode):* create a free account at stripe.com, copy the
+   **test** secret key (`sk_test_...`) and add `"Stripe": { "SecretKey": "sk_test_..." }` to the same
+   secrets file. Guests then see **Pay now by card** (test card `4242 4242 4242 4242`). Live keys are ignored.
+
+   *Optional — real flight schedules:* get a free key at aviationstack.com and add
+   `"AviationStack": { "AccessKey": "..." }`. Admin → Flights → **Import real schedules** then adds real
+   flight numbers, airlines and times (one request per airport — the free plan allows 100 per month).
+   Without a key, flights between all hotel cities are generated automatically on API start.
+
    *Optional — real emails:* add an `Email` section to the same secrets file
    (`SmtpHost`, `SmtpPort`, `SmtpUser`, `SmtpPassword`, `From`). Without it, emails are written to
    `HotelTravel.API/App_Data/Emails` as `.eml` files and shown in **Admin → Emails**.
@@ -217,6 +226,36 @@ Leaflet + OpenStreetMap · xUnit · GitHub Actions · Bootstrap 5 · jQuery · f
 | Website | http://localhost:5233 |
 
 The MVC app finds the API through `Api:BaseUrl` in `HotelTravel.Web/appsettings.json`.
+
+### Run with Docker (one command)
+
+**Requirements:** Docker Desktop. No .NET SDK or SQL Server needed on the machine.
+
+```bash
+docker compose up --build
+```
+
+The first build takes a few minutes. Then:
+
+| Service | URL |
+|---|---|
+| Website | http://localhost:5233 |
+| API + Swagger | http://localhost:5152/swagger |
+| SQL Server | `localhost,14333` (user `sa`) |
+
+What happens on startup:
+
+1. **sql**: SQL Server 2022 starts. A health check waits until it accepts queries.
+2. **api**: applies all EF Core migrations automatically (`Database:MigrateOnStartup=true`),
+   seeds roles, the admin user, hotels, rooms, flights, cars and the city guide.
+3. **web**: talks to the API inside the Docker network (`Api:BaseUrl=http://api:8080`),
+   while the browser uses `Api:PublicUrl=http://localhost:5152` for SignalR and exchange rates.
+
+Passwords come from a `.env` file (copy `.env.example` → `.env`). Without it, demo defaults are used.
+Default admin: `admin@tripio.az` / `Admin123!`.
+
+Data is kept in Docker volumes (`sqldata`, `emails`, `uploads`). Stop with `docker compose down`;
+add `-v` to also delete the database.
 
 ### Using Swagger
 

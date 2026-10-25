@@ -54,6 +54,22 @@ public class ReviewsController : ApiControllerBase
     public async Task<IActionResult> RoomSummary(int roomId)
         => Ok(await _reviewService.GetRoomSummaryAsync(roomId));
 
+    // GET: api/reviews/hotel/3
+    /// <summary>Reviews about a hotel (guests rate the hotel together with the room).</summary>
+    [HttpGet("hotel/{hotelId:int}")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(List<GetReviewDto>), 200)]
+    public async Task<IActionResult> ByHotel(int hotelId)
+        => Ok(await _reviewService.GetByHotelIdAsync(hotelId));
+
+    // GET: api/reviews/hotel/3/summary
+    /// <summary>Hotel rating: average, review count and star distribution.</summary>
+    [HttpGet("hotel/{hotelId:int}/summary")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(HotelRatingSummaryDto), 200)]
+    public async Task<IActionResult> HotelSummary(int hotelId)
+        => Ok(await _reviewService.GetHotelSummaryAsync(hotelId));
+
     // GET: api/reviews
     /// <summary>All reviews (admin).</summary>
     [HttpGet]

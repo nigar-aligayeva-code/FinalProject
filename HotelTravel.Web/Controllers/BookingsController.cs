@@ -20,6 +20,7 @@ public class BookingsController : Controller
     private readonly ICarRentalService _carRentalService;
     private readonly IVoucherApiClient _voucherApi;
     private readonly IWeatherService _weatherService;
+    private readonly IPaymentApiClient _payments;
 
     public BookingsController(
         IBookingService bookingService,
@@ -27,9 +28,11 @@ public class BookingsController : Controller
         CurrentUserAccessor currentUser,
         ICarRentalService carRentalService,
         IVoucherApiClient voucherApi,
-        IWeatherService weatherService)
+        IWeatherService weatherService,
+        IPaymentApiClient payments)
     {
         _weatherService = weatherService;
+        _payments = payments;
         _bookingService = bookingService;
         _roomService = roomService;
         _currentUser = currentUser;
@@ -88,6 +91,8 @@ public class BookingsController : Controller
 
         if (booking is null)
             return NotFound();
+
+        ViewBag.PaymentsEnabled = await _payments.IsEnabledAsync();
 
         // Qalma günlərinin havası
         if (booking.HotelId > 0)
@@ -283,7 +288,8 @@ public class BookingsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        CreateBookingDto dto)
+        CreateBookingDto dto,
+        bool payNow = false)
     {
         if (!ModelState.IsValid)
         {
@@ -309,6 +315,15 @@ public class BookingsController : Controller
             await LoadBookingRoomAsync(dto.RoomId);
 
             return View(dto);
+        }
+
+        // Qonaq "indi kartla ödə" seçibsə, birbaşa Stripe ödəniş səhifəsinə
+        if (payNow && await _payments.IsEnabledAsync())
+        {
+            return RedirectToAction(
+                "Start",
+                "Payments",
+                new { confirmationCode = result.ConfirmationCode });
         }
 
         return RedirectToAction(
@@ -573,6 +588,9 @@ public class BookingsController : Controller
     private async Task LoadBookingRoomAsync(int roomId)
     {
         ViewBag.Room = await _roomService.GetByIdAsync(roomId);
+
+        // Rezervasiya formunda "indi kartla ödə" seçimi yalnız Stripe aktivdirsə görünür
+        ViewBag.PaymentsEnabled = await _payments.IsEnabledAsync();
     }
 
     private async Task LoadModifyPageAsync(GetBookingDto booking)

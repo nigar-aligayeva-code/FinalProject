@@ -10,15 +10,21 @@ public class HotelsController : Controller
     private readonly IHotelService _hotelService;
     private readonly IHotelChainService _hotelChainService;
     private readonly IWeatherService _weatherService;
+    private readonly IRoomService _roomService;
+    private readonly IReviewService _reviewService;
 
     public HotelsController(
         IHotelService hotelService,
         IHotelChainService hotelChainService,
-        IWeatherService weatherService)
+        IWeatherService weatherService,
+        IRoomService roomService,
+        IReviewService reviewService)
     {
         _hotelService = hotelService;
         _hotelChainService = hotelChainService;
         _weatherService = weatherService;
+        _roomService = roomService;
+        _reviewService = reviewService;
     }
 
 
@@ -49,6 +55,15 @@ public class HotelsController : Controller
 
         // Növbəti 7 günün havası (alınmasa null)
         ViewBag.Weather = await _weatherService.GetForHotelAsync(id, null, null);
+
+        // Otelin otaqları (ucuzdan bahaya) və otelə yazılmış rəylər
+        ViewData["HotelRooms"] = (await _roomService.GetAllAsync())
+            .Where(r => r.HotelId == id)
+            .OrderBy(r => r.PricePerNight)
+            .ToList();
+
+        ViewData["HotelReviews"] = await _reviewService.GetByHotelIdAsync(id);
+        ViewData["HotelRating"] = await _reviewService.GetHotelSummaryAsync(id);
 
         return View(hotel);
     }
@@ -85,7 +100,8 @@ public class HotelsController : Controller
         TempData["SuccessMessage"] =
             "Hotel created successfully.";
 
-        return RedirectToAction(nameof(Index));
+        // Admin paneldəki otellər siyahısına qayıt (orada otaq əlavə etmək olur)
+        return RedirectToAction("Index", "Hotels", new { area = "Admin" });
     }
 
 
@@ -214,4 +230,4 @@ public class HotelsController : Controller
         ViewBag.HotelChains =
             await _hotelChainService.GetAllAsync();
     }
-}
+}

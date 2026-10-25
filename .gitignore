@@ -3,3 +3,4 @@ bin/
 obj/
 # Tripio: test məktubları
 **/App_Data/Emails/ 
+.env

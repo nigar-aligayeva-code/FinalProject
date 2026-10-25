@@ -1,0 +1,11 @@
+# Docker build-ə lazım olmayanlar (image kiçik və sürətli olsun)
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+**/App_Data/Emails/
+.git/
+.github/
+docs/
+HotelTravel.Tests/
+.env

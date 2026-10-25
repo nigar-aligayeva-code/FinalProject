@@ -1,4 +1,4 @@
-using HotelTravel.Application.Interfaces;
+﻿using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
 using HotelTravel.Infrastructure.Persistence;
 using HotelTravel.Infrastructure.Services;
@@ -58,6 +58,16 @@ public static class DependencyInjection
         // EMAIL + PDF
         services.AddScoped<IEmailSender, SmtpEmailSender>();
         services.AddScoped<IEmailOutbox, EmailOutbox>();
+
+        // Qeydiyyatda e-poçt yoxlaması: format, birdəfəlik domen, yazı səhvi, MX qeydi
+        services.AddSingleton<IEmailAddressChecker, DnsEmailAddressChecker>();
+
+        // Onlayn ödəniş: Stripe Checkout (yalnız test açarı ilə aktivdir)
+        services.AddScoped<IPaymentGateway, StripePaymentGateway>();
+        services.AddScoped<IPaymentService, PaymentService>();
+
+        // Reys şəbəkəsi: avtomatik plan + real cədvəl (AviationStack HttpClient API Program-da qeydiyyatdadır)
+        services.AddScoped<IFlightNetworkService, FlightNetworkService>();
         services.AddSingleton<IVoucherPdfService, QuestPdfVoucherService>();
         services.AddScoped<IBookingEmailService, BookingEmailService>();
         services.AddScoped<IEmailLogService, EmailLogService>();

@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Reviews;
+﻿using HotelTravel.Application.DTOs.Reviews;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
@@ -218,5 +218,89 @@ public class ReviewServiceTests
 
         Assert.True(before.CanReview);
         Assert.False(after.CanReview);
+    }
+
+
+    // =========================
+    // OTEL RƏYLƏRİ
+    // =========================
+
+    [Fact]
+    public async Task Create_ShouldSaveHotelRating_WhenGiven()
+    {
+        using var context = CreateContext();
+        await SeedBookingAsync(context, BookingStatus.CheckedOut);
+        var service = new ReviewService(context);
+
+        var dto = ValidDto();
+        dto.HotelRating = 4;
+        dto.HotelComment = "  Great breakfast and location.  ";
+
+        var result = await service.CreateAsync(dto);
+
+        Assert.True(result.Success);
+        var review = await context.Reviews.SingleAsync();
+        Assert.Equal(4, review.HotelRating);
+        Assert.Equal("Great breakfast and location.", review.HotelComment);
+    }
+
+    [Fact]
+    public async Task Create_ShouldIgnoreHotelComment_WithoutHotelRating()
+    {
+        using var context = CreateContext();
+        await SeedBookingAsync(context, BookingStatus.CheckedOut);
+        var service = new ReviewService(context);
+
+        var dto = ValidDto();
+        dto.HotelComment = "No stars given";
+
+        await service.CreateAsync(dto);
+
+        var review = await context.Reviews.SingleAsync();
+        Assert.Null(review.HotelRating);
+        Assert.Null(review.HotelComment);
+    }
+
+    [Fact]
+    public async Task Create_ShouldFail_WhenHotelRatingIsOutOfRange()
+    {
+        using var context = CreateContext();
+        await SeedBookingAsync(context, BookingStatus.CheckedOut);
+        var service = new ReviewService(context);
+
+        var dto = ValidDto();
+        dto.HotelRating = 7;
+
+        var result = await service.CreateAsync(dto);
+
+        Assert.False(result.Success);
+        Assert.Empty(context.Reviews);
+    }
+
+    [Fact]
+    public async Task HotelSummary_ShouldAverageOnlyHotelRatings()
+    {
+        using var context = CreateContext();
+        await SeedBookingAsync(context, BookingStatus.CheckedOut, "BK-A");
+        await SeedBookingAsync(context, BookingStatus.CheckedOut, "BK-B");
+        var service = new ReviewService(context);
+
+        var first = ValidDto("BK-A", rating: 5);
+        first.HotelRating = 4;
+        await service.CreateAsync(first);
+
+        // İkinci qonaq otelə qiymət vermədi
+        await service.CreateAsync(ValidDto("BK-B", rating: 3));
+
+        var hotelId = (await context.Hotels.SingleAsync()).Id;
+        var summary = await service.GetHotelSummaryAsync(hotelId);
+        var hotelReviews = await service.GetByHotelIdAsync(hotelId);
+
+        Assert.Equal(1, summary.ReviewCount);
+        Assert.Equal(4, summary.AverageRating);
+        Assert.Equal(2, summary.RoomReviewCount);
+        Assert.Equal(4, summary.RoomAverageRating);
+        Assert.Single(hotelReviews);
+        Assert.Equal("Test Hotel", hotelReviews[0].HotelName);
     }
 }

@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Confirm email";
+    var success = ViewBag.Success as bool? ?? false;
+    var message = ViewBag.Message as string ?? "";
+}
+
+<div class="container" style="max-width:560px;padding:64px 16px">
+    <div style="background:#fff;border-radius:20px;padding:36px;text-align:center;box-shadow:0 10px 30px rgba(31,36,33,.08)">
+        <div style="font-size:52px;line-height:1">@(success ? "✅" : "⚠️")</div>
+
+        <h1 style="font-family:Georgia,serif;font-size:28px;margin:16px 0 8px">
+            @(success ? T["Email confirmed"] : T["Confirmation failed"])
+        </h1>
+
+        @* Mesaj API-dən gəlir, LocalizeMessagesFilter tərcümə edir *@
+        <p style="color:#6b7280;margin-bottom:24px">@message</p>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Profile" asp-action="Index" class="hh-btn hh-btn-primary">@T["My profile"]</a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="hh-btn hh-btn-primary">@T["Sign in"]</a>
+        }
+    </div>
+</div>

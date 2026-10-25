@@ -265,6 +265,7 @@
                         <td style="white-space:nowrap">
                             @review.RoomName
                             (#@review.RoomNumber)
+                            <div style="font-size:12px;color:#64748b">@review.HotelName</div>
                         </td>
 
                         <td>
@@ -277,15 +278,27 @@
                         </td>
 
                         <td>
-                            <span class="review-stars">
+                            <span class="review-stars" title="@T["Room"]">
                                 @(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))
                             </span>
+                            @if (review.HotelRating is int hotelRating)
+                            {
+                                <div style="font-size:12px;color:#64748b;white-space:nowrap">
+                                    @T["Hotel"]: <span class="review-stars">@(new string('★', hotelRating))@(new string('☆', 5 - hotelRating))</span>
+                                </div>
+                            }
                         </td>
 
                         <td>
                             <div class="review-comment">
                                 @review.Comment
                             </div>
+                            @if (!string.IsNullOrWhiteSpace(review.HotelComment))
+                            {
+                                <div class="review-comment" style="margin-top:6px;color:#64748b">
+                                    <b>@T["Hotel"]:</b> @review.HotelComment
+                                </div>
+                            }
                         </td>
 
                         <td>
@@ -294,7 +307,8 @@
                                   asp-action="Delete"
                                   asp-route-id="@review.Id"
                                   method="post"
-                                  onsubmit="return confirm('Delete this review? This cannot be undone.');">
+                                  onsubmit="return confirm(this.dataset.confirm);"
+                                  data-confirm="@T["Delete this review? This cannot be undone."]">
 
                                 <button type="submit" class="review-delete">
                                     @T["Delete"]

@@ -7,7 +7,9 @@
   <data name="'{0}' and '{1}' do not match." xml:space="preserve"><value>«{0}» и «{1}» не совпадают.</value></data>
   <data name="+ Add car" xml:space="preserve"><value>+ Добавить машину</value></data>
   <data name="+ Add flight" xml:space="preserve"><value>+ Добавить рейс</value></data>
+  <data name="+ Add hotel" xml:space="preserve"><value>+ Добавить отель</value></data>
   <data name="+ Add place" xml:space="preserve"><value>+ Добавить место</value></data>
+  <data name="+ Add room" xml:space="preserve"><value>+ Добавить номер</value></data>
   <data name="0 Children" xml:space="preserve"><value>0 детей</value></data>
   <data name="1 Adult" xml:space="preserve"><value>1 взрослый</value></data>
   <data name="1 Child" xml:space="preserve"><value>1 ребёнок</value></data>
@@ -20,6 +22,7 @@
   <data name="4 Adults" xml:space="preserve"><value>4 взрослых</value></data>
   <data name="4 Children" xml:space="preserve"><value>4 ребёнка</value></data>
   <data name="60 min free waiting" xml:space="preserve"><value>60 мин бесплатного ожидания</value></data>
+  <data name="A cancelled booking cannot be paid." xml:space="preserve"><value>Отменённую бронь нельзя оплатить.</value></data>
   <data name="A fixed price transfer between the airport and your hotel. The driver waits for you." xml:space="preserve"><value>Трансфер по фиксированной цене между аэропортом и отелем. Водитель вас ждёт.</value></data>
   <data name="A rainy stay — bring an umbrella and plan some indoor attractions." xml:space="preserve"><value>Дождливые дни — возьмите зонт и запланируйте занятия в помещении.</value></data>
   <data name="A review has already been submitted for this booking." xml:space="preserve"><value>Отзыв по этой брони уже оставлен.</value></data>
@@ -52,6 +55,7 @@
   <data name="Adults" xml:space="preserve"><value>Взрослые</value></data>
   <data name="adults" xml:space="preserve"><value>взрослых</value></data>
   <data name="Adults:" xml:space="preserve"><value>Взрослые:</value></data>
+  <data name="Afro" xml:space="preserve"><value>Афро</value></data>
   <data name="After landing the driver waits up to an hour at no cost." xml:space="preserve"><value>После посадки водитель ждёт до часа бесплатно.</value></data>
   <data name="Air conditioning" xml:space="preserve"><value>Кондиционер</value></data>
   <data name="Airline is required." xml:space="preserve"><value>Укажите авиакомпанию.</value></data>
@@ -69,6 +73,8 @@
   <data name="All bookings" xml:space="preserve"><value>Все брони</value></data>
   <data name="All cities" xml:space="preserve"><value>Все города</value></data>
   <data name="All destinations" xml:space="preserve"><value>Все направления</value></data>
+  <data name="All hotel cities are already connected." xml:space="preserve"><value>Все города отелей уже соединены.</value></data>
+  <data name="All Hotels" xml:space="preserve"><value>Все отели</value></data>
   <data name="All hotels &amp; map" xml:space="preserve"><value>Все отели и карта</value></data>
   <data name="All Ratings" xml:space="preserve"><value>Все оценки</value></data>
   <data name="All rights reserved." xml:space="preserve"><value>Все права защищены.</value></data>
@@ -96,6 +102,7 @@
   <data name="At least one adult is required." xml:space="preserve"><value>Нужен хотя бы один взрослый.</value></data>
   <data name="Attractions" xml:space="preserve"><value>Достопримечательности</value></data>
   <data name="Attractions &amp; city guides" xml:space="preserve"><value>Достопримечательности и гиды</value></data>
+  <data name="Auto-generate missing routes" xml:space="preserve"><value>Создать недостающие рейсы</value></data>
   <data name="Automatic" xml:space="preserve"><value>Автомат</value></data>
   <data name="Automatic transmission" xml:space="preserve"><value>Автоматическая коробка</value></data>
   <data name="Available for enquiries" xml:space="preserve"><value>Доступны для вопросов</value></data>
@@ -120,7 +127,10 @@
   <data name="bag" xml:space="preserve"><value>сумка</value></data>
   <data name="Bags" xml:space="preserve"><value>Багаж</value></data>
   <data name="bags" xml:space="preserve"><value>сумки</value></data>
+  <data name="Bald" xml:space="preserve"><value>Лысый</value></data>
   <data name="Basic Information" xml:space="preserve"><value>Основная информация</value></data>
+  <data name="Beard" xml:space="preserve"><value>Борода</value></data>
+  <data name="Bob cut" xml:space="preserve"><value>Каре</value></data>
   <data name="Book a flight" xml:space="preserve"><value>Забронировать рейс</value></data>
   <data name="Book an airport taxi" xml:space="preserve"><value>Заказать такси из аэропорта</value></data>
   <data name="Book at hotel reception" xml:space="preserve"><value>Бронируйте на ресепшене отеля</value></data>
@@ -157,6 +167,7 @@
   <data name="Bookings made while logged in will appear here." xml:space="preserve"><value>Здесь появятся брони, сделанные после входа.</value></data>
   <data name="Bookings Management" xml:space="preserve"><value>Управление бронями</value></data>
   <data name="Both cities must have an airport in the list." xml:space="preserve"><value>В обоих городах должен быть аэропорт из списка.</value></data>
+  <data name="Braids" xml:space="preserve"><value>Косички</value></data>
   <data name="Browse all hotels" xml:space="preserve"><value>Все отели</value></data>
   <data name="Business" xml:space="preserve"><value>Бизнес</value></data>
   <data name="Business price (AZN)" xml:space="preserve"><value>Цена бизнес (AZN)</value></data>
@@ -172,6 +183,7 @@
   <data name="Cancellation" xml:space="preserve"><value>Отмена</value></data>
   <data name="Cancellation rate" xml:space="preserve"><value>Доля отмен</value></data>
   <data name="Cancelled" xml:space="preserve"><value>Отменено</value></data>
+  <data name="Cap" xml:space="preserve"><value>Кепка</value></data>
   <data name="Capacity" xml:space="preserve"><value>Вместимость</value></data>
   <data name="Car" xml:space="preserve"><value>Машина</value></data>
   <data name="Car not found." xml:space="preserve"><value>Машина не найдена.</value></data>
@@ -255,6 +267,7 @@
   <data name="Completed" xml:space="preserve"><value>Завершено</value></data>
   <data name="Confirm booking" xml:space="preserve"><value>Подтвердить бронь</value></data>
   <data name="Confirm Cancellation" xml:space="preserve"><value>Подтвердить отмену</value></data>
+  <data name="Confirm email" xml:space="preserve"><value>Подтверждение почты</value></data>
   <data name="Confirm flight" xml:space="preserve"><value>Подтвердить рейс</value></data>
   <data name="Confirm new password" xml:space="preserve"><value>Подтвердите новый пароль</value></data>
   <data name="Confirm Password" xml:space="preserve"><value>Подтвердите пароль</value></data>
@@ -267,6 +280,7 @@
   <data name="Confirmation code" xml:space="preserve"><value>Код подтверждения</value></data>
   <data name="Confirmation code and email are required." xml:space="preserve"><value>Нужны код подтверждения и почта.</value></data>
   <data name="Confirmation code is required." xml:space="preserve"><value>Укажите код подтверждения.</value></data>
+  <data name="Confirmation failed" xml:space="preserve"><value>Подтверждение не удалось</value></data>
   <data name="Confirmed" xml:space="preserve"><value>Подтверждено</value></data>
   <data name="Contact" xml:space="preserve"><value>Контакт</value></data>
   <data name="Contact details" xml:space="preserve"><value>Контактные данные</value></data>
@@ -276,8 +290,10 @@
   <data name="Create account" xml:space="preserve"><value>Создать аккаунт</value></data>
   <data name="Create Account" xml:space="preserve"><value>Создать аккаунт</value></data>
   <data name="Create code" xml:space="preserve"><value>Создать код</value></data>
+  <data name="Create daily flights for every pair of hotel cities that has none yet." xml:space="preserve"><value>Создать ежедневные рейсы для каждой пары городов без рейсов.</value></data>
   <data name="Create discount codes guests can enter when booking." xml:space="preserve"><value>Создавайте промокоды для гостей.</value></data>
   <data name="CURATED STAYS" xml:space="preserve"><value>ИЗБРАННЫЕ ОТЕЛИ</value></data>
+  <data name="Curly hair" xml:space="preserve"><value>Кудрявые волосы</value></data>
   <data name="Currency" xml:space="preserve"><value>Валюта</value></data>
   <data name="Current password" xml:space="preserve"><value>Текущий пароль</value></data>
   <data name="Current password is incorrect." xml:space="preserve"><value>Текущий пароль неверный.</value></data>
@@ -285,6 +301,7 @@
   <data name="Current stay:" xml:space="preserve"><value>Текущее проживание:</value></data>
   <data name="Daily at" xml:space="preserve"><value>Ежедневно в</value></data>
   <data name="Daily flight schedule between hotel cities and guests' flight bookings." xml:space="preserve"><value>Ежедневное расписание рейсов и брони гостей.</value></data>
+  <data name="Dark" xml:space="preserve"><value>Тёмный</value></data>
   <data name="Dark mode" xml:space="preserve"><value>Тёмная тема</value></data>
   <data name="Dashboard" xml:space="preserve"><value>Панель</value></data>
   <data name="Dashboard Overview" xml:space="preserve"><value>Обзор</value></data>
@@ -297,6 +314,7 @@
   <data name="Delete hotel" xml:space="preserve"><value>Удалить отель</value></data>
   <data name="Delete image" xml:space="preserve"><value>Удалить фото</value></data>
   <data name="Delete Room?" xml:space="preserve"><value>Удалить номер?</value></data>
+  <data name="Delete this review? This cannot be undone." xml:space="preserve"><value>Удалить отзыв? Это нельзя отменить.</value></data>
   <data name="Deluxe" xml:space="preserve"><value>Делюкс</value></data>
   <data name="Depart" xml:space="preserve"><value>Отправление</value></data>
   <data name="Departure" xml:space="preserve"><value>Вылет</value></data>
@@ -313,6 +331,7 @@
   <data name="Destination city is required." xml:space="preserve"><value>Укажите город назначения.</value></data>
   <data name="Destinations" xml:space="preserve"><value>Направления</value></data>
   <data name="Details" xml:space="preserve"><value>Подробности</value></data>
+  <data name="Did you mean {0}?" xml:space="preserve"><value>Возможно, вы имели в виду {0}?</value></data>
   <data name="Dining" xml:space="preserve"><value>Рестораны</value></data>
   <data name="Direct" xml:space="preserve"><value>Прямой</value></data>
   <data name="Direct flights between our hotel cities. Add a hotel and an airport taxi in one trip." xml:space="preserve"><value>Прямые рейсы между городами наших отелей. Добавьте отель и такси в одну поездку.</value></data>
@@ -327,6 +346,7 @@
   <data name="Download as CSV" xml:space="preserve"><value>Скачать CSV</value></data>
   <data name="Download as Excel" xml:space="preserve"><value>Скачать Excel</value></data>
   <data name="Download PDF voucher" xml:space="preserve"><value>Скачать PDF-ваучер</value></data>
+  <data name="Dreadlocks" xml:space="preserve"><value>Дреды</value></data>
   <data name="Driver" xml:space="preserve"><value>Водитель</value></data>
   <data name="Driver name is required." xml:space="preserve"><value>Укажите имя водителя.</value></data>
   <data name="Driver waits after landing." xml:space="preserve"><value>Водитель ждёт после посадки.</value></data>
@@ -355,6 +375,7 @@
   <data name="Edit Room" xml:space="preserve"><value>Редактировать номер</value></data>
   <data name="Email" xml:space="preserve"><value>Эл. почта</value></data>
   <data name="Email address" xml:space="preserve"><value>Адрес эл. почты</value></data>
+  <data name="Email confirmed" xml:space="preserve"><value>Почта подтверждена</value></data>
   <data name="Email is required." xml:space="preserve"><value>Укажите почту.</value></data>
   <data name="Email is used to sign in and cannot be changed." xml:space="preserve"><value>Эл. почта используется для входа и не может быть изменена.</value></data>
   <data name="Email me a copy" xml:space="preserve"><value>Отправить копию на почту</value></data>
@@ -363,6 +384,7 @@
   <data name="Emails" xml:space="preserve"><value>Письма</value></data>
   <data name="Enter a flight number like J2 8012." xml:space="preserve"><value>Введите номер рейса, например J2 8012.</value></data>
   <data name="Enter a new password." xml:space="preserve"><value>Введите новый пароль.</value></data>
+  <data name="Enter a valid email address." xml:space="preserve"><value>Введите корректный адрес почты.</value></data>
   <data name="Enter a valid phone number." xml:space="preserve"><value>Введите корректный номер телефона.</value></data>
   <data name="Enter code" xml:space="preserve"><value>Введите код</value></data>
   <data name="Enter names exactly as they appear in each passport." xml:space="preserve"><value>Введите имена точно как в паспорте.</value></data>
@@ -451,6 +473,7 @@
   <data name="Full name" xml:space="preserve"><value>Имя и фамилия</value></data>
   <data name="Fully booked" xml:space="preserve"><value>Всё занято</value></data>
   <data name="Get your booking code right away. No waiting, no phone calls." xml:space="preserve"><value>Код брони сразу. Без ожидания и звонков.</value></data>
+  <data name="Glasses" xml:space="preserve"><value>Очки</value></data>
   <data name="Globetrotter" xml:space="preserve"><value>Глобтроттер</value></data>
   <data name="Go back" xml:space="preserve"><value>Вернуться</value></data>
   <data name="Good" xml:space="preserve"><value>Хорошо</value></data>
@@ -465,12 +488,15 @@
   <data name="Guest rating" xml:space="preserve"><value>Оценка гостей</value></data>
   <data name="Guest ratings by hotel" xml:space="preserve"><value>Оценки гостей по отелям</value></data>
   <data name="Guest Reviews" xml:space="preserve"><value>Отзывы гостей</value></data>
+  <data name="GUEST REVIEWS" xml:space="preserve"><value>ОТЗЫВЫ ГОСТЕЙ</value></data>
   <data name="Guests" xml:space="preserve"><value>Гости</value></data>
   <data name="guests" xml:space="preserve"><value>гостей</value></data>
   <data name="Guests scheduled to arrive today" xml:space="preserve"><value>Гости, прибывающие сегодня</value></data>
   <data name="Guests scheduled to leave today" xml:space="preserve"><value>Гости, выезжающие сегодня</value></data>
   <data name="Gym" xml:space="preserve"><value>Спортзал</value></data>
+  <data name="Hair bun" xml:space="preserve"><value>Пучок</value></data>
   <data name="Have a promo code?" xml:space="preserve"><value>Есть промокод?</value></data>
+  <data name="Headscarf" xml:space="preserve"><value>Платок</value></data>
   <data name="Hide 360° View" xml:space="preserve"><value>Скрыть 360°</value></data>
   <data name="Hide map" xml:space="preserve"><value>Скрыть карту</value></data>
   <data name="Home" xml:space="preserve"><value>Главная</value></data>
@@ -505,10 +531,12 @@
   <data name="hotels" xml:space="preserve"><value>отелей</value></data>
   <data name="Hotels Management" xml:space="preserve"><value>Управление отелями</value></data>
   <data name="Hotels on the map" xml:space="preserve"><value>Отели на карте</value></data>
+  <data name="How was the hotel?" xml:space="preserve"><value>Как вам отель?</value></data>
   <data name="How was your stay?" xml:space="preserve"><value>Как прошло проживание?</value></data>
   <data name="If an account exists for this email, a reset link has been sent." xml:space="preserve"><value>Если аккаунт с этой почтой есть, ссылка отправлена.</value></data>
   <data name="Image deleted." xml:space="preserve"><value>Фото удалено.</value></data>
   <data name="Image not found." xml:space="preserve"><value>Фото не найдено.</value></data>
+  <data name="Import real schedules" xml:space="preserve"><value>Импортировать реальное расписание</value></data>
   <data name="Inactive" xml:space="preserve"><value>Неактивен</value></data>
   <data name="Independent" xml:space="preserve"><value>Независимый</value></data>
   <data name="Independent Hotel" xml:space="preserve"><value>Независимый отель</value></data>
@@ -516,8 +544,10 @@
   <data name="Instant confirmation" xml:space="preserve"><value>Мгновенное подтверждение</value></data>
   <data name="Instant confirmation code" xml:space="preserve"><value>Мгновенный код подтверждения</value></data>
   <data name="It will not be shown publicly." xml:space="preserve"><value>Не будет показана публично.</value></data>
+  <data name="JPG, PNG or WEBP, up to 2 MB." xml:space="preserve"><value>JPG, PNG или WEBP, до 2 МБ.</value></data>
   <data name="just now" xml:space="preserve"><value>только что</value></data>
   <data name="Just one step left. Enter your details to confirm the stay." xml:space="preserve"><value>Остался один шаг. Введите данные, чтобы подтвердить бронь.</value></data>
+  <data name="King" xml:space="preserve"><value>Кинг</value></data>
   <data name="km" xml:space="preserve"><value>км</value></data>
   <data name="Language" xml:space="preserve"><value>Язык</value></data>
   <data name="Last Name" xml:space="preserve"><value>Фамилия</value></data>
@@ -527,6 +557,7 @@
   <data name="Lead passenger" xml:space="preserve"><value>Основной пассажир</value></data>
   <data name="Leave empty to show an icon." xml:space="preserve"><value>Оставьте пустым, чтобы показать значок.</value></data>
   <data name="Length of stay" xml:space="preserve"><value>Длительность</value></data>
+  <data name="Light" xml:space="preserve"><value>Светлый</value></data>
   <data name="Light mode" xml:space="preserve"><value>Светлая тема</value></data>
   <data name="live" xml:space="preserve"><value>онлайн</value></data>
   <data name="Live activity" xml:space="preserve"><value>Живая активность</value></data>
@@ -535,6 +566,7 @@
   <data name="Location" xml:space="preserve"><value>Расположение</value></data>
   <data name="Log out" xml:space="preserve"><value>Выйти</value></data>
   <data name="Login" xml:space="preserve"><value>Вход</value></data>
+  <data name="Long hair" xml:space="preserve"><value>Длинные волосы</value></data>
   <data name="Look around the room with an interactive panoramic view." xml:space="preserve"><value>Осмотрите номер в интерактивной панораме.</value></data>
   <data name="Main driver" xml:space="preserve"><value>Основной водитель</value></data>
   <data name="Main Image" xml:space="preserve"><value>Главное фото</value></data>
@@ -549,6 +581,9 @@
   <data name="Manual" xml:space="preserve"><value>Механика</value></data>
   <data name="Marked as checked in" xml:space="preserve"><value>Отмечено как заселён</value></data>
   <data name="Max uses must be at least 1." xml:space="preserve"><value>Лимит использований — минимум 1.</value></data>
+  <data name="Medium" xml:space="preserve"><value>Средний</value></data>
+  <data name="Medium dark" xml:space="preserve"><value>Средне-тёмный</value></data>
+  <data name="Medium light" xml:space="preserve"><value>Средне-светлый</value></data>
   <data name="Meets you after landing" xml:space="preserve"><value>Встретит после посадки</value></data>
   <data name="min" xml:space="preserve"><value>мин</value></data>
   <data name="Minivan" xml:space="preserve"><value>Минивэн</value></data>
@@ -569,6 +604,7 @@
   <data name="Most space" xml:space="preserve"><value>Больше места</value></data>
   <data name="Mostly fine weather, but take an umbrella just in case." xml:space="preserve"><value>В основном хорошая погода, но возьмите зонт.</value></data>
   <data name="Must match the hotel's city name exactly." xml:space="preserve"><value>Должно точно совпадать с городом отеля.</value></data>
+  <data name="Mustache" xml:space="preserve"><value>Усы</value></data>
   <data name="MY ACCOUNT" xml:space="preserve"><value>МОЙ АККАУНТ</value></data>
   <data name="My bookings" xml:space="preserve"><value>Мои брони</value></data>
   <data name="My Bookings" xml:space="preserve"><value>Мои брони</value></data>
@@ -613,11 +649,14 @@
   <data name="No flight bookings yet." xml:space="preserve"><value>Броней рейсов пока нет.</value></data>
   <data name="No flights yet." xml:space="preserve"><value>Рейсов пока нет.</value></data>
   <data name="No gallery images available." xml:space="preserve"><value>Фото галереи нет.</value></data>
+  <data name="No hotel reviews yet. Guests can rate the hotel after their stay." xml:space="preserve"><value>Отзывов об отеле пока нет. Гости могут оценить отель после проживания.</value></data>
   <data name="No hotels found" xml:space="preserve"><value>Отели не найдены</value></data>
   <data name="No images available" xml:space="preserve"><value>Нет фотографий</value></data>
   <data name="No main image uploaded" xml:space="preserve"><value>Главное фото не загружено</value></data>
   <data name="No matching rooms found." xml:space="preserve"><value>Подходящих номеров нет.</value></data>
+  <data name="No new real flights were found between hotel cities today." xml:space="preserve"><value>Сегодня новых реальных рейсов между городами отелей не найдено.</value></data>
   <data name="No past bookings." xml:space="preserve"><value>Прошлых броней нет.</value></data>
+  <data name="No payment now. Pay at check-in." xml:space="preserve"><value>Без оплаты сейчас. Оплата при заезде.</value></data>
   <data name="No payment now: pay at check-in" xml:space="preserve"><value>Без предоплаты: оплата при регистрации</value></data>
   <data name="No payment now: pay at pick-up" xml:space="preserve"><value>Без предоплаты: оплата при получении</value></data>
   <data name="No payment now: pay the driver" xml:space="preserve"><value>Без предоплаты: оплата водителю</value></data>
@@ -635,6 +674,7 @@
   <data name="No upcoming trips." xml:space="preserve"><value>Предстоящих поездок нет.</value></data>
   <data name="Not available" xml:space="preserve"><value>Недоступно</value></data>
   <data name="Not found." xml:space="preserve"><value>Не найдено.</value></data>
+  <data name="Not verified" xml:space="preserve"><value>Не подтверждена</value></data>
   <data name="Note for the driver" xml:space="preserve"><value>Заметка для водителя</value></data>
   <data name="Nothing to compare yet" xml:space="preserve"><value>Пока нечего сравнивать</value></data>
   <data name="Occupancy Calendar" xml:space="preserve"><value>Календарь загрузки</value></data>
@@ -642,19 +682,24 @@
   <data name="Occupancy is based on rooms appearing in booking records." xml:space="preserve"><value>Загрузка считается по номерам из броней.</value></data>
   <data name="offline" xml:space="preserve"><value>офлайн</value></data>
   <data name="One booking, one discount." xml:space="preserve"><value>Одна бронь, одна скидка.</value></data>
+  <data name="Online payment is not available. You can pay at the hotel." xml:space="preserve"><value>Онлайн-оплата недоступна. Можно оплатить в отеле.</value></data>
   <data name="Only guests who completed their stay can leave a review." xml:space="preserve"><value>Оставить отзыв могут только гости, завершившие проживание.</value></data>
+  <data name="Only JPG, PNG or WEBP photos are allowed." xml:space="preserve"><value>Разрешены только JPG, PNG или WEBP.</value></data>
   <data name="Only rooms free for your dates." xml:space="preserve"><value>Только свободные на ваши даты номера.</value></data>
   <data name="Only {0} left" xml:space="preserve"><value>Осталось {0}</value></data>
   <data name="Only {0} left at this price." xml:space="preserve"><value>По этой цене осталось {0}.</value></data>
   <data name="Open" xml:space="preserve"><value>Открыть</value></data>
+  <data name="optional" xml:space="preserve"><value>необязательно</value></data>
   <data name="Optional. Helps the driver plan the trip." xml:space="preserve"><value>Необязательно. Поможет водителю спланировать поездку.</value></data>
   <data name="or similar" xml:space="preserve"><value>или аналог</value></data>
+  <data name="Original" xml:space="preserve"><value>Исходный</value></data>
   <data name="our hotels in another city automatically get 10% off." xml:space="preserve"><value>получают скидку 10% в отелях другого города.</value></data>
   <data name="Our top picks" xml:space="preserve"><value>Наш выбор</value></data>
   <data name="Outbound and (optionally) return." xml:space="preserve"><value>Туда и (по желанию) обратно.</value></data>
   <data name="Overcast" xml:space="preserve"><value>Пасмурно</value></data>
   <data name="Overview" xml:space="preserve"><value>Обзор</value></data>
   <data name="Packages" xml:space="preserve"><value>Пакеты</value></data>
+  <data name="Paid online" xml:space="preserve"><value>Оплачено онлайн</value></data>
   <data name="Panorama Image URL" xml:space="preserve"><value>URL панорамы</value></data>
   <data name="Partly cloudy" xml:space="preserve"><value>Переменная облачность</value></data>
   <data name="Passenger" xml:space="preserve"><value>Пассажир</value></data>
@@ -670,9 +715,18 @@
   <data name="Passwords do not match." xml:space="preserve"><value>Пароли не совпадают.</value></data>
   <data name="Past &amp; Cancelled" xml:space="preserve"><value>Прошедшие и отменённые</value></data>
   <data name="Past date" xml:space="preserve"><value>Прошедшая дата</value></data>
+  <data name="Pay at the hotel" xml:space="preserve"><value>Оплата в отеле</value></data>
+  <data name="Pay now" xml:space="preserve"><value>Оплатить</value></data>
+  <data name="Pay now by card" xml:space="preserve"><value>Оплатить картой сейчас</value></data>
+  <data name="Payment" xml:space="preserve"><value>Оплата</value></data>
+  <data name="Payment could not be verified." xml:space="preserve"><value>Не удалось проверить оплату.</value></data>
+  <data name="Payment received. Thank you!" xml:space="preserve"><value>Оплата получена. Спасибо!</value></data>
   <data name="Payment summary" xml:space="preserve"><value>Сводка оплаты</value></data>
+  <data name="Payment was cancelled. Your booking is saved — you can pay later or at the hotel." xml:space="preserve"><value>Оплата отменена. Бронь сохранена — можно оплатить позже или в отеле.</value></data>
   <data name="PDF" xml:space="preserve"><value>PDF</value></data>
   <data name="PDF attached" xml:space="preserve"><value>PDF приложен</value></data>
+  <data name="Penthouse" xml:space="preserve"><value>Пентхаус</value></data>
+  <data name="per night" xml:space="preserve"><value>за ночь</value></data>
   <data name="per night from" xml:space="preserve"><value>за ночь от</value></data>
   <data name="per passenger" xml:space="preserve"><value>за пассажира</value></data>
   <data name="per person" xml:space="preserve"><value>за человека</value></data>
@@ -697,6 +751,7 @@
   <data name="Please arrive at the airport at least 2 hours before departure with a valid passport." xml:space="preserve"><value>Приезжайте в аэропорт минимум за 2 часа до вылета с паспортом.</value></data>
   <data name="Please bring a valid driving licence and ID at pick-up." xml:space="preserve"><value>Возьмите права и документ при получении.</value></data>
   <data name="Please bring a valid ID. The name must match the booking." xml:space="preserve"><value>Возьмите документ. Имя должно совпадать с бронью.</value></data>
+  <data name="Please choose a photo." xml:space="preserve"><value>Выберите фото.</value></data>
   <data name="Please choose a room." xml:space="preserve"><value>Выберите номер.</value></data>
   <data name="Please choose a valid cabin." xml:space="preserve"><value>Выберите корректный класс.</value></data>
   <data name="Please choose a valid option." xml:space="preserve"><value>Выберите корректный вариант.</value></data>
@@ -705,6 +760,7 @@
   <data name="Please choose where you fly from and where you're going." xml:space="preserve"><value>Выберите, откуда летите и куда направляетесь.</value></data>
   <data name="Please choose your travel dates." xml:space="preserve"><value>Выберите даты поездки.</value></data>
   <data name="Please confirm you have a valid driving licence." xml:space="preserve"><value>Подтвердите наличие действующих прав.</value></data>
+  <data name="Please confirm your email. Check your inbox for the link." xml:space="preserve"><value>Подтвердите почту. Ссылка в вашем почтовом ящике.</value></data>
   <data name="Please enter the full name of every passenger." xml:space="preserve"><value>Введите полное имя каждого пассажира.</value></data>
   <data name="Please enter the full name of every traveler." xml:space="preserve"><value>Введите полное имя каждого путешественника.</value></data>
   <data name="Please enter your confirmation code." xml:space="preserve"><value>Введите код подтверждения.</value></data>
@@ -720,6 +776,7 @@
   <data name="Popular destinations" xml:space="preserve"><value>Популярные направления</value></data>
   <data name="Premium" xml:space="preserve"><value>Премиум</value></data>
   <data name="Premium Accommodation" xml:space="preserve"><value>Премиум-размещение</value></data>
+  <data name="Presidential" xml:space="preserve"><value>Президентский</value></data>
   <data name="Preview only — links are disabled. Password reset links are never stored in the log." xml:space="preserve"><value>Только просмотр — ссылки отключены. Ссылки сброса пароля не хранятся в журнале.</value></data>
   <data name="Previous image" xml:space="preserve"><value>Предыдущее фото</value></data>
   <data name="Price" xml:space="preserve"><value>Цена</value></data>
@@ -741,12 +798,16 @@
   <data name="Promo discounts given" xml:space="preserve"><value>Выданные промоскидки</value></data>
   <data name="Rain" xml:space="preserve"><value>Дождь</value></data>
   <data name="Rain showers" xml:space="preserve"><value>Ливни</value></data>
+  <data name="Rate the hotel itself: service, location, breakfast, staff." xml:space="preserve"><value>Оцените сам отель: сервис, расположение, завтрак, персонал.</value></data>
   <data name="Rating" xml:space="preserve"><value>Оценка</value></data>
   <data name="Rating must be between 1 and 5." xml:space="preserve"><value>Оценка должна быть от 1 до 5.</value></data>
   <data name="Ratings and comments left by guests after completed stays." xml:space="preserve"><value>Оценки и отзывы гостей после проживания.</value></data>
+  <data name="Real flight data is not configured. Add an AviationStack access key." xml:space="preserve"><value>Реальные данные о рейсах не настроены. Добавьте ключ AviationStack.</value></data>
+  <data name="Real flight numbers, airlines and times from AviationStack." xml:space="preserve"><value>Реальные номера рейсов, авиакомпании и время из AviationStack.</value></data>
   <data name="Real guest reviews" xml:space="preserve"><value>Настоящие отзывы гостей</value></data>
   <data name="Recent Bookings" xml:space="preserve"><value>Последние брони</value></data>
   <data name="reconnecting…" xml:space="preserve"><value>переподключение…</value></data>
+  <data name="Redirecting to the secure payment page." xml:space="preserve"><value>Переход на защищённую страницу оплаты.</value></data>
   <data name="Reference" xml:space="preserve"><value>Ссылка</value></data>
   <data name="Register" xml:space="preserve"><value>Регистрация</value></data>
   <data name="Registration failed." xml:space="preserve"><value>Регистрация не удалась.</value></data>
@@ -784,7 +845,9 @@
   <data name="room" xml:space="preserve"><value>номер</value></data>
   <data name="Room" xml:space="preserve"><value>Номер</value></data>
   <data name="Room Amenities" xml:space="preserve"><value>Удобства в номере</value></data>
+  <data name="Room and images updated successfully." xml:space="preserve"><value>Номер и фото обновлены.</value></data>
   <data name="Room created." xml:space="preserve"><value>Номер создан.</value></data>
+  <data name="Room deleted successfully." xml:space="preserve"><value>Номер удалён.</value></data>
   <data name="Room deleted." xml:space="preserve"><value>Номер удалён.</value></data>
   <data name="Room Gallery" xml:space="preserve"><value>Галерея номера</value></data>
   <data name="Room Information" xml:space="preserve"><value>Информация о номере</value></data>
@@ -803,10 +866,14 @@
   <data name="Room:" xml:space="preserve"><value>Номер:</value></data>
   <data name="rooms" xml:space="preserve"><value>номеров</value></data>
   <data name="Rooms" xml:space="preserve"><value>Номера</value></data>
+  <data name="ROOMS" xml:space="preserve"><value>НОМЕРА</value></data>
+  <data name="Rooms are rated {0} on average ({1})." xml:space="preserve"><value>Средняя оценка номеров — {0} ({1}).</value></data>
   <data name="Rooms guests love" xml:space="preserve"><value>Номера, которые любят гости</value></data>
+  <data name="Rooms in this hotel" xml:space="preserve"><value>Номера в этом отеле</value></data>
   <data name="Rooms Management" xml:space="preserve"><value>Управление номерами</value></data>
   <data name="Rooms you liked, all in one place." xml:space="preserve"><value>Понравившиеся номера в одном месте.</value></data>
   <data name="Route" xml:space="preserve"><value>Маршрут</value></data>
+  <data name="Routes between hotel cities are created automatically when the API starts. You only edit prices or switch flights off." xml:space="preserve"><value>Рейсы между городами отелей создаются автоматически при запуске API. Вы только меняете цены или отключаете рейсы.</value></data>
   <data name="Save" xml:space="preserve"><value>Сохранить</value></data>
   <data name="Save avatar" xml:space="preserve"><value>Сохранить аватар</value></data>
   <data name="Save changes" xml:space="preserve"><value>Сохранить изменения</value></data>
@@ -833,6 +900,7 @@
   <data name="Seats" xml:space="preserve"><value>Места</value></data>
   <data name="seats" xml:space="preserve"><value>мест</value></data>
   <data name="Seats must be between 2 and 9." xml:space="preserve"><value>Мест должно быть от 2 до 9.</value></data>
+  <data name="Secure payment by Stripe (test mode)." xml:space="preserve"><value>Безопасная оплата через Stripe (тестовый режим).</value></data>
   <data name="Sedan" xml:space="preserve"><value>Седан</value></data>
   <data name="See up to 3 rooms side by side. Highlights show the best value in each row." xml:space="preserve"><value>До 3 номеров рядом. В каждой строке выделен лучший вариант.</value></data>
   <data name="Select" xml:space="preserve"><value>Выбрать</value></data>
@@ -841,12 +909,14 @@
   <data name="Select images to remove, then click Save Changes." xml:space="preserve"><value>Выберите фото для удаления и нажмите «Сохранить».</value></data>
   <data name="Select the facilities available in this room." xml:space="preserve"><value>Выберите удобства этого номера.</value></data>
   <data name="Send reset link" xml:space="preserve"><value>Отправить ссылку</value></data>
+  <data name="Send the link again" xml:space="preserve"><value>Отправить ссылку ещё раз</value></data>
   <data name="Sent:" xml:space="preserve"><value>Отправлено:</value></data>
   <data name="Service unavailable" xml:space="preserve"><value>Сервис недоступен</value></data>
   <data name="Services" xml:space="preserve"><value>Услуги</value></data>
   <data name="Set a business price or make business seats 0." xml:space="preserve"><value>Укажите цену бизнес или сделайте 0 мест.</value></data>
   <data name="Share of each service in total revenue." xml:space="preserve"><value>Доля каждой услуги в общем доходе.</value></data>
   <data name="Shopping" xml:space="preserve"><value>Шопинг</value></data>
+  <data name="Short hair" xml:space="preserve"><value>Короткие волосы</value></data>
   <data name="Show this code at reception" xml:space="preserve"><value>Покажите этот код на ресепшене</value></data>
   <data name="Sight" xml:space="preserve"><value>Достопримечательность</value></data>
   <data name="Sign in" xml:space="preserve"><value>Войти</value></data>
@@ -854,7 +924,9 @@
   <data name="Signed-in guests can cancel for free before the pick-up day from My Bookings." xml:space="preserve"><value>Авторизованные гости могут бесплатно отменить до дня получения в разделе «Мои брони».</value></data>
   <data name="Signed-in guests can cancel for free up to {0} hours before departure from My Bookings." xml:space="preserve"><value>Авторизованные гости могут бесплатно отменить за {0} ч до вылета в «Моих бронях».</value></data>
   <data name="Signed-in guests can cancel for free up to {0} hours before pick-up from My Bookings." xml:space="preserve"><value>Авторизованные гости могут бесплатно отменить за {0} ч до подачи в «Моих бронях».</value></data>
+  <data name="Silver hair" xml:space="preserve"><value>Седые волосы</value></data>
   <data name="Single" xml:space="preserve"><value>Одноместный</value></data>
+  <data name="Skin tone" xml:space="preserve"><value>Тон кожи</value></data>
   <data name="Smaller numbers appear first." xml:space="preserve"><value>Меньшие числа показываются первыми.</value></data>
   <data name="Snow" xml:space="preserve"><value>Снег</value></data>
   <data name="Snow is likely — pack warm, waterproof clothes." xml:space="preserve"><value>Вероятен снег — возьмите тёплую непромокаемую одежду.</value></data>
@@ -886,6 +958,7 @@
   <data name="Stay" xml:space="preserve"><value>Проживание</value></data>
   <data name="Stayed" xml:space="preserve"><value>Проживал</value></data>
   <data name="Stays" xml:space="preserve"><value>Жильё</value></data>
+  <data name="Studio" xml:space="preserve"><value>Студия</value></data>
   <data name="Submit Review" xml:space="preserve"><value>Отправить отзыв</value></data>
   <data name="Subtotal" xml:space="preserve"><value>Промежуточный итог</value></data>
   <data name="Suite" xml:space="preserve"><value>Люкс</value></data>
@@ -895,8 +968,12 @@
   <data name="Taxi booking updated." xml:space="preserve"><value>Бронь такси обновлена.</value></data>
   <data name="Taxi booking was not found." xml:space="preserve"><value>Бронь такси не найдена.</value></data>
   <data name="Tell us about the room, cleanliness, comfort, service..." xml:space="preserve"><value>Расскажите о номере, чистоте, комфорте, сервисе...</value></data>
+  <data name="Temporary or disposable email addresses are not allowed. Please use your real email." xml:space="preserve"><value>Временные (одноразовые) адреса не принимаются. Укажите настоящую почту.</value></data>
+  <data name="Test card: 4242 4242 4242 4242" xml:space="preserve"><value>Тестовая карта: 4242 4242 4242 4242</value></data>
   <data name="Thank you! You have already reviewed this stay." xml:space="preserve"><value>Спасибо! Вы уже оставили отзыв об этом проживании.</value></data>
+  <data name="Thank you! Your email has been confirmed." xml:space="preserve"><value>Спасибо! Ваша почта подтверждена.</value></data>
   <data name="Thank you! Your review has been published." xml:space="preserve"><value>Спасибо! Ваш отзыв опубликован.</value></data>
+  <data name="The amount is too small for an online payment." xml:space="preserve"><value>Сумма слишком мала для онлайн-оплаты.</value></data>
   <data name="The booking service is temporarily unavailable." xml:space="preserve"><value>Сервис бронирования временно недоступен.</value></data>
   <data name="The driver has a valid driving licence and will bring it at pick-up." xml:space="preserve"><value>У водителя есть действующие права, он возьмёт их при получении.</value></data>
   <data name="The email address does not match this booking." xml:space="preserve"><value>Почта не совпадает с бронью.</value></data>
@@ -910,9 +987,12 @@
   <data name="The field {0} must be between {1} and {2}." xml:space="preserve"><value>Поле {0} должно быть от {1} до {2}.</value></data>
   <data name="The field {0} must have at least {1} characters." xml:space="preserve"><value>Поле {0} — минимум {1} символов.</value></data>
   <data name="The field {0} must have at most {1} characters." xml:space="preserve"><value>Поле {0} — максимум {1} символов.</value></data>
+  <data name="The flight data service is not reachable right now." xml:space="preserve"><value>Сервис данных о рейсах сейчас недоступен.</value></data>
   <data name="The flight runs every day at the same local time." xml:space="preserve"><value>Рейс выполняется ежедневно в одно и то же время.</value></data>
   <data name="The link is valid for 24 hours. Check your spam folder too." xml:space="preserve"><value>Ссылка действует 24 часа. Проверьте также папку «Спам».</value></data>
   <data name="The new password must be at least 6 characters." xml:space="preserve"><value>Новый пароль — минимум 6 символов.</value></data>
+  <data name="The payment was not completed." xml:space="preserve"><value>Оплата не завершена.</value></data>
+  <data name="The photo must be 2 MB or smaller." xml:space="preserve"><value>Фото должно быть не больше 2 МБ.</value></data>
   <data name="The return date must be after the departure date." xml:space="preserve"><value>Дата возвращения должна быть позже вылета.</value></data>
   <data name="The selected outbound flight is no longer available." xml:space="preserve"><value>Выбранный рейс туда больше недоступен.</value></data>
   <data name="The selected return flight is no longer available." xml:space="preserve"><value>Выбранный обратный рейс больше недоступен.</value></data>
@@ -930,16 +1010,20 @@
   <data name="This booking can no longer be cancelled." xml:space="preserve"><value>Эту бронь уже нельзя отменить.</value></data>
   <data name="This booking can no longer be changed." xml:space="preserve"><value>Эту бронь уже нельзя изменить.</value></data>
   <data name="This booking is already cancelled." xml:space="preserve"><value>Эта бронь уже отменена.</value></data>
+  <data name="This booking is already paid." xml:space="preserve"><value>Эта бронь уже оплачена.</value></data>
   <data name="This car is already booked for the selected dates." xml:space="preserve"><value>Эта машина уже забронирована на эти даты.</value></data>
   <data name="This car is already booked for these dates." xml:space="preserve"><value>Эта машина уже забронирована на эти даты.</value></data>
   <data name="This car is no longer available." xml:space="preserve"><value>Эта машина больше недоступна.</value></data>
   <data name="This car rental can no longer be cancelled." xml:space="preserve"><value>Эту аренду уже нельзя отменить.</value></data>
+  <data name="This confirmation link is invalid or has expired. Please request a new one from your profile." xml:space="preserve"><value>Ссылка недействительна или устарела. Запросите новую в профиле.</value></data>
+  <data name="This email domain cannot receive mail. Please check the address." xml:space="preserve"><value>Этот домен не принимает почту. Проверьте адрес.</value></data>
   <data name="This flight booking cannot be changed." xml:space="preserve"><value>Эту бронь рейса нельзя изменить.</value></data>
   <data name="This flight can no longer be booked for {0}." xml:space="preserve"><value>Этот рейс больше нельзя забронировать на {0}.</value></data>
   <data name="This flight has already closed for booking." xml:space="preserve"><value>Бронирование на этот рейс закрыто.</value></data>
   <data name="This flight is no longer available." xml:space="preserve"><value>Этот рейс больше недоступен.</value></data>
   <data name="This flight is sold out in the selected cabin." xml:space="preserve"><value>В выбранном классе мест нет.</value></data>
   <data name="This hotel chain cannot be deleted because it has active hotels." xml:space="preserve"><value>Сеть нельзя удалить: в ней есть активные отели.</value></data>
+  <data name="This hotel has no rooms yet." xml:space="preserve"><value>В этом отеле пока нет номеров.</value></data>
   <data name="This promo code has expired." xml:space="preserve"><value>Срок промокода истёк.</value></data>
   <data name="This promo code has reached its usage limit." xml:space="preserve"><value>Промокод исчерпал лимит.</value></data>
   <data name="This promo code is not active." xml:space="preserve"><value>Промокод не активен.</value></data>
@@ -950,6 +1034,7 @@
   <data name="This room allows up to {0} guests." xml:space="preserve"><value>Номер вмещает до {0} гостей.</value></data>
   <data name="This room will no longer appear in active room listings." xml:space="preserve"><value>Номер больше не будет показан в списках.</value></data>
   <data name="This service" xml:space="preserve"><value>Этот сервис</value></data>
+  <data name="This stay is already completed." xml:space="preserve"><value>Это проживание уже завершено.</value></data>
   <data name="This taxi booking cannot be changed." xml:space="preserve"><value>Эту бронь такси нельзя изменить.</value></data>
   <data name="This vehicle is too small for your group." xml:space="preserve"><value>Эта машина мала для вашей группы.</value></data>
   <data name="This vehicle is too small for your group. Please choose a bigger one." xml:space="preserve"><value>Машина мала для группы. Выберите побольше.</value></data>
@@ -997,6 +1082,7 @@
   <data name="Try again now" xml:space="preserve"><value>Попробовать снова</value></data>
   <data name="Try different dates, fewer guests or another destination." xml:space="preserve"><value>Попробуйте другие даты, меньше гостей или другое направление.</value></data>
   <data name="Try economy" xml:space="preserve"><value>Попробуйте эконом</value></data>
+  <data name="Turban" xml:space="preserve"><value>Тюрбан</value></data>
   <data name="Twin" xml:space="preserve"><value>Твин</value></data>
   <data name="Type" xml:space="preserve"><value>Тип</value></data>
   <data name="Typical weather · last year" xml:space="preserve"><value>Типичная погода · прошлый год</value></data>
@@ -1010,9 +1096,11 @@
   <data name="Upload a main image (JPG, PNG or WEBP, maximum 5 MB)." xml:space="preserve"><value>Загрузите главное фото (JPG, PNG или WEBP, до 5 МБ).</value></data>
   <data name="Upload a new image to replace the current one." xml:space="preserve"><value>Загрузите новое фото для замены текущего.</value></data>
   <data name="Upload Images" xml:space="preserve"><value>Загрузить фото</value></data>
+  <data name="Upload photo" xml:space="preserve"><value>Загрузить фото</value></data>
   <data name="Use a format like J2 8011." xml:space="preserve"><value>Используйте формат J2 8011.</value></data>
   <data name="Use Add New Main Image to upload a photo." xml:space="preserve"><value>Используйте «Добавить главное фото» для загрузки.</value></data>
   <data name="Use only letters, numbers, - and _." xml:space="preserve"><value>Только буквы, цифры, - и _.</value></data>
+  <data name="Use your own photo" xml:space="preserve"><value>Загрузите своё фото</value></data>
   <data name="Used" xml:space="preserve"><value>Использовано</value></data>
   <data name="User not found." xml:space="preserve"><value>Пользователь не найден.</value></data>
   <data name="Valid" xml:space="preserve"><value>Действует</value></data>
@@ -1020,7 +1108,9 @@
   <data name="Valid until" xml:space="preserve"><value>Действует до</value></data>
   <data name="Van" xml:space="preserve"><value>Фургон</value></data>
   <data name="Vehicle" xml:space="preserve"><value>Машина</value></data>
+  <data name="Verified" xml:space="preserve"><value>Подтверждена</value></data>
   <data name="Very good" xml:space="preserve"><value>Очень хорошо</value></data>
+  <data name="View" xml:space="preserve"><value>Смотреть</value></data>
   <data name="View &amp; book" xml:space="preserve"><value>Смотреть и бронировать</value></data>
   <data name="View all bookings" xml:space="preserve"><value>Все брони</value></data>
   <data name="View All Bookings →" xml:space="preserve"><value>Все брони →</value></data>
@@ -1039,6 +1129,7 @@
   <data name="We have saved your rental. Show the code below at pick-up." xml:space="preserve"><value>Аренда сохранена. Покажите код ниже при получении.</value></data>
   <data name="We have saved your ticket. Use the code below at check-in." xml:space="preserve"><value>Билет сохранён. Используйте код ниже при регистрации.</value></data>
   <data name="We have saved your transfer. Show the code below to your driver." xml:space="preserve"><value>Трансфер сохранён. Покажите код ниже водителю.</value></data>
+  <data name="We have sent a new confirmation link to your email." xml:space="preserve"><value>Мы отправили новую ссылку на вашу почту.</value></data>
   <data name="We track your flight and adjust the pick-up if it is late." xml:space="preserve"><value>Мы следим за рейсом и сдвигаем подачу при задержке.</value></data>
   <data name="We use it only to confirm that this booking is yours." xml:space="preserve"><value>Используем только для подтверждения, что бронь ваша.</value></data>
   <data name="Weather data: Open-Meteo" xml:space="preserve"><value>Данные о погоде: Open-Meteo</value></data>
@@ -1047,7 +1138,10 @@
   <data name="Weather in {0} during your trip" xml:space="preserve"><value>Погода в {0} во время поездки</value></data>
   <data name="Weather is not available." xml:space="preserve"><value>Погода недоступна.</value></data>
   <data name="Welcome back! Here is your hotel management overview." xml:space="preserve"><value>С возвращением! Обзор управления отелями.</value></data>
+  <data name="Welcome! We have sent a confirmation link to your email." xml:space="preserve"><value>Добро пожаловать! Мы отправили ссылку для подтверждения на вашу почту.</value></data>
   <data name="Wellness" xml:space="preserve"><value>Велнес</value></data>
+  <data name="What did you like about the hotel?" xml:space="preserve"><value>Что вам понравилось в отеле?</value></data>
+  <data name="What guests say about the hotel" xml:space="preserve"><value>Что гости говорят об отеле</value></data>
   <data name="Where are you going?" xml:space="preserve"><value>Куда вы едете?</value></data>
   <data name="where you can manage or cancel it separately." xml:space="preserve"><value>где её можно изменить или отменить отдельно.</value></data>
   <data name="WHERE YOU'LL STAY" xml:space="preserve"><value>ГДЕ ВЫ ОСТАНОВИТЕСЬ</value></data>
@@ -1070,6 +1164,7 @@
   <data name="Your driver follows your flight, so a delay is no problem." xml:space="preserve"><value>Водитель следит за рейсом, задержка не проблема.</value></data>
   <data name="Your driver will meet you at the hotel reception." xml:space="preserve"><value>Водитель встретит вас на ресепшене отеля.</value></data>
   <data name="Your driver will wait in the arrivals hall with a sign showing your name." xml:space="preserve"><value>Водитель встретит вас в зоне прилёта с табличкой с вашим именем.</value></data>
+  <data name="Your email is already confirmed." xml:space="preserve"><value>Ваша почта уже подтверждена.</value></data>
   <data name="Your feedback helps other guests choose the right room." xml:space="preserve"><value>Ваш отзыв помогает другим гостям выбрать номер.</value></data>
   <data name="Your flight is booked" xml:space="preserve"><value>Рейс забронирован</value></data>
   <data name="Your flights, hotel and taxi will be saved together in My Bookings." xml:space="preserve"><value>Рейсы, отель и такси сохранятся вместе в «Моих бронях».</value></data>
@@ -1086,6 +1181,8 @@
   <data name="Your trips" xml:space="preserve"><value>Ваши поездки</value></data>
   <data name="{0} found" xml:space="preserve"><value>найдено: {0}</value></data>
   <data name="{0} hotels across {1} cities. Tap a pin to see the hotel." xml:space="preserve"><value>{0} отелей в {1} городах. Нажмите на метку, чтобы открыть отель.</value></data>
+  <data name="{0} new daily flights were created automatically." xml:space="preserve"><value>Автоматически создано новых ежедневных рейсов: {0}.</value></data>
+  <data name="{0} real flights were imported." xml:space="preserve"><value>Импортировано реальных рейсов: {0}.</value></data>
   <data name="{0} to the next level" xml:space="preserve"><value>До следующего уровня: {0}</value></data>
   <data name="{0}, where to next?" xml:space="preserve"><value>{0}, куда дальше?</value></data>
   <data name="{0}: available rooms" xml:space="preserve"><value>{0}: свободные номера</value></data>

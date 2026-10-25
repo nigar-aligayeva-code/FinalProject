@@ -1,0 +1,78 @@
+# =========================================================
+# Tripio — bütün sistem bir əmrlə:
+#     docker compose up --build
+#
+#   Sayt          http://localhost:5233
+#   API/Swagger   http://localhost:5152/swagger
+#   SQL Server    localhost,14333  (sa / SA_PASSWORD)
+#
+# Parollar .env faylından gəlir (nümunə: .env.example).
+# .env yoxdursa aşağıdakı default dəyərlər işləyir (yalnız demo üçün!).
+# =========================================================
+
+services:
+
+  # ---------- Verilənlər bazası ----------
+  sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: tripio-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SA_PASSWORD:-Tripio_Demo_Pass_2026!}"
+    ports:
+      - "14333:1433"            # lokal SQLEXPRESS ilə toqquşmasın deyə 14333
+    volumes:
+      - sqldata:/var/opt/mssql  # məlumat konteyner silinəndə də qalır
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -C -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  # ---------- REST API (bazanın sahibi) ----------
+  api:
+    build:
+      context: .
+      dockerfile: HotelTravel.API/Dockerfile
+    container_name: tripio-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ConnectionStrings__DefaultConnection: "Server=sql,1433;Database=HotelReservationDb;User Id=sa;Password=${SA_PASSWORD:-Tripio_Demo_Pass_2026!};TrustServerCertificate=True;"
+      Database__MigrateOnStartup: "true"          # boş bazada cədvəlləri özü yaradır
+      Jwt__Key: "${JWT_KEY:-Tripio-Docker-Demo-Secret-Key-Change-Me-2026!!}"
+      AdminSettings__Email: "${ADMIN_EMAIL:-admin@tripio.az}"
+      AdminSettings__Password: "${ADMIN_PASSWORD:-Admin123!}"
+      Media__WebRootPath: "/app/webroot"
+      Cors__AllowedOrigins__0: "http://localhost:5233"
+    ports:
+      - "5152:8080"
+    volumes:
+      - emails:/app/App_Data/Emails               # .eml/.html/.pdf məktub nüsxələri
+    depends_on:
+      sql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ---------- MVC sayt (API-yə HttpClient ilə qoşulur) ----------
+  web:
+    build:
+      context: .
+      dockerfile: HotelTravel.Web/Dockerfile
+    container_name: tripio-web
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      Api__BaseUrl: "http://api:8080/"            # server -> API (Docker şəbəkəsi daxilində)
+      Api__PublicUrl: "http://localhost:5152"     # brauzer -> API (SignalR, valyuta məzənnələri)
+    ports:
+      - "5233:8080"
+    volumes:
+      - uploads:/app/wwwroot/uploads              # admin-in yüklədiyi şəkillər
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  sqldata:
+  emails:
+  uploads:

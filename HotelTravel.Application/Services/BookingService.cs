@@ -44,6 +44,8 @@ public class BookingService : IBookingService
                 DiscountNote = b.DiscountNote,
 
                 Status = b.Status,
+                PaymentStatus = b.PaymentStatus,
+                PaidAt = b.PaidAt,
 
                 RoomId = b.RoomId,
                 RoomName = b.Room.Name,
@@ -79,6 +81,8 @@ public class BookingService : IBookingService
                 DiscountNote = b.DiscountNote,
 
                 Status = b.Status,
+                PaymentStatus = b.PaymentStatus,
+                PaidAt = b.PaidAt,
 
                 RoomId = b.RoomId,
                 RoomName = b.Room.Name,
@@ -162,6 +166,8 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
                 DiscountAmount = b.DiscountAmount,
                 DiscountNote = b.DiscountNote,
                 Status = b.Status,
+                PaymentStatus = b.PaymentStatus,
+                PaidAt = b.PaidAt,
 
                 RoomId = b.RoomId,
                 RoomName = b.Room.Name,
@@ -327,6 +333,8 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
                 DiscountNote = b.DiscountNote,
 
                 Status = b.Status,
+                PaymentStatus = b.PaymentStatus,
+                PaidAt = b.PaidAt,
 
                 RoomId = b.RoomId,
 
@@ -428,4 +436,4 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
             "Booking cancelled successfully."
         );
     }
-}
+}

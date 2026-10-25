@@ -4,7 +4,8 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
 
     // Canlı bildirişlər: brauzer API-dəki SignalR hub-a admin token-i ilə qoşulur
-    var liveApiBase = (Config["Api:BaseUrl"] ?? "").TrimEnd('/');
+    // Brauzerin görə bildiyi API ünvanı (Docker-də Api:PublicUrl, lokalda Api:BaseUrl)
+    var liveApiBase = (Config["Api:PublicUrl"] ?? Config["Api:BaseUrl"] ?? "").TrimEnd('/');
     var liveToken = User.FindFirst(HotelTravel.Web.Services.AuthClaimTypes.AccessToken)?.Value ?? "";
 
     // Seçilmiş interfeys dili (en / az / ru)

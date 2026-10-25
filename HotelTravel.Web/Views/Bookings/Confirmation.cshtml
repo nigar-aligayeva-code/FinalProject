@@ -25,6 +25,20 @@
 
                     </div>
 
+                    @* Stripe-dan qayıdandan sonra nəticə *@
+                    @if (TempData["PaymentSuccess"] is string paidMessage)
+                    {
+                        <div class="alert alert-success d-flex align-items-center gap-2">
+                            <i class="bi bi-credit-card-2-front fs-4"></i> @paidMessage
+                        </div>
+                    }
+                    @if (TempData["PaymentError"] is string payError)
+                    {
+                        <div class="alert alert-warning d-flex align-items-center gap-2">
+                            <i class="bi bi-exclamation-triangle fs-4"></i> @payError
+                        </div>
+                    }
+
                     <div class="alert alert-success text-center">
 
                         <strong>@T["Confirmation Code"]</strong>
@@ -83,6 +97,24 @@
                                 <span class="badge bg-success">
                                     @T.Enum(Model.Status)
                                 </span>
+                            </p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <strong>@T["Payment"]</strong>
+                            <p>
+                                @if (Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Paid)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> @T["Paid online"]</span>
+                                    @if (Model.PaidAt is DateTime paidAt)
+                                    {
+                                        <small class="text-muted d-block">@paidAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm", System.Globalization.CultureInfo.CurrentUICulture)</small>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">@T["Pay at the hotel"]</span>
+                                }
                             </p>
                         </div>
 
@@ -146,6 +178,24 @@
                         @T["Please save your confirmation code."]
                         @T["You can use it later to find your booking."]
                     </div>
+
+                    @* Hələ ödənilməyibsə: Stripe ilə indi ödə *@
+                    @if (ViewBag.PaymentsEnabled is true &&
+                         Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Unpaid &&
+                         Model.Status == HotelTravel.Domain.Enums.BookingStatus.Confirmed)
+                    {
+                        <form asp-controller="Payments" asp-action="Pay" method="post" class="text-center mt-4">
+                            <input type="hidden" name="confirmationCode" value="@Model.ConfirmationCode" />
+                            <button type="submit" class="btn btn-success btn-lg px-4">
+                                <i class="bi bi-credit-card"></i>
+                                @T["Pay now"] · @Model.TotalPrice.ToString("0.00") AZN
+                            </button>
+                            <div class="small text-muted mt-2">
+                                <i class="bi bi-shield-lock"></i> @T["Secure payment by Stripe (test mode)."]
+                                @T["Test card: 4242 4242 4242 4242"]
+                            </div>
+                        </form>
+                    }
 
                     <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
                         <a asp-controller="Bookings"

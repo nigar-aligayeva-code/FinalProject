@@ -5,6 +5,7 @@ using HotelTravel.Web.Services.Api;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace HotelTravel.Web.Controllers;
 
@@ -12,10 +13,12 @@ namespace HotelTravel.Web.Controllers;
 public class AccountController : Controller
 {
     private readonly IAuthApiClient _authApi;
+    private readonly IStringLocalizer<SharedResource> _t;
 
-    public AccountController(IAuthApiClient authApi)
+    public AccountController(IAuthApiClient authApi, IStringLocalizer<SharedResource> localizer)
     {
         _authApi = authApi;
+        _t = localizer;
     }
 
     // REGISTER GET
@@ -41,10 +44,46 @@ public class AccountController : Controller
             return View(dto);
         }
 
-        // Register-dən sonra avtomatik login
+        // Register-dən sonra avtomatik login; təsdiq məktubu göndərilib
         await SignInAsync(auth, isPersistent: false);
 
-        return RedirectToAction("Index", "Home");
+        TempData["ProfileSuccess"] = "Welcome! We have sent a confirmation link to your email.";
+
+        return RedirectToAction("Index", "Profile");
+    }
+
+    // Qeydiyyat formu: e-poçtu yazan kimi yoxla (yazı səhvi, birdəfəlik domen, MX)
+    [HttpGet]
+    public async Task<IActionResult> CheckEmail(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return Json(new { isValid = false });
+
+        var result = await _authApi.CheckEmailAsync(email)
+            ?? new HotelTravel.Application.DTOs.Email.EmailCheckResult { IsValid = true }; // API yoxdursa forma işləyir
+
+        return Json(new
+        {
+            result.IsValid,
+            Reason = result.Reason is null ? null : _t[result.Reason].Value,
+            result.Suggestion,
+            DidYouMean = result.Suggestion is null ? null : _t["Did you mean {0}?", result.Suggestion].Value
+        });
+    }
+
+    // E-POÇT TƏSDİQİ (məktubdakı link)
+    [HttpGet]
+    public async Task<IActionResult> ConfirmEmail(string? email, string? token)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+            return RedirectToAction("Index", "Home");
+
+        var result = await _authApi.ConfirmEmailAsync(new ConfirmEmailDto { Email = email, Token = token });
+
+        ViewBag.Success = result.Success;
+        ViewBag.Message = result.Message;
+
+        return View();
     }
 
 

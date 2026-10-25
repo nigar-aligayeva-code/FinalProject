@@ -19,4 +19,11 @@ public class CreateReviewDto
     [StringLength(1000, MinimumLength = 10,
         ErrorMessage = "Comment must be between 10 and 1000 characters.")]
     public string Comment { get; set; } = string.Empty;
+
+    // Otelə qiymət (istəyə bağlıdır)
+    [Range(1, 5, ErrorMessage = "Please select a rating between 1 and 5.")]
+    public int? HotelRating { get; set; }
+
+    [StringLength(1000, ErrorMessage = "Comment must be between 10 and 1000 characters.")]
+    public string? HotelComment { get; set; }
 }

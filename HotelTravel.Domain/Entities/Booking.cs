@@ -22,6 +22,13 @@ public class Booking : BaseEntity
 
     public BookingStatus Status { get; set; }
 
+    // Onlayn ödəniş (Stripe Checkout, test rejimi)
+    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
+    public DateTime? PaidAt { get; set; }
+
+    // Stripe Checkout session id (cs_test_...): ödənişi yoxlamaq üçün
+    public string? PaymentReference { get; set; }
+
     public int RoomId { get; set; }
     public Room Room { get; set; }
 
@@ -34,4 +41,4 @@ public class Booking : BaseEntity
     // Rezervasiyanı daxil olmuş istifadəçi edibsə (My Bookings üçün)
     public string? AppUserId { get; set; }
     public AppUser? AppUser { get; set; }
-}
+}

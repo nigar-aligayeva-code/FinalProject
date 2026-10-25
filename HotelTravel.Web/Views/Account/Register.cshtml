@@ -63,11 +63,15 @@
 
                             <input asp-for="Email"
                                    class="form-control"
-                                   placeholder="@T["Enter your email"]" />
+                                   placeholder="@T["Enter your email"]"
+                                   data-check-url="@Url.Action("CheckEmail", "Account")" />
 
                             <span asp-validation-for="Email"
                                   class="text-danger">
                             </span>
+
+                            <!-- Canlı yoxlama: yazı səhvi / birdəfəlik e-poçt / poçt serveri -->
+                            <div id="emailHint" class="small mt-1" hidden></div>
                         </div>
 
                         <div class="mb-3">
@@ -127,4 +131,56 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        // E-poçt yazılıb sahədən çıxanda server yoxlayır: "gmial.com" -> "gmail.com?" təklifi,
+        // birdəfəlik (temp-mail) və poçt serveri olmayan domenlər üçün xəbərdarlıq
+        (function () {
+            const input = document.getElementById('Email');
+            const hint = document.getElementById('emailHint');
+            if (!input || !hint) return;
+
+            let last = '';
+
+            input.addEventListener('blur', async () => {
+                const email = input.value.trim();
+                if (!email || email === last || !email.includes('@@')) return;
+                last = email;
+
+                try {
+                    const response = await fetch(input.dataset.checkUrl + '?email=' + encodeURIComponent(email));
+                    const r = await response.json();
+
+                    hint.hidden = false;
+                    hint.innerHTML = '';
+
+                    if (!r.isValid) {
+                        hint.className = 'small mt-1 text-danger';
+                        hint.textContent = r.reason || '';
+                    } else if (r.suggestion) {
+                        hint.className = 'small mt-1 text-warning-emphasis';
+                    } else {
+                        hint.className = 'small mt-1 text-success';
+                        hint.textContent = '✓';
+                    }
+
+                    // "Did you mean ...?" -> klik edəndə düzəlt
+                    if (r.suggestion) {
+                        const link = document.createElement('a');
+                        link.href = '#';
+                        link.textContent = ' ' + r.didYouMean;
+                        link.addEventListener('click', e => {
+                            e.preventDefault();
+                            input.value = r.suggestion;
+                            hint.hidden = true;
+                            last = '';
+                        });
+                        hint.appendChild(link);
+                    }
+                } catch {
+                    hint.hidden = true;
+                }
+            });
+        })();
+    </script>
 }

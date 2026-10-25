@@ -14,4 +14,10 @@ public class Review : BaseEntity
     // Otaq üzrə rəyləri tez tapmaq üçün
     public int RoomId { get; set; }
     public Room Room { get; set; }
+
+    // Otelin özünə verilən qiymət (xidmət, yer, təmizlik) — istəyə bağlıdır.
+    // Otel Room.HotelId ilə tapılır, ayrıca sütun lazım deyil.
+    public int? HotelRating { get; set; }
+
+    public string? HotelComment { get; set; }
 }

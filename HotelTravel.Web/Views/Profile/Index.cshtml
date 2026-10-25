@@ -11,6 +11,11 @@
     var tripsForLevel = s.HotelBookings + s.FlightBookings;
     var toNext = ProfileRules.TripsToNextLevel(tripsForLevel, s.CitiesVisited);
     var isSecurity = Model.ActiveTab == "security";
+
+    // Avatar seçimi: cari stil və dəri tonu (öz şəkli yüklənibsə stil yoxdur)
+    var currentStyle = AvatarCatalog.StyleOf(u.AvatarKey);
+    var currentTone = AvatarCatalog.ToneOf(u.AvatarKey);
+    var hasPhoto = AvatarCatalog.IsUpload(u.AvatarKey);
 }
 
 <section class="pf-page">
@@ -43,7 +48,26 @@
             <div class="pf-hero-text">
                 <span class="pf-eyebrow"><i class="bi bi-person-badge"></i> @T["MY ACCOUNT"]</span>
                 <h1>@u.FirstName @u.LastName</h1>
-                <p>@u.Email @if (!string.IsNullOrWhiteSpace(u.PhoneNumber)) { <span>· @u.PhoneNumber</span> }</p>
+                <p>
+                    @u.Email
+                    @if (u.EmailConfirmed)
+                    {
+                        <span class="pf-verified" title="@T["Email confirmed"]"><i class="bi bi-patch-check-fill"></i> @T["Verified"]</span>
+                    }
+                    else
+                    {
+                        <span class="pf-unverified"><i class="bi bi-exclamation-circle"></i> @T["Not verified"]</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(u.PhoneNumber)) { <span>· @u.PhoneNumber</span> }
+                </p>
+
+                @if (!u.EmailConfirmed)
+                {
+                    <form asp-action="ResendConfirmation" method="post" class="pf-resend">
+                        <span>@T["Please confirm your email. Check your inbox for the link."]</span>
+                        <button type="submit">@T["Send the link again"]</button>
+                    </form>
+                }
             </div>
 
             <div class="pf-level">
@@ -61,7 +85,32 @@
                 <small>@T["Pick a picture or keep your initials"]</small>
             </summary>
 
+            <!-- 1) ÖZ ŞƏKLİN -->
+            <form asp-action="UploadAvatar" method="post" enctype="multipart/form-data" class="pf-upload">
+                <label class="pf-upload-drop">
+                    <img id="photoPreview" src="@(hasPhoto ? avatarUrl : "")" alt="" @(hasPhoto ? "" : "hidden") />
+                    <i class="bi bi-camera" id="photoIcon" @(hasPhoto ? "hidden" : "")></i>
+                    <input type="file" name="photo" id="photoInput" accept="image/jpeg,image/png,image/webp" />
+                </label>
+                <div>
+                    <strong>@T["Use your own photo"]</strong>
+                    <small>@T["JPG, PNG or WEBP, up to 2 MB."]</small>
+                    <button type="submit" class="pf-btn pf-btn-dark" id="photoSave" disabled>@T["Upload photo"]</button>
+                </div>
+            </form>
+
+            <!-- 2) HAZIR AVATAR + DƏRİ TONU -->
             <form asp-action="Avatar" method="post">
+                <div class="pf-tones" role="radiogroup" aria-label="@T["Skin tone"]">
+                    <span>@T["Skin tone"]</span>
+                    <button type="button" class="pf-tone pf-tone-default @(currentTone == 0 ? "active" : "")" data-tone="0" title="@T["Original"]"></button>
+                    @foreach (var tone in AvatarCatalog.Tones)
+                    {
+                        <button type="button" class="pf-tone @(currentTone == tone.Number ? "active" : "")" data-tone="@tone.Number"
+                                style="background:@tone.Color" title="@T[tone.Label]"></button>
+                    }
+                </div>
+
                 <div class="pf-av-grid">
                     <label class="pf-av">
                         <input type="radio" name="avatarKey" value="" @(avatarUrl == null ? "checked" : "") />
@@ -71,10 +120,12 @@
 
                     @foreach (var option in AvatarCatalog.All)
                     {
-                        <label class="pf-av">
-                            <input type="radio" name="avatarKey" value="@option.Key" @(u.AvatarKey == option.Key ? "checked" : "") />
-                            <img class="pf-av-img" src="@AvatarCatalog.GetUrl(option.Key)" alt="@option.Label" loading="lazy" />
-                            <small>@option.Label</small>
+                        var key = AvatarCatalog.WithTone(option.Key, currentTone);
+
+                        <label class="pf-av" data-style="@option.Key">
+                            <input type="radio" name="avatarKey" value="@key" @(currentStyle == option.Key ? "checked" : "") />
+                            <img class="pf-av-img" src="@AvatarCatalog.GetUrl(key)" alt="@T[option.Label]" loading="lazy" />
+                            <small>@T[option.Label]</small>
                         </label>
                     }
                 </div>
@@ -235,6 +286,11 @@
     .pf-alert-error { background: #fdecea; color: #8a1f17; border-color: #f5c2bd; }
 
     .pf-avatars { margin-bottom: 22px; }
+    .pf-verified, .pf-unverified { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 999px; margin-left: 6px; }
+    .pf-verified { background: #dcfce7; color: #166534; }
+    .pf-unverified { background: #fef3c7; color: #92400e; }
+    .pf-resend { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; }
+    .pf-resend button { border: 0; background: #fff; color: #1F2421; font-weight: 700; padding: 5px 12px; border-radius: 999px; cursor: pointer; }
     .pf-avatars summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
     .pf-avatars summary::-webkit-details-marker { display: none; }
     .pf-avatars summary span { font-family: Georgia, "Times New Roman", serif; font-size: 20px; color: #1F2421; }
@@ -250,6 +306,19 @@
     .pf-av input:focus-visible ~ .pf-av-img { outline: 2px solid #52614e; outline-offset: 3px; }
     .pf-av small { font-size: 12px; color: #4b5563; text-align: center; }
     .pf-av-initials { background: #52614e; color: #fff; display: grid; place-items: center; font-size: 24px; font-weight: 700; }
+    .pf-upload { display: flex; align-items: center; gap: 16px; padding: 14px; margin-bottom: 18px; border: 1px dashed #d6cfc2; border-radius: 16px; background: #FBFAF7; }
+    .pf-upload strong { display: block; color: #1F2421; }
+    .pf-upload small { display: block; color: #6b7280; margin-bottom: 8px; }
+    .pf-upload-drop { position: relative; width: 76px; height: 76px; border-radius: 50%; background: #F3EEE5; display: grid; place-items: center; cursor: pointer; overflow: hidden; flex-shrink: 0; border: 2px solid #e7e0d4; }
+    .pf-upload-drop i { font-size: 26px; color: #52614e; }
+    .pf-upload-drop img { width: 100%; height: 100%; object-fit: cover; }
+    .pf-upload-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .pf-upload .pf-btn:disabled { opacity: .45; cursor: not-allowed; }
+    .pf-tones { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .pf-tones span { font-weight: 600; color: #374151; margin-right: 4px; }
+    .pf-tone { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #d1d5db; cursor: pointer; padding: 0; }
+    .pf-tone.active { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1F2421; }
+    .pf-tone-default { background: conic-gradient(#f6d7c3 0 20%, #e8b892 0 40%, #c68a5e 0 60%, #9a6440 0 80%, #6b4428 0); }
     .pf-hero-text { flex: 1; min-width: 220px; }
     .pf-eyebrow { font-size: 12px; letter-spacing: .14em; color: #d5e5d1; font-weight: 700; }
     .pf-hero h1 { font-family: Georgia, "Times New Roman", serif; margin: 6px 0 4px; font-size: 32px; color: #fff; }
@@ -318,6 +387,35 @@
         const picker = document.getElementById('avatarPicker');
         picker.open = true;
         picker.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // Dəri tonu: bütün avatarların şəklini və dəyərini həmin tona keçir
+    document.querySelectorAll('.pf-tone').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tone = btn.dataset.tone;
+            document.querySelectorAll('.pf-tone').forEach(b => b.classList.toggle('active', b === btn));
+
+            document.querySelectorAll('.pf-av[data-style]').forEach(label => {
+                const key = tone === '0' ? label.dataset.style : label.dataset.style + '-t' + tone;
+                label.querySelector('input').value = key;
+                label.querySelector('img').src = '/assets/images/avatars/' + key + '.svg';
+            });
+        });
+    });
+
+    // Öz şəkli: seçiləndə önizləmə göstər və düyməni aktiv et
+    const photoInput = document.getElementById('photoInput');
+    photoInput?.addEventListener('change', () => {
+        const file = photoInput.files[0];
+        const preview = document.getElementById('photoPreview');
+        const save = document.getElementById('photoSave');
+
+        if (!file) { save.disabled = true; return; }
+
+        preview.src = URL.createObjectURL(file);
+        preview.hidden = false;
+        document.getElementById('photoIcon').hidden = true;
+        save.disabled = file.size > 2 * 1024 * 1024;
     });
 
     document.querySelectorAll('.pf-tab').forEach(btn => {

@@ -158,6 +158,13 @@
     </a>
 </div>
 
+@if (TempData["SuccessMessage"] is string savedMessage)
+{
+    <div style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:12px 16px;border-radius:10px;margin-bottom:16px">
+        ✓ @savedMessage
+    </div>
+}
+
 <form method="post">
     @Html.AntiForgeryToken()
 
@@ -268,6 +275,14 @@
         </button>
     </div>
 </form>
+
+<!-- Bu otelin otaqları: otel və otaqlar bir səhifədə -->
+@if (ViewBag.HotelRooms is List<HotelTravel.Application.DTOs.Rooms.GetRoomDto> hotelRooms)
+{
+    <div class="edit-card" style="margin-top:24px">
+        <partial name="_HotelRooms" model="((int)ViewBag.HotelId, hotelRooms)" />
+    </div>
+}
 
 @section Scripts {
     <script>
