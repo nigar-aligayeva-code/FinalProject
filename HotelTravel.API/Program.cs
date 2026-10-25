@@ -16,6 +16,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -338,6 +339,29 @@ namespace HotelTravel.API
             logger.LogError("Could not connect to the database. Check that SQL Server is running.");
         }
 
+        // SQL Server konteyneri bir neçə saniyə gec açılır, ona görə bir neçə dəfə cəhd edirik
+        private static async Task MigrateWithRetryAsync(AppDbContext context, ILogger logger)
+        {
+            const int maxAttempts = 20;
+
+            for (var attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    await context.Database.MigrateAsync();
+                    logger.LogInformation("Database migrations applied.");
+                    return;
+                }
+                catch (Exception ex) when (attempt < maxAttempts)
+                {
+                    logger.LogWarning("Database not ready for migrations ({Attempt}/{Max}): {Message}",
+                        attempt, maxAttempts, ex.Message);
+
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                }
+            }
+        }
+
         private static async Task SeedDatabaseAsync(WebApplication app)
         {
             using var scope = app.Services.CreateScope();
@@ -347,8 +371,14 @@ namespace HotelTravel.API
             var configuration = services.GetRequiredService<IConfiguration>();
             var context = services.GetRequiredService<AppDbContext>();
 
-            // SQL Server hazır olana qədər gözlə (kompüter yenicə açılıbsa gecikə bilər)
-            await WaitForDatabaseAsync(context, logger);
+            // Docker-də baza boşdur: "Database:MigrateOnStartup" = true olanda
+            // migration-lar avtomatik tətbiq olunur (baza yoxdursa yaradılır).
+            // Lokal işdə (Visual Studio) bu söndürülüdür, Update-Database ilə edilir.
+            if (configuration.GetValue<bool>("Database:MigrateOnStartup"))
+                await MigrateWithRetryAsync(context, logger);
+            else
+                // SQL Server hazır olana qədər gözlə (kompüter yenicə açılıbsa gecikə bilər)
+                await WaitForDatabaseAsync(context, logger);
 
             // Rollar + admin (AdminSettings yoxdursa admin addımı ötürülür)
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -372,6 +402,9 @@ namespace HotelTravel.API
             }
 
             await HotelDataSeeder.SeedAsync(context);
+
+            // Hər otelin öz otaq dəsti (King, Penthouse, Villa...); baza otaqların bəziləri gizlədilir
+            await RoomVarietySeeder.SeedAsync(context);
 
             // Şəkillər MVC-nin wwwroot qovluğundadır
             var webRoot = configuration["Media:WebRootPath"];

@@ -518,6 +518,7 @@
   <data name="It will not be shown publicly." xml:space="preserve"><value>Не будет показана публично.</value></data>
   <data name="just now" xml:space="preserve"><value>только что</value></data>
   <data name="Just one step left. Enter your details to confirm the stay." xml:space="preserve"><value>Остался один шаг. Введите данные, чтобы подтвердить бронь.</value></data>
+  <data name="King" xml:space="preserve"><value>Кинг</value></data>
   <data name="km" xml:space="preserve"><value>км</value></data>
   <data name="Language" xml:space="preserve"><value>Язык</value></data>
   <data name="Last Name" xml:space="preserve"><value>Фамилия</value></data>
@@ -673,6 +674,7 @@
   <data name="Payment summary" xml:space="preserve"><value>Сводка оплаты</value></data>
   <data name="PDF" xml:space="preserve"><value>PDF</value></data>
   <data name="PDF attached" xml:space="preserve"><value>PDF приложен</value></data>
+  <data name="Penthouse" xml:space="preserve"><value>Пентхаус</value></data>
   <data name="per night from" xml:space="preserve"><value>за ночь от</value></data>
   <data name="per passenger" xml:space="preserve"><value>за пассажира</value></data>
   <data name="per person" xml:space="preserve"><value>за человека</value></data>
@@ -720,6 +722,7 @@
   <data name="Popular destinations" xml:space="preserve"><value>Популярные направления</value></data>
   <data name="Premium" xml:space="preserve"><value>Премиум</value></data>
   <data name="Premium Accommodation" xml:space="preserve"><value>Премиум-размещение</value></data>
+  <data name="Presidential" xml:space="preserve"><value>Президентский</value></data>
   <data name="Preview only — links are disabled. Password reset links are never stored in the log." xml:space="preserve"><value>Только просмотр — ссылки отключены. Ссылки сброса пароля не хранятся в журнале.</value></data>
   <data name="Previous image" xml:space="preserve"><value>Предыдущее фото</value></data>
   <data name="Price" xml:space="preserve"><value>Цена</value></data>
@@ -886,6 +889,7 @@
   <data name="Stay" xml:space="preserve"><value>Проживание</value></data>
   <data name="Stayed" xml:space="preserve"><value>Проживал</value></data>
   <data name="Stays" xml:space="preserve"><value>Жильё</value></data>
+  <data name="Studio" xml:space="preserve"><value>Студия</value></data>
   <data name="Submit Review" xml:space="preserve"><value>Отправить отзыв</value></data>
   <data name="Subtotal" xml:space="preserve"><value>Промежуточный итог</value></data>
   <data name="Suite" xml:space="preserve"><value>Люкс</value></data>

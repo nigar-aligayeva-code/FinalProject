@@ -8,5 +8,11 @@ public enum RoomType
     Deluxe,
     Suite,
     Family,
-    Villa
+    Villa,
+
+    // Sonradan əlavə olunanlar (sona yazılır ki, bazadakı rəqəmlər dəyişməsin)
+    King,
+    Presidential,
+    Studio,
+    Penthouse
 }

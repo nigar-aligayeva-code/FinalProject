@@ -441,7 +441,8 @@
             ["act_car_any"] = T["Someone just rented a car"],
             ["act_trip"] = T["Someone just booked a trip package to {0}"]
         }));
-        window.tripioLive = { apiBase: @Html.Raw(System.Text.Json.JsonSerializer.Serialize((Config["Api:BaseUrl"] ?? "").TrimEnd('/'))) };
+        // Brauzer API-yə birbaşa qoşulur (SignalR, valyuta). Docker-də bu ünvan server ünvanından fərqlidir: Api:PublicUrl
+        window.tripioLive = { apiBase: @Html.Raw(System.Text.Json.JsonSerializer.Serialize((Config["Api:PublicUrl"] ?? Config["Api:BaseUrl"] ?? "").TrimEnd('/'))) };
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="~/js/live-activity.js" asp-append-version="true"></script>

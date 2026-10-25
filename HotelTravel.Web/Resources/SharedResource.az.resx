@@ -518,6 +518,7 @@
   <data name="It will not be shown publicly." xml:space="preserve"><value>Hamıya göstərilməyəcək.</value></data>
   <data name="just now" xml:space="preserve"><value>indicə</value></data>
   <data name="Just one step left. Enter your details to confirm the stay." xml:space="preserve"><value>Bir addım qalıb. Rezervasiyanı təsdiqləmək üçün məlumatlarınızı daxil edin.</value></data>
+  <data name="King" xml:space="preserve"><value>King (geniş çarpayı)</value></data>
   <data name="km" xml:space="preserve"><value>km</value></data>
   <data name="Language" xml:space="preserve"><value>Dil</value></data>
   <data name="Last Name" xml:space="preserve"><value>Soyad</value></data>
@@ -673,6 +674,7 @@
   <data name="Payment summary" xml:space="preserve"><value>Ödəniş xülasəsi</value></data>
   <data name="PDF" xml:space="preserve"><value>PDF</value></data>
   <data name="PDF attached" xml:space="preserve"><value>PDF əlavə olunub</value></data>
+  <data name="Penthouse" xml:space="preserve"><value>Penthaus</value></data>
   <data name="per night from" xml:space="preserve"><value>gecəsi, başlayaraq</value></data>
   <data name="per passenger" xml:space="preserve"><value>bir sərnişin üçün</value></data>
   <data name="per person" xml:space="preserve"><value>bir nəfər üçün</value></data>
@@ -720,6 +722,7 @@
   <data name="Popular destinations" xml:space="preserve"><value>Populyar istiqamətlər</value></data>
   <data name="Premium" xml:space="preserve"><value>Premium</value></data>
   <data name="Premium Accommodation" xml:space="preserve"><value>Premium yaşayış</value></data>
+  <data name="Presidential" xml:space="preserve"><value>Prezident</value></data>
   <data name="Preview only — links are disabled. Password reset links are never stored in the log." xml:space="preserve"><value>Yalnız baxış — linklər işləmir. Şifrə bərpa linkləri jurnalda saxlanılmır.</value></data>
   <data name="Previous image" xml:space="preserve"><value>Əvvəlki şəkil</value></data>
   <data name="Price" xml:space="preserve"><value>Qiymət</value></data>
@@ -886,6 +889,7 @@
   <data name="Stay" xml:space="preserve"><value>Qalma</value></data>
   <data name="Stayed" xml:space="preserve"><value>Qalıb</value></data>
   <data name="Stays" xml:space="preserve"><value>Qalma yerləri</value></data>
+  <data name="Studio" xml:space="preserve"><value>Studiya</value></data>
   <data name="Submit Review" xml:space="preserve"><value>Rəyi göndər</value></data>
   <data name="Subtotal" xml:space="preserve"><value>Ara cəm</value></data>
   <data name="Suite" xml:space="preserve"><value>Lüks</value></data>
