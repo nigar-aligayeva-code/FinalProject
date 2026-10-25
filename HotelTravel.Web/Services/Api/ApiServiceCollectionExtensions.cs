@@ -1,4 +1,4 @@
-using HotelTravel.Application.Interfaces;
+﻿using HotelTravel.Application.Interfaces;
 
 namespace HotelTravel.Web.Services.Api;
 
@@ -54,6 +54,8 @@ public static class ApiServiceCollectionExtensions
         services.AddScoped<IAnalyticsService, AnalyticsApiService>();
         services.AddScoped<IProfileApiClient, ProfileApiClient>();
         services.AddScoped<IVoucherApiClient, VoucherApiClient>();
+        services.AddScoped<IPaymentApiClient, PaymentApiClient>();
+        services.AddMemoryCache(); // PaymentApiClient: "ödəniş aktivdir?" cavabını qısa müddət saxlayır
         services.AddScoped<IEmailLogService, EmailLogApiService>();
         services.AddScoped<ITripPackageService, TripApiService>();
         services.AddScoped<IWeatherService, WeatherApiService>();

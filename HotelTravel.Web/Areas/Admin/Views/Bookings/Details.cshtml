@@ -330,9 +330,19 @@
         <div>
             <div class="bd-eyebrow">@T["Reservation overview"]</div>
             <h1 class="bd-title">@T["Booking Details"]</h1>
-            <p class="bd-sub">Confirmation <span class="bd-code">#@Model.ConfirmationCode</span></p>
+            <p class="bd-sub">@T["Confirmation"] <span class="bd-code">#@Model.ConfirmationCode</span></p>
         </div>
-        <span class="bd-status @statusClass">@T.Enum(Model.Status)</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span class="bd-status @statusClass">@T.Enum(Model.Status)</span>
+            @if (Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Paid)
+            {
+                <span style="font-size:12px;font-weight:700;color:#166534;background:#dcfce7;padding:3px 10px;border-radius:999px">💳 @T["Paid online"]</span>
+            }
+            else
+            {
+                <span style="font-size:12px;font-weight:700;color:#92400e;background:#fef3c7;padding:3px 10px;border-radius:999px">@T["Pay at the hotel"]</span>
+            }
+        </div>
     </div>
 
     @if (TempData["Success"] != null)

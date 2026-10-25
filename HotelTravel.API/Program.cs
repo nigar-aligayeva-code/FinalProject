@@ -62,6 +62,10 @@ namespace HotelTravel.API
 
             // HAVA: Open-Meteo (pulsuz, açarsız) + 30 dəqiqəlik keş
             builder.Services.AddMemoryCache();
+
+            // ÖDƏNİŞ: "Stripe:SecretKey" (sk_test_...) User Secrets-dədirsə onlayn ödəniş aktivdir
+            builder.Services.AddSingleton(
+                builder.Configuration.GetSection("Stripe").Get<StripeOptions>() ?? new StripeOptions());
             builder.Services.AddHttpClient<IWeatherService, OpenMeteoWeatherService>(client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(8);

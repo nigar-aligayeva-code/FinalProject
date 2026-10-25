@@ -61,6 +61,10 @@ public static class DependencyInjection
 
         // Qeydiyyatda e-poçt yoxlaması: format, birdəfəlik domen, yazı səhvi, MX qeydi
         services.AddSingleton<IEmailAddressChecker, DnsEmailAddressChecker>();
+
+        // Onlayn ödəniş: Stripe Checkout (yalnız test açarı ilə aktivdir)
+        services.AddScoped<IPaymentGateway, StripePaymentGateway>();
+        services.AddScoped<IPaymentService, PaymentService>();
         services.AddSingleton<IVoucherPdfService, QuestPdfVoucherService>();
         services.AddScoped<IBookingEmailService, BookingEmailService>();
         services.AddScoped<IEmailLogService, EmailLogService>();

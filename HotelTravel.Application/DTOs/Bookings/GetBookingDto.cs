@@ -24,6 +24,10 @@ public class GetBookingDto
 
     public BookingStatus Status { get; set; }
 
+    // Onlayn ödəniş (Stripe)
+    public PaymentStatus PaymentStatus { get; set; }
+    public DateTime? PaidAt { get; set; }
+
     public int RoomId { get; set; }
     public string RoomName { get; set; }
     public string RoomNumber { get; set; }
