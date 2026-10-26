@@ -65,6 +65,19 @@ public class RoomVarietySeederTests
     }
 
     [Fact]
+    public void EveryHotel_ShouldOfferAtLeastSixRooms_AndFourTypes()
+    {
+        foreach (var name in new[] { "Caspian Grand Hotel", "Gabala Mountain Resort", "Bosphorus Palace Hotel",
+                     "Antalya Blue Resort", "Tbilisi Heritage Hotel", "Batumi Sea View Hotel", "Dubai Marina Luxury Hotel", "HotelHub Baku" })
+        {
+            var profile = RoomVarietySeeder.ProfileFor(name)!;
+
+            Assert.True(profile.BaseRooms.Length + profile.Signature.Length >= 6, name);
+            Assert.True(RoomVarietySeeder.RoomTypesFor(name).Count >= 4, name);
+        }
+    }
+
+    [Fact]
     public void UnknownHotel_ShouldNotBeTouched()
     {
         Assert.Null(RoomVarietySeeder.ProfileFor("My New Hotel"));
@@ -80,10 +93,10 @@ public class RoomVarietySeederTests
 
         var active = await context.Rooms.Where(r => r.HotelId == hotel.Id && !r.IsDeleted).ToListAsync();
 
-        // Dubay: yalnız Deluxe (03) və Suite (04) qalır + 3 imza otaq
+        // Dubay: yalnız Deluxe (03) və Suite (04) qalır + 6 imza otaq
         Assert.DoesNotContain(active, r => r.RoomType == RoomType.Single);
         Assert.Contains(active, r => r.RoomType == RoomType.Penthouse);
-        Assert.Equal(5, active.Count);
+        Assert.Equal(8, active.Count);
 
         // Qiymət 1.6 dəfə: 220 -> 350
         Assert.Equal(350m, active.Single(r => r.RoomType == RoomType.Deluxe).PricePerNight);

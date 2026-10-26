@@ -162,7 +162,29 @@ public static class HotelDataSeeder
                 Latitude = 25.0800,
                 Longitude = 55.1400,
                 StarRating = 5
+            },
+
+            new Hotel
+            {
+                Name = "HotelHub Baku",
+                Description =
+                    "A modern city hotel on Nizami Street, steps away from Fountain Square and the Old City.",
+                Address = "Nizami Street 25",
+                City = "Baku",
+                Country = "Azerbaijan",
+                Phone = "+994 12 555 80 80",
+                Email = "city@hotelhub.com",
+                MainImage = "/assets/images/hotels/hotelhub-exterior.jpg",
+                Latitude = 40.3777,
+                Longitude = 49.8445,
+                StarRating = 4
             }
+        };
+
+        // Şəkil faylları şəhər adı ilə adlanır (baku-lobby.jpg); eyni şəhərdə ikinci otel öz prefiksini alır
+        var galleryPrefixes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["HotelHub Baku"] = "hotelhub"
         };
 
 
@@ -370,7 +392,9 @@ public static class HotelDataSeeder
 
         foreach (var hotel in seededHotels)
         {
-            string prefix = hotel.City.ToLower();
+            var prefix = galleryPrefixes.TryGetValue(hotel.Name, out var custom)
+                ? custom
+                : hotel.City.ToLower();
 
             var hotelImages = new List<(string ImageUrl, string Category)>
     {
@@ -389,8 +413,9 @@ public static class HotelDataSeeder
                 .ToListAsync();
 
 
-            // Artıq siyahımızda olmayan köhnə şəkilləri sil
+            // Siyahımızda olmayan köhnə HAZIR şəkilləri sil (admin-in /uploads şəkillərinə toxunma)
             var oldImages = existingImages
+                .Where(x => x.ImageUrl.StartsWith("/assets/images/hotels/", StringComparison.OrdinalIgnoreCase))
                 .Where(x => !hotelImages.Any(i => i.ImageUrl == x.ImageUrl))
                 .ToList();
 
@@ -418,57 +443,6 @@ public static class HotelDataSeeder
             }
         }
         // ==========================================
-        // HOTELHUB BAKU GALLERY
-        // ==========================================
-
-        var hotelHubBaku = await context.Hotels
-            .FirstOrDefaultAsync(h =>
-                h.Name == "HotelHub Baku" &&
-                !h.IsDeleted);
-
-        if (hotelHubBaku != null)
-        {
-            var hotelHubImages = new List<(string ImageUrl, string Category)>
-    {
-        ("/assets/images/hotels/hotelhub-exterior.jpg", "Overview"),
-        ("/assets/images/hotels/hotelhub-lobby.jpg", "Overview"),
-        ("/assets/images/hotels/hotelhub-room.jpg", "Rooms"),
-        ("/assets/images/hotels/hotelhub-restaurant.jpg", "Dining"),
-        ("/assets/images/hotels/hotelhub-pool.jpg", "Wellness"),
-        ("/assets/images/hotels/hotelhub-spa.jpg", "Wellness")
-    };
-
-            foreach (var image in hotelHubImages)
-            {
-                var exists = await context.HotelImages
-                    .AnyAsync(x =>
-                        x.HotelId == hotelHubBaku.Id &&
-                        x.ImageUrl == image.ImageUrl);
-
-                if (!exists)
-                {
-                    context.HotelImages.Add(new HotelImage
-                    {
-                        HotelId = hotelHubBaku.Id,
-                        ImageUrl = image.ImageUrl,
-                        Category = image.Category
-                    });
-                }
-            }
-
-            // HotelHub-un əsas kart şəklini də düzəldirik
-            hotelHubBaku.MainImage =
-                "/assets/images/hotels/hotelhub-exterior.jpg";
-
-            // Xəritə üçün koordinat (Nizami küçəsi, Bakı)
-            if (hotelHubBaku.Latitude == 0 && hotelHubBaku.Longitude == 0)
-            {
-                hotelHubBaku.Latitude = 40.3777;
-                hotelHubBaku.Longitude = 49.8445;
-            }
-        }
-
-        // ==========================================
         // KOORDİNATI OLMAYAN OTELLƏR -> ŞƏHƏR MƏRKƏZİ
         // ==========================================
 
@@ -489,7 +463,14 @@ public static class HotelDataSeeder
 
         foreach (var hotel in withoutCoordinates)
         {
-            if (hotel.City != null && cityCenters.TryGetValue(hotel.City.Trim(), out var center))
+            var seed = hotels.FirstOrDefault(h => h.Name == hotel.Name);
+
+            if (seed != null && (seed.Latitude != 0 || seed.Longitude != 0))
+            {
+                hotel.Latitude = seed.Latitude;
+                hotel.Longitude = seed.Longitude;
+            }
+            else if (hotel.City != null && cityCenters.TryGetValue(hotel.City.Trim(), out var center))
             {
                 hotel.Latitude = center.Lat;
                 hotel.Longitude = center.Lng;

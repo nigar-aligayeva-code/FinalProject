@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Entities;
+﻿using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
 using HotelTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -66,14 +66,21 @@ public static class MediaFixSeeder
         [RoomType.Twin] = new[] { "gabala-room", "room203-bedroom-1" },
         [RoomType.Deluxe] = new[] { "dubai-room", "hotelhub-room", "room201-bedroom-2" },
         [RoomType.Suite] = new[] { "room204-bedroom", "room204-living-room", "istanbul-room", "antalya-room" },
-        [RoomType.Family] = new[] { "room205-bedroom", "room205-family-area", "baku-room" }
+        [RoomType.Family] = new[] { "room205-bedroom", "room205-family-area", "baku-room" },
+
+        // Sonradan əlavə olunan tiplər
+        [RoomType.King] = new[] { "room202-bedroom", "dubai-room", "room201-bedroom-2" },
+        [RoomType.Studio] = new[] { "room201-bedroom-2", "hotelhub-room", "room203-bedroom-2" },
+        [RoomType.Villa] = new[] { "room205-family-area", "antalya-room", "gabala-room" },
+        [RoomType.Presidential] = new[] { "room204-living-room", "istanbul-room", "room204-bedroom" },
+        [RoomType.Penthouse] = new[] { "room204-living-room", "dubai-room", "room204-bedroom" }
     };
 
     // Əvvəl hansı tiplər şəkil seçsin (Deluxe şəhərin öz fotosunu alsın)
     private static readonly RoomType[] TypeOrder =
     {
-        RoomType.Deluxe, RoomType.Suite, RoomType.Family,
-        RoomType.Double, RoomType.Twin, RoomType.Single
+        RoomType.Deluxe, RoomType.Presidential, RoomType.Penthouse, RoomType.Suite, RoomType.Villa,
+        RoomType.Family, RoomType.King, RoomType.Double, RoomType.Studio, RoomType.Twin, RoomType.Single
     };
 
     private static readonly string[] Bathrooms =
@@ -157,6 +164,16 @@ public static class MediaFixSeeder
                 toAssign.Add(room);
         }
 
+        // 1b) extra qovluğuna YENİ foto atılıbsa, variant (güzgü/kəsilmiş) şəkli olan otaqlar
+        //     onları alsın — beləliklə əlavə etdiyin hər foto dərhal saytda görünür.
+        var freeExtras = extraPhotos.Count(p => !used.Contains(p));
+
+        foreach (var room in rooms.Where(r => IsVariant(r.MainImage)).Take(freeExtras).ToList())
+        {
+            used.Remove(room.MainImage!);
+            toAssign.Add(room);
+        }
+
         if (toAssign.Count == 0)
             return;
 
@@ -213,6 +230,7 @@ public static class MediaFixSeeder
         // Əvvəl real fotolar (uyğun olanlar, sonra extra, sonra qalanları),
         // yalnız onlar bitəndə variantlar
         list.AddRange(preferred.Select(n => BasePhotos[n]));
+        list.AddRange(extraPhotos.Where(p => MatchesType(p, type)));
         list.AddRange(extraPhotos);
         list.AddRange(BasePhotos.Values);
         list.AddRange(preferred.Select(n => $"{Variants}{n}-a.jpg"));
@@ -360,6 +378,14 @@ public static class MediaFixSeeder
         var index = Array.IndexOf(TypeOrder, type);
         return index < 0 ? TypeOrder.Length : index;
     }
+
+    // Güzgü əksi / kəsilmiş variant (real foto bitəndə istifadə olunur)
+    private static bool IsVariant(string? path)
+        => path != null && path.StartsWith(Variants, StringComparison.OrdinalIgnoreCase);
+
+    // extra/king-01.jpg, extra/suite-sea.jpg -> adında otaq tipi varsa, əvvəl həmin tipə verilir
+    private static bool MatchesType(string path, RoomType type)
+        => Path.GetFileName(path).StartsWith(type.ToString(), StringComparison.OrdinalIgnoreCase);
 
     // Layihənin öz şəkilləri (admin yükləməsi deyil)
     private static bool IsBuiltIn(string? path)
