@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Payments;
+﻿using HotelTravel.Application.DTOs.Payments;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Options;
 using HotelTravel.Application.Services;
@@ -27,6 +27,15 @@ public class PaymentTests
 
         public Task<PaymentSessionStatus> GetSessionAsync(string sessionId, CancellationToken ct = default)
             => Task.FromResult(Status);
+
+        public long? LastRefundMinor { get; private set; }
+        public bool RefundSucceeds { get; set; } = true;
+
+        public Task<PaymentRefundResult> RefundAsync(string sessionId, long amountMinor, CancellationToken ct = default)
+        {
+            LastRefundMinor = amountMinor;
+            return Task.FromResult(new PaymentRefundResult(RefundSucceeds, RefundSucceeds ? "re_test_1" : null, RefundSucceeds ? null : "declined"));
+        }
     }
 
     private static AppDbContext CreateContext() =>
@@ -133,4 +142,72 @@ public class PaymentTests
 
         Assert.False(result.Success);
     }
+
+    [Fact]
+    public async Task Refund_ShouldReturnPaidAmountMinusFee()
+    {
+        await using var context = CreateContext();
+        await SeedAsync(context);
+
+        // Ödənilib, sonra 30% cərimə ilə ləğv edilib
+        var booking = await context.Bookings.SingleAsync();
+        booking.PaymentStatus = PaymentStatus.Paid;
+        booking.PaymentReference = "cs_test_123";
+        booking.Status = BookingStatus.Cancelled;
+        booking.CancellationFee = 72m;
+        await context.SaveChangesAsync();
+
+        var gateway = new FakeGateway();
+        var service = new PaymentService(context, gateway, new StripeOptions { SecretKey = "sk_test_x" });
+
+        var result = await service.RefundCancelledAsync("BK-PAY1");
+
+        Assert.True(result.Success);
+        Assert.Equal(16800, gateway.LastRefundMinor);   // 240 - 72 = 168 AZN
+
+        booking = await context.Bookings.SingleAsync();
+        Assert.Equal(PaymentStatus.Refunded, booking.PaymentStatus);
+        Assert.Equal(168m, booking.RefundAmount);
+    }
+
+    [Fact]
+    public async Task Refund_ShouldDoNothing_ForUnpaidBooking()
+    {
+        await using var context = CreateContext();
+        await SeedAsync(context, BookingStatus.Cancelled);
+
+        var gateway = new FakeGateway();
+        var service = new PaymentService(context, gateway, new StripeOptions { SecretKey = "sk_test_x" });
+
+        var result = await service.RefundCancelledAsync("BK-PAY1");
+
+        Assert.False(result.Success);
+        Assert.Null(gateway.LastRefundMinor);
+    }
+
+    [Fact]
+    public async Task Refund_ShouldKeepPaid_WhenStripeFails()
+    {
+        await using var context = CreateContext();
+        await SeedAsync(context, BookingStatus.Cancelled);
+
+        var booking = await context.Bookings.SingleAsync();
+        booking.PaymentStatus = PaymentStatus.Paid;
+        booking.PaymentReference = "cs_test_123";
+        await context.SaveChangesAsync();
+
+        var service = new PaymentService(context, new FakeGateway { RefundSucceeds = false }, new StripeOptions { SecretKey = "sk_test_x" });
+
+        var result = await service.RefundCancelledAsync("BK-PAY1");
+
+        Assert.False(result.Success);
+        Assert.Equal(PaymentStatus.Paid, (await context.Bookings.SingleAsync()).PaymentStatus);
+    }
+
+    [Theory]
+    [InlineData(240, 72, 168)]
+    [InlineData(240, 0, 240)]
+    [InlineData(100, 150, 0)]
+    public void RefundFor_ShouldSubtractFee_AndNeverGoNegative(decimal paid, decimal fee, decimal expected)
+        => Assert.Equal(expected, PaymentRules.RefundFor(paid, fee));
 }

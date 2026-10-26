@@ -173,7 +173,8 @@ public class HotelService : IHotelService
             .CountAsync(b =>
                 b.Room.HotelId == hotelId &&
                 !b.IsDeleted &&
-                (b.Status == HotelTravel.Domain.Enums.BookingStatus.Confirmed ||
+                (b.Status == HotelTravel.Domain.Enums.BookingStatus.Pending ||
+                 b.Status == HotelTravel.Domain.Enums.BookingStatus.Confirmed ||
                  b.Status == HotelTravel.Domain.Enums.BookingStatus.CheckedIn) &&
                 b.CheckOutDate >= today);
     }

@@ -75,6 +75,7 @@
 
             <div class="hh-panel hh-perks">
                 <div><i class="bi bi-check-circle-fill"></i> @T["Free cancellation up to {0} hours before departure", FlightRules.FreeCancelHours]</div>
+                <div class="small text-muted ps-4">@T["Later: {0}% fee, in the last {1} hours: {2}% fee.", HotelTravel.Application.Services.CancellationPolicy.LateFeePercent, HotelTravel.Application.Services.CancellationPolicy.LateHours, HotelTravel.Application.Services.CancellationPolicy.LastMinuteFeePercent] @T["No cancellation in the last {0} hours.", HotelTravel.Application.Services.CancellationPolicy.FlightClosedHours]</div>
                 <div><i class="bi bi-check-circle-fill"></i> @T["Cabin bag included"] · @(Model.Cabin == HotelTravel.Domain.Enums.CabinClass.Business ? "2 × 32 kg" : "1 × 23 kg") @T["checked baggage"]</div>
                 <div><i class="bi bi-check-circle-fill"></i> @T["No payment now: pay at check-in"]</div>
             </div>

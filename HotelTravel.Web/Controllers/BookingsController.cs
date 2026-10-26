@@ -120,6 +120,8 @@ public class BookingsController : Controller
             return View();
         }
 
+        ViewBag.PaymentsEnabled = await _payments.IsEnabledAsync();
+
         return View("FindResult", booking);
     }
 
@@ -149,6 +151,8 @@ public class BookingsController : Controller
 
             return View("Find");
         }
+
+        ViewBag.PaymentsEnabled = await _payments.IsEnabledAsync();
 
         return View("FindResult", booking);
     }
@@ -288,8 +292,7 @@ public class BookingsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-        CreateBookingDto dto,
-        bool payNow = false)
+        CreateBookingDto dto)
     {
         if (!ModelState.IsValid)
         {
@@ -317,15 +320,7 @@ public class BookingsController : Controller
             return View(dto);
         }
 
-        // Qonaq "indi kartla ödə" seçibsə, birbaşa Stripe ödəniş səhifəsinə
-        if (payNow && await _payments.IsEnabledAsync())
-        {
-            return RedirectToAction(
-                "Start",
-                "Payments",
-                new { confirmationCode = result.ConfirmationCode });
-        }
-
+        // Rezervasiya "sorğu" kimi yaranır (Pending): otel təsdiqləyəndən sonra ödəniş açılır
         return RedirectToAction(
     nameof(Confirmation),
     new
@@ -351,6 +346,9 @@ public class BookingsController : Controller
         // Maşın icarələri də My Bookings-də görünsün
         ViewBag.CarRentals =
             await _carRentalService.GetByUserAsync(userId!);
+
+        // Təsdiqlənmiş, ödənilməmiş rezervasiyada "Pay now" düyməsi üçün
+        ViewBag.PaymentsEnabled = await _payments.IsEnabledAsync();
 
         return View(bookings);
     }
@@ -633,4 +631,4 @@ public class BookingsController : Controller
                 "DisplayName",
                 selectedRoomId);
     }
-}
+}

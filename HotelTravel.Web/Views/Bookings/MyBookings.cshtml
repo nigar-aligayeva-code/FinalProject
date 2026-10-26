@@ -27,7 +27,7 @@
 
     foreach (var b in Model)
     {
-        var active = b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.CheckedIn;
+        var active = b.Status == BookingStatus.Pending || b.Status == BookingStatus.Confirmed || b.Status == BookingStatus.CheckedIn;
         all.Add((b.CheckInDate, "hotel", b, active));
     }
 
@@ -114,6 +114,7 @@
         white-space: nowrap;
     }
 
+    .status-pending { background: #fef3c7; color: #92400e; }
     .status-confirmed { background: #dcfce7; color: #166534; }
     .status-checkedin { background: #dbeafe; color: #1d4ed8; }
     .status-checkedout { background: #f1f5f9; color: #475569; }

@@ -28,6 +28,14 @@ public class GetBookingDto
     public PaymentStatus PaymentStatus { get; set; }
     public DateTime? PaidAt { get; set; }
 
+    // Sorğu nə vaxt göndərilib (UTC) - otel cavabını gözləmək üçün
+    public DateTime CreatedAt { get; set; }
+
+    // Ləğv: tutulan cərimə və karta qaytarılan məbləğ
+    public decimal CancellationFee { get; set; }
+    public decimal RefundAmount { get; set; }
+    public DateTime? CancelledAt { get; set; }
+
     public int RoomId { get; set; }
     public string RoomName { get; set; }
     public string RoomNumber { get; set; }

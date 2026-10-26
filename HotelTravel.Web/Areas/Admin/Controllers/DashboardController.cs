@@ -35,9 +35,14 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             ViewBag.TotalRooms = rooms.Count;
             ViewBag.TotalBookings = bookings.Count;
 
+            // Gəlir: ləğv edilməmiş və otel tərəfindən təsdiqlənmiş rezervasiyalar
             var validBookings = bookings
-                .Where(b => b.Status != BookingStatus.Cancelled)
+                .Where(b => b.Status != BookingStatus.Cancelled &&
+                            b.Status != BookingStatus.Pending)
                 .ToList();
+
+            // Otel cavabını gözləyən sorğular
+            ViewBag.PendingRequests = bookings.Count(b => b.Status == BookingStatus.Pending);
 
             ViewBag.TotalRevenue = validBookings
                 .Sum(b => b.TotalPrice);

@@ -59,8 +59,12 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             ViewBag.Search = search;
             ViewBag.Status = status;
 
+            // Cavab gözləyən sorğular həmişə yuxarıda
             return View(
-                bookings.OrderByDescending(b => b.CheckInDate).ToList()
+                bookings
+                    .OrderByDescending(b => b.Status == BookingStatus.Pending)
+                    .ThenByDescending(b => b.CheckInDate)
+                    .ToList()
             );
         }
 
@@ -111,6 +115,35 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
                 nameof(Details),
                 new { id });
         }
+
+        // OTEL TƏSDİQİ: sorğunu təsdiqlə (otelin boş otağı var)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmRequest(int id, string? returnUrl = null)
+        {
+            var result = await _bookingService.ConfirmRequestAsync(id);
+
+            TempData[result.Success ? "Success" : "Error"] = result.Message;
+
+            return BackTo(returnUrl, id);
+        }
+
+        // OTEL TƏSDİQİ: sorğunu rədd et (boş otaq yoxdur) - tarixlər boşalır
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectRequest(int id, string? returnUrl = null)
+        {
+            var result = await _bookingService.RejectRequestAsync(id);
+
+            TempData[result.Success ? "Success" : "Error"] = result.Message;
+
+            return BackTo(returnUrl, id);
+        }
+
+        private IActionResult BackTo(string? returnUrl, int id)
+            => !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
+                ? LocalRedirect(returnUrl)
+                : RedirectToAction(nameof(Details), new { id });
 
         // OCCUPANCY CALENDAR
         [HttpGet]

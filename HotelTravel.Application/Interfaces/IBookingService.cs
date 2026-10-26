@@ -19,6 +19,14 @@ public interface IBookingService
     Task<List<OccupancyCalendarDto>>
         GetOccupancyCalendarAsync();
 
+    // Otel təsdiqi: gözləmədə olan sorğunu təsdiqlə / rədd et
+    Task<(bool Success, string Message)> ConfirmRequestAsync(int id);
+
+    Task<(bool Success, string Message)> RejectRequestAsync(int id);
+
+    // Cavab gözləyən sorğuların sayı (admin menyusu və dashboard)
+    Task<int> CountPendingAsync();
+
     // Find My Booking
     Task<GetBookingDto?> GetByConfirmationCodeAsync(
      string confirmationCode);

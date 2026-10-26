@@ -1,0 +1,7 @@
+@using HotelTravel.Application.Services
+@* Ləğv qaydası (rezervasiya formu, otaq səhifəsi, təsdiq səhifəsi) *@
+<ul class="tp-cancel-policy small mb-0 ps-3">
+    <li>@T["Free cancellation up to {0} days before check-in.", CancellationPolicy.FreeHours / 24]</li>
+    <li>@T["Later: {0}% fee, in the last {1} hours: {2}% fee.", CancellationPolicy.LateFeePercent, CancellationPolicy.LateHours, CancellationPolicy.LastMinuteFeePercent]</li>
+    <li>@T["No cancellation on the check-in day. Requests not yet confirmed by the hotel are always free to cancel."]</li>
+</ul>

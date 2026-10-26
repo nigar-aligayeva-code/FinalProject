@@ -29,6 +29,11 @@ public class Booking : BaseEntity
     // Stripe Checkout session id (cs_test_...): ödənişi yoxlamaq üçün
     public string? PaymentReference { get; set; }
 
+    // LƏĞV: gec ləğvdə cərimə tutulur (CancellationPolicy), onlayn ödənilibsə qalan pul qaytarılır
+    public decimal CancellationFee { get; set; }
+    public decimal RefundAmount { get; set; }
+    public DateTime? CancelledAt { get; set; }
+
     public int RoomId { get; set; }
     public Room Room { get; set; }
 

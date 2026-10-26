@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Payments;
+﻿using HotelTravel.Application.DTOs.Payments;
 using HotelTravel.Application.Interfaces;
 using Stripe;
 using Stripe.Checkout;
@@ -75,6 +75,31 @@ public class StripePaymentGateway : IPaymentGateway
             code ?? session.ClientReferenceId,
             session.AmountTotal ?? 0,
             session.Currency ?? string.Empty);
+    }
+
+    public async Task<PaymentRefundResult> RefundAsync(string sessionId, long amountMinor, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Checkout session -> PaymentIntent -> qismən / tam refund
+            var session = await new SessionService().GetAsync(sessionId, null, Request, cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(session.PaymentIntentId))
+                return new PaymentRefundResult(false, null, "The payment was not found.");
+
+            var refund = await new RefundService().CreateAsync(new RefundCreateOptions
+            {
+                PaymentIntent = session.PaymentIntentId,
+                Amount = amountMinor,
+                Reason = "requested_by_customer"
+            }, Request, cancellationToken);
+
+            return new PaymentRefundResult(true, refund.Id, null);
+        }
+        catch (StripeException ex)
+        {
+            return new PaymentRefundResult(false, null, ex.Message);
+        }
     }
 
     // "...?code=X" + "session_id=..." -> düzgün ? və ya &

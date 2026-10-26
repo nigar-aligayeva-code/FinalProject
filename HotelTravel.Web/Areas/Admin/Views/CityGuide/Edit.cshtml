@@ -80,6 +80,19 @@
         </div>
 
         <div class="cg-field">
+            <label asp-for="Latitude">@T["Latitude (optional)"]</label>
+            <input asp-for="Latitude" type="number" step="any" placeholder="40.3664" />
+            <span asp-validation-for="Latitude" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
+            <label asp-for="Longitude">@T["Longitude (optional)"]</label>
+            <input asp-for="Longitude" type="number" step="any" placeholder="49.8372" />
+            <span asp-validation-for="Longitude" class="text-danger"></span>
+            <div class="cg-hint">@T["In Google Maps right-click the place and copy the numbers. Used for the map pop-up."]</div>
+        </div>
+
+        <div class="cg-field">
             <label asp-for="PriceFrom">Tour price from (AZN, optional)</label>
             <input asp-for="PriceFrom" type="number" min="0" step="1" />
             <span asp-validation-for="PriceFrom" class="text-danger"></span>

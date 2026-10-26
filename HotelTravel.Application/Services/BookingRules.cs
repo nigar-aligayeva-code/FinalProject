@@ -7,7 +7,7 @@ namespace HotelTravel.Application.Services;
 public static class BookingRules
 {
     // Qonaq rezervasiyanı dəyişə / ləğv edə bilərmi?
-    // Yalnız Confirmed və giriş günü hələ gəlməyibsə.
+    // Yalnız Confirmed / Pending və giriş günü hələ gəlməyibsə.
     public static string? CanGuestChange(
         BookingStatus status,
         DateTime checkInDate,
@@ -16,7 +16,9 @@ public static class BookingRules
         if (status == BookingStatus.Cancelled)
             return "This booking is already cancelled.";
 
-        if (status != BookingStatus.Confirmed)
+        // Gözləmədə olan sorğunu da qonaq dəyişə / ləğv edə bilər
+        if (status != BookingStatus.Confirmed &&
+            status != BookingStatus.Pending)
             return "This booking can no longer be changed.";
 
         if (checkInDate.Date <= today.Date)
@@ -24,6 +26,43 @@ public static class BookingRules
 
         return null;
     }
+
+
+    // =========================
+    // OTEL TƏSDİQİ (sorğu -> təsdiq / rədd)
+    // =========================
+
+    // Biz otelin real boş yerlərini bilmirik (otel başqa yerlərdə də satır).
+    // Ona görə rezervasiya əvvəl "sorğu" olur, otel (və ya admin) təsdiqləyir.
+    public const int HotelAnswerHours = 24;
+
+    // Admin / otel statusu bu keçidlə dəyişə bilərmi?
+    public static bool IsValidTransition(BookingStatus from, BookingStatus to) => (from, to) switch
+    {
+        (BookingStatus.Pending, BookingStatus.Confirmed) => true,
+        (BookingStatus.Pending, BookingStatus.Cancelled) => true,
+        (BookingStatus.Confirmed, BookingStatus.CheckedIn) => true,
+        (BookingStatus.Confirmed, BookingStatus.Cancelled) => true,
+        (BookingStatus.CheckedIn, BookingStatus.CheckedOut) => true,
+        _ => false
+    };
+
+    // Qonaq tarixləri dəyişdi: otel yeni tarixlərdə boş yeri yenidən yoxlamalıdır.
+    // Ödənilmiş rezervasiya isə təsdiqli qalır (pulu qaytarma axını yoxdur).
+    public static BookingStatus StatusAfterModify(
+        BookingStatus current,
+        PaymentStatus payment,
+        bool datesChanged)
+        => current == BookingStatus.Confirmed &&
+           payment == PaymentStatus.Unpaid &&
+           datesChanged
+            ? BookingStatus.Pending
+            : current;
+
+    // Sorğu cavabsız nə vaxtdan gözləyir? (admin siyahısında "gecikir" nişanı üçün)
+    public static bool IsAnswerOverdue(BookingStatus status, DateTime createdAtUtc, DateTime nowUtc)
+        => status == BookingStatus.Pending &&
+           nowUtc - createdAtUtc > TimeSpan.FromHours(HotelAnswerHours);
 
 
     // Yeni tarix və qonaq sayı düzgündürmü?

@@ -6,6 +6,7 @@
 
     var statusClass = Model.Status switch
     {
+        BookingStatus.Pending => "status-pending",
         BookingStatus.Confirmed => "status-confirmed",
         BookingStatus.CheckedIn => "status-checkedin",
         BookingStatus.CheckedOut => "status-checkedout",
@@ -13,7 +14,7 @@
         _ => "status-checkedout"
     };
 
-    // Yalnız Confirmed və giriş günü hələ gəlməyibsə
+    // Confirmed / Pending və giriş günü hələ gəlməyibsə
     var canChange =
         HotelTravel.Application.Services.BookingRules.CanGuestChange(
             Model.Status,
@@ -31,6 +32,14 @@
 
     var canReview =
         Model.Status == BookingStatus.CheckedOut && !Model.HasReview;
+
+    // Ləğv qiyməti: pulsuz və ya cərimə ilə (CancellationPolicy)
+    var cancelQuote = HotelTravel.Application.Services.CancellationPolicy.ForHotel(
+        Model.Status, Model.CheckInDate, Model.TotalPrice, DateTime.Now);
+
+    var cancelText = cancelQuote.IsFree
+        ? T["Cancel this booking? Cancellation is free."].Value
+        : T["Cancel this booking? A cancellation fee of {0} AZN ({1}%) will be charged.", cancelQuote.Fee.ToString("0.00"), cancelQuote.FeePercent].Value;
 }
 
 <div class="my-booking-card">
@@ -52,6 +61,7 @@
                     <span class="mx-1">•</span>
                     <strong>@Model.ConfirmationCode</strong>
                 </div>
+                <partial name="_CancellationInfo" model="Model" />
             </div>
 
             <div class="d-flex flex-column align-items-end gap-1">
@@ -61,6 +71,14 @@
                 @if (Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Paid)
                 {
                     <small class="text-success fw-semibold"><i class="bi bi-credit-card"></i> @T["Paid online"]</small>
+                }
+                else if (Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Refunded)
+                {
+                    <small class="text-muted fw-semibold"><i class="bi bi-arrow-counterclockwise"></i> @T["Refunded"]</small>
+                }
+                else if (Model.Status == BookingStatus.Pending)
+                {
+                    <small class="text-muted"><i class="bi bi-hourglass-split"></i> @T["Hotel confirms within {0}h", HotelTravel.Application.Services.BookingRules.HotelAnswerHours]</small>
                 }
             </div>
         </div>
@@ -109,7 +127,21 @@
                 @T["View Room"]
             </a>
 
-            @if (Model.Status != BookingStatus.Cancelled)
+            @if (ViewBag.PaymentsEnabled is true &&
+                 Model.Status == BookingStatus.Confirmed &&
+                 Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Unpaid)
+            {
+                <form asp-controller="Payments" asp-action="Pay" method="post" class="m-0">
+                    <input type="hidden" name="confirmationCode" value="@Model.ConfirmationCode" />
+                    <button type="submit" class="btn btn-sm btn-success">
+                        <i class="bi bi-credit-card me-1"></i>
+                        @T["Pay now"]
+                    </button>
+                </form>
+            }
+
+            @if (Model.Status != BookingStatus.Cancelled &&
+                 Model.Status != BookingStatus.Pending)
             {
                 <a asp-controller="Bookings"
                    asp-action="Voucher"
@@ -165,10 +197,15 @@
                       asp-route-id="@Model.Id"
                       method="post"
                       class="d-inline"
-                      onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      onsubmit='return confirm(@Json.Serialize(cancelText));'>
+                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                            title="@(cancelQuote.IsFree ? T["Free cancellation"].Value : T["Cancellation fee: {0} AZN", cancelQuote.Fee.ToString("0.00")].Value)">
                         <i class="bi bi-x-circle me-1"></i>
                         @T["Cancel"]
+                        @if (!cancelQuote.IsFree)
+                        {
+                            <small>(−@cancelQuote.FeePercent%)</small>
+                        }
                     </button>
                 </form>
             }

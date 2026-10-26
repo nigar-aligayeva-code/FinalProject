@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Flights;
+﻿using HotelTravel.Application.DTOs.Flights;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
@@ -272,15 +272,26 @@ public class FlightService : IFlightService
         if (booking is null)
             return (false, "Flight booking was not found.");
 
-        if (!FlightRules.CanCancel(booking.Status, booking.DepartureTime, DateTime.Now))
-            return (false, $"Flights can be cancelled up to {FlightRules.FreeCancelHours} hours before departure.");
+        // Uçuşa az qalıbsa cərimə tutulur, son 3 saatda ləğv olmur
+        var quote = CancellationPolicy.ForFlight(
+            booking.Status,
+            booking.DepartureTime,
+            booking.TotalPrice,
+            DateTime.Now);
+
+        if (!quote.Allowed)
+            return (false, quote.Error ?? "This flight can no longer be cancelled.");
 
         booking.Status = FlightBookingStatus.Cancelled;
+        booking.CancellationFee = quote.Fee;
+        booking.CancelledAt = DateTime.UtcNow;
         booking.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 
-        return (true, "Flight cancelled.");
+        return quote.IsFree
+            ? (true, "Flight cancelled.")
+            : (true, "Flight cancelled. A late cancellation fee was applied.");
     }
 
 
@@ -454,6 +465,13 @@ public class FlightService : IFlightService
         booking.Status = status;
         booking.UpdatedAt = DateTime.UtcNow;
 
+        // Admin ləğv edəndə sərnişindən cərimə tutulmur
+        if (status == FlightBookingStatus.Cancelled)
+        {
+            booking.CancellationFee = 0;
+            booking.CancelledAt = DateTime.UtcNow;
+        }
+
         await _context.SaveChangesAsync();
 
         return true;
@@ -583,6 +601,8 @@ public class FlightService : IFlightService
             FarePerPassenger = b.FarePerPassenger,
             TotalPrice = b.TotalPrice,
             Status = b.Status,
+            CancellationFee = b.CancellationFee,
+            CancelledAt = b.CancelledAt,
             ContactName = b.ContactName,
             Email = b.Email,
             Phone = b.Phone

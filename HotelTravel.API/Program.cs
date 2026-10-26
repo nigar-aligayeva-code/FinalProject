@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json.Serialization;
 using HotelTravel.API.Health;
 using HotelTravel.API.Hubs;
@@ -202,6 +202,9 @@ namespace HotelTravel.API
                 .AddHealthChecks()
                 .AddCheck<DatabaseHealthCheck>("database");
             builder.Services.AddSingleton<IRealtimePublisher, SignalRRealtimePublisher>();
+
+            // Giriş və uçuş xatırlatmaları (fon xidməti, hər 10 dəqiqədən bir)
+            builder.Services.AddHostedService<ReminderBackgroundService>();
 
             // Brauzer hub-a birbaşa qoşulur, ona görə MVC saytının ünvanına icazə lazımdır
             var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()

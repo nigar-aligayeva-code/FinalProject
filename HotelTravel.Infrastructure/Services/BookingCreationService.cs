@@ -173,7 +173,10 @@ public class BookingCreationService : IBookingCreationService
             DiscountNote = quote.DiscountNote,
             PromoCode = quote.AppliedPromoCode,
             ConfirmationCode = confirmationCode,
-            Status = BookingStatus.Confirmed,
+            // Otelin real boş yerlərini bilmirik (otel başqa kanallarda da satır),
+            // ona görə rezervasiya əvvəl sorğudur: otel / admin təsdiqləyir.
+            // Pending də tarixləri tutur, yəni eyni otağa ikinci sorğu düşmür.
+            Status = BookingStatus.Pending,
             RoomId = room.Id,
             Guest = guest,
             AppUserId = appUserId,
@@ -190,7 +193,7 @@ public class BookingCreationService : IBookingCreationService
 
         return (
             true,
-            "Booking created successfully.",
+            "Booking request sent. The hotel will confirm it soon.",
             confirmationCode);
     }
 
@@ -308,6 +311,16 @@ public class BookingCreationService : IBookingCreationService
         }
 
         // 6. Yenilə və qiyməti yenidən hesabla
+        var datesChanged =
+            booking.CheckInDate.Date != newCheckIn ||
+            booking.CheckOutDate.Date != newCheckOut;
+
+        // Yeni tarixlər üçün otel yenidən təsdiqləməlidir
+        booking.Status = BookingRules.StatusAfterModify(
+            booking.Status,
+            booking.PaymentStatus,
+            datesChanged);
+
         booking.CheckInDate = newCheckIn;
         booking.CheckOutDate = newCheckOut;
         booking.AdultCount = dto.AdultCount;
@@ -329,6 +342,13 @@ public class BookingCreationService : IBookingCreationService
 
         await context.SaveChangesAsync();
         await transaction.CommitAsync();
+
+        if (booking.Status == BookingStatus.Pending && datesChanged)
+        {
+            return (
+                true,
+                $"Booking updated. New total: {booking.TotalPrice:0.00} AZN. The hotel will confirm the new dates.");
+        }
 
         return (
             true,

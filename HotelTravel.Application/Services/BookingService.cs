@@ -45,6 +45,10 @@ public class BookingService : IBookingService
 
                 Status = b.Status,
                 PaymentStatus = b.PaymentStatus,
+                CreatedAt = b.CreatedAt,
+                CancellationFee = b.CancellationFee,
+                RefundAmount = b.RefundAmount,
+                CancelledAt = b.CancelledAt,
                 PaidAt = b.PaidAt,
 
                 RoomId = b.RoomId,
@@ -82,6 +86,10 @@ public class BookingService : IBookingService
 
                 Status = b.Status,
                 PaymentStatus = b.PaymentStatus,
+                CreatedAt = b.CreatedAt,
+                CancellationFee = b.CancellationFee,
+                RefundAmount = b.RefundAmount,
+                CancelledAt = b.CancelledAt,
                 PaidAt = b.PaidAt,
 
                 RoomId = b.RoomId,
@@ -167,6 +175,10 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
                 DiscountNote = b.DiscountNote,
                 Status = b.Status,
                 PaymentStatus = b.PaymentStatus,
+                CreatedAt = b.CreatedAt,
+                CancellationFee = b.CancellationFee,
+                RefundAmount = b.RefundAmount,
+                CancelledAt = b.CancelledAt,
                 PaidAt = b.PaidAt,
 
                 RoomId = b.RoomId,
@@ -203,20 +215,7 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
         if (booking is null)
             return (false, "Booking was not found.");
 
-        var error = BookingRules.CanGuestChange(
-            booking.Status,
-            booking.CheckInDate,
-            DateTime.Today);
-
-        if (error != null)
-            return (false, error);
-
-        booking.Status = BookingStatus.Cancelled;
-        booking.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-
-        return (true, "Booking cancelled successfully.");
+        return await CancelWithPolicyAsync(booking);
     }
 
     public async Task<bool> UpdateStatusAsync(
@@ -233,12 +232,7 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
 
         // 1. Status keçidi düzgündür?
         bool isValidTransition =
-            (booking.Status == BookingStatus.Confirmed &&
-                (status == BookingStatus.CheckedIn ||
-                 status == BookingStatus.Cancelled))
-            ||
-            (booking.Status == BookingStatus.CheckedIn &&
-                status == BookingStatus.CheckedOut);
+            BookingRules.IsValidTransition(booking.Status, status);
 
         if (!isValidTransition)
             return false;
@@ -260,7 +254,13 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
             return false;
         }
 
-        // 3. Statusu dəyiş
+        // 3. Statusu dəyiş (otel / admin ləğv edəndə qonaqdan cərimə tutulmur)
+        if (status == BookingStatus.Cancelled)
+        {
+            booking.CancellationFee = 0;
+            booking.CancelledAt = DateTime.UtcNow;
+        }
+
         booking.Status = status;
         booking.UpdatedAt = DateTime.UtcNow;
 
@@ -268,6 +268,46 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
 
         return true;
     }
+
+    // =========================
+    // OTEL TƏSDİQİ
+    // =========================
+
+    public Task<(bool Success, string Message)> ConfirmRequestAsync(int id)
+        => AnswerRequestAsync(id, BookingStatus.Confirmed, "Booking confirmed. The guest has been notified.");
+
+    public Task<(bool Success, string Message)> RejectRequestAsync(int id)
+        => AnswerRequestAsync(id, BookingStatus.Cancelled, "Booking request rejected. The guest has been notified.");
+
+    private async Task<(bool Success, string Message)> AnswerRequestAsync(
+        int id,
+        BookingStatus answer,
+        string successMessage)
+    {
+        var booking = await _context.Bookings
+            .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
+
+        if (booking is null)
+            return (false, "Booking was not found.");
+
+        if (booking.Status != BookingStatus.Pending)
+            return (false, "This booking is not waiting for confirmation.");
+
+        booking.Status = answer;
+        booking.UpdatedAt = DateTime.UtcNow;
+
+        if (answer == BookingStatus.Cancelled)
+            booking.CancelledAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return (true, successMessage);
+    }
+
+    public async Task<int> CountPendingAsync()
+        => await _context.Bookings.CountAsync(b =>
+            !b.IsDeleted && b.Status == BookingStatus.Pending);
+
 
     public async Task<List<OccupancyCalendarDto>>
     GetOccupancyCalendarAsync()
@@ -334,6 +374,10 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
 
                 Status = b.Status,
                 PaymentStatus = b.PaymentStatus,
+                CreatedAt = b.CreatedAt,
+                CancellationFee = b.CancellationFee,
+                RefundAmount = b.RefundAmount,
+                CancelledAt = b.CancelledAt,
                 PaidAt = b.PaidAt,
 
                 RoomId = b.RoomId,
@@ -398,42 +442,31 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
             );
         }
 
-        if (booking.Status == BookingStatus.Cancelled)
-        {
-            return (
-                false,
-                "This booking is already cancelled."
-            );
-        }
+        return await CancelWithPolicyAsync(booking);
+    }
 
-        if (booking.Status == BookingStatus.CheckedIn ||
-            booking.Status == BookingStatus.CheckedOut)
-        {
-            return (
-                false,
-                "This booking can no longer be cancelled."
-            );
-        }
+    // Qonaq ləğvi: CancellationPolicy-yə görə cərimə hesablanır və saxlanılır.
+    // Onlayn ödənilibsə, pulun qaytarılması API-də PaymentService.RefundCancelledAsync ilə edilir.
+    private async Task<(bool Success, string Message)> CancelWithPolicyAsync(Booking booking)
+    {
+        var quote = CancellationPolicy.ForHotel(
+            booking.Status,
+            booking.CheckInDate,
+            booking.TotalPrice,
+            DateTime.Now);
 
-        if (booking.CheckInDate.Date <= DateTime.Today)
-        {
-            return (
-                false,
-                "This booking can no longer be cancelled."
-            );
-        }
+        if (!quote.Allowed)
+            return (false, quote.Error ?? "This booking can no longer be cancelled.");
 
-        booking.Status =
-            BookingStatus.Cancelled;
-
-        booking.UpdatedAt =
-            DateTime.UtcNow;
+        booking.Status = BookingStatus.Cancelled;
+        booking.CancellationFee = quote.Fee;
+        booking.CancelledAt = DateTime.UtcNow;
+        booking.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 
-        return (
-            true,
-            "Booking cancelled successfully."
-        );
+        return quote.IsFree
+            ? (true, "Booking cancelled successfully.")
+            : (true, "Booking cancelled. A late cancellation fee was applied.");
     }
 }

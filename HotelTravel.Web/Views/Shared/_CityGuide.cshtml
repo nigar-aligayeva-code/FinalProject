@@ -7,6 +7,15 @@
     var showTitle = ViewData["GuideShowTitle"] as bool? ?? true;
     var guideId = "guide-" + Guid.NewGuid().ToString("N")[..6];
 
+    // Otaq səhifəsində: otelin yeri (pəncərədə "otelinizdən X km" üçün)
+    var hotelLat = ViewData["GuideHotelLat"] as double?;
+    var hotelLng = ViewData["GuideHotelLng"] as double?;
+    var hotelName = ViewData["GuideHotelName"] as string;
+
+    object? hotelPoint = hotelLat.HasValue && hotelLng.HasValue && (hotelLat != 0 || hotelLng != 0)
+        ? new { lat = hotelLat, lng = hotelLng, name = hotelName }
+        : null;
+
     var categories = new[]
     {
         (Key: PlaceCategory.Sight, Title: T["Things to do"].Value, Icon: "bi-camera"),
@@ -26,14 +35,14 @@
         {
             <div class="hh-section-head">
                 <div>
-                    <h2 class="hh-section-title">Explore @city</h2>
+                    <h2 class="hh-section-title">@T["Explore {0}", city]</h2>
                     <p class="hh-section-sub">@T["Places to see, tours, food and shopping near your stay"]</p>
                 </div>
                 <a asp-controller="Guide"
                    asp-action="Index"
                    asp-route-city="@city"
                    class="hh-link-more">
-                    Full city guide <i class="bi bi-arrow-right"></i>
+                    @T["Full city guide"] <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
         }
@@ -66,7 +75,28 @@
 
                 @foreach (var place in Model.Where(p => p.Category == cat.Key))
                 {
-                    <article class="hh-place">
+                    // Pəncərə üçün məlumat (JSON, atributda təhlükəsiz kodlanır)
+                    var placeData = new
+                    {
+                        name = place.Name,
+                        category = cat.Title,
+                        icon = cat.Icon,
+                        kind = cat.Key.ToString().ToLower(),
+                        description = place.Description,
+                        address = place.Address,
+                        city = place.City,
+                        image = place.ImageUrl,
+                        duration = place.Duration,
+                        price = place.PriceFrom.HasValue ? place.PriceFrom.Value.ToString("0") : null,
+                        lat = place.Latitude,
+                        lng = place.Longitude
+                    };
+
+                    <article class="hh-place hh-place-clickable"
+                             role="button"
+                             tabindex="0"
+                             title="@T["Click for details and map"]"
+                             data-place='@Json.Serialize(placeData)'>
                         <div class="hh-place-media hh-place-@cat.Key.ToString().ToLower()">
                             @if (!string.IsNullOrWhiteSpace(place.ImageUrl))
                             {
@@ -83,6 +113,10 @@
                             <p>@place.Description</p>
 
                             <div class="hh-place-meta">
+                                @if (place.HasLocation)
+                                {
+                                    <span class="hh-place-maplink"><i class="bi bi-map"></i> @T["On the map"]</span>
+                                }
                                 @if (!string.IsNullOrWhiteSpace(place.Address))
                                 {
                                     <span><i class="bi bi-geo-alt"></i> @place.Address</span>
@@ -97,7 +131,7 @@
                             @if (place.PriceFrom.HasValue)
                             {
                                 <div class="hh-place-price">
-                                    <span>from <strong>@place.PriceFrom.Value.ToString("0") AZN</strong> @T["per person"]</span>
+                                    <span>@T["from"] <strong>@place.PriceFrom.Value.ToString("0") AZN</strong> @T["per person"]</span>
                                     <small>@T["Book at hotel reception"]</small>
                                 </div>
                             }
@@ -108,11 +142,78 @@
         }
     </section>
 
+    <!-- YER HAQQINDA PƏNCƏRƏ: şəkil, təsvir, ünvan, xəritə, otelə məsafə -->
+    <div class="modal fade" id="@(guideId)-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content hh-place-modal">
+                <div class="hh-pm-hero" data-pm="hero">
+                    <img data-pm="image" alt="" hidden />
+                    <i class="bi" data-pm="icon"></i>
+                    <button type="button" class="btn-close btn-close-white hh-pm-close" data-bs-dismiss="modal" aria-label="@T["Close"]"></button>
+                    <span class="hh-pm-badge" data-pm="category"></span>
+                </div>
+
+                <div class="modal-body">
+                    <h3 class="hh-pm-title" data-pm="name"></h3>
+
+                    <div class="hh-pm-facts">
+                        <span data-pm="address-row"><i class="bi bi-geo-alt"></i> <span data-pm="address"></span></span>
+                        <span data-pm="duration-row"><i class="bi bi-clock"></i> <span data-pm="duration"></span></span>
+                        <span data-pm="price-row"><i class="bi bi-ticket-perforated"></i> @T["from"] <b data-pm="price"></b> AZN @T["per person"]</span>
+                    </div>
+
+                    <p class="hh-pm-desc" data-pm="description"></p>
+
+                    <div class="hh-pm-distance" data-pm="distance-row" hidden>
+                        <i class="bi bi-signpost-split"></i>
+                        <span data-pm="distance"></span>
+                    </div>
+
+                    <div class="hh-pm-map" data-pm="map"></div>
+                    <p class="hh-pm-nomap small text-muted" data-pm="nomap" hidden>
+                        <i class="bi bi-info-circle"></i> @T["The exact location is not on our map yet. Open it in Google Maps."]
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <a class="hh-btn hh-btn-primary" data-pm="gmaps" target="_blank" rel="noopener">
+                            <i class="bi bi-box-arrow-up-right"></i> @T["Open in Google Maps"]
+                        </a>
+                        <a class="hh-btn hh-btn-outline" data-pm="directions" target="_blank" rel="noopener" hidden>
+                            <i class="bi bi-sign-turn-right"></i> @T["Directions from the hotel"]
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .hh-place-clickable { cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+        .hh-place-clickable:hover, .hh-place-clickable:focus-visible { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(31,36,33,.12); outline: none; }
+        .hh-place-maplink { color: #52614e; font-weight: 600; }
+        .hh-place-modal { border: 0; border-radius: 18px; overflow: hidden; }
+        .hh-pm-hero { position: relative; height: 200px; display: grid; place-items: center; color: #fff; font-size: 56px; background: linear-gradient(135deg, #4E5B4C, #7A8B6F); }
+        .hh-pm-hero.kind-tour { background: linear-gradient(135deg, #A9822F, #D9B26A); }
+        .hh-pm-hero.kind-food { background: linear-gradient(135deg, #8C4A32, #C47B55); }
+        .hh-pm-hero.kind-shopping { background: linear-gradient(135deg, #3E4A6B, #6C7CA8); }
+        .hh-pm-hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .hh-pm-close { position: absolute; top: 14px; right: 14px; background-color: rgba(0,0,0,.35); border-radius: 50%; padding: 10px; opacity: 1; }
+        .hh-pm-badge { position: absolute; left: 16px; bottom: 14px; background: rgba(255,255,255,.92); color: #1F2421; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; }
+        .hh-pm-title { font-family: Georgia, serif; font-size: 24px; margin: 4px 0 10px; }
+        .hh-pm-facts { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: #52614e; margin-bottom: 12px; }
+        .hh-pm-desc { font-size: 15px; line-height: 1.6; color: #374151; }
+        .hh-pm-distance { display: flex; gap: 8px; align-items: center; background: #F3EEE5; border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+        .hh-pm-map { height: 280px; border-radius: 14px; overflow: hidden; border: 1px solid #e7e0d4; }
+        .hh-pm-map[hidden] { display: none; }
+    </style>
+
     <script>
         (function () {
             const root = document.getElementById("@guideId");
+            const modalEl = document.getElementById("@(guideId)-modal");
             if (!root) return;
 
+            // ===== TAB-LAR =====
             root.querySelectorAll("[data-guide-tab]").forEach(function (tab) {
                 tab.addEventListener("click", function () {
                     const key = tab.dataset.guideTab;
@@ -122,6 +223,152 @@
 
                     root.querySelectorAll("[data-guide-panel]")
                         .forEach(p => p.classList.toggle("d-none", p.dataset.guidePanel !== key));
+                });
+            });
+
+            // ===== YER HAQQINDA PƏNCƏRƏ =====
+            const hotel = @Json.Serialize(hotelPoint);
+
+            const text = {
+                fromHotel: @Json.Serialize(T["≈ {0} km from {1}"].Value),
+                walk: @Json.Serialize(T["about {0} min on foot"].Value),
+                drive: @Json.Serialize(T["about {0} min by car"].Value),
+                hotel: @Json.Serialize(T["Your hotel"].Value)
+            };
+
+            const pm = name => modalEl.querySelector('[data-pm="' + name + '"]');
+            let map = null, layer = null;
+
+            // Leaflet yalnız lazım olanda yüklənir
+            function ensureLeaflet() {
+                if (window.L) return Promise.resolve();
+                return new Promise(function (resolve, reject) {
+                    const css = document.createElement("link");
+                    css.rel = "stylesheet";
+                    css.href = "https://unpkg.com/leaflet@@1.9.4/dist/leaflet.css";
+                    document.head.appendChild(css);
+
+                    const js = document.createElement("script");
+                    js.src = "https://unpkg.com/leaflet@@1.9.4/dist/leaflet.js";
+                    js.onload = resolve;
+                    js.onerror = reject;
+                    document.head.appendChild(js);
+                });
+            }
+
+            // İki nöqtə arası məsafə (km), Haversine
+            function distanceKm(a, b) {
+                const R = 6371, rad = d => d * Math.PI / 180;
+                const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+                const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+                return 2 * R * Math.asin(Math.sqrt(h));
+            }
+
+            function setRow(name, value) {
+                pm(name + "-row").hidden = !value;
+                if (value) pm(name).textContent = value;
+            }
+
+            function fill(p) {
+                pm("name").textContent = p.name;
+                pm("category").textContent = p.category;
+                pm("description").textContent = p.description || "";
+                setRow("address", p.address);
+                setRow("duration", p.duration);
+                setRow("price", p.price);
+
+                const hero = pm("hero");
+                hero.className = "hh-pm-hero kind-" + p.kind;
+                pm("icon").className = "bi " + p.icon;
+
+                const img = pm("image");
+                img.hidden = !p.image;
+                if (p.image) { img.src = p.image; img.alt = p.name; }
+
+                const hasLoc = p.lat != null && p.lng != null;
+                const query = hasLoc ? (p.lat + "," + p.lng) : (p.name + ", " + (p.address || p.city));
+                pm("gmaps").href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
+
+                // Otelə məsafə və yol
+                const dir = pm("directions");
+                const distRow = pm("distance-row");
+                dir.hidden = !(hasLoc && hotel);
+                distRow.hidden = !(hasLoc && hotel);
+
+                if (hasLoc && hotel) {
+                    const km = distanceKm(hotel, p);
+                    const minutes = km < 3
+                        ? text.walk.replace("{0}", Math.max(1, Math.round(km / 5 * 60)))
+                        : text.drive.replace("{0}", Math.max(5, Math.round(km / 35 * 60)));
+
+                    pm("distance").textContent =
+                        text.fromHotel.replace("{0}", km < 10 ? km.toFixed(1) : Math.round(km)).replace("{1}", hotel.name || text.hotel) + " · " + minutes;
+
+                    dir.href = "https://www.google.com/maps/dir/?api=1&origin=" + hotel.lat + "," + hotel.lng +
+                        "&destination=" + p.lat + "," + p.lng;
+                }
+
+                pm("map").hidden = !hasLoc;
+                pm("nomap").hidden = hasLoc;
+
+                return hasLoc;
+            }
+
+            function drawMap(p) {
+                ensureLeaflet().then(function () {
+                    if (!map) {
+                        map = L.map(pm("map"), { scrollWheelZoom: false });
+                        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                            maxZoom: 19,
+                            attribution: "&copy; OpenStreetMap"
+                        }).addTo(map);
+                    }
+
+                    if (layer) layer.remove();
+                    layer = L.layerGroup().addTo(map);
+
+                    const here = [p.lat, p.lng];
+                    const label = document.createElement("b");
+                    label.textContent = p.name;
+                    L.marker(here).addTo(layer).bindPopup(label);
+
+                    // Otel də xəritədə (yaxındırsa ikisi birlikdə görünsün)
+                    if (hotel && distanceKm(hotel, p) < 60) {
+                        L.circleMarker([hotel.lat, hotel.lng], { radius: 9, color: "#1F2421", fillColor: "#D9B26A", fillOpacity: 1, weight: 3 })
+                            .addTo(layer)
+                            .bindTooltip(hotel.name || text.hotel, { permanent: true, direction: "top", offset: [0, -8] });
+
+                        map.fitBounds([here, [hotel.lat, hotel.lng]], { padding: [40, 40], maxZoom: 15 });
+                    } else {
+                        map.setView(here, 14);
+                    }
+
+                    map.invalidateSize();
+                }).catch(function () {
+                    pm("map").hidden = true;
+                    pm("nomap").hidden = false;
+                });
+            }
+
+            function open(card) {
+                let p;
+                try { p = JSON.parse(card.dataset.place); } catch (e) { return; }
+
+                const hasLoc = fill(p);
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+                modalEl.addEventListener("shown.bs.modal", function onShown() {
+                    modalEl.removeEventListener("shown.bs.modal", onShown);
+                    if (hasLoc) drawMap(p);
+                });
+
+                modal.show();
+            }
+
+            root.querySelectorAll(".hh-place-clickable").forEach(function (card) {
+                card.addEventListener("click", () => open(card));
+                card.addEventListener("keydown", function (e) {
+                    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(card); }
                 });
             });
         })();

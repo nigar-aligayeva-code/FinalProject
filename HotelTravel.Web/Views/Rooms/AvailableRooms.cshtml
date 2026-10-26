@@ -213,7 +213,7 @@
                 <div class="hh-results-bar">
                     <div>
                         <h1 class="hh-results-title">
-                            @(string.IsNullOrWhiteSpace(destination) ? T["Available rooms"].Value : T["{0}: available rooms", destination].Value)
+                            @(string.IsNullOrWhiteSpace(destination) ? T["Rooms for your dates"].Value : T["{0}: rooms for your dates", destination].Value)
                         </h1>
                         <span class="hh-results-count" id="resultCount">
                             @T["{0} found", T.Plural(rooms.Count, "room", "rooms")]
@@ -375,8 +375,12 @@
                                        asp-route-adultCount="@adultCount"
                                        asp-route-childrenCount="@childrenCount"
                                        class="hh-btn hh-btn-primary w-100">
-                                        Book now <i class="bi bi-chevron-right"></i>
+                                        @T["Request to book"] <i class="bi bi-chevron-right"></i>
                                     </a>
+                                    <small class="hh-request-hint d-block text-center mt-2 small" style="color:#8a6d2b">
+                                        <i class="bi bi-hourglass-split"></i>
+                                        @T["Hotel confirms within {0}h", HotelTravel.Application.Services.BookingRules.HotelAnswerHours]
+                                    </small>
                                 </div>
                             </div>
                         </article>

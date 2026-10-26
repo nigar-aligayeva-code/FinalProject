@@ -49,6 +49,8 @@ public class AppDbContext
 
     public DbSet<EmailLog> EmailLogs { get; set; }
 
+    public DbSet<UserNotification> UserNotifications { get; set; }
+
     public DbSet<TripPackage> TripPackages { get; set; }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(
@@ -85,6 +87,19 @@ public class AppDbContext
                 .WithMany()
                 .HasForeignKey(p => p.AppUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // QONAĞIN BİLDİRİŞLƏRİ (🔔)
+        modelBuilder.Entity<UserNotification>(entity =>
+        {
+            entity.Property(n => n.AppUserId).HasMaxLength(450).IsRequired();
+            entity.Property(n => n.Kind).HasMaxLength(40);
+            entity.Property(n => n.Place).HasMaxLength(200);
+            entity.Property(n => n.Code).HasMaxLength(50);
+            entity.Property(n => n.When).HasMaxLength(40);
+            entity.Property(n => n.Url).HasMaxLength(300);
+            entity.Property(n => n.Message).HasMaxLength(500);
+            entity.HasIndex(n => new { n.AppUserId, n.IsRead, n.CreatedAt });
         });
 
         // EMAIL LOG
@@ -154,6 +169,19 @@ public class AppDbContext
 
         modelBuilder.Entity<Booking>()
             .Property(b => b.TotalPrice)
+            .HasPrecision(18, 2);
+
+        // Ləğv cəriməsi və geri qaytarılan məbləğ
+        modelBuilder.Entity<Booking>()
+            .Property(b => b.CancellationFee)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Booking>()
+            .Property(b => b.RefundAmount)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<FlightBooking>()
+            .Property(b => b.CancellationFee)
             .HasPrecision(18, 2);
 
 

@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Entities;
+﻿using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
 using HotelTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +9,115 @@ namespace HotelTravel.Infrastructure.Seed;
 // Cədvəl boşdursa bir dəfə doldurulur; sonra admin paneldən idarə olunur.
 public static class CityGuideSeeder
 {
+    // Yerlərin xəritə koordinatları (təxmini mərkəz nöqtəsi).
+    // Turlar üçün - turun əsas məkanı (məs. Qobustan, Yanar Dağ).
+    public static readonly IReadOnlyDictionary<string, (double Lat, double Lng)> Locations =
+        new Dictionary<string, (double Lat, double Lng)>(StringComparer.OrdinalIgnoreCase)
+        {
+            // BAKU
+            ["Icherisheher (Old City)"] = (40.3664, 49.8372),
+            ["Heydar Aliyev Center"] = (40.3959, 49.8678),
+            ["Highland Park & Flame Towers"] = (40.3594, 49.8265),
+            ["Baku Boulevard"] = (40.3680, 49.8450),
+            ["Gobustan & Mud Volcanoes"] = (40.1109, 49.3778),
+            ["Absheron Fire Tour"] = (40.5017, 49.8911),
+            ["Old City tea houses"] = (40.3660, 49.8355),
+            ["Nizami Street"] = (40.3737, 49.8436),
+
+            // GABALA
+            ["Tufandag Mountain Resort"] = (41.0058, 47.8603),
+            ["Nohur Lake"] = (40.9935, 47.8160),
+            ["Yeddi Gozel Waterfall"] = (40.9900, 47.9580),
+            ["Sheki Day Trip"] = (41.2042, 47.1939),
+            ["Mountains & Lake Tour"] = (40.9935, 47.8160),
+            ["Mountain cuisine"] = (40.9814, 47.8458),
+            ["Local farmers' market"] = (40.9800, 47.8470),
+
+            // ISTANBUL
+            ["Hagia Sophia"] = (41.0086, 28.9802),
+            ["Blue Mosque"] = (41.0054, 28.9768),
+            ["Topkapi Palace"] = (41.0115, 28.9834),
+            ["Galata Tower"] = (41.0256, 28.9741),
+            ["Bosphorus Cruise"] = (41.0175, 28.9740),
+            ["Old City Walking Tour"] = (41.0058, 28.9768),
+            ["Karakoy & Kadikoy food streets"] = (41.0227, 28.9770),
+            ["Grand Bazaar"] = (41.0107, 28.9681),
+            ["Istiklal Avenue"] = (41.0337, 28.9777),
+
+            // ANTALYA
+            ["Kaleici Old Town"] = (36.8841, 30.7056),
+            ["Duden Waterfalls"] = (36.9608, 30.7253),
+            ["Konyaalti Beach"] = (36.8640, 30.6370),
+            ["Perge & Aspendos"] = (36.9614, 30.8540),
+            ["Coastal Boat Trip"] = (36.8840, 30.7040),
+            ["Kaleici harbour restaurants"] = (36.8838, 30.7045),
+            ["Kaleici bazaar"] = (36.8860, 30.7070),
+
+            // TBILISI
+            ["Narikala Fortress"] = (41.6880, 44.8086),
+            ["Abanotubani sulfur baths"] = (41.6884, 44.8110),
+            ["Bridge of Peace"] = (41.6929, 44.8080),
+            ["Mtatsminda Park"] = (41.6948, 44.7865),
+            ["Mtskheta Day Trip"] = (41.8420, 44.7208),
+            ["Kakheti Wine Tour"] = (41.6200, 45.9220),
+            ["Georgian cuisine"] = (41.6910, 44.8070),
+            ["Dry Bridge market"] = (41.6995, 44.8040),
+            ["Rustaveli Avenue"] = (41.6985, 44.7980),
+
+            // BATUMI
+            ["Batumi Boulevard"] = (41.6515, 41.6290),
+            ["Alphabetic Tower"] = (41.6560, 41.6410),
+            ["Ali and Nino statue"] = (41.6555, 41.6395),
+            ["Batumi Botanical Garden"] = (41.6930, 41.7090),
+            ["Mountain Adjara & Waterfalls"] = (41.5660, 41.8580),
+            ["Gonio Fortress & Coast"] = (41.5730, 41.5720),
+            ["Adjarian khachapuri"] = (41.6480, 41.6400),
+            ["Old Batumi streets"] = (41.6490, 41.6380),
+
+            // DUBAI
+            ["Burj Khalifa"] = (25.1972, 55.2744),
+            ["Dubai Marina"] = (25.0805, 55.1403),
+            ["Al Fahidi Historical District"] = (25.2637, 55.2997),
+            ["Palm Jumeirah"] = (25.1124, 55.1390),
+            ["Desert Safari"] = (25.0410, 55.5880),
+            ["Creek & Souks Tour"] = (25.2680, 55.2970),
+            ["Marina waterfront dining"] = (25.0780, 55.1380),
+            ["The Dubai Mall"] = (25.1985, 55.2796),
+            ["Gold & Spice Souks"] = (25.2700, 55.2970)
+        };
+
+    // Koordinatı olmayan tanınan yerlərə koordinat yazır
+    public static async Task FillMissingLocationsAsync(AppDbContext context)
+    {
+        var missing = await context.CityPlaces
+            .Where(p => p.Latitude == null || p.Longitude == null)
+            .ToListAsync();
+
+        var changed = false;
+
+        foreach (var place in missing)
+        {
+            if (!Locations.TryGetValue(place.Name.Trim(), out var loc))
+                continue;
+
+            place.Latitude = loc.Lat;
+            place.Longitude = loc.Lng;
+            place.UpdatedAt = DateTime.UtcNow;
+            changed = true;
+        }
+
+        if (changed)
+            await context.SaveChangesAsync();
+    }
+
     public static async Task SeedAsync(AppDbContext context)
     {
         if (await context.CityPlaces.AnyAsync())
+        {
+            // Köhnə bazada koordinat yoxdursa - tanınan yerlərə əlavə et (admin yazdığına toxunmur)
+            await FillMissingLocationsAsync(context);
             return;
+        }
 
         var places = new List<CityPlace>();
         var order = 0;
@@ -33,6 +138,8 @@ public static class CityGuideSeeder
                 Name = name,
                 Description = description,
                 Address = address,
+                Latitude = Locations.TryGetValue(name, out var loc) ? (double?)loc.Lat : null,
+                Longitude = Locations.TryGetValue(name, out var loc2) ? (double?)loc2.Lng : null,
                 PriceFrom = priceFrom,
                 Duration = duration,
                 SortOrder = order++,

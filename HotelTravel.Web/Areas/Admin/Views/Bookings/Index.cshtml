@@ -8,6 +8,10 @@
     string search = ViewBag.Search as string ?? "";
     BookingStatus? selectedStatus =
         ViewBag.Status as BookingStatus?;
+
+    // Otel cavabını gözləyən sorğular
+    var pendingCount = Model.Count(b => b.Status == BookingStatus.Pending);
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
 
 <style>
@@ -98,6 +102,58 @@
         display: inline-block;
     }
 
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .row-pending {
+        background: #fffbeb;
+    }
+
+    .row-overdue .status-badge::after {
+        content: " ⚠";
+    }
+
+    .booking-request-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        background: #fffaf0;
+        border: 1px solid #f3dfb0;
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        color: #78350f;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 6px;
+    }
+
+        .quick-actions button {
+            border: 0;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .quick-actions .ok {
+            background: #16834b;
+            color: #fff;
+        }
+
+        .quick-actions .no {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
     .status-confirmed {
         background: #dcfce7;
         color: #166534;
@@ -136,6 +192,28 @@
     <p>@T["View, search and manage hotel reservations."]</p>
 </div>
 
+@if (TempData["Success"] is string okMsg)
+{
+    <div class="alert alert-success">@okMsg</div>
+}
+@if (TempData["Error"] is string errMsg)
+{
+    <div class="alert alert-danger">@errMsg</div>
+}
+
+@if (pendingCount > 0 && selectedStatus != BookingStatus.Pending)
+{
+    <div class="booking-request-banner">
+        <span>
+            ⏳ <strong>@T["{0} booking requests are waiting for the hotel's answer.", pendingCount]</strong>
+            @T["We do not know the hotel's real availability, so each request must be confirmed or rejected."]
+        </span>
+        <a asp-area="Admin" asp-controller="Bookings" asp-action="Index" asp-route-status="@BookingStatus.Pending" class="booking-btn">
+            @T["Show requests"]
+        </a>
+    </div>
+}
+
 <div style="margin-bottom:20px;">
     <a asp-area="Admin"
        asp-controller="Bookings"
@@ -169,13 +247,13 @@
                 if (selectedStatus == status)
                 {
                     <option value="@status" selected>
-                        @status
+                        @T.Enum(status)
                     </option>
                 }
                 else
                 {
                     <option value="@status">
-                        @status
+                        @T.Enum(status)
                     </option>
                 }
             }
@@ -213,6 +291,7 @@
                 {
                     var statusClass = booking.Status switch
                     {
+                        BookingStatus.Pending => "status-pending",
                         BookingStatus.Confirmed => "status-confirmed",
                         BookingStatus.CheckedIn => "status-checkedin",
                         BookingStatus.CheckedOut => "status-checkedout",
@@ -220,7 +299,13 @@
                         _ => "status-checkedout"
                     };
 
-                    <tr>
+                    var isPending = booking.Status == BookingStatus.Pending;
+                    var rowClass = !isPending ? ""
+                        : HotelTravel.Application.Services.BookingRules.IsAnswerOverdue(booking.Status, booking.CreatedAt, DateTime.UtcNow)
+                            ? "row-pending row-overdue"
+                            : "row-pending";
+
+                    <tr class="@rowClass">
                         <td>
                             <strong>@booking.ConfirmationCode</strong>
                         </td>
@@ -260,6 +345,23 @@
                                class="details-link">
                                 @T["View Details"]
                             </a>
+
+                            @if (isPending)
+                            {
+                                <div class="quick-actions">
+                                    <form asp-area="Admin" asp-controller="Bookings" asp-action="ConfirmRequest" method="post">
+                                        <input type="hidden" name="id" value="@booking.Id" />
+                                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                        <button type="submit" class="ok" title="@T["Confirm — room is free"]">✓ @T["Confirm"]</button>
+                                    </form>
+                                    <form asp-area="Admin" asp-controller="Bookings" asp-action="RejectRequest" method="post">
+                                        <input type="hidden" name="id" value="@booking.Id" />
+                                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                        <button type="submit" class="no" title="@T["Reject — no free room"]"
+                                                onclick='return confirm(@Json.Serialize(T["Reject this request? The guest will be told there is no free room."].Value));'>✕ @T["Reject"]</button>
+                                    </form>
+                                </div>
+                            }
                         </td>
                     </tr>
                 }

@@ -191,6 +191,23 @@
                             </a>
                         }
 
+                        <!-- BİLDİRİŞLƏR 🔔: təsdiq, rədd, ləğv, xatırlatmalar (bazada saxlanılır) -->
+                        <div class="hh-notif-menu" id="notifMenu">
+                            <button type="button" class="hh-btn hh-btn-ghost hh-notif-btn" id="notifBtn" title="@T["Notifications"]" aria-haspopup="true">
+                                <i class="bi bi-bell"></i>
+                                <span class="hh-notif-count" id="notifCount" hidden>0</span>
+                            </button>
+                            <div class="hh-notif-panel" id="notifPanel" hidden>
+                                <div class="hh-notif-head">
+                                    <b>@T["Notifications"]</b>
+                                    <a asp-area="" asp-controller="Bookings" asp-action="MyBookings">@T["My bookings"]</a>
+                                </div>
+                                <div class="hh-notif-list" id="notifList">
+                                    <div class="hh-notif-empty">@T["No notifications yet. Booking updates and reminders will appear here."]</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <a asp-area=""
                            asp-controller="Wishlist"
                            asp-action="Index"
@@ -418,7 +435,45 @@
         .la-text { font-size: 14px; font-weight: 600; flex: 1; }
         .la-text::after { content: attr(data-ago); display: block; font-size: 11px; font-weight: 500; color: #6b7280; }
         .la-close { border: none; background: none; font-size: 20px; color: #9ca3af; line-height: 1; }
+
+        /* Qonağın öz bildirişi: rezervasiya təsdiqi, xatırlatma (sağ altda, özü bağlanmır) */
+        .guest-toast { position: fixed; right: 20px; bottom: 20px; z-index: 1600; display: flex; gap: 12px; align-items: flex-start; max-width: 380px; background: #fff; color: #1F2421; border-radius: 16px; padding: 14px 16px; box-shadow: 0 18px 40px rgba(31,36,33,.22); border-left: 4px solid #16834b; opacity: 0; transform: translateY(20px); pointer-events: none; transition: opacity .4s, transform .4s; }
+        .guest-toast.show { opacity: 1; transform: none; pointer-events: auto; }
+        .guest-toast.bad { border-left-color: #c33434; }
+        .guest-toast.info { border-left-color: #d97706; }
+        .guest-toast .gt-icon { font-size: 22px; line-height: 1; }
+        .guest-toast .gt-text { font-size: 14px; font-weight: 600; flex: 1; }
+        .guest-toast .gt-text a { display: block; font-size: 12px; font-weight: 700; color: #52614e; margin-top: 4px; }
+        .guest-toast .gt-close { border: none; background: none; font-size: 20px; color: #9ca3af; line-height: 1; }
+
+        /* 🔔 bildiriş paneli */
+        .hh-notif-menu { position: relative; }
+        .hh-notif-btn { position: relative; }
+        .hh-notif-btn.ring i { animation: hhRing .8s ease; display: inline-block; }
+        @@keyframes hhRing { 0%,100% { transform: rotate(0); } 20% { transform: rotate(18deg); } 40% { transform: rotate(-16deg); } 60% { transform: rotate(10deg); } 80% { transform: rotate(-6deg); } }
+        .hh-notif-count { position: absolute; top: 2px; right: 2px; min-width: 18px; height: 18px; border-radius: 999px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; padding: 0 4px; line-height: 1; }
+        .hh-notif-count[hidden] { display: none; }
+        .hh-notif-panel { position: absolute; right: 0; top: calc(100% + 10px); width: 360px; max-width: calc(100vw - 32px); background: #fff; color: #1F2421; border: 1px solid #e7e0d4; border-radius: 16px; box-shadow: 0 20px 40px rgba(31,36,33,.18); z-index: 1700; overflow: hidden; }
+        .hh-notif-panel[hidden] { display: none; }
+        .hh-notif-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #f1ece3; }
+        .hh-notif-head a { font-size: 12px; font-weight: 700; color: #52614e; text-decoration: none; }
+        .hh-notif-list { max-height: 400px; overflow-y: auto; }
+        .hh-notif-empty { padding: 26px 16px; text-align: center; color: #9ca3af; font-size: 13px; }
+        .hh-notif-item { display: flex; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #f7f3ec; text-decoration: none; color: inherit; }
+        .hh-notif-item:hover { background: #FBFAF7; color: inherit; }
+        .hh-notif-item.unread { background: #f3f8f1; }
+        .hh-notif-icon { width: 36px; height: 36px; border-radius: 10px; background: #F3EEE5; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+        .hh-notif-body { display: grid; gap: 2px; min-width: 0; font-size: 13px; }
+        .hh-notif-body em { font-size: 11px; color: #9ca3af; font-style: normal; }
     </style>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div class="guest-toast" id="guestToast" role="alert" aria-live="assertive">
+            <span class="gt-icon">🔔</span>
+            <div class="gt-text"><span></span><a href="#">@T["Open booking"]</a></div>
+            <button type="button" class="gt-close" aria-label="Close">×</button>
+        </div>
+    }
     <script>
         // compare.js və digər skriptlər üçün tərcümələr
         window.tripioText = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, string>
@@ -439,10 +494,28 @@
             ["act_taxi_any"] = T["Someone just booked an airport taxi"],
             ["act_car"] = T["Someone just rented a car in {0}"],
             ["act_car_any"] = T["Someone just rented a car"],
-            ["act_trip"] = T["Someone just booked a trip package to {0}"]
+            ["act_trip"] = T["Someone just booked a trip package to {0}"],
+            // Qonağın öz bildirişləri: {0} = otel / şəhər, {1} = kod, {2} = tarix və ya saat
+            ["g_requested"] = T["Your request {1} was sent to {0}. The hotel answers within 24 hours."],
+            ["g_confirmed"] = T["{0} confirmed your booking {1}. You can pay now."],
+            ["g_cancelled_by_you"] = T["You cancelled booking {1} at {0}."],
+            ["g_cancelled_by_you_fee"] = T["You cancelled booking {1} at {0}. Cancellation fee: {2} AZN."],
+            ["g_flight_cancelled"] = T["You cancelled flight {1} to {0}."],
+            ["g_flight_cancelled_fee"] = T["You cancelled flight {1} to {0}. Cancellation fee: {2} AZN."],
+            ["notif_empty"] = T["No notifications yet. Booking updates and reminders will appear here."],
+            ["g_rejected"] = T["{0} has no free room for your dates. Request {1} was declined."],
+            ["g_cancelled"] = T["{0} cancelled your booking {1}. No fee is charged."],
+            ["g_hotel_reminder"] = T["Reminder: your stay at {0} starts on {2}."],
+            ["g_hotel_tomorrow"] = T["Your stay at {0} starts tomorrow. Check-in from 14:00."],
+            ["g_flight_reminder"] = T["Reminder: your flight to {0} departs at {2} within 24 hours."],
+            ["g_flight_soon"] = T["Your flight to {0} departs at {2}. Time to head to the airport!"]
         }));
         // Brauzer API-yə birbaşa qoşulur (SignalR, valyuta). Docker-də bu ünvan server ünvanından fərqlidir: Api:PublicUrl
-        window.tripioLive = { apiBase: @Html.Raw(System.Text.Json.JsonSerializer.Serialize((Config["Api:PublicUrl"] ?? Config["Api:BaseUrl"] ?? "").TrimEnd('/'))) };
+        // Daxil olmuş istifadəçi token ilə qoşulur ki, öz bildirişlərini (təsdiq, xatırlatma) alsın
+        window.tripioLive = {
+            apiBase: @Html.Raw(System.Text.Json.JsonSerializer.Serialize((Config["Api:PublicUrl"] ?? Config["Api:BaseUrl"] ?? "").TrimEnd('/'))),
+            token: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(User.Identity?.IsAuthenticated == true ? User.FindFirst(HotelTravel.Web.Services.AuthClaimTypes.AccessToken)?.Value ?? "" : ""))
+        };
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="~/js/live-activity.js" asp-append-version="true"></script>

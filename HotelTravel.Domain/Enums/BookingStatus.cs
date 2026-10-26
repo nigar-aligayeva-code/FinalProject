@@ -5,5 +5,8 @@ public enum BookingStatus
     Confirmed,
     CheckedIn,
     CheckedOut,
-    Cancelled
+    Cancelled,
+
+    // Otel hələ təsdiqləməyib (sorğu). Sonda durur ki, bazadakı köhnə rəqəmlər dəyişməsin.
+    Pending
 }

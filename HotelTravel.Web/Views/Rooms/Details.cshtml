@@ -2,6 +2,7 @@
 @inject HotelTravel.Application.Interfaces.IWishlistService WishlistService
 @inject HotelTravel.Web.Services.CurrentUserAccessor CurrentUser
 @inject HotelTravel.Application.Interfaces.ICityGuideService CityGuideService
+@inject HotelTravel.Application.Interfaces.IHotelService HotelService
 
 @{
     ViewData["Title"] = Model.Name + " | Room Details";
@@ -29,6 +30,19 @@
         : await CityGuideService.GetByCityAsync(Model.City);
 
     ViewData["GuideCity"] = Model.City;
+
+    // Bələdçi pəncərəsində "otelinizdən X km" üçün otelin yeri
+    if (guidePlaces.Any() && Model.HotelId > 0)
+    {
+        var guideHotel = await HotelService.GetByIdAsync(Model.HotelId);
+
+        if (guideHotel != null)
+        {
+            ViewData["GuideHotelLat"] = (double?)guideHotel.Latitude;
+            ViewData["GuideHotelLng"] = (double?)guideHotel.Longitude;
+            ViewData["GuideHotelName"] = guideHotel.Name;
+        }
+    }
 
     // Wishlist - bu otaq saxlanılıbmı?
     var isSaved =
@@ -441,6 +455,7 @@
             font-size: 13px;
             color: #9A958C;
         }
+    .room-request-hint { width: 100%; margin: 4px 0 0; color: #8a6d2b; font-size: 13px; }
 </style>
 
 <section class="room-details-page">
@@ -875,7 +890,7 @@
                            asp-route-childrenCount="@ViewBag.ChildrenCount"
                            class="room-btn room-btn-gold">
                             <i class="bi bi-calendar-check"></i>
-                            @T["Book Now"]
+                            @T["Request to book"]
                         </a>
                     }
                     else
@@ -885,7 +900,7 @@
                            asp-route-roomId="@Model.Id"
                            class="room-btn room-btn-gold">
                             <i class="bi bi-calendar-check"></i>
-                            @T["Book Now"]
+                            @T["Request to book"]
                         </a>
                     }
 
@@ -894,6 +909,14 @@
                         <i class="bi bi-arrow-left"></i>
                         @T["Back to Search"]
                     </a>
+                
+                    <p class="room-request-hint">
+                        <i class="bi bi-hourglass-split"></i>
+                        @T["The hotel confirms within {0} hours. Nothing is charged until then.", HotelTravel.Application.Services.BookingRules.HotelAnswerHours]
+                        <br />
+                        <i class="bi bi-shield-check"></i>
+                        @T["Free cancellation up to {0} days before check-in.", HotelTravel.Application.Services.CancellationPolicy.FreeHours / 24]
+                    </p>
                 }
             </div>
         </div>

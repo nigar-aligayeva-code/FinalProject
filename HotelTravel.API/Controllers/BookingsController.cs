@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Bookings;
+﻿using HotelTravel.Application.DTOs.Bookings;
 using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Enums;
@@ -15,17 +15,38 @@ public class BookingsController : ApiControllerBase
     private readonly IBookingEmailService _bookingEmails;
     private readonly IVoucherPdfService _voucherPdf;
     private readonly IActivityNotifier _notifier;
+    private readonly IPaymentService _payments;
 
     public BookingsController(
         IBookingService bookingService,
         IBookingEmailService bookingEmails,
         IVoucherPdfService voucherPdf,
-        IActivityNotifier notifier)
+        IActivityNotifier notifier,
+        IPaymentService payments)
     {
         _bookingService = bookingService;
         _bookingEmails = bookingEmails;
         _voucherPdf = voucherPdf;
         _notifier = notifier;
+        _payments = payments;
+    }
+
+    // Ləğvdən sonra: onlayn ödənilibsə pulu (cərimə çıxılmaqla) qaytar, məktub göndər, bildiriş et.
+    // Refund məktubdan əvvəl edilir ki, məktubda qaytarılan məbləğ görünsün.
+    private async Task AfterCancelAsync(string confirmationCode, bool byHotel)
+    {
+        await _payments.RefundCancelledAsync(confirmationCode);
+        await _bookingEmails.SendCancellationAsync(confirmationCode, byHotel);
+
+        if (byHotel)
+        {
+            await _notifier.GuestBookingUpdateAsync(confirmationCode, "cancelled");
+        }
+        else
+        {
+            await _notifier.HotelCancelledAsync(confirmationCode);
+            await _notifier.GuestBookingUpdateAsync(confirmationCode, "cancelled_by_you");
+        }
     }
 
     // =========================
@@ -33,7 +54,7 @@ public class BookingsController : ApiControllerBase
     // =========================
 
     // POST: api/bookings  (token varsa rezervasiya istifadəçiyə bağlanır)
-    /// <summary>Book a room. If a token is sent, the booking is linked to the user. Sends a confirmation email with a PDF voucher.</summary>
+    /// <summary>Request a room. The booking starts as Pending until the hotel (or admin) confirms it. If a token is sent, the booking is linked to the user. Sends a "request received" email.</summary>
     [HttpPost]
     [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
@@ -42,11 +63,12 @@ public class BookingsController : ApiControllerBase
     {
         var result = await _bookingService.CreateAsync(dto, CurrentUserId);
 
-        // Təsdiq məktubu + PDF (alınmasa rezervasiya yenə uğurludur, EmailLog-da görünür)
+        // "Sorğu qəbul olundu" məktubu (alınmasa rezervasiya yenə uğurludur, EmailLog-da görünür)
         if (result.Success && !string.IsNullOrWhiteSpace(result.ConfirmationCode))
         {
             await _bookingEmails.SendConfirmationAsync(result.ConfirmationCode);
             await _notifier.HotelBookedAsync(result.ConfirmationCode);
+            await _notifier.GuestBookingUpdateAsync(result.ConfirmationCode, "requested");
         }
 
         return FromResult(result.Success
@@ -97,7 +119,7 @@ public class BookingsController : ApiControllerBase
     }
 
     // POST: api/bookings/by-code/BK-1234ABCD/send-email  (məktub yalnız rezervasiyanın öz email-inə gedir)
-    /// <summary>Send the confirmation email (with PDF voucher) again. It always goes to the email on the booking.</summary>
+    /// <summary>Send the booking email again (confirmation with PDF voucher, or "request received" while pending). It always goes to the email on the booking.</summary>
     [HttpPost("by-code/{confirmationCode}/send-email")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
@@ -120,10 +142,7 @@ public class BookingsController : ApiControllerBase
         var result = await _bookingService.CancelByGuestAsync(dto.ConfirmationCode, dto.Email);
 
         if (result.Success)
-        {
-            await _bookingEmails.SendCancellationAsync(dto.ConfirmationCode);
-            await _notifier.HotelCancelledAsync(dto.ConfirmationCode);
-        }
+            await AfterCancelAsync(dto.ConfirmationCode, byHotel: false);
 
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message)
@@ -168,10 +187,7 @@ public class BookingsController : ApiControllerBase
             var booking = await _bookingService.GetByIdAsync(id);
 
             if (booking != null)
-            {
-                await _bookingEmails.SendCancellationAsync(booking.ConfirmationCode);
-                await _notifier.HotelCancelledAsync(booking.ConfirmationCode);
-            }
+                await AfterCancelAsync(booking.ConfirmationCode, byHotel: false);
         }
 
         return FromResult(result.Success
@@ -200,16 +216,89 @@ public class BookingsController : ApiControllerBase
         => OkOrNotFound(await _bookingService.GetByIdAsync(id), "Booking not found.");
 
     // PUT: api/bookings/5/status
-    /// <summary>Change booking status: Confirmed, CheckedIn, CheckedOut or Cancelled (admin).</summary>
+    /// <summary>Change booking status: Confirmed, CheckedIn, CheckedOut or Cancelled (admin). Pending requests should use confirm / reject so the guest gets an email.</summary>
     [HttpPut("{id:int}/status")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateStatus(
         int id,
         [FromBody] StatusUpdateDto<BookingStatus> dto)
-        => FromBool(
-            await _bookingService.UpdateStatusAsync(id, dto.Status),
+    {
+        var updated = await _bookingService.UpdateStatusAsync(id, dto.Status);
+
+        // Otel ləğv etdi: qonağa tam pul qaytarılır, məktub + canlı bildiriş
+        if (updated && dto.Status == BookingStatus.Cancelled)
+        {
+            var booking = await _bookingService.GetByIdAsync(id);
+
+            if (booking != null)
+                await AfterCancelAsync(booking.ConfirmationCode, byHotel: true);
+        }
+
+        return FromBool(
+            updated,
             "Booking status updated.",
             "Booking status could not be changed.");
+    }
+
+    // POST: api/bookings/5/confirm
+    /// <summary>The hotel has a free room: confirm a pending request (admin). The guest gets the confirmation email with the PDF voucher and can pay.</summary>
+    [HttpPost("{id:int}/confirm")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResultDto), 200)]
+    [ProducesResponseType(typeof(ApiResultDto), 400)]
+    public async Task<IActionResult> ConfirmRequest(int id)
+    {
+        var result = await _bookingService.ConfirmRequestAsync(id);
+
+        if (result.Success)
+        {
+            var booking = await _bookingService.GetByIdAsync(id);
+
+            if (booking != null)
+            {
+                await _bookingEmails.SendConfirmationAsync(booking.ConfirmationCode);
+                await _notifier.GuestBookingUpdateAsync(booking.ConfirmationCode, "confirmed");
+            }
+        }
+
+        return FromResult(result.Success
+            ? ApiResultDto.Ok(result.Message)
+            : ApiResultDto.Fail(result.Message));
+    }
+
+    // POST: api/bookings/5/reject
+    /// <summary>The hotel has no free room: reject a pending request (admin). The dates become free and the guest gets an email.</summary>
+    [HttpPost("{id:int}/reject")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResultDto), 200)]
+    [ProducesResponseType(typeof(ApiResultDto), 400)]
+    public async Task<IActionResult> RejectRequest(int id)
+    {
+        var result = await _bookingService.RejectRequestAsync(id);
+
+        if (result.Success)
+        {
+            var booking = await _bookingService.GetByIdAsync(id);
+
+            if (booking != null)
+            {
+                await _bookingEmails.SendRejectionAsync(booking.ConfirmationCode);
+                await _notifier.GuestBookingUpdateAsync(booking.ConfirmationCode, "rejected");
+            }
+        }
+
+        return FromResult(result.Success
+            ? ApiResultDto.Ok(result.Message)
+            : ApiResultDto.Fail(result.Message));
+    }
+
+    // GET: api/bookings/pending-count
+    /// <summary>How many booking requests are waiting for the hotel's answer (admin).</summary>
+    [HttpGet("pending-count")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(int), 200)]
+    public async Task<IActionResult> PendingCount()
+        => Ok(await _bookingService.CountPendingAsync());
 
     // GET: api/bookings/occupancy-calendar
     /// <summary>Bookings per room and day for the occupancy calendar (admin).</summary>

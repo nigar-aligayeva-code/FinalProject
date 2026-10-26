@@ -573,7 +573,8 @@ public class RoomService : IRoomService
             .CountAsync(b =>
                 b.RoomId == roomId &&
                 !b.IsDeleted &&
-                (b.Status == HotelTravel.Domain.Enums.BookingStatus.Confirmed ||
+                (b.Status == HotelTravel.Domain.Enums.BookingStatus.Pending ||
+                 b.Status == HotelTravel.Domain.Enums.BookingStatus.Confirmed ||
                  b.Status == HotelTravel.Domain.Enums.BookingStatus.CheckedIn) &&
                 b.CheckOutDate >= today);
     }

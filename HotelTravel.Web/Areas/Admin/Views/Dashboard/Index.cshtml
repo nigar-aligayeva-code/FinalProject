@@ -6,7 +6,8 @@
 
     var monthlyBookings = JsonSerializer.Serialize(ViewBag.MonthlyBookings);
     var monthlyRevenue = JsonSerializer.Serialize(ViewBag.MonthlyRevenue);
-    var bookingStatuses = JsonSerializer.Serialize(ViewBag.BookingStatuses);
+    var bookingStatuses = JsonSerializer.Serialize(((string[])ViewBag.BookingStatuses).Select(s => T.Enum(s)).ToArray());
+    int pendingRequests = ViewBag.PendingRequests is int pr ? pr : 0;
     var bookingStatusCounts = JsonSerializer.Serialize(ViewBag.BookingStatusCounts);
 }
 
@@ -157,6 +158,18 @@
     <p>@T["Welcome back! Here is your hotel management overview."]</p>
 </div>
 
+@if (pendingRequests > 0)
+{
+    <!-- OTEL TƏSDİQİ GÖZLƏYƏN SORĞULAR -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#fffaf0;border:1px solid #f3dfb0;border-radius:16px;padding:16px 20px;margin-bottom:24px;color:#78350f">
+        <span>⏳ <strong>@T["{0} booking requests are waiting for the hotel's answer.", pendingRequests]</strong></span>
+        <a asp-area="Admin" asp-controller="Bookings" asp-action="Index" asp-route-status="@HotelTravel.Domain.Enums.BookingStatus.Pending"
+           style="background:#1F2421;color:#fff;border-radius:999px;padding:8px 16px;font-weight:700;text-decoration:none">
+            @T["Show requests"]
+        </a>
+    </div>
+}
+
 <!-- STATISTICS -->
 <div class="stats-grid">
 
@@ -180,7 +193,7 @@
 
     <div class="stat-card">
         <div class="stat-icon icon-revenue">₼</div>
-        <div class="stat-label">Total Revenue (Estimated)</div>
+        <div class="stat-label">@T["Total Revenue (Estimated)"]</div>
         <div class="stat-value">
             @(((decimal)ViewBag.TotalRevenue).ToString("N2")) AZN
         </div>
@@ -465,6 +478,11 @@
         font-weight: 700;
     }
 
+    .recent-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
     .recent-confirmed {
         background: #dbeafe;
         color: #2563eb;
@@ -548,6 +566,9 @@
                     {
                         var statusClass = booking.Status switch
                         {
+                            HotelTravel.Domain.Enums.BookingStatus.Pending
+                                => "recent-pending",
+
                             HotelTravel.Domain.Enums.BookingStatus.Confirmed
                                 => "recent-confirmed",
 

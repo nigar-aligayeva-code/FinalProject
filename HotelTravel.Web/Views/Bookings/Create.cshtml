@@ -100,37 +100,30 @@
             </div>
 
             <div class="hh-panel hh-perks">
-                <div><i class="bi bi-check-circle-fill"></i> @T["Free cancellation before the check-in day"]</div>
-                <div><i class="bi bi-check-circle-fill"></i> @T["Instant confirmation code"]</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["Free cancellation up to {0} days before check-in.", HotelTravel.Application.Services.CancellationPolicy.FreeHours / 24]</div>
+                <div><i class="bi bi-check-circle-fill"></i> @T["Request code right away"]</div>
                 <div><i class="bi bi-check-circle-fill"></i> @T["Change dates or guests any time before check-in"]</div>
+                <details class="mt-2">
+                    <summary class="small fw-semibold">@T["Cancellation policy"]</summary>
+                    <partial name="_CancellationPolicy" />
+                </details>
             </div>
 
-            @if (ViewBag.PaymentsEnabled is true)
-            {
-                <!-- ÖDƏNİŞ ÜSULU -->
-                <div class="hh-panel hh-pay-choice">
-                    <strong>@T["Payment"]</strong>
-
-                    <label>
-                        <input type="radio" name="payNow" value="true" checked />
-                        <span>
-                            <i class="bi bi-credit-card"></i> @T["Pay now by card"]
-                            <small>@T["Secure payment by Stripe (test mode)."]</small>
-                        </span>
-                    </label>
-
-                    <label>
-                        <input type="radio" name="payNow" value="false" />
-                        <span>
-                            <i class="bi bi-building"></i> @T["Pay at the hotel"]
-                            <small>@T["No payment now. Pay at check-in."]</small>
-                        </span>
-                    </label>
+            <!-- OTEL TƏSDİQİ: biz otelin real boş yerlərini bilmirik, ona görə sorğu göndəririk -->
+            <div class="hh-panel hh-request-note">
+                <i class="bi bi-hourglass-split"></i>
+                <div>
+                    <strong>@T["Request to book"]</strong>
+                    <small>@T["The hotel confirms within {0} hours. Nothing is charged until then.", HotelTravel.Application.Services.BookingRules.HotelAnswerHours]</small>
+                    @if (ViewBag.PaymentsEnabled is true)
+                    {
+                        <small>@T["After confirmation you can pay online by card or at the hotel."]</small>
+                    }
                 </div>
-            }
+            </div>
 
             <button type="submit" class="hh-search-btn hh-confirm-btn">
-                @T["Confirm booking"]
+                @T["Send booking request"]
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
@@ -306,10 +299,8 @@
 
 <style>
     /* Ödəniş üsulu seçimi */
-    .hh-pay-choice { display: grid; gap: 10px; }
-    .hh-pay-choice label { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border: 1px solid #e7e0d4; border-radius: 12px; cursor: pointer; }
-    .hh-pay-choice label:has(input:checked) { border-color: #1F2421; background: #FBFAF7; }
-    .hh-pay-choice input { margin-top: 4px; accent-color: #1F2421; }
-    .hh-pay-choice span { display: flex; flex-direction: column; font-weight: 600; }
-    .hh-pay-choice small { font-weight: 400; color: #6b7280; }
+    .hh-request-note { display: flex; gap: 12px; align-items: flex-start; background: #FFF7E6; border: 1px solid #f3dfb0; }
+    .hh-request-note > i { font-size: 22px; color: #92600a; }
+    .hh-request-note div { display: flex; flex-direction: column; gap: 2px; }
+    .hh-request-note small { color: #6b7280; }
 </style>

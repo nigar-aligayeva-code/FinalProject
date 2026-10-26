@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Flights;
+﻿using HotelTravel.Application.DTOs.Flights;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
@@ -109,12 +109,14 @@ public class FlightTests
     }
 
     [Fact]
-    public void CanCancel_ShouldAllowOnlyUntil24HoursBefore()
+    public void CanCancel_ShouldBeClosed_InTheLast3Hours()
     {
         var now = new DateTime(2026, 10, 15, 10, 0, 0);
 
+        // 30 və 20 saat qalıb: ləğv olur (cərimə ilə), 2 saat qalıb: olmur
         Assert.True(FlightRules.CanCancel(FlightBookingStatus.Confirmed, now.AddHours(30), now));
-        Assert.False(FlightRules.CanCancel(FlightBookingStatus.Confirmed, now.AddHours(20), now));
+        Assert.True(FlightRules.CanCancel(FlightBookingStatus.Confirmed, now.AddHours(20), now));
+        Assert.False(FlightRules.CanCancel(FlightBookingStatus.Confirmed, now.AddHours(2), now));
         Assert.False(FlightRules.CanCancel(FlightBookingStatus.Cancelled, now.AddDays(10), now));
     }
 

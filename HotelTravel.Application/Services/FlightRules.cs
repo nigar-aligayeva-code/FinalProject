@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Application.Services;
 
@@ -13,8 +13,8 @@ public static class FlightRules
     // Uçuşa 2 saatdan az qalıbsa bilet satılmır
     public const int MinHoursBeforeDeparture = 2;
 
-    // Pulsuz ləğv: uçuşdan 24 saat əvvələ qədər
-    public const int FreeCancelHours = 24;
+    // Pulsuz ləğv: uçuşdan 72 saat əvvələ qədər (sonra cərimə, bax CancellationPolicy)
+    public const int FreeCancelHours = CancellationPolicy.FreeHours;
 
     // Şəhərlərin UTC saat qurşağı (gəliş vaxtı yerli vaxtla göstərilsin)
     private static readonly Dictionary<string, int> UtcOffsets =
@@ -100,12 +100,12 @@ public static class FlightRules
     public static bool CanBook(DateTime departure, DateTime now)
         => departure >= now.AddHours(MinHoursBeforeDeparture);
 
+    // Ləğv etmək olarmı? (pulsuz və ya cərimə ilə - son 3 saatda olmur)
     public static bool CanCancel(
         FlightBookingStatus status,
         DateTime departure,
         DateTime now)
-        => status == FlightBookingStatus.Confirmed &&
-           departure >= now.AddHours(FreeCancelHours);
+        => CancellationPolicy.ForFlight(status, departure, 0, now).Allowed;
 
     public static int SeatsLeft(int capacity, int taken)
         => Math.Max(0, capacity - taken);

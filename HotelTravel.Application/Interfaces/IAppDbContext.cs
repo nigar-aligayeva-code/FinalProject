@@ -40,6 +40,8 @@ public interface IAppDbContext
 
     DbSet<EmailLog> EmailLogs { get; set; }
 
+    DbSet<UserNotification> UserNotifications { get; set; }
+
     DbSet<TripPackage> TripPackages { get; set; }
 
     Task<int> SaveChangesAsync(

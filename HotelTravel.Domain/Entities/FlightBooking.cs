@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Domain.Entities;
 
@@ -35,6 +35,10 @@ public class FlightBooking : BaseEntity
     public decimal TotalPrice { get; set; }
 
     public FlightBookingStatus Status { get; set; }
+
+    // LƏĞV: uçuşa az qalmış ləğvdə cərimə (CancellationPolicy)
+    public decimal CancellationFee { get; set; }
+    public DateTime? CancelledAt { get; set; }
 
     // Əlaqə
     public string ContactName { get; set; } = string.Empty;

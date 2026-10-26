@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Bookings;
+﻿using HotelTravel.Application.DTOs.Bookings;
 using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Enums;
@@ -33,6 +33,21 @@ public class BookingApiService : IBookingService
         => (await _api.PutAsync(
             $"api/bookings/{id}/status",
             new StatusUpdateDto<BookingStatus> { Status = status })).Success;
+
+    public async Task<(bool Success, string Message)> ConfirmRequestAsync(int id)
+    {
+        var result = await _api.PostAsync($"api/bookings/{id}/confirm");
+        return (result.Success, result.Message);
+    }
+
+    public async Task<(bool Success, string Message)> RejectRequestAsync(int id)
+    {
+        var result = await _api.PostAsync($"api/bookings/{id}/reject");
+        return (result.Success, result.Message);
+    }
+
+    public Task<int> CountPendingAsync()
+        => _api.GetAsync<int>("api/bookings/pending-count");
 
     public Task<List<OccupancyCalendarDto>> GetOccupancyCalendarAsync()
         => _api.GetAsync<List<OccupancyCalendarDto>>("api/bookings/occupancy-calendar");

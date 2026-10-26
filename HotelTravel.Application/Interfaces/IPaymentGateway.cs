@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Payments;
+﻿using HotelTravel.Application.DTOs.Payments;
 
 namespace HotelTravel.Application.Interfaces;
 
@@ -10,6 +10,9 @@ public interface IPaymentGateway
     Task<PaymentCheckoutSession> CreateCheckoutAsync(PaymentCheckoutRequest request, CancellationToken cancellationToken = default);
 
     Task<PaymentSessionStatus> GetSessionAsync(string sessionId, CancellationToken cancellationToken = default);
+
+    // Ləğvdən sonra pulu (cərimə çıxılmaqla) karta qaytar
+    Task<PaymentRefundResult> RefundAsync(string sessionId, long amountMinor, CancellationToken cancellationToken = default);
 }
 
 public interface IPaymentService
@@ -19,4 +22,7 @@ public interface IPaymentService
     Task<PaymentResultDto> StartAsync(StartPaymentDto dto, CancellationToken cancellationToken = default);
 
     Task<PaymentResultDto> ConfirmAsync(ConfirmPaymentDto dto, CancellationToken cancellationToken = default);
+
+    // Ləğv edilmiş, onlayn ödənilmiş rezervasiyanın pulunu (cərimə çıxılmaqla) qaytar
+    Task<PaymentResultDto> RefundCancelledAsync(string confirmationCode, CancellationToken cancellationToken = default);
 }

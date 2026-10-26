@@ -1,4 +1,4 @@
-namespace HotelTravel.Application.DTOs.Payments;
+﻿namespace HotelTravel.Application.DTOs.Payments;
 
 // MVC -> API: ödəniş səhifəsini aç
 public class StartPaymentDto
@@ -41,5 +41,7 @@ public record PaymentCheckoutRequest(
     string CancelUrl);
 
 public record PaymentCheckoutSession(string SessionId, string Url);
+
+public record PaymentRefundResult(bool Success, string? RefundId, string? Error);
 
 public record PaymentSessionStatus(bool IsPaid, string? ConfirmationCode, long AmountMinor, string Currency);

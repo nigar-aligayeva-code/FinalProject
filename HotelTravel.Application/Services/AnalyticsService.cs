@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using HotelTravel.Application.DTOs.Analytics;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Enums;
@@ -62,8 +62,8 @@ public class AnalyticsService : IAnalyticsService
         var roomCount = await _context.Rooms
             .CountAsync(r => !r.IsDeleted && !r.Hotel.IsDeleted);
 
-        // Ləğv olunmayanlar gəlirə daxildir
-        var activeHotel = hotel.Where(b => b.Status != BookingStatus.Cancelled).ToList();
+        // Ləğv olunmayanlar gəlirə daxildir (otel hələ təsdiqləməyən sorğular - yox)
+        var activeHotel = hotel.Where(b => b.Status != BookingStatus.Cancelled && b.Status != BookingStatus.Pending).ToList();
         var activeCars = cars.Where(r => r.Status != CarRentalStatus.Cancelled).ToList();
         var activeTaxis = taxis.Where(t => t.Status != TaxiBookingStatus.Cancelled).ToList();
         var activeFlights = flights.Where(f => f.Status != FlightBookingStatus.Cancelled).ToList();

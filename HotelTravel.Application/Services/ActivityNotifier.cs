@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Notifications;
+﻿using HotelTravel.Application.DTOs.Notifications;
 using HotelTravel.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,15 +11,18 @@ public class ActivityNotifier : IActivityNotifier
     private readonly IAppDbContext _context;
     private readonly IRealtimePublisher _publisher;
     private readonly ILogger<ActivityNotifier> _logger;
+    private readonly IUserNotificationService _userNotifications;
 
     public ActivityNotifier(
         IAppDbContext context,
         IRealtimePublisher publisher,
-        ILogger<ActivityNotifier> logger)
+        ILogger<ActivityNotifier> logger,
+        IUserNotificationService userNotifications)
     {
         _context = context;
         _publisher = publisher;
         _logger = logger;
+        _userNotifications = userNotifications;
     }
 
     public Task HotelBookedAsync(string confirmationCode) => SafeAsync(async () =>
@@ -118,6 +121,79 @@ public class ActivityNotifier : IActivityNotifier
             ActivityMessages.TripBooked(hotelBookingId, packageCode, p.FromCity, p.ToCity, p.Travelers, p.Total, p.DiscountPercent),
             p.ToCity);
     });
+
+    public Task GuestBookingUpdateAsync(string confirmationCode, string kind) => SafeAsync(async () =>
+    {
+        var b = await _context.Bookings
+            .Where(x => x.ConfirmationCode == confirmationCode)
+            .Select(x => new { x.AppUserId, Hotel = x.Room.Hotel.Name, x.CheckInDate, x.CancellationFee })
+            .FirstOrDefaultAsync();
+
+        // Hesabsız qonaq: yalnız e-poçt alır
+        if (b?.AppUserId == null) return;
+
+        var en = System.Globalization.CultureInfo.InvariantCulture;
+        var when = b.CheckInDate.ToString("dd MMM", en);
+
+        // Özü gec ləğv edib: bildirişdə cərimə məbləği görünsün
+        if (kind == "cancelled_by_you" && b.CancellationFee > 0)
+        {
+            kind = "cancelled_by_you_fee";
+            when = b.CancellationFee.ToString("0.00", en);
+        }
+
+        var message = kind switch
+        {
+            "requested" => $"Your request {confirmationCode} was sent to {b.Hotel}. The hotel answers within {BookingRules.HotelAnswerHours} hours.",
+            "confirmed" => $"{b.Hotel} confirmed your booking {confirmationCode}. You can pay now.",
+            "rejected" => $"{b.Hotel} has no free room for your dates. Request {confirmationCode} was declined.",
+            "cancelled_by_you" => $"You cancelled booking {confirmationCode} at {b.Hotel}.",
+            "cancelled_by_you_fee" => $"You cancelled booking {confirmationCode} at {b.Hotel}. Cancellation fee: {when} AZN.",
+            _ => $"{b.Hotel} cancelled your booking {confirmationCode}."
+        };
+
+        await _userNotifications.AddAsync(b.AppUserId, new GuestNotificationDto
+        {
+            Kind = kind,
+            Place = b.Hotel,
+            Code = confirmationCode,
+            When = when,
+            Url = BookingUrl(confirmationCode),
+            Message = message
+        });
+    });
+
+    public Task GuestFlightCancelledAsync(int flightBookingId) => SafeAsync(async () =>
+    {
+        var f = await _context.FlightBookings
+            .Where(x => x.Id == flightBookingId)
+            .Select(x => new { x.AppUserId, x.ConfirmationCode, x.ToCity, x.DepartureTime, x.CancellationFee })
+            .FirstOrDefaultAsync();
+
+        if (f?.AppUserId == null) return;
+
+        await _userNotifications.AddAsync(f.AppUserId, new GuestNotificationDto
+        {
+            Kind = f.CancellationFee > 0 ? "flight_cancelled_fee" : "flight_cancelled",
+            Place = f.ToCity,
+            Code = f.ConfirmationCode,
+            When = f.CancellationFee > 0 ? f.CancellationFee.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) : f.DepartureTime.ToString("dd MMM", System.Globalization.CultureInfo.InvariantCulture),
+            Url = "/Bookings/MyBookings",
+            Message = $"You cancelled flight {f.ConfirmationCode} to {f.ToCity}."
+        });
+    });
+
+    public Task ToGuestAsync(string? appUserId, GuestNotificationDto notification) => SafeAsync(async () =>
+    {
+        if (string.IsNullOrWhiteSpace(appUserId)) return;
+
+        // Bazaya yazılır + qonaq saytdadırsa canlı 🔔
+        await _userNotifications.AddAsync(appUserId, notification);
+    });
+
+    // Bildirişə klik -> həmin rezervasiyanın səhifəsi (status, ödəniş, voucher)
+    public static string BookingUrl(string confirmationCode)
+        => "/Bookings/Confirmation?confirmationCode=" + Uri.EscapeDataString(confirmationCode);
 
     private async Task PublishAsync(LiveNotificationDto notification, string? city)
     {

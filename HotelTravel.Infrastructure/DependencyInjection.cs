@@ -59,6 +59,9 @@ public static class DependencyInjection
         services.AddScoped<IEmailSender, SmtpEmailSender>();
         services.AddScoped<IEmailOutbox, EmailOutbox>();
 
+        // Giriş və uçuş xatırlatmaları (API-dəki ReminderBackgroundService çağırır)
+        services.AddScoped<IReminderService, ReminderService>();
+
         // Qeydiyyatda e-poçt yoxlaması: format, birdəfəlik domen, yazı səhvi, MX qeydi
         services.AddSingleton<IEmailAddressChecker, DnsEmailAddressChecker>();
 
@@ -81,6 +84,9 @@ public static class DependencyInjection
 
         // CANLI BİLDİRİŞLƏR (IRealtimePublisher API-də qeydiyyatdan keçir)
         services.AddScoped<IActivityNotifier, ActivityNotifier>();
+
+        // Qonağın 🔔 bildirişləri (bazada saxlanılır)
+        services.AddScoped<IUserNotificationService, UserNotificationService>();
 
         return services;
     }

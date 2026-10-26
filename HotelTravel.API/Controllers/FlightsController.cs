@@ -113,6 +113,9 @@ public class FlightsController : ApiControllerBase
     {
         var result = await _flightService.CancelByUserAsync(id, CurrentUserId!);
 
+        if (result.Success)
+            await _notifier.GuestFlightCancelledAsync(id);
+
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message)
             : ApiResultDto.Fail(result.Message));

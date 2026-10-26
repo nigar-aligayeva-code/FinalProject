@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Application.DTOs.Flights;
 
@@ -37,6 +37,10 @@ public class FlightBookingDto
     public string Phone { get; set; } = string.Empty;
 
     public bool CanCancel { get; set; }
+
+    // Ləğv cəriməsi (CancellationPolicy)
+    public decimal CancellationFee { get; set; }
+    public DateTime? CancelledAt { get; set; }
 
     public List<string> PassengerList =>
         PassengerNames

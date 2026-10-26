@@ -6,6 +6,7 @@
     ViewData["Title"] = "Booking Details";
     var statusClass = Model.Status switch
     {
+        BookingStatus.Pending => "pending",
         BookingStatus.Confirmed => "confirmed",
         BookingStatus.CheckedIn => "checkedin",
         BookingStatus.CheckedOut => "checkedout",
@@ -18,6 +19,11 @@
     bool canCheckOut = Model.Status == BookingStatus.CheckedIn && DateTime.Today >= Model.CheckInDate.Date;
     bool canCancel = Model.Status == BookingStatus.Confirmed;
     int nights = Math.Max(0, (Model.CheckOutDate.Date - Model.CheckInDate.Date).Days);
+
+    // Otel təsdiqi gözlənilir
+    bool isPending = Model.Status == BookingStatus.Pending;
+    var waitingHours = Math.Max(0, (int)(DateTime.UtcNow - Model.CreatedAt).TotalHours);
+    bool isOverdue = HotelTravel.Application.Services.BookingRules.IsAnswerOverdue(Model.Status, Model.CreatedAt, DateTime.UtcNow);
 }
 
 <style>
@@ -95,6 +101,41 @@
             background: #eef2f6;
             color: #475569;
         }
+
+        .bd-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+    .bd-request {
+        border: 1px solid #f3dfb0;
+        background: #fffaf0;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+    }
+
+        .bd-request.overdue {
+            border-color: #f5b5b5;
+            background: #fff5f5;
+        }
+
+        .bd-request p {
+            margin: 0 0 12px;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+    .bd-action.approve {
+        background: #16834b;
+        color: #fff;
+    }
+
+    .bd-action.reject {
+        background: #fff;
+        color: #c33434;
+        border: 1px solid #f1b4b4;
+    }
 
         .bd-status.cancelled {
             background: #fff0f0;
@@ -338,6 +379,14 @@
             {
                 <span style="font-size:12px;font-weight:700;color:#166534;background:#dcfce7;padding:3px 10px;border-radius:999px">💳 @T["Paid online"]</span>
             }
+            else if (Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Refunded)
+            {
+                <span style="font-size:12px;font-weight:700;color:#475569;background:#eef2f6;padding:3px 10px;border-radius:999px">↺ @T["Refunded"]: @Model.RefundAmount.ToString("0.00") AZN</span>
+            }
+            else if (isPending)
+            {
+                <span style="font-size:12px;font-weight:700;color:#475569;background:#eef2f6;padding:3px 10px;border-radius:999px">@T["After hotel confirmation"]</span>
+            }
             else
             {
                 <span style="font-size:12px;font-weight:700;color:#92400e;background:#fef3c7;padding:3px 10px;border-radius:999px">@T["Pay at the hotel"]</span>
@@ -410,7 +459,31 @@
                 <h2 class="bd-card-title"><span class="bd-icon">✓</span> @T["Booking Management"]</h2>
                 <div class="bd-field-label">@T["Current status"]</div>
                 <div style="margin:10px 0 18px"><span class="bd-status @statusClass">@T.Enum(Model.Status)</span></div>
-                @if (canCheckIn || canCheckOut || canCancel)
+                @if (isPending)
+                {
+                    <div class="bd-request @(isOverdue ? "overdue" : "")">
+                        <strong>@T["Booking request from the guest"]</strong>
+                        <p>
+                            @T["Waiting for {0} h.", waitingHours]
+                            @T["Check the hotel's real availability (phone, channel manager, other sites) and answer within {0} hours.", HotelTravel.Application.Services.BookingRules.HotelAnswerHours]
+                        </p>
+                        <div class="bd-actions">
+                            <form asp-area="Admin" asp-controller="Bookings" asp-action="ConfirmRequest" method="post">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button class="bd-action approve" type="submit">
+                                    ✓ @T["Confirm — room is free"]
+                                </button>
+                            </form>
+                            <form asp-area="Admin" asp-controller="Bookings" asp-action="RejectRequest" method="post">
+                                <input type="hidden" name="id" value="@Model.Id" />
+                                <button class="bd-action reject" type="submit" onclick='return confirm(@Json.Serialize(T["Reject this request? The guest will be told there is no free room."].Value));'>
+                                    ✕ @T["Reject — no free room"]
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else if (canCheckIn || canCheckOut || canCancel)
                 {
                     <div class="bd-management-note">@T["Choose an available action below to update the booking status."]</div>
                     <div class="bd-actions">
@@ -446,6 +519,21 @@
                 else
                 {
                     <div class="bd-management-note">@T["This reservation has no further status changes available."]</div>
+                }
+
+                @if (Model.Status == BookingStatus.Cancelled)
+                {
+                    <div class="bd-management-note" style="margin-top:12px">
+                        @if (Model.CancelledAt is DateTime cancelledAt)
+                        {
+                            <div>@T["Cancelled on"]: @cancelledAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm", System.Globalization.CultureInfo.CurrentUICulture)</div>
+                        }
+                        <div>@T["Cancellation fee"]: <b>@Model.CancellationFee.ToString("0.00") AZN</b></div>
+                        @if (Model.RefundAmount > 0)
+                        {
+                            <div>@T["Refunded"]: <b>@Model.RefundAmount.ToString("0.00") AZN</b></div>
+                        }
+                    </div>
                 }
             </section>
             @if (fromDashboard)

@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using HotelTravel.Application.DTOs.Bookings;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
@@ -168,11 +168,17 @@ public class QuestPdfVoucherService : IVoucherPdfService
         BookingStatus.Cancelled => "CANCELLED",
         BookingStatus.CheckedIn => "CHECKED IN",
         BookingStatus.CheckedOut => "COMPLETED",
+        BookingStatus.Pending => "AWAITING HOTEL CONFIRMATION",
         _ => "CONFIRMED"
     };
 
     private static string StatusColor(BookingStatus status)
-        => status == BookingStatus.Cancelled ? "#B42318" : Green;
+        => status switch
+        {
+            BookingStatus.Cancelled => "#B42318",
+            BookingStatus.Pending => "#B54708",
+            _ => Green
+        };
 
     private static string JoinParts(params string?[] parts)
         => string.Join(", ", parts.Where(p => !string.IsNullOrWhiteSpace(p)));

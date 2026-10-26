@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.CityGuide;
+﻿using HotelTravel.Application.DTOs.CityGuide;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -73,6 +73,8 @@ public class CityGuideService : ICityGuideService
                 Description = p.Description,
                 Address = p.Address,
                 ImageUrl = p.ImageUrl,
+                Latitude = p.Latitude,
+                Longitude = p.Longitude,
                 PriceFrom = p.PriceFrom,
                 Duration = p.Duration,
                 SortOrder = p.SortOrder
@@ -107,6 +109,8 @@ public class CityGuideService : ICityGuideService
         place.Description = dto.Description.Trim();
         place.Address = string.IsNullOrWhiteSpace(dto.Address) ? null : dto.Address.Trim();
         place.ImageUrl = string.IsNullOrWhiteSpace(dto.ImageUrl) ? null : dto.ImageUrl.Trim();
+        place.Latitude = dto.Latitude;
+        place.Longitude = dto.Longitude;
         place.PriceFrom = dto.PriceFrom;
         place.Duration = string.IsNullOrWhiteSpace(dto.Duration) ? null : dto.Duration.Trim();
         place.SortOrder = dto.SortOrder;
@@ -150,6 +154,8 @@ public class CityGuideService : ICityGuideService
                 Description = p.Description,
                 Address = p.Address,
                 ImageUrl = p.ImageUrl,
+                Latitude = p.Latitude,
+                Longitude = p.Longitude,
                 PriceFrom = p.PriceFrom,
                 Duration = p.Duration,
                 SortOrder = p.SortOrder

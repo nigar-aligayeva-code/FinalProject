@@ -101,7 +101,17 @@
                                 <th>@T["Status"]</th>
 
                                 <td>
-                                    @if (Model.Status.ToString() == "Confirmed")
+                                    @if (Model.Status == HotelTravel.Domain.Enums.BookingStatus.Pending)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-hourglass-split"></i>
+                                            @T.Enum(Model.Status)
+                                        </span>
+                                        <div class="small text-muted mt-1">
+                                            @T["The hotel confirms within {0} hours. Nothing is charged until then.", HotelTravel.Application.Services.BookingRules.HotelAnswerHours]
+                                        </div>
+                                    }
+                                    else if (Model.Status.ToString() == "Confirmed")
                                     {
                                         <span class="badge bg-success">
                                             @T["Confirmed"]
@@ -124,6 +134,7 @@
                                         <span class="badge bg-danger">
                                             @T["Cancelled"]
                                         </span>
+                                        <partial name="_CancellationInfo" model="Model" />
                                     }
                                 </td>
                             </tr>
@@ -154,8 +165,8 @@
                             @T["Search Another Booking"]
                         </a>
 
-                        @if (Model.Status ==
-                             HotelTravel.Domain.Enums.BookingStatus.Confirmed)
+                        @if (Model.Status == HotelTravel.Domain.Enums.BookingStatus.Confirmed ||
+                             Model.Status == HotelTravel.Domain.Enums.BookingStatus.Pending)
                         {
                             <button type="button"
                                     class="btn btn-danger"
@@ -201,7 +212,22 @@
                             @T["View Room"]
                         </a>
 
-                        @if (Model.Status != HotelTravel.Domain.Enums.BookingStatus.Cancelled)
+                        @* Otel təsdiqləyib, hələ ödənilməyib: onlayn ödə *@
+                        @if (ViewBag.PaymentsEnabled is true &&
+                             Model.Status == HotelTravel.Domain.Enums.BookingStatus.Confirmed &&
+                             Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Unpaid)
+                        {
+                            <form asp-controller="Payments" asp-action="Pay" method="post" class="m-0">
+                                <input type="hidden" name="confirmationCode" value="@Model.ConfirmationCode" />
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-credit-card"></i>
+                                    @T["Pay now"] · @Model.TotalPrice.ToString("0.00") AZN
+                                </button>
+                            </form>
+                        }
+
+                        @if (Model.Status != HotelTravel.Domain.Enums.BookingStatus.Cancelled &&
+                             Model.Status != HotelTravel.Domain.Enums.BookingStatus.Pending)
                         {
                             <a asp-controller="Bookings"
                                asp-action="Voucher"
@@ -233,8 +259,8 @@
                         </div>
                     }
 
-                    @if (Model.Status ==
-                         HotelTravel.Domain.Enums.BookingStatus.Confirmed)
+                    @if (Model.Status == HotelTravel.Domain.Enums.BookingStatus.Confirmed ||
+                         Model.Status == HotelTravel.Domain.Enums.BookingStatus.Pending)
                     {
                         <div class="collapse mt-3"
                              id="cancelBookingForm">
@@ -243,14 +269,41 @@
 
                                 <h5>@T["Cancel Booking"]</h5>
 
-                                <p class="text-muted">
+                                @{
+                                    var cancelQuote = HotelTravel.Application.Services.CancellationPolicy.ForHotel(
+                                        Model.Status, Model.CheckInDate, Model.TotalPrice, DateTime.Now);
+                                }
+
+                                @if (!cancelQuote.Allowed)
+                                {
+                                    <div class="alert alert-secondary">@T[cancelQuote.Error ?? "This booking can no longer be cancelled."]</div>
+                                }
+                                else if (cancelQuote.IsFree)
+                                {
+                                    <div class="alert alert-success py-2"><i class="bi bi-check-circle"></i> @T["Cancellation is free."]</div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning py-2">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        @T["A cancellation fee of {0} AZN ({1}%) will be charged.", cancelQuote.Fee.ToString("0.00"), cancelQuote.FeePercent]
+                                        @if (Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Paid)
+                                        {
+                                            <div>@T["{0} AZN will be refunded to your card.", HotelTravel.Application.Services.PaymentRules.RefundFor(Model.TotalPrice, cancelQuote.Fee).ToString("0.00")]</div>
+                                        }
+                                    </div>
+                                }
+
+                                <partial name="_CancellationPolicy" />
+
+                                <p class="text-muted mt-3">
                                     @T["Enter the email address used when making this reservation."]
                                 </p>
 
                                 <form asp-controller="Bookings"
                                       asp-action="CancelByGuest"
                                       method="post"
-                                      onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                      onsubmit='return confirm(@Json.Serialize(T["Are you sure you want to cancel this booking?"].Value));'>
 
                                     @Html.AntiForgeryToken()
 

@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Booking Confirmation";
+
+    // Otel hələ təsdiqləməyib: sorğu gözləmədədir
+    var isPending = Model.Status == HotelTravel.Domain.Enums.BookingStatus.Pending;
 }
 
 <div class="container py-5">
@@ -15,13 +18,27 @@
 
                     <div class="text-center mb-4">
 
-                        <h2 class="text-success">
-                            @T["Booking Confirmed"]
-                        </h2>
+                        @if (isPending)
+                        {
+                            <h2 class="text-warning-emphasis">
+                                <i class="bi bi-hourglass-split"></i>
+                                @T["Request sent to the hotel"]
+                            </h2>
 
-                        <p class="text-muted">
-                            @T["Your reservation has been created successfully."]
-                        </p>
+                            <p class="text-muted">
+                                @T["The hotel checks its real availability and answers within {0} hours. We will email you as soon as it is confirmed.", HotelTravel.Application.Services.BookingRules.HotelAnswerHours]
+                            </p>
+                        }
+                        else
+                        {
+                            <h2 class="text-success">
+                                @T["Booking Confirmed"]
+                            </h2>
+
+                            <p class="text-muted">
+                                @T["Your reservation has been created successfully."]
+                            </p>
+                        }
 
                     </div>
 
@@ -39,7 +56,7 @@
                         </div>
                     }
 
-                    <div class="alert alert-success text-center">
+                    <div class="alert @(isPending ? "alert-warning" : "alert-success") text-center">
 
                         <strong>@T["Confirmation Code"]</strong>
 
@@ -57,11 +74,18 @@
                     {
                         <div class="alert alert-danger"><i class="bi bi-envelope-x me-1"></i> @emailErr</div>
                     }
+                    else if (isPending)
+                    {
+                        <p class="text-center text-muted mb-0">
+                            <i class="bi bi-envelope me-1"></i>
+                            @T["We have emailed your request details to {0}.", Model.GuestEmail]
+                        </p>
+                    }
                     else
                     {
                         <p class="text-center text-muted mb-0">
                             <i class="bi bi-envelope me-1"></i>
-                            A confirmation email with your PDF voucher has been sent to <strong>@Model.GuestEmail</strong>.
+                            @T["A confirmation email with your PDF voucher has been sent to {0}.", Model.GuestEmail]
                         </p>
                     }
 
@@ -94,7 +118,7 @@
                         <div class="col-md-6 mb-3">
                             <strong>@T["Status"]</strong>
                             <p>
-                                <span class="badge bg-success">
+                                <span class="badge @(isPending ? "bg-warning text-dark" : Model.Status == HotelTravel.Domain.Enums.BookingStatus.Cancelled ? "bg-danger" : "bg-success")">
                                     @T.Enum(Model.Status)
                                 </span>
                             </p>
@@ -110,6 +134,14 @@
                                     {
                                         <small class="text-muted d-block">@paidAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm", System.Globalization.CultureInfo.CurrentUICulture)</small>
                                     }
+                                }
+                                else if (Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Refunded)
+                                {
+                                    <span class="badge bg-secondary"><i class="bi bi-arrow-counterclockwise"></i> @T["Refunded"]</span>
+                                }
+                                else if (isPending)
+                                {
+                                    <span class="badge bg-light text-dark border">@T["After hotel confirmation"]</span>
                                 }
                                 else
                                 {
@@ -179,6 +211,18 @@
                         @T["You can use it later to find your booking."]
                     </div>
 
+                    @if (Model.Status == HotelTravel.Domain.Enums.BookingStatus.Cancelled)
+                    {
+                        <partial name="_CancellationInfo" model="Model" />
+                    }
+                    else
+                    {
+                        <div class="border rounded-3 p-3 mb-3">
+                            <strong class="d-block mb-1"><i class="bi bi-shield-check"></i> @T["Cancellation policy"]</strong>
+                            <partial name="_CancellationPolicy" />
+                        </div>
+                    }
+
                     @* Hələ ödənilməyibsə: Stripe ilə indi ödə *@
                     @if (ViewBag.PaymentsEnabled is true &&
                          Model.PaymentStatus == HotelTravel.Domain.Enums.PaymentStatus.Unpaid &&
@@ -197,7 +241,18 @@
                         </form>
                     }
 
+                    @if (isPending)
+                    {
+                        <div class="alert alert-light border text-center mt-4">
+                            <i class="bi bi-info-circle"></i>
+                            @T["Hotels also sell rooms on other channels, so every request is checked by the hotel first."]
+                            @T["You will be able to pay and download the voucher after confirmation."]
+                        </div>
+                    }
+
                     <div class="d-flex flex-wrap gap-2 justify-content-center mt-4">
+                        @if (!isPending)
+                        {
                         <a asp-controller="Bookings"
                            asp-action="VoucherPdf"
                            asp-route-confirmationCode="@Model.ConfirmationCode"
@@ -205,6 +260,7 @@
                             <i class="bi bi-file-earmark-pdf"></i>
                             @T["Download PDF voucher"]
                         </a>
+                        }
 
                         @{
                             var calEvent = HotelTravel.Application.Services.CalendarRules.ForHotel(

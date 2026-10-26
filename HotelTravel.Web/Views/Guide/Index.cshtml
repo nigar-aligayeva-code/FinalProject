@@ -38,8 +38,8 @@
     {
         <div class="hh-guide-head">
             <div>
-                <h2 class="hh-section-title">@selected city guide</h2>
-                <p class="hh-section-sub">@Model.Count places to discover</p>
+                <h2 class="hh-section-title">@T["{0} city guide", selected]</h2>
+                <p class="hh-section-sub">@T.Plural(Model.Count, "place to discover", "places to discover") · @T["Click a place for details and map"]</p>
             </div>
 
             <a asp-controller="Home"

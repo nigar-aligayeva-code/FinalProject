@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Notifications;
+﻿using HotelTravel.Application.DTOs.Notifications;
 
 namespace HotelTravel.Application.Interfaces;
 
@@ -8,4 +8,7 @@ public interface IRealtimePublisher
     Task ToAdminsAsync(LiveNotificationDto notification);
 
     Task ToEveryoneAsync(PublicActivityDto activity);
+
+    // Yalnız bu istifadəçinin açıq səhifələrinə
+    Task ToUserAsync(string userId, GuestNotificationDto notification);
 }

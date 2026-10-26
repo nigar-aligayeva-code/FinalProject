@@ -1,0 +1,22 @@
+@model HotelTravel.Application.DTOs.Bookings.GetBookingDto
+@* Ləğv edilmiş rezervasiya: tutulan cərimə və karta qaytarılan pul *@
+@if (Model.Status == HotelTravel.Domain.Enums.BookingStatus.Cancelled &&
+     (Model.CancellationFee > 0 || Model.RefundAmount > 0))
+{
+    <div class="small mt-1">
+        @if (Model.CancellationFee > 0)
+        {
+            <div class="text-danger">
+                <i class="bi bi-receipt"></i>
+                @T["Cancellation fee: {0} AZN", Model.CancellationFee.ToString("0.00")]
+            </div>
+        }
+        @if (Model.RefundAmount > 0)
+        {
+            <div class="text-success">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                @T["Refunded to your card: {0} AZN", Model.RefundAmount.ToString("0.00")]
+            </div>
+        }
+    </div>
+}

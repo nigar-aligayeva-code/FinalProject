@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Application.DTOs.CityGuide;
 
@@ -13,6 +13,11 @@ public class CityPlaceDto
 
     public string? Address { get; set; }
     public string? ImageUrl { get; set; }
+
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+
+    public bool HasLocation => Latitude.HasValue && Longitude.HasValue;
 
     public decimal? PriceFrom { get; set; }
     public string? Duration { get; set; }

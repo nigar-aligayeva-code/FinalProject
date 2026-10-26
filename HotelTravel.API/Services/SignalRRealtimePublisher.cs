@@ -1,4 +1,4 @@
-using HotelTravel.API.Hubs;
+﻿using HotelTravel.API.Hubs;
 using HotelTravel.Application.DTOs.Notifications;
 using HotelTravel.Application.Interfaces;
 using Microsoft.AspNetCore.SignalR;
@@ -20,4 +20,7 @@ public class SignalRRealtimePublisher : IRealtimePublisher
 
     public Task ToEveryoneAsync(PublicActivityDto activity)
         => _hub.Clients.All.SendAsync("publicActivity", activity);
+
+    public Task ToUserAsync(string userId, GuestNotificationDto notification)
+        => _hub.Clients.Group(NotificationHub.UserGroup(userId)).SendAsync("guestNotification", notification);
 }

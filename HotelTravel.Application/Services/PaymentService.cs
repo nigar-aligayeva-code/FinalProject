@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Payments;
+﻿using HotelTravel.Application.DTOs.Payments;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Options;
 using HotelTravel.Domain.Enums;
@@ -118,6 +118,48 @@ public class PaymentService : IPaymentService
         {
             Success = true,
             Message = "Payment received. Thank you!",
+            ConfirmationCode = booking.ConfirmationCode
+        };
+    }
+
+    public async Task<PaymentResultDto> RefundCancelledAsync(string confirmationCode, CancellationToken cancellationToken = default)
+    {
+        var code = (confirmationCode ?? string.Empty).Trim().ToUpperInvariant();
+
+        var booking = await _context.Bookings
+            .FirstOrDefaultAsync(b => !b.IsDeleted && b.ConfirmationCode.ToUpper() == code, cancellationToken);
+
+        // Yalnız ləğv edilmiş və onlayn ödənilmiş rezervasiya
+        if (booking is null ||
+            booking.Status != BookingStatus.Cancelled ||
+            booking.PaymentStatus != PaymentStatus.Paid ||
+            string.IsNullOrWhiteSpace(booking.PaymentReference))
+        {
+            return PaymentResultDto.Fail("Nothing to refund.");
+        }
+
+        var amount = PaymentRules.RefundFor(booking.TotalPrice, booking.CancellationFee);
+
+        if (amount > 0)
+        {
+            if (!_gateway.IsEnabled)
+                return PaymentResultDto.Fail("The refund could not be processed automatically. The hotel will contact you.");
+
+            var refund = await _gateway.RefundAsync(booking.PaymentReference, PaymentRules.ToMinorUnits(amount), cancellationToken);
+
+            if (!refund.Success)
+                return PaymentResultDto.Fail("The refund could not be processed automatically. The hotel will contact you.");
+        }
+
+        booking.PaymentStatus = PaymentStatus.Refunded;
+        booking.RefundAmount = amount;
+        booking.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new PaymentResultDto
+        {
+            Success = true,
+            Message = "The refund was sent to your card.",
             ConfirmationCode = booking.ConfirmationCode
         };
     }

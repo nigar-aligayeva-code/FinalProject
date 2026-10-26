@@ -1,6 +1,16 @@
 ﻿@model HotelTravel.Application.DTOs.Flights.FlightBookingDto
 @using HotelTravel.Domain.Enums
-@{ var flight = Model; }
+@{
+    var flight = Model;
+
+    // Ləğv qiyməti: pulsuz və ya cərimə ilə (CancellationPolicy)
+    var cancelQuote = HotelTravel.Application.Services.CancellationPolicy.ForFlight(
+        flight.Status, flight.DepartureTime, flight.TotalPrice, DateTime.Now);
+
+    var cancelText = cancelQuote.IsFree
+        ? T["Cancel this flight? Cancellation is free."].Value
+        : T["Cancel this flight? A cancellation fee of {0} AZN ({1}%) will be charged.", cancelQuote.Fee.ToString("0.00"), cancelQuote.FeePercent].Value;
+}
 
 <div class="my-booking-card">
     <div class="my-booking-image hh-car-media hh-flight-media">
@@ -16,6 +26,13 @@
                     <span class="mx-1">•</span>
                     <strong>@flight.ConfirmationCode</strong>
                 </div>
+                @if (flight.Status == FlightBookingStatus.Cancelled && flight.CancellationFee > 0)
+                {
+                    <div class="small text-danger mt-1">
+                        <i class="bi bi-receipt"></i>
+                        @T["Cancellation fee: {0} AZN", flight.CancellationFee.ToString("0.00")]
+                    </div>
+                }
             </div>
 
             <span class="my-booking-status @(flight.Status == FlightBookingStatus.Cancelled ? "status-cancelled" : flight.Status == FlightBookingStatus.Completed ? "status-checkedout" : "status-confirmed")">
@@ -65,7 +82,7 @@
                       asp-route-id="@flight.Id"
                       method="post"
                       class="d-inline"
-                      onsubmit="return confirm('Cancel this flight?');">
+                      onsubmit='return confirm(@Json.Serialize(cancelText));'>
                     <button type="submit" class="btn btn-sm btn-outline-danger">
                         <i class="bi bi-x-circle me-1"></i>
                         @T["Cancel"]

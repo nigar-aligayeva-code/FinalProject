@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Domain.Entities;
 
@@ -17,6 +17,10 @@ public class CityPlace : BaseEntity
     public string? Address { get; set; }
 
     public string? ImageUrl { get; set; }
+
+    // Xəritədə yeri (kliklənəndə açılan pəncərədə göstərilir)
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 
     // Turlar üçün
     public decimal? PriceFrom { get; set; }

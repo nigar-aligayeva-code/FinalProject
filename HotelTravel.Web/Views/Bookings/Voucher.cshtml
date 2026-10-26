@@ -19,6 +19,7 @@
 
     var (statusText, statusClass) = Model.Status switch
     {
+        BookingStatus.Pending => (T["Awaiting hotel confirmation"].Value, "wait"),
         BookingStatus.Confirmed => (T["Confirmed"].Value, "ok"),
         BookingStatus.CheckedIn => (T["Checked In"].Value, "ok"),
         BookingStatus.CheckedOut => (T["Checked Out"].Value, "muted"),
@@ -171,6 +172,7 @@
             .status.ok { background: #DCFCE7; color: #166534; }
             .status.muted { background: #F1F5F9; color: #475569; }
             .status.bad { background: #FEE2E2; color: #B91C1C; }
+            .status.wait { background: #FEF3C7; color: #92400E; }
 
         .guest {
             margin-top: 14px;

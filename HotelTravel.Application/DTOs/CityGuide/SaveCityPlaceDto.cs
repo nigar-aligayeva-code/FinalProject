@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace HotelTravel.Application.DTOs.CityGuide;
@@ -27,6 +27,13 @@ public class SaveCityPlaceDto
 
     [StringLength(400)]
     public string? ImageUrl { get; set; }
+
+    // Xəritə üçün (Google Maps-də yerə sağ klik -> koordinatları kopyala)
+    [Range(-90, 90, ErrorMessage = "Latitude must be between -90 and 90.")]
+    public double? Latitude { get; set; }
+
+    [Range(-180, 180, ErrorMessage = "Longitude must be between -180 and 180.")]
+    public double? Longitude { get; set; }
 
     [Range(0, 100000, ErrorMessage = "Price must be positive.")]
     public decimal? PriceFrom { get; set; }
