@@ -1,4 +1,4 @@
-namespace HotelTravel.Web;
+   namespace HotelTravel.Web;
 
 /// <summary>
 /// Ortaq tərcümə faylları üçün "marker" sinif:

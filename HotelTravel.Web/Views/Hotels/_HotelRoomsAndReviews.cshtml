@@ -35,6 +35,11 @@
                     <div class="hr-room-body">
                         <h3><a asp-controller="Rooms" asp-action="Details" asp-route-id="@room.Id">@room.Name</a></h3>
 
+                        @if (!string.IsNullOrWhiteSpace(room.Description))
+                        {
+                            <p class="hr-room-desc">@room.Description</p>
+                        }
+
                         <div class="hr-room-meta">
                             <span><i class="bi bi-people"></i> @T["Up to"] @T.Plural(room.Capacity, "guest", "guests")</span>
                             @if (room.ReviewCount > 0)
@@ -140,17 +145,22 @@
 <style>
     .hr-block { margin: 48px 0; }
     .hr-block h2 { font-family: Georgia, "Times New Roman", serif; font-size: 30px; margin: 6px 0 20px; color: #1F2421; }
-    .hr-rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-    .hr-room { background: #fff; border-radius: 18px; overflow: hidden; border: 1px solid #eee7dc; display: flex; flex-direction: column; }
-    .hr-room-img { position: relative; display: block; aspect-ratio: 16 / 10; background: #F3EEE5; }
-    .hr-room-img img { width: 100%; height: 100%; object-fit: cover; }
+    /* Bütün kartlar eyni ölçüdə: şəkil sabit hündürlükdə, qiymət həmişə kartın altında */
+    .hr-rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; align-items: stretch; }
+    .hr-room { background: #fff; border-radius: 18px; overflow: hidden; border: 1px solid #eee7dc; display: flex; flex-direction: column; height: 100%; transition: box-shadow .2s, transform .2s; }
+    .hr-room:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(31,36,33,.10); }
+    .hr-room-img { position: relative; display: block; height: 200px; overflow: hidden; background: #F3EEE5; flex-shrink: 0; }
+    .hr-room-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .hr-room-desc { margin: 0; color: #6b7280; font-size: 14px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.9em; }
     .hr-room-type { position: absolute; left: 12px; top: 12px; background: rgba(31,36,33,.82); color: #fff; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
     .hr-room-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-    .hr-room-body h3 { font-size: 18px; margin: 0; }
+    .hr-room-body h3 { font-size: 18px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .hr-room-body h3 a { color: #1F2421; text-decoration: none; }
     .hr-room-meta { display: flex; gap: 14px; color: #6b7280; font-size: 14px; }
     .hr-room-meta .bi-star-fill { color: #C69B45; }
-    .hr-room-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+    .hr-room-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid #f1ece3; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .hr-room-foot .cmp-toggle { padding: 6px 12px; font-size: 13px; }
+    .hr-room-foot .hh-btn { padding: 8px 14px; }
     .hr-room-foot strong { display: block; font-size: 20px; color: #1F2421; }
     .hr-room-foot small { color: #6b7280; }
     .hr-reviews { display: grid; grid-template-columns: 280px 1fr; gap: 28px; }
