@@ -11,6 +11,7 @@ public static class BookingEmailTemplates
     public const string CancellationType = "BookingCancellation";
     public const string RequestReceivedType = "BookingRequestReceived";
     public const string RejectionType = "BookingRejected";
+    public const string ExpiredType = "BookingRequestExpired";
     public const string HotelReminderType = "HotelReminder";             // 3 gün qalmış
     public const string HotelReminderTomorrowType = "HotelReminderTomorrow";
     public const string FlightReminderType = "FlightReminder24h";
@@ -86,6 +87,29 @@ public static class BookingEmailTemplates
 </table>
 
 <p style=""margin:24px 0 0"">We hope to see you soon. <a href=""{E(bookingUrl)}"" style=""color:#52614e;font-weight:700"">View booking</a></p>";
+
+        return (subject, Layout(subject, body));
+    }
+
+    // Otel 24 saatda cavab vermədi: sorğu avtomatik bağlandı
+    public static (string Subject, string Html) RequestExpired(GetBookingDto b, string siteUrl)
+    {
+        var subject = $"Booking request expired: {b.HotelName} · {b.ConfirmationCode}";
+        var searchUrl = $"{(siteUrl ?? string.Empty).TrimEnd('/')}/Rooms/Search";
+
+        var body = $@"
+<p style=""margin:0 0 16px"">Hi {E(FirstName(b.GuestName))},</p>
+<p style=""margin:0 0 20px""><b>{E(b.HotelName)}</b> did not answer your request <b>{E(b.ConfirmationCode)}</b> within {BookingRules.HotelAnswerHours} hours, so we closed it to keep your plans moving. You have not been charged.</p>
+
+<table style=""width:100%;border-collapse:collapse;font-size:14px"">
+  {Row("Hotel", E(b.HotelName))}
+  {Row("Room", E(b.RoomName))}
+  {Row("Dates", $"{Date(b.CheckInDate)} → {Date(b.CheckOutDate)}")}
+</table>
+
+<p style=""margin:24px 0"">
+  <a href=""{E(searchUrl)}"" style=""background:#1F2421;color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:700;display:inline-block"">Find another room</a>
+</p>";
 
         return (subject, Layout(subject, body));
     }

@@ -1,0 +1,11 @@
+@model HotelTravel.Application.DTOs.Availability.HotelAvailabilityDto
+@{
+    ViewData["Title"] = "Availability and prices";
+    (string HotelName, string City, string Active) header = (Model.HotelName, Model.City, "availability");
+    ViewData["AvArea"] = "Partner";
+}
+
+<div class="container py-4">
+    <partial name="_PartnerHeader" model="header" />
+    <partial name="_AvailabilityManager" model="Model" view-data="ViewData" />
+</div>

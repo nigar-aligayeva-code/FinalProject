@@ -197,6 +197,14 @@
                                class="edit-button">
                                 @T["Edit"]
                             </a>
+                            <a asp-area="Admin"
+                               asp-controller="Availability"
+                               asp-action="Index"
+                               asp-route-hotelId="@hotel.Id"
+                               class="edit-button"
+                               title="@T["Availability and prices"]">
+                                📅 @T["Availability"]
+                            </a>
                         </td>
                     </tr>
 

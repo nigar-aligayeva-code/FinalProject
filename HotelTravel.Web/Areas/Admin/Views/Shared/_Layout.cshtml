@@ -307,6 +307,14 @@
             </a>
 
             <a asp-area="Admin"
+               asp-controller="Partners"
+               asp-action="Index"
+               class="@(currentController == "Partners" || currentController == "Availability" ? "active" : "")">
+                <span class="menu-icon">🤝</span>
+                <span class="menu-text">@T["Hotel partners"]</span>
+            </a>
+
+            <a asp-area="Admin"
                asp-controller="Rooms"
                asp-action="Index"
                class="@(currentController == "Rooms" ? "active" : "")">

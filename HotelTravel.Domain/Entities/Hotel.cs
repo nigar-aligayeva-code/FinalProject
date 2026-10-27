@@ -28,6 +28,9 @@ public class Hotel : BaseEntity
 
     public HotelChain? HotelChain { get; set; }
 
+    // Otel (partnyor və ya admin) boş yerləri sonuncu dəfə nə vaxt yoxlayıb / yeniləyib (UTC)
+    public DateTime? AvailabilityUpdatedAt { get; set; }
+
     public ICollection<Room> Rooms { get; set; }
         = new List<Room>();
 

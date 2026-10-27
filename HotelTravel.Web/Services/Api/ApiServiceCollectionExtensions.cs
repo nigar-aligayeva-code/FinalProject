@@ -58,6 +58,10 @@ public static class ApiServiceCollectionExtensions
         services.AddScoped<HotelTravel.Application.Interfaces.IFlightNetworkService, FlightNetworkApiService>();
         services.AddMemoryCache(); // PaymentApiClient: "ödəniş aktivdir?" cavabını qısa müddət saxlayır
         services.AddScoped<IEmailLogService, EmailLogApiService>();
+
+        // Otel partnyoru: bağlı tarixlər, qiymətlər, sorğular
+        services.AddScoped<IHotelAvailabilityService, HotelAvailabilityApiService>();
+        services.AddScoped<IPartnerApiClient, PartnerApiClient>();
         services.AddScoped<ITripPackageService, TripApiService>();
         services.AddScoped<IWeatherService, WeatherApiService>();
         services.AddScoped<IExportApiClient, ExportApiClient>();

@@ -1,4 +1,5 @@
-﻿using HotelTravel.Application.DTOs.Bookings;
+﻿using HotelTravel.API.Services;
+using HotelTravel.Application.DTOs.Bookings;
 using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Enums;
@@ -16,19 +17,36 @@ public class BookingsController : ApiControllerBase
     private readonly IVoucherPdfService _voucherPdf;
     private readonly IActivityNotifier _notifier;
     private readonly IPaymentService _payments;
+    private readonly IHotelAvailabilityService _availability;
+    private readonly PartnerScope _scope;
 
     public BookingsController(
         IBookingService bookingService,
         IBookingEmailService bookingEmails,
         IVoucherPdfService voucherPdf,
         IActivityNotifier notifier,
-        IPaymentService payments)
+        IPaymentService payments,
+        IHotelAvailabilityService availability,
+        PartnerScope scope)
     {
+        _availability = availability;
+        _scope = scope;
         _bookingService = bookingService;
         _bookingEmails = bookingEmails;
         _voucherPdf = voucherPdf;
         _notifier = notifier;
         _payments = payments;
+    }
+
+    // Admin istənilən sorğuya, otel partnyoru yalnız öz otelinin sorğusuna cavab verir
+    private async Task<bool> CanAnswerAsync(int bookingId)
+    {
+        if (User.IsInRole("Admin"))
+            return true;
+
+        var check = await _availability.CheckBookingAsync(bookingId);
+
+        return check != null && await _scope.CanManageHotelAsync(User, check.HotelId);
     }
 
     // Ləğvdən sonra: onlayn ödənilibsə pulu (cərimə çıxılmaqla) qaytar, məktub göndər, bildiriş et.
@@ -69,6 +87,7 @@ public class BookingsController : ApiControllerBase
             await _bookingEmails.SendConfirmationAsync(result.ConfirmationCode);
             await _notifier.HotelBookedAsync(result.ConfirmationCode);
             await _notifier.GuestBookingUpdateAsync(result.ConfirmationCode, "requested");
+            await _notifier.PartnerNewRequestAsync(result.ConfirmationCode);
         }
 
         return FromResult(result.Success
@@ -241,13 +260,16 @@ public class BookingsController : ApiControllerBase
     }
 
     // POST: api/bookings/5/confirm
-    /// <summary>The hotel has a free room: confirm a pending request (admin). The guest gets the confirmation email with the PDF voucher and can pay.</summary>
+    /// <summary>The hotel has a free room: confirm a pending request (admin or the hotel's partner). The guest gets the confirmation email with the PDF voucher and can pay.</summary>
     [HttpPost("{id:int}/confirm")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin," + PartnerScope.PartnerRole)]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 400)]
     public async Task<IActionResult> ConfirmRequest(int id)
     {
+        if (!await CanAnswerAsync(id))
+            return Forbid();
+
         var result = await _bookingService.ConfirmRequestAsync(id);
 
         if (result.Success)
@@ -267,13 +289,16 @@ public class BookingsController : ApiControllerBase
     }
 
     // POST: api/bookings/5/reject
-    /// <summary>The hotel has no free room: reject a pending request (admin). The dates become free and the guest gets an email.</summary>
+    /// <summary>The hotel has no free room: reject a pending request (admin or the hotel's partner). The dates become free and the guest gets an email.</summary>
     [HttpPost("{id:int}/reject")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin," + PartnerScope.PartnerRole)]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 400)]
     public async Task<IActionResult> RejectRequest(int id)
     {
+        if (!await CanAnswerAsync(id))
+            return Forbid();
+
         var result = await _bookingService.RejectRequestAsync(id);
 
         if (result.Success)

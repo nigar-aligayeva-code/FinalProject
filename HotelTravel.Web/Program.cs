@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using HotelTravel.Application.Services;
 using HotelTravel.Web.Filters;
 using HotelTravel.Web.Localization;
@@ -69,6 +69,11 @@ namespace HotelTravel.Web
             // yalnız UI dili dəyişir. Seçim cookie-də saxlanılır.
 
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            // Böyük/kiçik hərfli eyni sözlər də tərcümə olunsun ("Guest" / "guest")
+            builder.Services.AddTransient<
+                Microsoft.Extensions.Localization.IStringLocalizer<HotelTravel.Web.SharedResource>,
+                HotelTravel.Web.Localization.SharedLocalizer>();
 
             // Azərbaycan və rus hərfləri HTML-də "&#x259;" kimi yox, olduğu kimi yazılsın
             builder.Services.Configure<Microsoft.Extensions.WebEncoders.WebEncoderOptions>(options =>

@@ -147,6 +147,7 @@ public class ActivityNotifier : IActivityNotifier
             "requested" => $"Your request {confirmationCode} was sent to {b.Hotel}. The hotel answers within {BookingRules.HotelAnswerHours} hours.",
             "confirmed" => $"{b.Hotel} confirmed your booking {confirmationCode}. You can pay now.",
             "rejected" => $"{b.Hotel} has no free room for your dates. Request {confirmationCode} was declined.",
+            "expired" => $"{b.Hotel} did not answer in time. Request {confirmationCode} was closed, nothing was charged.",
             "cancelled_by_you" => $"You cancelled booking {confirmationCode} at {b.Hotel}.",
             "cancelled_by_you_fee" => $"You cancelled booking {confirmationCode} at {b.Hotel}. Cancellation fee: {when} AZN.",
             _ => $"{b.Hotel} cancelled your booking {confirmationCode}."
@@ -161,6 +162,37 @@ public class ActivityNotifier : IActivityNotifier
             Url = BookingUrl(confirmationCode),
             Message = message
         });
+    });
+
+    public Task PartnerNewRequestAsync(string confirmationCode) => SafeAsync(async () =>
+    {
+        var b = await _context.Bookings
+            .Where(x => x.ConfirmationCode == confirmationCode)
+            .Select(x => new { x.Room.HotelId, Hotel = x.Room.Hotel.Name, x.Room.RoomNumber, x.CheckInDate, x.CheckOutDate })
+            .FirstOrDefaultAsync();
+
+        if (b == null) return;
+
+        // Bu otelin bütün partnyor hesablarına 🔔
+        var partners = await _context.Users
+            .Where(u => u.PartnerHotelId == b.HotelId)
+            .Select(u => u.Id)
+            .ToListAsync();
+
+        var en = System.Globalization.CultureInfo.InvariantCulture;
+
+        foreach (var partnerId in partners)
+        {
+            await _userNotifications.AddAsync(partnerId, new GuestNotificationDto
+            {
+                Kind = "partner_request",
+                Place = b.Hotel,
+                Code = confirmationCode,
+                When = $"{b.CheckInDate.ToString("dd MMM", en)} – {b.CheckOutDate.ToString("dd MMM", en)}",
+                Url = "/Partner",
+                Message = $"New booking request {confirmationCode} for room {b.RoomNumber}. Please confirm or reject within {BookingRules.HotelAnswerHours} hours."
+            });
+        }
     });
 
     public Task GuestFlightCancelledAsync(int flightBookingId) => SafeAsync(async () =>

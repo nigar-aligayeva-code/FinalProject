@@ -413,7 +413,14 @@ public class RoomService : IRoomService
 
                     checkOutDate >
                         b.CheckInDate.Date
-                )
+                ) &&
+
+                // Otelin bağladığı günlər (başqa yerdə satılıb, təmir və s.)
+                !_context.RoomBlocks.Any(x =>
+                    !x.IsDeleted &&
+                    x.RoomId == r.Id &&
+                    checkInDate < x.EndDate &&
+                    checkOutDate > x.StartDate)
             );
 
 

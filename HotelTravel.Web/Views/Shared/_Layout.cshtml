@@ -179,6 +179,18 @@
 
                     @if (isAuthenticated)
                     {
+                        @if (User.IsInRole("HotelPartner"))
+                        {
+                            <a asp-area="Partner"
+                               asp-controller="Dashboard"
+                               asp-action="Index"
+                               class="hh-btn hh-btn-ghost"
+                               title="@T["Hotel partner panel"]">
+                                <i class="bi bi-building-check"></i>
+                                <span class="d-none d-md-inline">@T["Hotel panel"]</span>
+                            </a>
+                        }
+
                         @if (isAdmin)
                         {
                             <a asp-area="Admin"
@@ -404,7 +416,7 @@
                     <h4 class="hh-footer-title">@T["Good to know"]</h4>
                     <ul class="hh-footer-links hh-footer-facts">
                         <li><i class="bi bi-check2-circle"></i> @T["Instant confirmation code"]</li>
-                        <li><i class="bi bi-check2-circle"></i> @T["Free cancellation before check-in"]</li>
+                        <li><i class="bi bi-check2-circle"></i> @T["Free cancellation up to {0} days before check-in.", HotelTravel.Application.Services.CancellationPolicy.FreeHours / 24]</li>
                         <li><i class="bi bi-check2-circle"></i> @T["Reviews from real guests"]</li>
                     </ul>
                 </div>
@@ -497,6 +509,8 @@
             ["act_trip"] = T["Someone just booked a trip package to {0}"],
             // Qonağın öz bildirişləri: {0} = otel / şəhər, {1} = kod, {2} = tarix və ya saat
             ["g_requested"] = T["Your request {1} was sent to {0}. The hotel answers within 24 hours."],
+            ["g_partner_request"] = T["New booking request {1} ({2}). Please confirm or reject within 24 hours."],
+            ["g_expired"] = T["{0} did not answer in time. Request {1} was closed, nothing was charged."],
             ["g_confirmed"] = T["{0} confirmed your booking {1}. You can pay now."],
             ["g_cancelled_by_you"] = T["You cancelled booking {1} at {0}."],
             ["g_cancelled_by_you_fee"] = T["You cancelled booking {1} at {0}. Cancellation fee: {2} AZN."],

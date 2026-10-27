@@ -1,10 +1,11 @@
-using HotelTravel.Application.Interfaces;
+﻿using HotelTravel.Application.Interfaces;
 
 namespace HotelTravel.API.Services;
 
 /// <summary>
 /// Fon xidməti: hər N dəqiqədən bir vaxtı çatmış xatırlatmaları göndərir
-/// (girişə 3 gün / 1 gün, uçuşa 24 saat / 3 saat qalmış).
+/// (girişə 3 gün / 1 gün, uçuşa 24 saat / 3 saat qalmış)
+/// və otelin 24 saatda cavab vermədiyi sorğuları bağlayır.
 /// appsettings: "Reminders": { "Enabled": true, "IntervalMinutes": 10 }
 /// </summary>
 public class ReminderBackgroundService : BackgroundService
@@ -51,6 +52,13 @@ public class ReminderBackgroundService : BackgroundService
 
                 if (sent > 0)
                     _logger.LogInformation("Reminders sent: {Count}", sent);
+
+                // Otel 24 saatda cavab verməyən sorğular avtomatik bağlanır
+                var expiry = scope.ServiceProvider.GetRequiredService<IRequestExpiryService>();
+                var expired = await expiry.ExpireOverdueAsync(DateTime.UtcNow, stoppingToken);
+
+                if (expired > 0)
+                    _logger.LogInformation("Expired booking requests: {Count}", expired);
             }
             catch (OperationCanceledException)
             {

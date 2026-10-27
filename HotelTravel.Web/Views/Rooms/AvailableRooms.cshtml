@@ -120,9 +120,9 @@
 
                 <!-- Budget -->
                 <div class="hh-filter-group">
-                    <h3>Your budget (per night)</h3>
+                    <h3>@T["Your budget (per night)"]</h3>
                     <div class="hh-range-value">
-                        Up to <strong id="priceValue">@maxPrice AZN</strong>
+                        @T["Up to"] <strong id="priceValue">@maxPrice AZN</strong>
                     </div>
                     <input type="range"
                            id="filterPrice"
@@ -215,7 +215,8 @@
                         <h1 class="hh-results-title">
                             @(string.IsNullOrWhiteSpace(destination) ? T["Rooms for your dates"].Value : T["{0}: rooms for your dates", destination].Value)
                         </h1>
-                        <span class="hh-results-count" id="resultCount">
+                        <span class="hh-results-count" id="resultCount"
+                              data-found="@T["{0} found"]" data-one="@T["room"]" data-many="@T["rooms"]">
                             @T["{0} found", T.Plural(rooms.Count, "room", "rooms")]
                         </span>
                     </div>
@@ -306,7 +307,7 @@
 
                                     <div class="hh-result-tags">
                                         <span>@T.Enum(room.RoomType)</span>
-                                        <span><i class="bi bi-people"></i> Up to @room.Capacity</span>
+                                        <span><i class="bi bi-people"></i> @T["Up to {0}", room.Capacity]</span>
                                         <span>@T["Room {0}", room.RoomNumber]</span>
                                     </div>
 
@@ -331,7 +332,7 @@
 
                                     <div class="hh-result-perk">
                                         <i class="bi bi-check-circle-fill"></i>
-                                        @T["Free cancellation before check-in"]
+                                        @T["Free cancellation up to {0} days before check-in.", HotelTravel.Application.Services.CancellationPolicy.FreeHours / 24]
                                     </div>
 
                                     <button type="button"
@@ -364,7 +365,7 @@
                                     <div class="hh-result-price">
                                         <small>@T.Plural(nights, "night", "nights"), @guestsText</small>
                                         <strong>@total.ToString("0.00") AZN</strong>
-                                        <small>@room.PricePerNight.ToString("0.00") AZN / night</small>
+                                        <small>@room.PricePerNight.ToString("0.00") AZN / @T["night"]</small>
                                     </div>
 
                                     <a asp-controller="Bookings"
@@ -459,7 +460,9 @@
                     .sort(sorters[sortBy.value] || sorters.recommended)
                     .forEach(card => list.appendChild(card));
 
-                countLabel.textContent = visible + (visible === 1 ? " room found" : " rooms found");
+                // Tərcümə olunmuş mətn: "55 otaq tapıldı"
+                countLabel.textContent = (countLabel.dataset.found || "{0} found")
+                    .replace("{0}", visible + " " + (visible === 1 ? countLabel.dataset.one : countLabel.dataset.many));
                 noMatches.classList.toggle("d-none", visible > 0);
             }
 

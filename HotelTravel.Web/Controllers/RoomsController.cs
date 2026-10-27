@@ -603,12 +603,45 @@ public class RoomsController : Controller
     // =========================
     // PUBLIC - SEARCH ROOMS
     // =========================
+    // Köhnə ayrıca forma əvəzinə birbaşa nəticələr səhifəsi açılır
+    // (orada yuxarıdakı "Axtarışı dəyiş" paneli ilə tarix / şəhər dəyişdirilir).
+    // Tarix verilməyibsə: sabahdan 3 gecə, 1 böyük.
     [HttpGet]
-    public async Task<IActionResult> Search()
+    public async Task<IActionResult> Search(
+        string? destination,
+        DateTime? checkInDate,
+        DateTime? checkOutDate,
+        int adultCount = 1,
+        int childrenCount = 0)
     {
-        await LoadFullyBookedDatesAsync();
+        var checkIn = checkInDate?.Date ?? DateTime.Today.AddDays(1);
 
-        return View(new RoomSearchDto());
+        if (checkIn < DateTime.Today)
+            checkIn = DateTime.Today.AddDays(1);
+
+        var checkOut = checkOutDate?.Date ?? checkIn.AddDays(3);
+
+        if (checkOut <= checkIn)
+            checkOut = checkIn.AddDays(3);
+
+        var search = new RoomSearchDto
+        {
+            Destination = string.IsNullOrWhiteSpace(destination) ? null : destination.Trim(),
+            CheckInDate = checkIn,
+            CheckOutDate = checkOut,
+            AdultCount = Math.Clamp(adultCount, 1, 10),
+            ChildrenCount = Math.Clamp(childrenCount, 0, 10)
+        };
+
+        var rooms = await _roomService.SearchAvailableRoomsAsync(search);
+
+        ViewBag.CheckInDate = checkIn;
+        ViewBag.CheckOutDate = checkOut;
+        ViewBag.AdultCount = search.AdultCount;
+        ViewBag.ChildrenCount = search.ChildrenCount;
+        ViewBag.Destination = search.Destination;
+
+        return View("AvailableRooms", rooms);
     }
 
 

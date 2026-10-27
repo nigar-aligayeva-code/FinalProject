@@ -455,6 +455,9 @@
             font-size: 13px;
             color: #9A958C;
         }
+    .room-quick-book { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; width: 100%; }
+    .room-quick-book label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: #52614e; }
+    .room-quick-book input, .room-quick-book select { border: 1px solid #e7e0d4; border-radius: 12px; padding: 10px 12px; font-size: 15px; background: #fff; }
     .room-request-hint { width: 100%; margin: 4px 0 0; color: #8a6d2b; font-size: 13px; }
 </style>
 
@@ -895,16 +898,73 @@
                     }
                     else
                     {
-                        <a asp-controller="Bookings"
-                           asp-action="Create"
-                           asp-route-roomId="@Model.Id"
-                           class="room-btn room-btn-gold">
-                            <i class="bi bi-calendar-check"></i>
-                            @T["Request to book"]
-                        </a>
+                        // Tarix seçilməyib (otaq Otellər / Saxlanılanlar səhifəsindən açılıb):
+                        // tarixləri burada seçib birbaşa bu otağın sorğu formuna keçirik
+                        <form asp-controller="Bookings"
+                              asp-action="Create"
+                              method="get"
+                              class="room-quick-book"
+                              id="book">
+                            <input type="hidden" name="roomId" value="@Model.Id" />
+                            <label>
+                                <span>@T["Check-in"]</span>
+                                <input type="date" name="checkInDate" required
+                                       min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                       value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                            </label>
+                            <label>
+                                <span>@T["Check-out"]</span>
+                                <input type="date" name="checkOutDate" required
+                                       min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
+                                       value="@DateTime.Today.AddDays(3).ToString("yyyy-MM-dd")" />
+                            </label>
+                            <label>
+                                <span>@T["Adults"]</span>
+                                <select name="adultCount">
+                                    @for (var a = 1; a <= Math.Max(1, Model.Capacity); a++)
+                                    {
+                                        <option value="@a">@a</option>
+                                    }
+                                </select>
+                            </label>
+                            <label>
+                                <span>@T["Children"]</span>
+                                <select name="childrenCount">
+                                    @for (var c = 0; c < Math.Max(1, Model.Capacity); c++)
+                                    {
+                                        <option value="@c">@c</option>
+                                    }
+                                </select>
+                            </label>
+                            <button type="submit" class="room-btn room-btn-gold">
+                                <i class="bi bi-calendar-check"></i>
+                                @T["Request to book"]
+                            </button>
+                        </form>
+                        <script>
+                            (function () {
+                                // Çıxış tarixi həmişə girişdən sonra olsun
+                                const f = document.getElementById('book');
+                                const inp = f.querySelector('[name="checkInDate"]');
+                                const out = f.querySelector('[name="checkOutDate"]');
+                                inp.addEventListener('change', function () {
+                                    const d = new Date(inp.value);
+                                    if (isNaN(d)) return;
+                                    d.setDate(d.getDate() + 1);
+                                    const min = d.toISOString().slice(0, 10);
+                                    out.min = min;
+                                    if (!out.value || out.value < min) out.value = min;
+                                });
+                            })();
+                        </script>
                     }
 
                     <a asp-action="Search"
+                       asp-route-checkInDate="@((ViewBag.CheckInDate as DateTime?)?.ToString("yyyy-MM-dd"))"
+                       asp-route-checkOutDate="@((ViewBag.CheckOutDate as DateTime?)?.ToString("yyyy-MM-dd"))"
+                       asp-route-adultCount="@ViewBag.AdultCount"
+                       asp-route-childrenCount="@ViewBag.ChildrenCount"
+                       asp-route-destination="@Model.City"
                        class="room-btn room-btn-outline">
                         <i class="bi bi-arrow-left"></i>
                         @T["Back to Search"]

@@ -38,14 +38,16 @@
 
     // ===== Qonağın öz bildirişi (təsdiq / rədd / ləğv / xatırlatma) =====
     const guestIcons = {
-        requested: '📨', confirmed: '✅', rejected: '❌', cancelled: '⚠️',
+        requested: '📨', partner_request: '🛎️', expired: '⌛', confirmed: '✅', rejected: '❌', cancelled: '⚠️',
         cancelled_by_you: '🗑️', cancelled_by_you_fee: '🧾', flight_cancelled: '🗑️', flight_cancelled_fee: '🧾',
         hotel_reminder: '🏨', hotel_tomorrow: '🧳', flight_reminder: '✈️', flight_soon: '⏰'
     };
-    const guestTone = { rejected: 'bad', cancelled: 'bad', cancelled_by_you_fee: 'bad', flight_cancelled_fee: 'bad', hotel_reminder: 'info', hotel_tomorrow: 'info', flight_reminder: 'info', flight_soon: 'info' };
+    const guestTone = { expired: 'bad', partner_request: 'info', rejected: 'bad', cancelled: 'bad', cancelled_by_you_fee: 'bad', flight_cancelled_fee: 'bad', hotel_reminder: 'info', hotel_tomorrow: 'info', flight_reminder: 'info', flight_soon: 'info' };
 
     // Otel rezervasiyası (BK-...) -> birbaşa həmin rezervasiyanın səhifəsi
     function urlFor(n) {
+        if (n.kind && n.kind.indexOf('partner_') === 0)
+            return n.url || '/Partner';
         if (n.code && /^BK-/i.test(n.code))
             return '/Bookings/Confirmation?confirmationCode=' + encodeURIComponent(n.code);
         return n.url || '/Bookings/MyBookings';

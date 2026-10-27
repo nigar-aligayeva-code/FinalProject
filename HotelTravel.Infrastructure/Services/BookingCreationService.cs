@@ -105,6 +105,16 @@ public class BookingCreationService : IBookingCreationService
                 dto.CheckInDate.Date < b.CheckOutDate.Date &&
                 dto.CheckOutDate.Date > b.CheckInDate.Date);
 
+        // Otelin bağladığı günlər
+        if (!roomIsBooked)
+        {
+            roomIsBooked = await context.RoomBlocks.AnyAsync(x =>
+                !x.IsDeleted &&
+                x.RoomId == dto.RoomId &&
+                dto.CheckInDate.Date < x.EndDate &&
+                dto.CheckOutDate.Date > x.StartDate);
+        }
+
         if (roomIsBooked)
         {
             return (
@@ -302,6 +312,16 @@ public class BookingCreationService : IBookingCreationService
                 b.Status != BookingStatus.Cancelled &&
                 newCheckIn < b.CheckOutDate.Date &&
                 newCheckOut > b.CheckInDate.Date);
+
+        // Otelin bağladığı günlər
+        if (!roomIsBooked)
+        {
+            roomIsBooked = await context.RoomBlocks.AnyAsync(x =>
+                !x.IsDeleted &&
+                x.RoomId == booking.RoomId &&
+                newCheckIn < x.EndDate &&
+                newCheckOut > x.StartDate);
+        }
 
         if (roomIsBooked)
         {

@@ -11,6 +11,9 @@ public interface IBookingEmailService
     // Otel sorğunu rədd etdi (boş yer yoxdur)
     Task<(bool Success, string Message)> SendRejectionAsync(string confirmationCode);
 
+    // Otel 24 saatda cavab vermədi - sorğu avtomatik bağlandı
+    Task<(bool Success, string Message)> SendExpiredAsync(string confirmationCode);
+
     // Saytdakı rezervasiya linki (QR kod və məktub üçün)
     string GetBookingUrl(string confirmationCode);
 }
