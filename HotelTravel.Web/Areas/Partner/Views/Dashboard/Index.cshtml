@@ -1,0 +1,203 @@
+@model HotelTravel.Web.Models.PartnerDashboardViewModel
+@using HotelTravel.Domain.Enums
+@using HotelTravel.Application.Services
+@{
+    ViewData["Title"] = "Hotel partner panel";
+    (string HotelName, string City, string Active) header = (Model.Me.HotelName, Model.Me.City, "requests");
+
+    var o = Model.Overview;
+    var pending = Model.Bookings.Where(b => b.Status == BookingStatus.Pending).ToList();
+    var today = DateTime.Today;
+    var arrivals = Model.Bookings.Count(b => b.Status == BookingStatus.Confirmed && b.CheckInDate.Date == today);
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+
+    string StatusCss(BookingStatus s) => s switch
+    {
+        BookingStatus.Pending => "pd-pending",
+        BookingStatus.Confirmed => "pd-confirmed",
+        BookingStatus.CheckedIn => "pd-in",
+        BookingStatus.Cancelled => "pd-cancelled",
+        _ => "pd-out"
+    };
+}
+
+<div class="container py-4">
+    <partial name="_PartnerHeader" model="header" />
+
+    <!-- STATİSTİKA -->
+    <div class="pd-stats">
+        <div class="pd-stat @(pending.Count > 0 ? "warn" : "")">
+            <span>@T["Waiting for your answer"]</span>
+            <b>@o.PendingRequests</b>
+        </div>
+        <div class="pd-stat">
+            <span>@T["Arrivals today"]</span>
+            <b>@arrivals</b>
+        </div>
+        <div class="pd-stat">
+            <span>@T["Closed date ranges"]</span>
+            <b>@o.Blocks.Count</b>
+        </div>
+        <div class="pd-stat">
+            <span>@T["Availability data"]</span>
+            <partial name="_FreshnessBadge" model="o.AvailabilityUpdatedAt" />
+            <form asp-area="Partner" asp-controller="Availability" asp-action="MarkUpToDate" method="post" class="mt-2">
+                <input type="hidden" name="returnTo" value="dashboard" />
+                <button type="submit" class="btn btn-sm btn-outline-dark">@T["I checked — availability is correct"]</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- GÖZLƏYƏN SORĞULAR -->
+    <h2 class="pd-title">@T["Booking requests"]</h2>
+    <p class="text-muted small">@T["Check your real availability (reception, other sites) and answer within {0} hours. Requests without an answer are closed automatically.", BookingRules.HotelAnswerHours]</p>
+
+    @if (!pending.Any())
+    {
+        <div class="pd-empty"><i class="bi bi-check2-all"></i> @T["No requests are waiting. Well done!"]</div>
+    }
+    else
+    {
+        <div class="pd-requests">
+            @foreach (var b in pending)
+            {
+                Model.Checks.TryGetValue(b.Id, out var check);
+                var waited = Math.Max(0, (int)(DateTime.UtcNow - b.CreatedAt).TotalHours);
+                var overdue = BookingRules.IsAnswerOverdue(b.Status, b.CreatedAt, DateTime.UtcNow);
+
+                <article class="pd-request @(overdue ? "overdue" : "")">
+                    <div class="pd-req-main">
+                        <div class="pd-req-code">@b.ConfirmationCode · <span>@T["Waiting for {0} h.", waited]</span></div>
+                        <h3>@b.RoomNumber · @b.RoomName</h3>
+                        <div class="pd-req-meta">
+                            <span><i class="bi bi-calendar-event"></i> @b.CheckInDate.ToString("dd MMM", culture) → @b.CheckOutDate.ToString("dd MMM yyyy", culture)</span>
+                            <span><i class="bi bi-moon"></i> @T.Plural((b.CheckOutDate.Date - b.CheckInDate.Date).Days, "night", "nights")</span>
+                            <span><i class="bi bi-people"></i> @(b.AdultCount + b.ChildrenCount)</span>
+                            <span><i class="bi bi-person"></i> @b.GuestName</span>
+                            <span><b>@b.TotalPrice.ToString("0.00") AZN</b></span>
+                        </div>
+
+                        @if (check != null)
+                        {
+                            <ul class="pd-checks">
+                                <li class="@(check.OverlappingBookings == 0 ? "ok" : "bad")">
+                                    @(check.OverlappingBookings == 0
+                                        ? T["No other Tripio booking for this room on these dates"]
+                                        : T["{0} other Tripio booking(s) overlap these dates", check.OverlappingBookings])
+                                </li>
+                                <li class="@(check.IsClosedByHotel ? "bad" : "ok")">
+                                    @(check.IsClosedByHotel
+                                        ? T["You closed these dates: {0}", string.Join(", ", check.ClosedReasons.DefaultIfEmpty("—"))]
+                                        : T["The dates are not closed by the hotel"])
+                                </li>
+                                <li class="info">@T["Also check your reception and other sites before confirming."]</li>
+                            </ul>
+                        }
+                    </div>
+
+                    <div class="pd-req-actions">
+                        <form asp-area="Partner" asp-controller="Dashboard" asp-action="Confirm" method="post">
+                            <input type="hidden" name="id" value="@b.Id" />
+                            <button type="submit" class="btn btn-success w-100" @(check != null && !check.LooksFree ? "disabled" : "")>
+                                ✓ @T["Confirm — room is free"]
+                            </button>
+                        </form>
+                        <form asp-area="Partner" asp-controller="Dashboard" asp-action="Reject" method="post">
+                            <input type="hidden" name="id" value="@b.Id" />
+                            <button type="submit" class="btn btn-outline-danger w-100"
+                                    onclick='return confirm(@Json.Serialize(T["Reject this request? The guest will be told there is no free room."].Value));'>
+                                ✕ @T["Reject — no free room"]
+                            </button>
+                        </form>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+
+    <!-- BÜTÜN REZERVASİYALAR -->
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mt-5 mb-2">
+        <h2 class="pd-title m-0">@T["All bookings"]</h2>
+        <form method="get" asp-area="Partner" asp-controller="Dashboard" asp-action="Index" class="d-flex gap-2">
+            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">@T["All Statuses"]</option>
+                @foreach (var s in Enum.GetValues<BookingStatus>())
+                {
+                    <option value="@s" selected="@(Model.Status == s)">@T.Enum(s)</option>
+                }
+            </select>
+        </form>
+    </div>
+
+    <div class="table-responsive pd-table-wrap">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>@T["Code"]</th>
+                    <th>@T["Guest"]</th>
+                    <th>@T["Room"]</th>
+                    <th>@T["Check-in"]</th>
+                    <th>@T["Check-out"]</th>
+                    <th>@T["Total"]</th>
+                    <th>@T["Status"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in Model.Bookings)
+                {
+                    <tr>
+                        <td><b>@b.ConfirmationCode</b></td>
+                        <td>@b.GuestName<br /><small class="text-muted">@b.GuestEmail</small></td>
+                        <td>@b.RoomNumber · @b.RoomName</td>
+                        <td>@b.CheckInDate.ToString("dd MMM yyyy", culture)</td>
+                        <td>@b.CheckOutDate.ToString("dd MMM yyyy", culture)</td>
+                        <td>@b.TotalPrice.ToString("0.00") AZN</td>
+                        <td>
+                            <span class="pd-status @StatusCss(b.Status)">@T.Enum(b.Status)</span>
+                            @if (b.PaymentStatus == PaymentStatus.Paid)
+                            {
+                                <small class="d-block text-success">@T["Paid online"]</small>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Bookings.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">@T["No bookings found."]</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .pd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 26px; }
+    .pd-stat { background: #fff; border: 1px solid #e7e0d4; border-radius: 16px; padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+    .pd-stat span { font-size: 13px; color: #6b7280; font-weight: 600; }
+    .pd-stat b { font-size: 30px; line-height: 1; }
+    .pd-stat.warn { border-color: #f3dfb0; background: #fffaf0; }
+    .pd-title { font-family: Georgia, serif; font-size: 24px; margin-bottom: 4px; }
+    .pd-empty { background: #f3f8f1; border-radius: 14px; padding: 18px; color: #166534; font-weight: 600; }
+    .pd-requests { display: grid; gap: 14px; }
+    .pd-request { display: flex; gap: 18px; justify-content: space-between; flex-wrap: wrap; background: #fff; border: 1px solid #f3dfb0; border-left: 5px solid #d97706; border-radius: 16px; padding: 16px 18px; }
+    .pd-request.overdue { border-left-color: #dc2626; }
+    .pd-req-main { flex: 1; min-width: 260px; }
+    .pd-req-code { font-size: 12px; font-weight: 700; color: #92400e; letter-spacing: .04em; }
+    .pd-req-code span { color: #6b7280; font-weight: 600; letter-spacing: 0; }
+    .pd-request h3 { font-size: 18px; margin: 4px 0 8px; }
+    .pd-req-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: #374151; }
+    .pd-checks { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 4px; font-size: 13px; }
+    .pd-checks li::before { margin-right: 6px; }
+    .pd-checks li.ok { color: #166534; } .pd-checks li.ok::before { content: "✓"; }
+    .pd-checks li.bad { color: #b91c1c; font-weight: 700; } .pd-checks li.bad::before { content: "✕"; }
+    .pd-checks li.info { color: #6b7280; } .pd-checks li.info::before { content: "ℹ"; }
+    .pd-req-actions { display: grid; gap: 8px; width: 240px; align-content: center; }
+    .pd-req-actions form { margin: 0; }
+    .pd-table-wrap { background: #fff; border: 1px solid #e7e0d4; border-radius: 16px; padding: 6px 12px; }
+    .pd-status { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .pd-pending { background: #fef3c7; color: #92400e; }
+    .pd-confirmed { background: #dcfce7; color: #166534; }
+    .pd-in { background: #dbeafe; color: #1d4ed8; }
+    .pd-out { background: #f1f5f9; color: #475569; }
+    .pd-cancelled { background: #fee2e2; color: #b91c1c; }
+</style>

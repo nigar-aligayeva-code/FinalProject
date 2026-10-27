@@ -281,8 +281,13 @@ public class BookingsController : Controller
             return View(dto);
         }
 
-        // Otaq və tarix seçilməyibsə
-        // əvvəl Search Rooms-a getsin
+        // Otaq seçilib, tarix yox: otaq səhifəsində tarix seçimi var
+        if (roomId.HasValue)
+        {
+            return Redirect(Url.Action("Details", "Rooms", new { id = roomId.Value }) + "#book");
+        }
+
+        // Heç nə seçilməyib: otaq axtarışı
         return RedirectToAction(
             "Search",
             "Rooms");

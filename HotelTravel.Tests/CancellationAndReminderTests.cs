@@ -254,6 +254,7 @@ public class CancellationAndReminderTests
         public Task TripBookedAsync(string packageCode) => Task.CompletedTask;
         public Task GuestBookingUpdateAsync(string confirmationCode, string kind) => Task.CompletedTask;
         public Task GuestFlightCancelledAsync(int flightBookingId) => Task.CompletedTask;
+        public Task PartnerNewRequestAsync(string confirmationCode) => Task.CompletedTask;
 
         public Task ToGuestAsync(string? appUserId, GuestNotificationDto notification)
         {
@@ -267,6 +268,7 @@ public class CancellationAndReminderTests
         public Task<(bool Success, string Message)> SendConfirmationAsync(string confirmationCode) => Task.FromResult((true, ""));
         public Task<(bool Success, string Message)> SendCancellationAsync(string confirmationCode, bool byHotel = false) => Task.FromResult((true, ""));
         public Task<(bool Success, string Message)> SendRejectionAsync(string confirmationCode) => Task.FromResult((true, ""));
+        public Task<(bool Success, string Message)> SendExpiredAsync(string confirmationCode) => Task.FromResult((true, ""));
         public string GetBookingUrl(string confirmationCode) => "http://localhost/Bookings/Find?confirmationCode=" + confirmationCode;
     }
 

@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Account;
+﻿using HotelTravel.Application.DTOs.Account;
 using HotelTravel.Application.DTOs.Auth;
 using HotelTravel.Web.Services;
 using HotelTravel.Web.Services.Api;
@@ -124,6 +124,10 @@ public class AccountController : Controller
         // Admin birbaşa admin panelə
         if (auth.Roles.Contains("Admin"))
             return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+
+        // Otel işçisi birbaşa partnyor panelinə
+        if (auth.Roles.Contains("HotelPartner"))
+            return RedirectToAction("Index", "Dashboard", new { area = "Partner" });
 
         return RedirectToAction("Index", "Home");
     }

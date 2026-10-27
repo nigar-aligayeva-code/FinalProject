@@ -126,6 +126,13 @@
             color: #4b5563;
         }
 
+    .bd-checks { list-style: none; padding: 0; margin: 10px 0 12px; display: grid; gap: 6px; font-size: 13px; }
+    .bd-checks li::before { margin-right: 6px; font-weight: 700; }
+    .bd-checks li.ok { color: #166534; } .bd-checks li.ok::before { content: "✓"; }
+    .bd-checks li.bad { color: #b91c1c; font-weight: 700; } .bd-checks li.bad::before { content: "✕"; }
+    .bd-checks li.warn { color: #92400e; } .bd-checks li.warn::before { content: "!"; }
+    .bd-checks li.info { color: #475569; } .bd-checks li.info::before { content: "ℹ"; }
+
     .bd-action.approve {
         background: #16834b;
         color: #fff;
@@ -463,6 +470,41 @@
                 {
                     <div class="bd-request @(isOverdue ? "overdue" : "")">
                         <strong>@T["Booking request from the guest"]</strong>
+
+                        @if (ViewBag.Check is HotelTravel.Application.DTOs.Availability.AvailabilityCheckDto check)
+                        {
+                            <ul class="bd-checks">
+                                <li class="@(check.OverlappingBookings == 0 ? "ok" : "bad")">
+                                    @(check.OverlappingBookings == 0
+                                        ? T["No other Tripio booking for this room on these dates"]
+                                        : T["{0} other Tripio booking(s) overlap these dates", check.OverlappingBookings])
+                                </li>
+                                <li class="@(check.IsClosedByHotel ? "bad" : "ok")">
+                                    @(check.IsClosedByHotel
+                                        ? T["The hotel closed these dates: {0}", string.Join(", ", check.ClosedReasons.DefaultIfEmpty("—"))]
+                                        : T["The dates are not closed by the hotel"])
+                                </li>
+                                <li class="@(check.IsFresh ? "ok" : "warn")">
+                                    <partial name="_FreshnessBadge" model="check.AvailabilityUpdatedAt" />
+                                    @if (!check.IsFresh)
+                                    {
+                                        <span>@T["The hotel has not confirmed its availability recently — call the hotel first."]</span>
+                                    }
+                                </li>
+                                <li class="info">
+                                    @if (check.HasPartner)
+                                    {
+                                        @T["This hotel has a partner account: the hotel usually answers itself."]
+                                    }
+                                    else
+                                    {
+                                        @T["No partner account: the admin confirms after calling the hotel."]
+                                    }
+                                    <a asp-area="Admin" asp-controller="Availability" asp-action="Index" asp-route-hotelId="@check.HotelId">@T["Availability and prices"]</a>
+                                </li>
+                            </ul>
+                        }
+
                         <p>
                             @T["Waiting for {0} h.", waitingHours]
                             @T["Check the hotel's real availability (phone, channel manager, other sites) and answer within {0} hours.", HotelTravel.Application.Services.BookingRules.HotelAnswerHours]

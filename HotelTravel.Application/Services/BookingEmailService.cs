@@ -111,6 +111,23 @@ public class BookingEmailService : IBookingEmailService
         }, BookingEmailTemplates.RejectionType, booking.ConfirmationCode);
     }
 
+    public async Task<(bool Success, string Message)> SendExpiredAsync(string confirmationCode)
+    {
+        var booking = await _bookingService.GetByConfirmationCodeAsync(confirmationCode);
+
+        if (booking == null)
+            return (false, "Booking not found.");
+
+        var (subject, html) = BookingEmailTemplates.RequestExpired(booking, _options.PublicSiteUrl);
+
+        return await DeliverAsync(new EmailMessage
+        {
+            To = booking.GuestEmail,
+            Subject = subject,
+            HtmlBody = html
+        }, BookingEmailTemplates.ExpiredType, booking.ConfirmationCode);
+    }
+
     private Task<(bool Success, string Message)> DeliverAsync(
         EmailMessage message,
         string type,

@@ -1,0 +1,36 @@
+@model (string HotelName, string City, string Active)
+@* Partnyor panelinin başlığı və tab-ları *@
+<div class="pp-head">
+    <div>
+        <div class="pp-eyebrow"><i class="bi bi-building-check"></i> @T["Hotel partner panel"]</div>
+        <h1>@Model.HotelName</h1>
+        <p>@Model.City</p>
+    </div>
+</div>
+
+<nav class="pp-tabs">
+    <a asp-area="Partner" asp-controller="Dashboard" asp-action="Index" class="@(Model.Active == "requests" ? "active" : "")">
+        <i class="bi bi-inbox"></i> @T["Requests and bookings"]
+    </a>
+    <a asp-area="Partner" asp-controller="Availability" asp-action="Index" class="@(Model.Active == "availability" ? "active" : "")">
+        <i class="bi bi-calendar-week"></i> @T["Availability and prices"]
+    </a>
+</nav>
+
+@if (TempData["SuccessMessage"] is string ok)
+{
+    <div class="alert alert-success">@ok</div>
+}
+@if (TempData["ErrorMessage"] is string err)
+{
+    <div class="alert alert-danger">@err</div>
+}
+
+<style>
+    .pp-head h1 { font-family: Georgia, serif; font-size: 32px; margin: 4px 0 2px; }
+    .pp-head p { color: #6b7280; margin: 0 0 18px; }
+    .pp-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #52614e; }
+    .pp-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .pp-tabs a { padding: 9px 16px; border-radius: 999px; border: 1px solid #e7e0d4; background: #fff; color: #1F2421; text-decoration: none; font-weight: 600; font-size: 14px; }
+    .pp-tabs a.active { background: #1F2421; color: #fff; border-color: #1F2421; }
+</style>

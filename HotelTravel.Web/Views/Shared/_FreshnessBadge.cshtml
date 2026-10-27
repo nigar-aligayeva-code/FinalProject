@@ -1,0 +1,33 @@
+@model DateTime?
+@* Otel boş yerləri nə vaxt yoxlayıb? (partnyor və admin panelləri) *@
+@{
+    string text;
+    string css;
+
+    if (Model is null)
+    {
+        text = T["Never checked"].Value;
+        css = "pv-fresh-bad";
+    }
+    else
+    {
+        var ago = DateTime.UtcNow - DateTime.SpecifyKind(Model.Value, DateTimeKind.Utc);
+        var fresh = HotelTravel.Application.Services.AvailabilityRules.IsFresh(Model, DateTime.UtcNow);
+
+        text = ago.TotalMinutes < 2 ? T["Checked just now"].Value
+            : ago.TotalHours < 1 ? T["Checked {0} min ago", (int)ago.TotalMinutes].Value
+            : ago.TotalHours < 48 ? T["Checked {0} h ago", (int)ago.TotalHours].Value
+            : T["Checked {0} days ago", (int)ago.TotalDays].Value;
+
+        css = fresh ? "pv-fresh-ok" : "pv-fresh-old";
+    }
+}
+<span class="pv-fresh @css" title="@T["When the hotel last confirmed its real availability"]">
+    <i class="bi bi-clock-history"></i> @text
+</span>
+<style>
+    .pv-fresh { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
+    .pv-fresh-ok { background: #dcfce7; color: #166534; }
+    .pv-fresh-old { background: #fef3c7; color: #92400e; }
+    .pv-fresh-bad { background: #fee2e2; color: #b91c1c; }
+</style>

@@ -12,13 +12,16 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
     {
         private readonly IBookingService _bookingService;
         private readonly IRoomService _roomService;
+        private readonly IHotelAvailabilityService _availability;
 
         public BookingsController(
             IBookingService bookingService,
-            IRoomService roomService)
+            IRoomService roomService,
+            IHotelAvailabilityService availability)
         {
             _bookingService = bookingService;
             _roomService = roomService;
+            _availability = availability;
         }
 
         // ALL BOOKINGS
@@ -76,6 +79,10 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
 
             if (booking == null)
                 return NotFound();
+
+            // Gözləyən sorğu: təsdiqləməzdən əvvəl yoxlama (üst-üstə düşmə, bağlı günlər, təzəlik)
+            if (booking.Status == BookingStatus.Pending)
+                ViewBag.Check = await _availability.CheckBookingAsync(id);
 
             return View(booking);
         }

@@ -111,6 +111,9 @@ namespace HotelTravel.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<int?>("PartnerHotelId")
+                        .HasColumnType("int");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
@@ -139,6 +142,8 @@ namespace HotelTravel.Infrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("PartnerHotelId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -694,6 +699,9 @@ namespace HotelTravel.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("AvailabilityUpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1038,6 +1046,47 @@ namespace HotelTravel.Infrastructure.Migrations
                     b.HasIndex("HotelId");
 
                     b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("HotelTravel.Domain.Entities.RoomBlock", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomId", "StartDate", "EndDate");
+
+                    b.ToTable("RoomBlocks");
                 });
 
             modelBuilder.Entity("HotelTravel.Domain.Entities.RoomImage", b =>
@@ -1629,6 +1678,17 @@ namespace HotelTravel.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("HotelTravel.Domain.Entities.RoomBlock", b =>
+                {
+                    b.HasOne("HotelTravel.Domain.Entities.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("HotelTravel.Domain.Entities.RoomImage", b =>

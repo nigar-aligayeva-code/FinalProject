@@ -62,6 +62,10 @@ public static class DependencyInjection
         // Giriş və uçuş xatırlatmaları (API-dəki ReminderBackgroundService çağırır)
         services.AddScoped<IReminderService, ReminderService>();
 
+        // Otelin real boş yerləri (bağlı tarixlər, qiymətlər) və cavabsız sorğuların bağlanması
+        services.AddScoped<IHotelAvailabilityService, HotelAvailabilityService>();
+        services.AddScoped<IRequestExpiryService, RequestExpiryService>();
+
         // Qeydiyyatda e-poçt yoxlaması: format, birdəfəlik domen, yazı səhvi, MX qeydi
         services.AddSingleton<IEmailAddressChecker, DnsEmailAddressChecker>();
 

@@ -56,7 +56,6 @@
   <data name="Administrator" xml:space="preserve"><value>Administrator</value></data>
   <data name="adult" xml:space="preserve"><value>böyük</value></data>
   <data name="Adults" xml:space="preserve"><value>Böyüklər</value></data>
-  <data name="adults" xml:space="preserve"><value>böyük</value></data>
   <data name="Adults:" xml:space="preserve"><value>Böyüklər:</value></data>
   <data name="Afro" xml:space="preserve"><value>Afro</value></data>
   <data name="After confirmation you can pay online by card or at the hotel." xml:space="preserve"><value>Təsdiqdən sonra kartla onlayn və ya oteldə ödəyə bilərsiniz.</value></data>
@@ -70,7 +69,6 @@
   <data name="Airport taxi from {0}" xml:space="preserve"><value>{0} hava limanından taksi</value></data>
   <data name="Airport taxi is not available for this trip." xml:space="preserve"><value>Bu səfər üçün hava limanı taksisi mövcud deyil.</value></data>
   <data name="Airport taxis" xml:space="preserve"><value>Hava limanı taksisi</value></data>
-  <data name="Airport Taxis" xml:space="preserve"><value>Hava limanı taksisi</value></data>
   <data name="Airport taxis are not available for this hotel." xml:space="preserve"><value>Bu otel üçün hava limanı taksisi mövcud deyil.</value></data>
   <data name="Airport taxis are not available yet." xml:space="preserve"><value>Hava limanı taksisi hələ mövcud deyil.</value></data>
   <data name="Airport → Hotel" xml:space="preserve"><value>Hava limanı → Otel</value></data>
@@ -84,10 +82,12 @@
   <data name="All Ratings" xml:space="preserve"><value>Bütün reytinqlər</value></data>
   <data name="All rights reserved." xml:space="preserve"><value>Bütün hüquqlar qorunur.</value></data>
   <data name="All Rooms" xml:space="preserve"><value>Bütün otaqlar</value></data>
+  <data name="All rooms of the hotel" xml:space="preserve"><value>Otelin bütün otaqları</value></data>
   <data name="All Statuses" xml:space="preserve"><value>Bütün statuslar</value></data>
   <data name="All times are local. Prices are per passenger, one way, including taxes." xml:space="preserve"><value>Bütün vaxtlar yerli vaxtdır. Qiymətlər bir sərnişin, bir istiqamət üçündür, vergilər daxildir.</value></data>
   <data name="All trips" xml:space="preserve"><value>Bütün səfərlər</value></data>
   <data name="Already have an account?" xml:space="preserve"><value>Artıq hesabınız var?</value></data>
+  <data name="Also check your reception and other sites before confirming." xml:space="preserve"><value>Təsdiqləməzdən əvvəl resepşını və digər saytları da yoxlayın.</value></data>
   <data name="Amenities" xml:space="preserve"><value>İmkanlar</value></data>
   <data name="Amenity created successfully." xml:space="preserve"><value>İmkan uğurla yaradıldı.</value></data>
   <data name="Amenity created." xml:space="preserve"><value>İmkan yaradıldı.</value></data>
@@ -104,6 +104,9 @@
   <data name="Are you sure you want to delete" xml:space="preserve"><value>Silmək istədiyinizə əminsiniz:</value></data>
   <data name="Are you sure you want to log out?" xml:space="preserve"><value>Hesabdan çıxmaq istədiyinizə əminsiniz?</value></data>
   <data name="Arrival date" xml:space="preserve"><value>Gəliş tarixi</value></data>
+  <data name="Arrivals today" xml:space="preserve"><value>Bu gün gələnlər</value></data>
+  <data name="Ask the Tripio administrator to assign your account to your hotel." xml:space="preserve"><value>Tripio administratorundan hesabınızı otelinizə bağlamasını xahiş edin.</value></data>
+  <data name="At least 6 characters with an uppercase letter, a lowercase letter and a digit. Give it to the hotel privately." xml:space="preserve"><value>Ən azı 6 simvol: böyük hərf, kiçik hərf və rəqəm. Parolu otelə şəxsi qaydada verin.</value></data>
   <data name="At least 6 characters, with an uppercase letter, a lowercase letter and a digit." xml:space="preserve"><value>Ən azı 6 simvol: böyük hərf, kiçik hərf və rəqəm olmalıdır.</value></data>
   <data name="At least one adult is required." xml:space="preserve"><value>Ən azı bir böyük olmalıdır.</value></data>
   <data name="Attractions" xml:space="preserve"><value>Görməli yerlər</value></data>
@@ -111,9 +114,12 @@
   <data name="Auto-generate missing routes" xml:space="preserve"><value>Çatışmayan reysləri avtomatik yarat</value></data>
   <data name="Automatic" xml:space="preserve"><value>Avtomat</value></data>
   <data name="Automatic transmission" xml:space="preserve"><value>Avtomat sürətlər qutusu</value></data>
+  <data name="Availability" xml:space="preserve"><value>Boş yerlər</value></data>
+  <data name="Availability and prices" xml:space="preserve"><value>Boş yerlər və qiymətlər</value></data>
+  <data name="Availability data" xml:space="preserve"><value>Boş yer məlumatı</value></data>
+  <data name="Availability marked as up to date." xml:space="preserve"><value>Boş yerlər yoxlanılmış kimi qeyd edildi.</value></data>
   <data name="Available for enquiries" xml:space="preserve"><value>Suallar üçün əlçatandır</value></data>
   <data name="Available Rooms" xml:space="preserve"><value>Boş otaqlar</value></data>
-  <data name="Available rooms" xml:space="preserve"><value>Boş otaqlar</value></data>
   <data name="Avatar removed." xml:space="preserve"><value>Avatar silindi.</value></data>
   <data name="Avatar updated." xml:space="preserve"><value>Avatar yeniləndi.</value></data>
   <data name="Average booking value" xml:space="preserve"><value>Orta rezervasiya məbləği</value></data>
@@ -133,7 +139,6 @@
   <data name="Back to sign in" xml:space="preserve"><value>Girişə qayıt</value></data>
   <data name="bag" xml:space="preserve"><value>çanta</value></data>
   <data name="Bags" xml:space="preserve"><value>Çantalar</value></data>
-  <data name="bags" xml:space="preserve"><value>çanta</value></data>
   <data name="Bald" xml:space="preserve"><value>Keçəl</value></data>
   <data name="Basic Information" xml:space="preserve"><value>Əsas məlumat</value></data>
   <data name="Beard" xml:space="preserve"><value>Saqqal</value></data>
@@ -166,8 +171,10 @@
   <data name="Booking request from the guest" xml:space="preserve"><value>Qonaqdan rezervasiya sorğusu</value></data>
   <data name="Booking request rejected. The guest has been notified." xml:space="preserve"><value>Rezervasiya sorğusu rədd edildi. Qonağa bildiriş göndərildi.</value></data>
   <data name="Booking request sent. The hotel will confirm it soon." xml:space="preserve"><value>Rezervasiya sorğusu göndərildi. Otel tezliklə təsdiqləyəcək.</value></data>
+  <data name="Booking requests" xml:space="preserve"><value>Rezervasiya sorğuları</value></data>
   <data name="Booking Status" xml:space="preserve"><value>Rezervasiya statusu</value></data>
   <data name="Booking status could not be changed." xml:space="preserve"><value>Rezervasiya statusu dəyişdirilə bilmədi.</value></data>
+  <data name="Booking status updated successfully." xml:space="preserve"><value>Rezervasiyanın statusu yeniləndi.</value></data>
   <data name="Booking status updated." xml:space="preserve"><value>Rezervasiya statusu yeniləndi.</value></data>
   <data name="Booking total" xml:space="preserve"><value>Rezervasiya cəmi</value></data>
   <data name="Booking voucher" xml:space="preserve"><value>Rezervasiya vauçeri</value></data>
@@ -210,7 +217,6 @@
   <data name="Car" xml:space="preserve"><value>Maşın</value></data>
   <data name="Car not found." xml:space="preserve"><value>Maşın tapılmadı.</value></data>
   <data name="Car rental" xml:space="preserve"><value>Avtomobil icarəsi</value></data>
-  <data name="Car Rental" xml:space="preserve"><value>Avtomobil icarəsi</value></data>
   <data name="Car rental cancelled." xml:space="preserve"><value>Maşın icarəsi ləğv olundu.</value></data>
   <data name="Car rental confirmed." xml:space="preserve"><value>Maşın icarəsi təsdiqləndi.</value></data>
   <data name="Car rental not found." xml:space="preserve"><value>İcarə tapılmadı.</value></data>
@@ -232,6 +238,7 @@
   <data name="Check In" xml:space="preserve"><value>Giriş et</value></data>
   <data name="Check Out" xml:space="preserve"><value>Çıxış et</value></data>
   <data name="Check the hotel's real availability (phone, channel manager, other sites) and answer within {0} hours." xml:space="preserve"><value>Otelin real boş yerlərini yoxlayın (telefon, kanal meneceri, digər saytlar) və {0} saat ərzində cavab verin.</value></data>
+  <data name="Check your real availability (reception, other sites) and answer within {0} hours. Requests without an answer are closed automatically." xml:space="preserve"><value>Real boş yerləri yoxlayın (resepşn, digər saytlar) və {0} saat ərzində cavab verin. Cavabsız sorğular avtomatik bağlanır.</value></data>
   <data name="Check-in" xml:space="preserve"><value>Giriş</value></data>
   <data name="Check-in Date" xml:space="preserve"><value>Giriş tarixi</value></data>
   <data name="Check-in date cannot be in the past." xml:space="preserve"><value>Giriş tarixi keçmişdə ola bilməz.</value></data>
@@ -243,14 +250,19 @@
   <data name="Check-out:" xml:space="preserve"><value>Çıxış:</value></data>
   <data name="checked baggage" xml:space="preserve"><value>baqaj</value></data>
   <data name="Checked In" xml:space="preserve"><value>Giriş edilib</value></data>
+  <data name="Checked just now" xml:space="preserve"><value>İndicə yoxlanılıb</value></data>
   <data name="Checked Out" xml:space="preserve"><value>Çıxış edilib</value></data>
+  <data name="Checked {0} days ago" xml:space="preserve"><value>{0} gün əvvəl yoxlanılıb</value></data>
+  <data name="Checked {0} h ago" xml:space="preserve"><value>{0} saat əvvəl yoxlanılıb</value></data>
+  <data name="Checked {0} min ago" xml:space="preserve"><value>{0} dəq əvvəl yoxlanılıb</value></data>
   <data name="child" xml:space="preserve"><value>uşaq</value></data>
   <data name="Child seat, extra bag, ..." xml:space="preserve"><value>Uşaq oturacağı, əlavə çanta, ...</value></data>
   <data name="Children" xml:space="preserve"><value>Uşaqlar</value></data>
-  <data name="children" xml:space="preserve"><value>uşaq</value></data>
   <data name="Children count cannot be negative." xml:space="preserve"><value>Uşaq sayı mənfi ola bilməz.</value></data>
   <data name="Children count is not valid." xml:space="preserve"><value>Uşaq sayı düzgün deyil.</value></data>
   <data name="Children:" xml:space="preserve"><value>Uşaqlar:</value></data>
+  <data name="Choose a hotel" xml:space="preserve"><value>Otel seçin</value></data>
+  <data name="Choose a hotel." xml:space="preserve"><value>Otel seçin.</value></data>
   <data name="Choose a new password" xml:space="preserve"><value>Yeni şifrə seçin</value></data>
   <data name="Choose a room" xml:space="preserve"><value>Otaq seçin</value></data>
   <data name="Choose an available action below to update the booking status." xml:space="preserve"><value>Statusu yeniləmək üçün aşağıdan əməliyyat seçin.</value></data>
@@ -273,7 +285,11 @@
   <data name="Click for details and map" xml:space="preserve"><value>Ətraflı məlumat və xəritə üçün klikləyin</value></data>
   <data name="click to open" xml:space="preserve"><value>açmaq üçün klikləyin</value></data>
   <data name="Close" xml:space="preserve"><value>Bağla</value></data>
+  <data name="Close dates" xml:space="preserve"><value>Tarixləri bağla</value></data>
   <data name="Closed" xml:space="preserve"><value>Bağlıdır</value></data>
+  <data name="Closed date ranges" xml:space="preserve"><value>Bağlı tarix aralıqları</value></data>
+  <data name="Closed dates cannot start in the past." xml:space="preserve"><value>Bağlı tarixlər keçmişdən başlaya bilməz.</value></data>
+  <data name="Closed dates were not found." xml:space="preserve"><value>Bağlı tarixlər tapılmadı.</value></data>
   <data name="Code" xml:space="preserve"><value>Kod</value></data>
   <data name="Code is required." xml:space="preserve"><value>Kod mütləqdir.</value></data>
   <data name="Code must be 3-30 characters." xml:space="preserve"><value>Kod 3-30 simvol olmalıdır.</value></data>
@@ -297,14 +313,12 @@
   <data name="Confirm flight" xml:space="preserve"><value>Uçuşu təsdiqlə</value></data>
   <data name="Confirm new password" xml:space="preserve"><value>Yeni şifrəni təsdiqləyin</value></data>
   <data name="Confirm Password" xml:space="preserve"><value>Şifrəni təsdiqləyin</value></data>
-  <data name="Confirm password" xml:space="preserve"><value>Şifrəni təsdiqləyin</value></data>
   <data name="Confirm rental" xml:space="preserve"><value>İcarəni təsdiqlə</value></data>
   <data name="Confirm taxi" xml:space="preserve"><value>Taksini təsdiqlə</value></data>
   <data name="Confirm the new password." xml:space="preserve"><value>Yeni şifrəni təsdiqləyin.</value></data>
   <data name="Confirm — room is free" xml:space="preserve"><value>Təsdiqlə — otaq boşdur</value></data>
   <data name="Confirmation" xml:space="preserve"><value>Təsdiq</value></data>
   <data name="Confirmation Code" xml:space="preserve"><value>Təsdiq kodu</value></data>
-  <data name="Confirmation code" xml:space="preserve"><value>Təsdiq kodu</value></data>
   <data name="Confirmation code and email are required." xml:space="preserve"><value>Təsdiq kodu və e-poçt mütləqdir.</value></data>
   <data name="Confirmation code is required." xml:space="preserve"><value>Təsdiq kodu mütləqdir.</value></data>
   <data name="Confirmation failed" xml:space="preserve"><value>Təsdiq alınmadı</value></data>
@@ -314,11 +328,12 @@
   <data name="Contact Information" xml:space="preserve"><value>Əlaqə məlumatı</value></data>
   <data name="Contact name is required." xml:space="preserve"><value>Əlaqə adı mütləqdir.</value></data>
   <data name="Country" xml:space="preserve"><value>Ölkə</value></data>
+  <data name="Create a partner account" xml:space="preserve"><value>Partnyor hesabı yarat</value></data>
   <data name="Create account" xml:space="preserve"><value>Hesab yarat</value></data>
-  <data name="Create Account" xml:space="preserve"><value>Hesab yarat</value></data>
   <data name="Create code" xml:space="preserve"><value>Kod yarat</value></data>
   <data name="Create daily flights for every pair of hotel cities that has none yet." xml:space="preserve"><value>Hələ reysi olmayan hər otel şəhəri cütü üçün gündəlik reys yarat.</value></data>
   <data name="Create discount codes guests can enter when booking." xml:space="preserve"><value>Qonaqların rezervasiyada yaza biləcəyi endirim kodları yaradın.</value></data>
+  <data name="Create partner account" xml:space="preserve"><value>Partnyor hesabını yarat</value></data>
   <data name="CURATED STAYS" xml:space="preserve"><value>SEÇİLMİŞ OTELLƏR</value></data>
   <data name="Curly hair" xml:space="preserve"><value>Qıvrım saç</value></data>
   <data name="Currency" xml:space="preserve"><value>Valyuta</value></data>
@@ -386,6 +401,7 @@
   <data name="e.g. Baku" xml:space="preserve"><value>məs. Bakı</value></data>
   <data name="e.g. J2 8011" xml:space="preserve"><value>məs. J2 8011</value></data>
   <data name="e.g. Maiden Tower" xml:space="preserve"><value>məs. Qız qalası</value></data>
+  <data name="e.g. Sold on Booking.com" xml:space="preserve"><value>məs. Booking.com-da satılıb</value></data>
   <data name="e.g. Toyota Corolla" xml:space="preserve"><value>məs. Toyota Corolla</value></data>
   <data name="e.g. Welcome offer" xml:space="preserve"><value>məs. Xoş gəldin təklifi</value></data>
   <data name="e.g. WELCOME10" xml:space="preserve"><value>məs. WELCOME10</value></data>
@@ -398,7 +414,6 @@
   <data name="Edit car" xml:space="preserve"><value>Maşını redaktə et</value></data>
   <data name="Edit flight" xml:space="preserve"><value>Uçuşu redaktə et</value></data>
   <data name="Edit hotel" xml:space="preserve"><value>Oteli redaktə et</value></data>
-  <data name="Edit Hotel" xml:space="preserve"><value>Oteli redaktə et</value></data>
   <data name="Edit place" xml:space="preserve"><value>Yeri redaktə et</value></data>
   <data name="Edit Room" xml:space="preserve"><value>Otağı redaktə et</value></data>
   <data name="Email" xml:space="preserve"><value>E-poçt</value></data>
@@ -452,16 +467,13 @@
   <data name="Find a hotel in {0}" xml:space="preserve"><value>{0} şəhərində otel tap</value></data>
   <data name="Find a stay in {0}" xml:space="preserve"><value>{0} şəhərində otel tap</value></data>
   <data name="Find booking" xml:space="preserve"><value>Rezervasiyanı tap</value></data>
-  <data name="Find Booking" xml:space="preserve"><value>Rezervasiyanı tap</value></data>
   <data name="Find my booking" xml:space="preserve"><value>Rezervasiyamı tap</value></data>
-  <data name="Find My Booking" xml:space="preserve"><value>Rezervasiyamı tap</value></data>
   <data name="Find the driver in arrivals with a sign showing your name." xml:space="preserve"><value>Sürücünü gəliş zalında adınız yazılmış lövhə ilə tapın.</value></data>
   <data name="Find trip" xml:space="preserve"><value>Səfər tap</value></data>
   <data name="Find your next stay" xml:space="preserve"><value>Növbəti səfəriniz üçün otel tapın</value></data>
   <data name="Find your perfect stay" xml:space="preserve"><value>İdeal otelinizi tapın</value></data>
   <data name="First and last name" xml:space="preserve"><value>Ad və soyad</value></data>
   <data name="First Name" xml:space="preserve"><value>Ad</value></data>
-  <data name="First name" xml:space="preserve"><value>Ad</value></data>
   <data name="First name is required." xml:space="preserve"><value>Ad mütləqdir.</value></data>
   <data name="Five bookings with the latest check-in dates" xml:space="preserve"><value>Ən son giriş tarixli beş rezervasiya</value></data>
   <data name="Fixed price" xml:space="preserve"><value>Sabit qiymət</value></data>
@@ -487,6 +499,7 @@
   <data name="Food" xml:space="preserve"><value>Yemək</value></data>
   <data name="Food &amp; drink" xml:space="preserve"><value>Yemək və içki</value></data>
   <data name="For older bookings use" xml:space="preserve"><value>Köhnə rezervasiyalar üçün istifadə edin:</value></data>
+  <data name="For these hotels the admin confirms requests after calling the hotel." xml:space="preserve"><value>Bu otellər üçün sorğuları admin otelə zəng etdikdən sonra təsdiqləyir.</value></data>
   <data name="Forecast" xml:space="preserve"><value>Proqnoz</value></data>
   <data name="Forgot password" xml:space="preserve"><value>Şifrəni unutmuşam</value></data>
   <data name="Forgot password?" xml:space="preserve"><value>Şifrəni unutmusunuz?</value></data>
@@ -499,7 +512,6 @@
   <data name="Free cancellation up to {0} days before check-in." xml:space="preserve"><value>Girişdən {0} gün əvvələ qədər pulsuz ləğv.</value></data>
   <data name="Free cancellation up to {0} hours before departure" xml:space="preserve"><value>Uçuşa {0} saat qalanadək pulsuz ləğv</value></data>
   <data name="Free cancellation up to {0} hours before pick-up" xml:space="preserve"><value>Götürməyə {0} saat qalanadək pulsuz ləğv</value></data>
-  <data name="from" xml:space="preserve"><value>başlayaraq</value></data>
   <data name="From" xml:space="preserve"><value>Haradan</value></data>
   <data name="From Airport" xml:space="preserve"><value>Hava limanından</value></data>
   <data name="Full city guide" xml:space="preserve"><value>Tam şəhər bələdçisi</value></data>
@@ -514,16 +526,13 @@
   <data name="Good to know" xml:space="preserve"><value>Bilməyə dəyər</value></data>
   <data name="Google Calendar" xml:space="preserve"><value>Google Təqvim</value></data>
   <data name="Great weather for sightseeing!" xml:space="preserve"><value>Gəzinti üçün əla hava!</value></data>
-  <data name="guest" xml:space="preserve"><value>qonaq</value></data>
   <data name="Guest" xml:space="preserve"><value>Qonaq</value></data>
   <data name="Guest assistance" xml:space="preserve"><value>Qonaqlara dəstək</value></data>
   <data name="Guest Information" xml:space="preserve"><value>Qonaq məlumatı</value></data>
   <data name="Guest rating" xml:space="preserve"><value>Qonaq reytinqi</value></data>
   <data name="Guest ratings by hotel" xml:space="preserve"><value>Otellər üzrə qonaq reytinqi</value></data>
   <data name="Guest Reviews" xml:space="preserve"><value>Qonaq rəyləri</value></data>
-  <data name="GUEST REVIEWS" xml:space="preserve"><value>QONAQ RƏYLƏRİ</value></data>
   <data name="Guests" xml:space="preserve"><value>Qonaqlar</value></data>
-  <data name="guests" xml:space="preserve"><value>qonaq</value></data>
   <data name="Guests scheduled to arrive today" xml:space="preserve"><value>Bu gün gələcək qonaqlar</value></data>
   <data name="Guests scheduled to leave today" xml:space="preserve"><value>Bu gün çıxacaq qonaqlar</value></data>
   <data name="Gym" xml:space="preserve"><value>İdman zalı</value></data>
@@ -535,7 +544,6 @@
   <data name="Home" xml:space="preserve"><value>Ana səhifə</value></data>
   <data name="Hot days ahead — sunscreen, a hat and plenty of water." xml:space="preserve"><value>İsti günlər — günəş kremi, papaq və bol su.</value></data>
   <data name="Hotel" xml:space="preserve"><value>Otel</value></data>
-  <data name="hotel" xml:space="preserve"><value>otel</value></data>
   <data name="Hotel address" xml:space="preserve"><value>Otelin ünvanı</value></data>
   <data name="Hotel bookings, cancellations excluded" xml:space="preserve"><value>Otel bronları, ləğvlər istisna</value></data>
   <data name="Hotel Chain" xml:space="preserve"><value>Otel şəbəkəsi</value></data>
@@ -554,20 +562,25 @@
   <data name="Hotel Details" xml:space="preserve"><value>Otel detalları</value></data>
   <data name="Hotel in {0}" xml:space="preserve"><value>{0} şəhərində otel</value></data>
   <data name="Hotel not found." xml:space="preserve"><value>Otel tapılmadı.</value></data>
+  <data name="Hotel panel" xml:space="preserve"><value>Otel paneli</value></data>
+  <data name="Hotel partner panel" xml:space="preserve"><value>Otel partnyor paneli</value></data>
+  <data name="Hotel partners" xml:space="preserve"><value>Otel partnyorları</value></data>
   <data name="Hotel phone" xml:space="preserve"><value>Otelin telefonu</value></data>
   <data name="Hotel Reference" xml:space="preserve"><value>Otel</value></data>
   <data name="Hotel revenue and number of bookings per city." xml:space="preserve"><value>Şəhərlər üzrə otel gəliri və rezervasiya sayı.</value></data>
+  <data name="Hotel staff accounts. A partner sees only their own hotel: confirms or rejects requests, closes sold dates and updates prices." xml:space="preserve"><value>Otel işçilərinin hesabları. Partnyor yalnız öz otelini görür: sorğuları təsdiqləyir və ya rədd edir, satılmış günləri bağlayır, qiymətləri yeniləyir.</value></data>
   <data name="Hotel Type" xml:space="preserve"><value>Otel tipi</value></data>
   <data name="Hotel updated successfully." xml:space="preserve"><value>Otel uğurla yeniləndi.</value></data>
   <data name="Hotel updated." xml:space="preserve"><value>Otel yeniləndi.</value></data>
   <data name="Hotel → Airport" xml:space="preserve"><value>Otel → Hava limanı</value></data>
   <data name="Hotels" xml:space="preserve"><value>Otellər</value></data>
-  <data name="hotels" xml:space="preserve"><value>otel</value></data>
   <data name="Hotels also sell rooms on other channels, so every request is checked by the hotel first." xml:space="preserve"><value>Otellər otaqları başqa kanallarda da satır, ona görə hər sorğunu əvvəlcə otel yoxlayır.</value></data>
   <data name="Hotels Management" xml:space="preserve"><value>Otellərin idarəsi</value></data>
   <data name="Hotels on the map" xml:space="preserve"><value>Xəritədə otellər</value></data>
+  <data name="Hotels without a partner" xml:space="preserve"><value>Partnyoru olmayan otellər</value></data>
   <data name="How was the hotel?" xml:space="preserve"><value>Otel necə idi?</value></data>
   <data name="How was your stay?" xml:space="preserve"><value>Qalmanız necə keçdi?</value></data>
+  <data name="I checked — availability is correct" xml:space="preserve"><value>Yoxladım — boş yerlər düzgündür</value></data>
   <data name="If an account exists for this email, a reset link has been sent." xml:space="preserve"><value>Bu e-poçtla hesab varsa, bərpa linki göndərildi.</value></data>
   <data name="Image deleted." xml:space="preserve"><value>Şəkil silindi.</value></data>
   <data name="Image not found." xml:space="preserve"><value>Şəkil tapılmadı.</value></data>
@@ -579,6 +592,7 @@
   <data name="Initials" xml:space="preserve"><value>Baş hərflər</value></data>
   <data name="Instant confirmation" xml:space="preserve"><value>Dərhal təsdiq</value></data>
   <data name="Instant confirmation code" xml:space="preserve"><value>Dərhal təsdiq kodu</value></data>
+  <data name="Is our availability up to date?" xml:space="preserve"><value>Boş yerlər haqqında məlumat aktualdır?</value></data>
   <data name="It will not be shown publicly." xml:space="preserve"><value>Hamıya göstərilməyəcək.</value></data>
   <data name="JPG, PNG or WEBP, up to 2 MB." xml:space="preserve"><value>JPG, PNG və ya WEBP, ən çox 2 MB.</value></data>
   <data name="just now" xml:space="preserve"><value>indicə</value></data>
@@ -587,10 +601,24 @@
   <data name="km" xml:space="preserve"><value>km</value></data>
   <data name="Language" xml:space="preserve"><value>Dil</value></data>
   <data name="Last Name" xml:space="preserve"><value>Soyad</value></data>
-  <data name="Last name" xml:space="preserve"><value>Soyad</value></data>
   <data name="Last name is required." xml:space="preserve"><value>Soyad mütləqdir.</value></data>
   <data name="Later: {0}% fee, in the last {1} hours: {2}% fee." xml:space="preserve"><value>Sonra: {0}% cərimə, son {1} saatda: {2}% cərimə.</value></data>
   <data name="Latitude (optional)" xml:space="preserve"><value>Enlik (istəyə bağlı)</value></data>
+  <data name="lc:adults" xml:space="preserve"><value>böyük</value></data>
+  <data name="lc:bags" xml:space="preserve"><value>çanta</value></data>
+  <data name="lc:children" xml:space="preserve"><value>uşaq</value></data>
+  <data name="lc:from" xml:space="preserve"><value>başlayaraq</value></data>
+  <data name="lc:guest" xml:space="preserve"><value>qonaq</value></data>
+  <data name="lc:guests" xml:space="preserve"><value>qonaq</value></data>
+  <data name="lc:hotel" xml:space="preserve"><value>otel</value></data>
+  <data name="lc:hotels" xml:space="preserve"><value>otel</value></data>
+  <data name="lc:passenger" xml:space="preserve"><value>sərnişin</value></data>
+  <data name="lc:passengers" xml:space="preserve"><value>sərnişin</value></data>
+  <data name="lc:reviews" xml:space="preserve"><value>rəy</value></data>
+  <data name="lc:room" xml:space="preserve"><value>otaq</value></data>
+  <data name="lc:rooms" xml:space="preserve"><value>otaq</value></data>
+  <data name="lc:seats" xml:space="preserve"><value>yer</value></data>
+  <data name="lc:traveler" xml:space="preserve"><value>səyahətçi</value></data>
   <data name="lead" xml:space="preserve"><value>əsas</value></data>
   <data name="Lead passenger" xml:space="preserve"><value>Əsas sərnişin</value></data>
   <data name="Leave empty to show an icon." xml:space="preserve"><value>İkon göstərmək üçün boş saxlayın.</value></data>
@@ -646,23 +674,24 @@
   <data name="Mustache" xml:space="preserve"><value>Bığ</value></data>
   <data name="MY ACCOUNT" xml:space="preserve"><value>HESABIM</value></data>
   <data name="My bookings" xml:space="preserve"><value>Rezervasiyalarım</value></data>
-  <data name="My Bookings" xml:space="preserve"><value>Rezervasiyalarım</value></data>
   <data name="My profile" xml:space="preserve"><value>Profilim</value></data>
-  <data name="My Profile" xml:space="preserve"><value>Profilim</value></data>
   <data name="Name" xml:space="preserve"><value>Ad</value></data>
   <data name="Name is required." xml:space="preserve"><value>Ad mütləqdir.</value></data>
   <data name="Name:" xml:space="preserve"><value>Ad:</value></data>
   <data name="Names exactly as in passports — they go on the flight tickets." xml:space="preserve"><value>Adlar pasportdakı kimi olmalıdır, biletlərə yazılır.</value></data>
   <data name="Nearby dates" xml:space="preserve"><value>Yaxın tarixlər</value></data>
   <data name="Needed to confirm that this booking is yours." xml:space="preserve"><value>Rezervasiyanın sizə aid olduğunu təsdiqləmək üçün lazımdır.</value></data>
+  <data name="Never checked" xml:space="preserve"><value>Heç yoxlanılmayıb</value></data>
   <data name="New" xml:space="preserve"><value>Yeni</value></data>
   <data name="New airport taxi" xml:space="preserve"><value>Yeni hava limanı taksisi</value></data>
   <data name="New Booking" xml:space="preserve"><value>Yeni rezervasiya</value></data>
+  <data name="New booking request {1} ({2}). Please confirm or reject within 24 hours." xml:space="preserve"><value>Yeni rezervasiya sorğusu {1} ({2}). 24 saat ərzində təsdiqləyin və ya rədd edin.</value></data>
   <data name="New bookings will appear here instantly." xml:space="preserve"><value>Yeni rezervasiyalar burada dərhal görünəcək.</value></data>
   <data name="New car rental" xml:space="preserve"><value>Yeni maşın icarəsi</value></data>
   <data name="New flight booking" xml:space="preserve"><value>Yeni uçuş bronu</value></data>
   <data name="New Gallery Images" xml:space="preserve"><value>Yeni qalereya şəkilləri</value></data>
   <data name="New hotel booking" xml:space="preserve"><value>Yeni otel bronu</value></data>
+  <data name="New partner account" xml:space="preserve"><value>Yeni partnyor hesabı</value></data>
   <data name="New password" xml:space="preserve"><value>Yeni şifrə</value></data>
   <data name="New promo code" xml:space="preserve"><value>Yeni promo kod</value></data>
   <data name="New total" xml:space="preserve"><value>Yeni cəm</value></data>
@@ -684,6 +713,7 @@
   <data name="No cars found for this search." xml:space="preserve"><value>Bu axtarış üçün maşın tapılmadı.</value></data>
   <data name="No cars yet." xml:space="preserve"><value>Hələ maşın yoxdur.</value></data>
   <data name="No city guides yet." xml:space="preserve"><value>Hələ şəhər bələdçisi yoxdur.</value></data>
+  <data name="No closed dates. All rooms are open for booking." xml:space="preserve"><value>Bağlı tarix yoxdur. Bütün otaqlar rezervasiya üçün açıqdır.</value></data>
   <data name="No description available for this room." xml:space="preserve"><value>Bu otaq üçün təsvir yoxdur.</value></data>
   <data name="No direct {0} flights on this route." xml:space="preserve"><value>Bu marşrutda birbaşa {0} uçuşu yoxdur.</value></data>
   <data name="No emails yet. Make a booking on the site and the confirmation will appear here." xml:space="preserve"><value>Hələ məktub yoxdur. Saytda rezervasiya edin, təsdiq burada görünəcək.</value></data>
@@ -697,6 +727,9 @@
   <data name="No matching rooms found." xml:space="preserve"><value>Uyğun otaq tapılmadı.</value></data>
   <data name="No new real flights were found between hotel cities today." xml:space="preserve"><value>Bu gün otel şəhərləri arasında yeni real reys tapılmadı.</value></data>
   <data name="No notifications yet. Booking updates and reminders will appear here." xml:space="preserve"><value>Hələ bildiriş yoxdur. Rezervasiya yenilikləri və xatırlatmalar burada görünəcək.</value></data>
+  <data name="No other Tripio booking for this room on these dates" xml:space="preserve"><value>Bu tarixlərdə həmin otağa Tripio-da başqa rezervasiya yoxdur</value></data>
+  <data name="No partner account: the admin confirms after calling the hotel." xml:space="preserve"><value>Partnyor hesabı yoxdur: admin otelə zəng edib təsdiqləyir.</value></data>
+  <data name="No partner accounts yet." xml:space="preserve"><value>Hələ partnyor hesabı yoxdur.</value></data>
   <data name="No past bookings." xml:space="preserve"><value>Keçmiş rezervasiya yoxdur.</value></data>
   <data name="No payment now. Pay at check-in." xml:space="preserve"><value>İndi ödəniş yoxdur. Girişdə ödəyin.</value></data>
   <data name="No payment now: pay at check-in" xml:space="preserve"><value>İndi ödəniş yoxdur: qeydiyyatda ödəyin</value></data>
@@ -704,6 +737,7 @@
   <data name="No payment now: pay the driver" xml:space="preserve"><value>İndi ödəniş yoxdur: sürücüyə ödəyin</value></data>
   <data name="No places yet for this city." xml:space="preserve"><value>Bu şəhər üçün hələ yer yoxdur.</value></data>
   <data name="No promo codes yet. Create your first one on the left." xml:space="preserve"><value>Hələ promo kod yoxdur. Soldan ilkini yaradın.</value></data>
+  <data name="No requests are waiting. Well done!" xml:space="preserve"><value>Gözləyən sorğu yoxdur. Əla!</value></data>
   <data name="No reviews found." xml:space="preserve"><value>Rəy tapılmadı.</value></data>
   <data name="No reviews yet" xml:space="preserve"><value>Hələ rəy yoxdur</value></data>
   <data name="No reviews yet." xml:space="preserve"><value>Hələ rəy yoxdur.</value></data>
@@ -722,6 +756,7 @@
   <data name="Nothing to refund." xml:space="preserve"><value>Qaytarılacaq məbləğ yoxdur.</value></data>
   <data name="Notifications" xml:space="preserve"><value>Bildirişlər</value></data>
   <data name="Notifications marked as read." xml:space="preserve"><value>Bildirişlər oxundu kimi qeyd edildi.</value></data>
+  <data name="Number of nights" xml:space="preserve"><value>Gecə sayı</value></data>
   <data name="Occupancy Calendar" xml:space="preserve"><value>Doluluq təqvimi</value></data>
   <data name="Occupancy forecast" xml:space="preserve"><value>Doluluq proqnozu</value></data>
   <data name="Occupancy is based on rooms appearing in booking records." xml:space="preserve"><value>Doluluq rezervasiyalarda olan otaqlara əsasən hesablanır.</value></data>
@@ -735,6 +770,7 @@
   <data name="Only {0} left" xml:space="preserve"><value>Cəmi {0} qalıb</value></data>
   <data name="Only {0} left at this price." xml:space="preserve"><value>Bu qiymətə cəmi {0} qalıb.</value></data>
   <data name="Open" xml:space="preserve"><value>Aç</value></data>
+  <data name="Open again" xml:space="preserve"><value>Yenidən aç</value></data>
   <data name="Open booking" xml:space="preserve"><value>Rezervasiyanı aç</value></data>
   <data name="Open in Google Maps" xml:space="preserve"><value>Google Maps-də aç</value></data>
   <data name="Open my bookings" xml:space="preserve"><value>Rezervasiyalarıma bax</value></data>
@@ -751,13 +787,15 @@
   <data name="Paid online" xml:space="preserve"><value>Onlayn ödənilib</value></data>
   <data name="Panorama Image URL" xml:space="preserve"><value>Panorama şəklinin URL-i</value></data>
   <data name="Partly cloudy" xml:space="preserve"><value>Qismən buludlu</value></data>
+  <data name="Partner access removed." xml:space="preserve"><value>Partnyor icazəsi götürüldü.</value></data>
+  <data name="Partner account created." xml:space="preserve"><value>Partnyor hesabı yaradıldı.</value></data>
+  <data name="Partner accounts" xml:space="preserve"><value>Partnyor hesabları</value></data>
+  <data name="Partner not found." xml:space="preserve"><value>Partnyor tapılmadı.</value></data>
   <data name="Passenger" xml:space="preserve"><value>Sərnişin</value></data>
-  <data name="passenger" xml:space="preserve"><value>sərnişin</value></data>
   <data name="Passenger name is required." xml:space="preserve"><value>Sərnişinin adı mütləqdir.</value></data>
   <data name="Passenger names can be up to 100 characters." xml:space="preserve"><value>Sərnişin adı ən çox 100 simvol ola bilər.</value></data>
   <data name="Passenger {0}" xml:space="preserve"><value>Sərnişin {0}</value></data>
   <data name="Passengers" xml:space="preserve"><value>Sərnişinlər</value></data>
-  <data name="passengers" xml:space="preserve"><value>sərnişin</value></data>
   <data name="Passengers / bags" xml:space="preserve"><value>Sərnişin / çanta</value></data>
   <data name="Password" xml:space="preserve"><value>Şifrə</value></data>
   <data name="Password changed." xml:space="preserve"><value>Şifrə dəyişdirildi.</value></data>
@@ -834,10 +872,11 @@
   <data name="Price" xml:space="preserve"><value>Qiymət</value></data>
   <data name="Price / day" xml:space="preserve"><value>Qiymət / gün</value></data>
   <data name="Price / Night" xml:space="preserve"><value>Qiymət / gecə</value></data>
+  <data name="Price must be between 1 and 100000." xml:space="preserve"><value>Qiymət 1 ilə 100000 arasında olmalıdır.</value></data>
   <data name="Price must be positive." xml:space="preserve"><value>Qiymət müsbət olmalıdır.</value></data>
   <data name="Price per day must be positive." xml:space="preserve"><value>Günlük qiymət müsbət olmalıdır.</value></data>
   <data name="Price per night" xml:space="preserve"><value>Bir gecəlik qiymət</value></data>
-  <data name="Price Per Night" xml:space="preserve"><value>Bir gecəlik qiymət</value></data>
+  <data name="Price per night (AZN)" xml:space="preserve"><value>Gecəlik qiymət (AZN)</value></data>
   <data name="Price summary" xml:space="preserve"><value>Qiymət xülasəsi</value></data>
   <data name="Prices converted from AZN · you pay in AZN" xml:space="preserve"><value>Qiymətlər AZN-dən çevrilib · ödəniş AZN-dədir</value></data>
   <data name="Privacy" xml:space="preserve"><value>Məxfilik</value></data>
@@ -857,6 +896,8 @@
   <data name="Real flight data is not configured. Add an AviationStack access key." xml:space="preserve"><value>Real reys məlumatı qoşulmayıb. AviationStack açarını əlavə edin.</value></data>
   <data name="Real flight numbers, airlines and times from AviationStack." xml:space="preserve"><value>AviationStack-dan real reys nömrələri, şirkətlər və saatlar.</value></data>
   <data name="Real guest reviews" xml:space="preserve"><value>Real qonaq rəyləri</value></data>
+  <data name="Reason" xml:space="preserve"><value>Səbəb</value></data>
+  <data name="Reason (optional)" xml:space="preserve"><value>Səbəb (istəyə bağlı)</value></data>
   <data name="Recent Bookings" xml:space="preserve"><value>Son rezervasiyalar</value></data>
   <data name="reconnecting…" xml:space="preserve"><value>yenidən qoşulur…</value></data>
   <data name="Redirecting to the secure payment page." xml:space="preserve"><value>Təhlükəsiz ödəniş səhifəsinə yönləndirilir.</value></data>
@@ -872,8 +913,10 @@
   <data name="Reminder: your flight to {0} departs at {2} within 24 hours." xml:space="preserve"><value>Xatırlatma: {0} istiqamətinə uçuşunuz 24 saat ərzində, saat {2}-də.</value></data>
   <data name="Reminder: your stay at {0} starts on {2}." xml:space="preserve"><value>Xatırlatma: {0} otelində qalışınız {2} tarixində başlayır.</value></data>
   <data name="Remove" xml:space="preserve"><value>Sil</value></data>
+  <data name="Remove access" xml:space="preserve"><value>İcazəni götür</value></data>
   <data name="Remove current main image" xml:space="preserve"><value>Cari əsas şəkli sil</value></data>
   <data name="Remove from saved" xml:space="preserve"><value>Saxlanılanlardan sil</value></data>
+  <data name="Remove partner access for this account?" xml:space="preserve"><value>Bu hesabın partnyor icazəsi götürülsün?</value></data>
   <data name="Rent" xml:space="preserve"><value>İcarəyə götür</value></data>
   <data name="Rent a car" xml:space="preserve"><value>Avtomobil icarəsi</value></data>
   <data name="Rental updated." xml:space="preserve"><value>İcarə yeniləndi.</value></data>
@@ -882,8 +925,8 @@
   <data name="Request code right away" xml:space="preserve"><value>Sorğu kodu dərhal verilir</value></data>
   <data name="Request sent to the hotel" xml:space="preserve"><value>Sorğu otelə göndərildi</value></data>
   <data name="Request to book" xml:space="preserve"><value>Rezervasiya sorğusu</value></data>
+  <data name="Requests and bookings" xml:space="preserve"><value>Sorğular və rezervasiyalar</value></data>
   <data name="Reservation Overview" xml:space="preserve"><value>Rezervasiyalara baxış</value></data>
-  <data name="Reservation overview" xml:space="preserve"><value>Rezervasiyalara baxış</value></data>
   <data name="Reservation Timeline" xml:space="preserve"><value>Rezervasiya qrafiki</value></data>
   <data name="Reservations" xml:space="preserve"><value>Rezervasiya</value></data>
   <data name="Reservations overlapping selected month" xml:space="preserve"><value>Seçilmiş aya düşən rezervasiyalar</value></data>
@@ -899,12 +942,10 @@
   <data name="Review deleted." xml:space="preserve"><value>Rəy silindi.</value></data>
   <data name="Review not found." xml:space="preserve"><value>Rəy tapılmadı.</value></data>
   <data name="Reviewed" xml:space="preserve"><value>Rəy yazılıb</value></data>
-  <data name="reviews" xml:space="preserve"><value>rəy</value></data>
   <data name="Reviews" xml:space="preserve"><value>Rəylər</value></data>
   <data name="Reviews from real guests" xml:space="preserve"><value>Real qonaqlardan rəylər</value></data>
   <data name="Reviews shown" xml:space="preserve"><value>Göstərilən rəylər</value></data>
   <data name="Right now {0} is focused on hotel stays." xml:space="preserve"><value>Hazırda {0} otel rezervasiyasına fokuslanıb.</value></data>
-  <data name="room" xml:space="preserve"><value>otaq</value></data>
   <data name="Room" xml:space="preserve"><value>Otaq</value></data>
   <data name="Room Amenities" xml:space="preserve"><value>Otaq imkanları</value></data>
   <data name="Room and images updated successfully." xml:space="preserve"><value>Otaq və şəkillər yeniləndi.</value></data>
@@ -914,33 +955,30 @@
   <data name="Room Gallery" xml:space="preserve"><value>Otaq qalereyası</value></data>
   <data name="Room Information" xml:space="preserve"><value>Otaq haqqında məlumat</value></data>
   <data name="Room Name" xml:space="preserve"><value>Otağın adı</value></data>
-  <data name="Room name" xml:space="preserve"><value>Otağın adı</value></data>
   <data name="Room not found." xml:space="preserve"><value>Otaq tapılmadı.</value></data>
   <data name="Room Number" xml:space="preserve"><value>Otaq nömrəsi</value></data>
-  <data name="Room number" xml:space="preserve"><value>Otaq nömrəsi</value></data>
   <data name="Room occupancy for the current month" xml:space="preserve"><value>Cari ay üzrə otaq doluluğu</value></data>
   <data name="Room Photo" xml:space="preserve"><value>Otaq şəkli</value></data>
   <data name="Room price" xml:space="preserve"><value>Otaq qiyməti</value></data>
   <data name="Room type" xml:space="preserve"><value>Otaq tipi</value></data>
-  <data name="Room Type" xml:space="preserve"><value>Otaq tipi</value></data>
   <data name="Room updated." xml:space="preserve"><value>Otaq yeniləndi.</value></data>
+  <data name="Room was not found." xml:space="preserve"><value>Otaq tapılmadı.</value></data>
   <data name="Room {0}" xml:space="preserve"><value>Otaq {0}</value></data>
   <data name="Room:" xml:space="preserve"><value>Otaq:</value></data>
-  <data name="rooms" xml:space="preserve"><value>otaq</value></data>
   <data name="Rooms" xml:space="preserve"><value>Otaqlar</value></data>
-  <data name="ROOMS" xml:space="preserve"><value>OTAQLAR</value></data>
+  <data name="Rooms and prices" xml:space="preserve"><value>Otaqlar və qiymətlər</value></data>
   <data name="Rooms are rated {0} on average ({1})." xml:space="preserve"><value>Otaqların orta qiyməti {0} ({1}).</value></data>
   <data name="Rooms for your dates" xml:space="preserve"><value>Tarixləriniz üçün otaqlar</value></data>
   <data name="Rooms guests love" xml:space="preserve"><value>Qonaqların sevdiyi otaqlar</value></data>
   <data name="Rooms in this hotel" xml:space="preserve"><value>Bu oteldəki otaqlar</value></data>
   <data name="Rooms Management" xml:space="preserve"><value>Otaqların idarəsi</value></data>
+  <data name="Rooms sold elsewhere, under renovation or kept for the hotel. Closed rooms are hidden from search for these dates." xml:space="preserve"><value>Başqa yerdə satılmış, təmirdə olan və ya otelin özü üçün saxlanan otaqlar. Bağlı otaqlar bu tarixlərdə axtarışda görünmür.</value></data>
   <data name="Rooms you liked, all in one place." xml:space="preserve"><value>Bəyəndiyiniz otaqlar bir yerdə.</value></data>
   <data name="Route" xml:space="preserve"><value>Marşrut</value></data>
   <data name="Routes between hotel cities are created automatically when the API starts. You only edit prices or switch flights off." xml:space="preserve"><value>Otel şəhərləri arasındakı reyslər API açılanda avtomatik yaradılır. Siz yalnız qiyməti dəyişir və ya reysi söndürürsünüz.</value></data>
   <data name="Save" xml:space="preserve"><value>Saxla</value></data>
   <data name="Save avatar" xml:space="preserve"><value>Avatarı saxla</value></data>
   <data name="Save changes" xml:space="preserve"><value>Dəyişiklikləri saxla</value></data>
-  <data name="Save Changes" xml:space="preserve"><value>Dəyişiklikləri saxla</value></data>
   <data name="Save new password" xml:space="preserve"><value>Yeni şifrəni saxla</value></data>
   <data name="Save room" xml:space="preserve"><value>Otağı saxla</value></data>
   <data name="Save up to 12%" xml:space="preserve"><value>12%-ə qədər qənaət</value></data>
@@ -956,12 +994,10 @@
   <data name="Search hotels, compare rooms and book your stay in a few clicks. Manage or cancel your reservations any time before check-in." xml:space="preserve"><value>Otel axtarın, otaqları müqayisə edin və bir neçə kliklə rezervasiya edin. Rezervasiyanı girişə qədər istənilən vaxt dəyişin və ya ləğv edin.</value></data>
   <data name="Search hotels..." xml:space="preserve"><value>Otel axtar...</value></data>
   <data name="Search rooms" xml:space="preserve"><value>Otaq axtar</value></data>
-  <data name="Search Rooms" xml:space="preserve"><value>Otaq axtar</value></data>
   <data name="Search rooms, hotels, numbers..." xml:space="preserve"><value>Otaq, otel, nömrə axtar...</value></data>
   <data name="Search stays" xml:space="preserve"><value>Otel axtar</value></data>
   <data name="seat" xml:space="preserve"><value>yer</value></data>
   <data name="Seats" xml:space="preserve"><value>Yerlər</value></data>
-  <data name="seats" xml:space="preserve"><value>yer</value></data>
   <data name="Seats must be between 2 and 9." xml:space="preserve"><value>Yer sayı 2-9 arası olmalıdır.</value></data>
   <data name="Secure payment by Stripe (test mode)." xml:space="preserve"><value>Stripe ilə təhlükəsiz ödəniş (test rejimi).</value></data>
   <data name="Sedan" xml:space="preserve"><value>Sedan</value></data>
@@ -1029,6 +1065,7 @@
   <data name="Suite" xml:space="preserve"><value>Lüks</value></data>
   <data name="SUV" xml:space="preserve"><value>SUV</value></data>
   <data name="Swap cities" xml:space="preserve"><value>Şəhərləri dəyiş</value></data>
+  <data name="Tap the heart on any room to save it here." xml:space="preserve"><value>Otağı burada saxlamaq üçün üzərindəki ürəyə toxunun.</value></data>
   <data name="Taxi booking not found." xml:space="preserve"><value>Taksi bronu tapılmadı.</value></data>
   <data name="Taxi booking updated." xml:space="preserve"><value>Taksi bronu yeniləndi.</value></data>
   <data name="Taxi booking was not found." xml:space="preserve"><value>Taksi bronu tapılmadı.</value></data>
@@ -1040,10 +1077,15 @@
   <data name="Thank you! Your review has been published." xml:space="preserve"><value>Təşəkkürlər! Rəyiniz dərc olundu.</value></data>
   <data name="The amount is too small for an online payment." xml:space="preserve"><value>Məbləğ onlayn ödəniş üçün çox azdır.</value></data>
   <data name="The booking service is temporarily unavailable." xml:space="preserve"><value>Rezervasiya xidməti müvəqqəti əlçatan deyil.</value></data>
+  <data name="The dates are closed for all rooms of the hotel." xml:space="preserve"><value>Tarixlər otelin bütün otaqları üçün bağlandı.</value></data>
+  <data name="The dates are closed. The room will not be shown for these days." xml:space="preserve"><value>Tarixlər bağlandı. Otaq bu günlərdə göstərilməyəcək.</value></data>
+  <data name="The dates are not closed by the hotel" xml:space="preserve"><value>Otel bu tarixləri bağlamayıb</value></data>
+  <data name="The dates are open again." xml:space="preserve"><value>Tarixlər yenidən açıldı.</value></data>
   <data name="The driver has a valid driving licence and will bring it at pick-up." xml:space="preserve"><value>Sürücünün etibarlı sürücülük vəsiqəsi var və götürərkən onu gətirəcək.</value></data>
   <data name="The email address does not match this booking." xml:space="preserve"><value>E-poçt bu rezervasiyaya uyğun deyil.</value></data>
   <data name="The email address is incorrect." xml:space="preserve"><value>E-poçt yanlışdır.</value></data>
   <data name="The email used for this reservation" xml:space="preserve"><value>Bu rezervasiya üçün istifadə olunan e-poçt</value></data>
+  <data name="The end date must be after the start date." xml:space="preserve"><value>Bitmə tarixi başlama tarixindən sonra olmalıdır.</value></data>
   <data name="The exact location is not on our map yet. Open it in Google Maps." xml:space="preserve"><value>Dəqiq yeri hələ xəritəmizdə yoxdur. Google Maps-də açın.</value></data>
   <data name="THE EXPERIENCE" xml:space="preserve"><value>TƏCRÜBƏ</value></data>
   <data name="The field must be a number." xml:space="preserve"><value>Sahə rəqəm olmalıdır.</value></data>
@@ -1056,11 +1098,14 @@
   <data name="The flight data service is not reachable right now." xml:space="preserve"><value>Reys məlumatı xidmətinə hazırda qoşulmaq mümkün deyil.</value></data>
   <data name="The flight runs every day at the same local time." xml:space="preserve"><value>Uçuş hər gün eyni yerli vaxtda olur.</value></data>
   <data name="The hotel checks its real availability and answers within {0} hours. We will email you as soon as it is confirmed." xml:space="preserve"><value>Otel real boş yerlərini yoxlayır və {0} saat ərzində cavab verir. Təsdiqlənən kimi sizə e-poçt göndərəcəyik.</value></data>
+  <data name="The hotel closed these dates: {0}" xml:space="preserve"><value>Otel bu tarixləri bağlayıb: {0}</value></data>
   <data name="The hotel confirms within {0} hours. Nothing is charged until then." xml:space="preserve"><value>Otel {0} saat ərzində təsdiqləyir. O vaxta qədər heç bir ödəniş alınmır.</value></data>
+  <data name="The hotel has not confirmed its availability recently — call the hotel first." xml:space="preserve"><value>Otel son vaxtlar boş yerləri təsdiqləməyib — əvvəlcə otelə zəng edin.</value></data>
   <data name="The link is valid for 24 hours. Check your spam folder too." xml:space="preserve"><value>Link 24 saat etibarlıdır. Spam qovluğunu da yoxlayın.</value></data>
   <data name="The new password must be at least 6 characters." xml:space="preserve"><value>Yeni şifrə ən azı 6 simvol olmalıdır.</value></data>
   <data name="The payment was not completed." xml:space="preserve"><value>Ödəniş tamamlanmadı.</value></data>
   <data name="The photo must be 2 MB or smaller." xml:space="preserve"><value>Şəkil 2 MB-dan böyük olmamalıdır.</value></data>
+  <data name="The price was updated. New bookings use the new price." xml:space="preserve"><value>Qiymət yeniləndi. Yeni rezervasiyalar yeni qiymətlə olacaq.</value></data>
   <data name="The refund could not be processed automatically. The hotel will contact you." xml:space="preserve"><value>Pulu avtomatik qaytarmaq mümkün olmadı. Otel sizinlə əlaqə saxlayacaq.</value></data>
   <data name="The refund was sent to your card." xml:space="preserve"><value>Pul kartınıza qaytarıldı.</value></data>
   <data name="The return date must be after the departure date." xml:space="preserve"><value>Qayıdış tarixi gedişdən sonra olmalıdır.</value></data>
@@ -1076,6 +1121,7 @@
   <data name="There is no email address." xml:space="preserve"><value>E-poçt ünvanı yoxdur.</value></data>
   <data name="Things to do" xml:space="preserve"><value>Görməli yerlər</value></data>
   <data name="Things to do, tours, food and shopping in every city where we have hotels." xml:space="preserve"><value>Otellərimiz olan hər şəhərdə əyləncə, turlar, yemək və alış-veriş.</value></data>
+  <data name="This account is not linked to a hotel yet." xml:space="preserve"><value>Bu hesab hələ heç bir otelə bağlanmayıb.</value></data>
   <data name="This amenity cannot be deleted because it is used by an active room." xml:space="preserve"><value>Bu imkan aktiv otaqda istifadə olunduğu üçün silinə bilməz.</value></data>
   <data name="This booking can no longer be cancelled." xml:space="preserve"><value>Bu rezervasiyanı artıq ləğv etmək olmaz.</value></data>
   <data name="This booking can no longer be changed." xml:space="preserve"><value>Bu rezervasiyanı artıq dəyişmək olmaz.</value></data>
@@ -1095,6 +1141,9 @@
   <data name="This flight is no longer available." xml:space="preserve"><value>Bu uçuş artıq mövcud deyil.</value></data>
   <data name="This flight is sold out in the selected cabin." xml:space="preserve"><value>Seçilmiş sinifdə yer qalmayıb.</value></data>
   <data name="This hotel chain cannot be deleted because it has active hotels." xml:space="preserve"><value>Bu şəbəkənin aktiv otelləri olduğu üçün silinə bilməz.</value></data>
+  <data name="This hotel has a partner account: the hotel usually answers itself." xml:space="preserve"><value>Bu otelin partnyor hesabı var: adətən otel özü cavab verir.</value></data>
+  <data name="This hotel has its own partner account ({0}). The hotel keeps this data up to date itself." xml:space="preserve"><value>Bu otelin öz partnyor hesabı var ({0}). Otel bu məlumatı özü yeniləyir.</value></data>
+  <data name="This hotel has no partner account. Call the hotel, then close sold dates here." xml:space="preserve"><value>Bu otelin partnyor hesabı yoxdur. Otelə zəng edin, sonra satılmış günləri burada bağlayın.</value></data>
   <data name="This hotel has no rooms yet." xml:space="preserve"><value>Bu otelin hələ otağı yoxdur.</value></data>
   <data name="This promo code has expired." xml:space="preserve"><value>Bu promo kodun müddəti bitib.</value></data>
   <data name="This promo code has reached its usage limit." xml:space="preserve"><value>Bu promo kod istifadə limitinə çatıb.</value></data>
@@ -1104,6 +1153,7 @@
   <data name="This reservation has no further status changes available." xml:space="preserve"><value>Bu rezervasiya üçün başqa status dəyişikliyi yoxdur.</value></data>
   <data name="This reset link is invalid or has expired. Please request a new one." xml:space="preserve"><value>Bu link etibarsızdır və ya müddəti bitib. Yenisini istəyin.</value></data>
   <data name="This room allows up to {0} guests." xml:space="preserve"><value>Bu otaq maksimum {0} qonaq üçündür.</value></data>
+  <data name="This room is not available for the selected dates." xml:space="preserve"><value>Bu otaq seçilmiş tarixlərdə boş deyil.</value></data>
   <data name="This room will no longer appear in active room listings." xml:space="preserve"><value>Bu otaq aktiv siyahılarda artıq görünməyəcək.</value></data>
   <data name="This service" xml:space="preserve"><value>Bu xidmət</value></data>
   <data name="This stay is already completed." xml:space="preserve"><value>Bu qalma artıq bitib.</value></data>
@@ -1115,6 +1165,7 @@
   <data name="To" xml:space="preserve"><value>Haraya</value></data>
   <data name="To Airport" xml:space="preserve"><value>Hava limanına</value></data>
   <data name="To:" xml:space="preserve"><value>Kimə:</value></data>
+  <data name="Today" xml:space="preserve"><value>Bu gün</value></data>
   <data name="Today's Check-ins" xml:space="preserve"><value>Bugünkü girişlər</value></data>
   <data name="Today's Check-outs" xml:space="preserve"><value>Bugünkü çıxışlar</value></data>
   <data name="Too small" xml:space="preserve"><value>Çox kiçikdir</value></data>
@@ -1142,14 +1193,12 @@
   <data name="Tours can have a price and duration. Other places only need a description." xml:space="preserve"><value>Turların qiyməti və müddəti ola bilər. Digər yerlərə yalnız təsvir lazımdır.</value></data>
   <data name="Track room reservations and manage stays in one place." xml:space="preserve"><value>Otaq rezervasiyalarını izləyin və qalmaları bir yerdə idarə edin.</value></data>
   <data name="Transfers between airports and our hotels. Mark trips as completed or cancel them." xml:space="preserve"><value>Hava limanları ilə otellərimiz arasında transferlər. Səfərləri tamamlanmış kimi qeyd edin və ya ləğv edin.</value></data>
-  <data name="traveler" xml:space="preserve"><value>səyahətçi</value></data>
   <data name="Traveler" xml:space="preserve"><value>Səyyah</value></data>
   <data name="travelers" xml:space="preserve"><value>səyahətçi</value></data>
   <data name="Travelers &amp; contact" xml:space="preserve"><value>Səyahətçilər və əlaqə</value></data>
   <data name="Trip details" xml:space="preserve"><value>Səfər detalları</value></data>
   <data name="Trip package not found." xml:space="preserve"><value>Səyahət paketi tapılmadı.</value></data>
   <data name="Trip packages" xml:space="preserve"><value>Səyahət paketləri</value></data>
-  <data name="TRIP PACKAGES" xml:space="preserve"><value>SƏYAHƏT PAKETLƏRİ</value></data>
   <data name="Trips" xml:space="preserve"><value>Səfərlər</value></data>
   <data name="Trips can start from tomorrow." xml:space="preserve"><value>Səfər sabahdan başlaya bilər.</value></data>
   <data name="Try again now" xml:space="preserve"><value>Yenidən cəhd et</value></data>
@@ -1162,9 +1211,12 @@
   <data name="Unknown avatar." xml:space="preserve"><value>Naməlum avatar.</value></data>
   <data name="Unknown Hotel" xml:space="preserve"><value>Naməlum otel</value></data>
   <data name="Unknown report. Use bookings, flights, taxis or cars." xml:space="preserve"><value>Naməlum hesabat.</value></data>
+  <data name="Until (check-out day)" xml:space="preserve"><value>Qədər (çıxış günü)</value></data>
   <data name="Up to" xml:space="preserve"><value>Maksimum</value></data>
+  <data name="Up to {0}" xml:space="preserve"><value>{0} nəfərə qədər</value></data>
   <data name="Upcoming" xml:space="preserve"><value>Qarşıdakı</value></data>
   <data name="Upcoming &amp; Current" xml:space="preserve"><value>Qarşıdakı və cari</value></data>
+  <data name="Upcoming bookings" xml:space="preserve"><value>Gələcək rezervasiyalar</value></data>
   <data name="Update hotel information and settings." xml:space="preserve"><value>Otel məlumatlarını və ayarlarını yeniləyin.</value></data>
   <data name="Upload a main image (JPG, PNG or WEBP, maximum 5 MB)." xml:space="preserve"><value>Əsas şəkil yükləyin (JPG, PNG və ya WEBP, maksimum 5 MB).</value></data>
   <data name="Upload a new image to replace the current one." xml:space="preserve"><value>Cari şəkli dəyişmək üçün yenisini yükləyin.</value></data>
@@ -1189,7 +1241,6 @@
   <data name="View All Bookings →" xml:space="preserve"><value>Bütün rezervasiyalar →</value></data>
   <data name="View Details" xml:space="preserve"><value>Detallara bax</value></data>
   <data name="View hotel" xml:space="preserve"><value>Otelə bax</value></data>
-  <data name="View Hotel" xml:space="preserve"><value>Otelə bax</value></data>
   <data name="View Occupancy Calendar" xml:space="preserve"><value>Doluluq təqviminə bax</value></data>
   <data name="View Room" xml:space="preserve"><value>Otağa bax</value></data>
   <data name="View website" xml:space="preserve"><value>Sayta bax</value></data>
@@ -1198,9 +1249,11 @@
   <data name="Villa" xml:space="preserve"><value>Villa</value></data>
   <data name="Voucher" xml:space="preserve"><value>Vauçer</value></data>
   <data name="Voucher / Print" xml:space="preserve"><value>Vauçer / Çap</value></data>
+  <data name="Waiting for your answer" xml:space="preserve"><value>Cavabınızı gözləyir</value></data>
   <data name="Waiting for {0} h." xml:space="preserve"><value>{0} saatdır gözləyir.</value></data>
   <data name="We can't reach our server" xml:space="preserve"><value>Serverə qoşula bilmirik</value></data>
   <data name="We do not know the hotel's real availability, so each request must be confirmed or rejected." xml:space="preserve"><value>Otelin real boş yerlərini bilmirik, ona görə hər sorğu təsdiqlənməli və ya rədd edilməlidir.</value></data>
+  <data name="We do not see bookings you take on other sites or at the reception. Close those dates below and confirm here after each check." xml:space="preserve"><value>Digər saytlarda və ya resepşnda aldığınız rezervasiyaları biz görmürük. Həmin tarixləri aşağıda bağlayın və hər yoxlamadan sonra burada təsdiqləyin.</value></data>
   <data name="We have emailed your request details to {0}." xml:space="preserve"><value>Sorğunun təfərrüatları {0} ünvanına göndərildi.</value></data>
   <data name="We have saved your rental. Show the code below at pick-up." xml:space="preserve"><value>İcarəniz saxlanıldı. Götürərkən aşağıdakı kodu göstərin.</value></data>
   <data name="We have saved your ticket. Use the code below at check-in." xml:space="preserve"><value>Biletiniz saxlanıldı. Qeydiyyatda aşağıdakı kodu istifadə edin.</value></data>
@@ -1218,6 +1271,7 @@
   <data name="Wellness" xml:space="preserve"><value>Sağlamlıq</value></data>
   <data name="What did you like about the hotel?" xml:space="preserve"><value>Oteldə nəyi bəyəndiniz?</value></data>
   <data name="What guests say about the hotel" xml:space="preserve"><value>Qonaqlar otel haqqında nə deyir</value></data>
+  <data name="When the hotel last confirmed its real availability" xml:space="preserve"><value>Otel real boş yerləri sonuncu dəfə nə vaxt təsdiqləyib</value></data>
   <data name="Where are you going?" xml:space="preserve"><value>Hara gedirsiniz?</value></data>
   <data name="where you can manage or cancel it separately." xml:space="preserve"><value>orada onu ayrıca idarə edə və ya ləğv edə bilərsiniz.</value></data>
   <data name="WHERE YOU'LL STAY" xml:space="preserve"><value>HARADA QALACAQSINIZ</value></data>
@@ -1234,12 +1288,14 @@
   <data name="You cancelled booking {1} at {0}. Cancellation fee: {2} AZN." xml:space="preserve"><value>{0} otelindəki {1} rezervasiyanızı ləğv etdiniz. Ləğv cəriməsi: {2} AZN.</value></data>
   <data name="You cancelled flight {1} to {0}." xml:space="preserve"><value>{0} istiqamətinə {1} uçuşunu ləğv etdiniz.</value></data>
   <data name="You cancelled flight {1} to {0}. Cancellation fee: {2} AZN." xml:space="preserve"><value>{0} istiqamətinə {1} uçuşunu ləğv etdiniz. Ləğv cəriməsi: {2} AZN.</value></data>
+  <data name="You closed these dates: {0}" xml:space="preserve"><value>Bu tarixləri siz bağlamısınız: {0}</value></data>
   <data name="You do not have permission to access this page." xml:space="preserve"><value>Bu səhifəyə giriş icazəniz yoxdur.</value></data>
   <data name="You have no bookings yet." xml:space="preserve"><value>Hələ rezervasiyanız yoxdur.</value></data>
   <data name="You haven't saved any rooms yet" xml:space="preserve"><value>Hələ heç bir otaq saxlamamısınız</value></data>
   <data name="You must be logged in." xml:space="preserve"><value>Hesaba daxil olmalısınız.</value></data>
   <data name="You will be able to pay and download the voucher after confirmation." xml:space="preserve"><value>Təsdiqdən sonra ödəyə və voucheri yükləyə biləcəksiniz.</value></data>
   <data name="your -{0}% discount is kept" xml:space="preserve"><value>-{0}% endiriminiz qalır</value></data>
+  <data name="Your budget (per night)" xml:space="preserve"><value>Büdcəniz (gecəlik)</value></data>
   <data name="Your car is booked" xml:space="preserve"><value>Maşınınız bron olundu</value></data>
   <data name="Your confirmation code will be linked to this email." xml:space="preserve"><value>Təsdiq kodu bu e-poçta bağlanacaq.</value></data>
   <data name="Your dates are more than 16 days away, so we show the weather on the same days last year." xml:space="preserve"><value>Tarixlərinizə 16 gündən çox qalıb, ona görə keçən ilin eyni günlərinin havasını göstəririk.</value></data>
@@ -1261,6 +1317,7 @@
   <data name="Your reservation has been created successfully." xml:space="preserve"><value>Rezervasiyanız uğurla yaradıldı.</value></data>
   <data name="Your review" xml:space="preserve"><value>Rəyiniz</value></data>
   <data name="Your stay at {0} starts tomorrow. Check-in from 14:00." xml:space="preserve"><value>{0} otelində qalışınız sabah başlayır. Giriş 14:00-dan.</value></data>
+  <data name="Your stay is already paid." xml:space="preserve"><value>Qalışınız artıq ödənilib.</value></data>
   <data name="Your taxi is booked" xml:space="preserve"><value>Taksiniz bron olundu</value></data>
   <data name="Your trip" xml:space="preserve"><value>Səfəriniz</value></data>
   <data name="Your trip packages" xml:space="preserve"><value>Səyahət paketləriniz</value></data>
@@ -1270,10 +1327,12 @@
   <data name="{0} cancelled your booking {1}. No fee is charged." xml:space="preserve"><value>{0} {1} rezervasiyanızı ləğv etdi. Heç bir cərimə tutulmur.</value></data>
   <data name="{0} city guide" xml:space="preserve"><value>{0} şəhər bələdçisi</value></data>
   <data name="{0} confirmed your booking {1}. You can pay now." xml:space="preserve"><value>{0} {1} rezervasiyanızı təsdiqlədi. İndi ödəyə bilərsiniz.</value></data>
+  <data name="{0} did not answer in time. Request {1} was closed, nothing was charged." xml:space="preserve"><value>{0} vaxtında cavab vermədi. {1} sorğusu bağlandı, heç bir ödəniş tutulmadı.</value></data>
   <data name="{0} found" xml:space="preserve"><value>{0} tapıldı</value></data>
   <data name="{0} has no free room for your dates. Request {1} was declined." xml:space="preserve"><value>{0} otelində tarixləriniz üçün boş otaq yoxdur. {1} sorğusu rədd edildi.</value></data>
   <data name="{0} hotels across {1} cities. Tap a pin to see the hotel." xml:space="preserve"><value>{1} şəhərdə {0} otel. Oteli görmək üçün nişana toxunun.</value></data>
   <data name="{0} new daily flights were created automatically." xml:space="preserve"><value>{0} yeni gündəlik reys avtomatik yaradıldı.</value></data>
+  <data name="{0} other Tripio booking(s) overlap these dates" xml:space="preserve"><value>Bu tarixlərə Tripio-da {0} başqa rezervasiya düşür</value></data>
   <data name="{0} real flights were imported." xml:space="preserve"><value>{0} real reys idxal olundu.</value></data>
   <data name="{0} to the next level" xml:space="preserve"><value>Növbəti səviyyəyə {0}</value></data>
   <data name="{0}, where to next?" xml:space="preserve"><value>{0}, növbəti səfər hara?</value></data>

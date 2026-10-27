@@ -42,6 +42,11 @@ public interface IAppDbContext
 
     DbSet<UserNotification> UserNotifications { get; set; }
 
+    DbSet<RoomBlock> RoomBlocks { get; set; }
+
+    // Identity istifadəçiləri (otel partnyorlarını tapmaq üçün)
+    DbSet<AppUser> Users { get; set; }
+
     DbSet<TripPackage> TripPackages { get; set; }
 
     Task<int> SaveChangesAsync(

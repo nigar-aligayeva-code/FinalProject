@@ -51,6 +51,8 @@ public class AppDbContext
 
     public DbSet<UserNotification> UserNotifications { get; set; }
 
+    public DbSet<RoomBlock> RoomBlocks { get; set; }
+
     public DbSet<TripPackage> TripPackages { get; set; }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(
@@ -88,6 +90,23 @@ public class AppDbContext
                 .HasForeignKey(p => p.AppUserId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        // BAĞLI TARİXLƏR
+        modelBuilder.Entity<RoomBlock>(entity =>
+        {
+            entity.Property(b => b.Reason).HasMaxLength(200);
+            entity.Property(b => b.CreatedByUserId).HasMaxLength(450);
+            entity.HasIndex(b => new { b.RoomId, b.StartDate, b.EndDate });
+
+            entity.HasOne(b => b.Room)
+                .WithMany()
+                .HasForeignKey(b => b.RoomId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // OTEL PARTNYORU -> OTEL
+        modelBuilder.Entity<AppUser>()
+            .HasIndex(u => u.PartnerHotelId);
 
         // QONAĞIN BİLDİRİŞLƏRİ (🔔)
         modelBuilder.Entity<UserNotification>(entity =>

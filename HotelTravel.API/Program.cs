@@ -206,6 +206,9 @@ namespace HotelTravel.API
             // Giriş və uçuş xatırlatmaları (fon xidməti, hər 10 dəqiqədən bir)
             builder.Services.AddHostedService<ReminderBackgroundService>();
 
+            // Otel partnyoru yalnız öz otelini idarə edir
+            builder.Services.AddScoped<PartnerScope>();
+
             // Brauzer hub-a birbaşa qoşulur, ona görə MVC saytının ünvanına icazə lazımdır
             var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
                 ?? new[] { "http://localhost:5233", "https://localhost:7234" };
@@ -415,6 +418,9 @@ namespace HotelTravel.API
             }
 
             await HotelDataSeeder.SeedAsync(context);
+
+            // Otel partnyoru rolu (+ lokal işdə demo hesab: partner@tripio.az, Caspian Grand Hotel)
+            await PartnerSeeder.SeedAsync(roleManager, userManager, context, configuration, app.Environment.IsDevelopment());
 
             // Hər otelin öz otaq dəsti (King, Penthouse, Villa...); baza otaqların bəziləri gizlədilir
             await RoomVarietySeeder.SeedAsync(context);

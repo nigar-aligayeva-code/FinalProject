@@ -1,0 +1,41 @@
+@model HotelTravel.Application.DTOs.Availability.HotelAvailabilityDto
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Availability and prices";
+    ViewData["AvArea"] = "Admin";
+}
+
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div>
+        <h1 style="font-size:28px;margin:0">@Model.HotelName</h1>
+        <p class="text-muted m-0">@Model.City · @T["Availability and prices"]</p>
+    </div>
+    <a asp-area="Admin" asp-controller="Hotels" asp-action="Index" class="btn btn-outline-secondary">← @T["Hotels"]</a>
+</div>
+
+@if (Model.PartnerCount > 0)
+{
+    <div class="alert alert-info">
+        <i class="bi bi-building-check"></i>
+        @T["This hotel has its own partner account ({0}). The hotel keeps this data up to date itself.", Model.PartnerCount]
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-telephone"></i>
+        @T["This hotel has no partner account. Call the hotel, then close sold dates here."]
+        <a asp-area="Admin" asp-controller="Partners" asp-action="Index">@T["Create a partner account"]</a>
+    </div>
+}
+
+@if (TempData["SuccessMessage"] is string ok)
+{
+    <div class="alert alert-success">@ok</div>
+}
+@if (TempData["ErrorMessage"] is string err)
+{
+    <div class="alert alert-danger">@err</div>
+}
+
+<partial name="_AvailabilityManager" model="Model" view-data="ViewData" />
