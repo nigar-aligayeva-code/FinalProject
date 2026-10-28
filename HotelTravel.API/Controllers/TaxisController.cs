@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Common;
+﻿using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Application.DTOs.Taxis;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Enums;
@@ -50,6 +50,7 @@ public class TaxisController : ApiControllerBase
     // POST: api/taxis/bookings
     /// <summary>Book an airport taxi.</summary>
     [HttpPost("bookings")]
+    [HotelTravel.API.Filters.GuestOnly]
     [AllowAnonymous]
     public async Task<IActionResult> Book([FromBody] CreateTaxiBookingDto dto)
     {

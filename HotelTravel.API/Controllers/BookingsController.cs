@@ -77,6 +77,7 @@ public class BookingsController : ApiControllerBase
     // POST: api/bookings  (token varsa rezervasiya istifadəçiyə bağlanır)
     /// <summary>Request a room. The booking starts as Pending until the hotel (or admin) confirms it. If a token is sent, the booking is linked to the user. Sends a "request received" email.</summary>
     [HttpPost]
+    [HotelTravel.API.Filters.GuestOnly]
     [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 400)]

@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Common;
+﻿using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Application.DTOs.Trips;
 using HotelTravel.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -52,6 +52,7 @@ public class TripsController : ApiControllerBase
     // POST: api/trips
     /// <summary>Book a trip package. Parts are created one by one; if a step fails, the parts already created are cancelled.</summary>
     [HttpPost]
+    [HotelTravel.API.Filters.GuestOnly]
     [Authorize]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
     [ProducesResponseType(typeof(ApiResultDto), 400)]
