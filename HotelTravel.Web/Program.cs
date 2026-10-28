@@ -88,6 +88,7 @@ namespace HotelTravel.Web
             });
 
             builder.Services.AddScoped<CurrentUserAccessor>();
+            builder.Services.AddSingleton<BotGuard>();
 
             // =========================================
             // AUTHENTICATION (cookie + API JWT)

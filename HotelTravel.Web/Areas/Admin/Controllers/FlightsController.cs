@@ -26,20 +26,6 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             _t = localizer;
         }
 
-        // Bütün otel şəhərləri arasında çatışmayan reysləri avtomatik yarat
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Generate()
-        {
-            var result = await _network.GenerateMissingAsync();
-
-            TempData[result.Success ? "SuccessMessage" : "ErrorMessage"] = result.Added > 0
-                ? _t["{0} new daily flights were created automatically.", result.Added].Value
-                : result.Message;
-
-            return RedirectToAction(nameof(Index));
-        }
-
         // AviationStack-dan real reys nömrələri və saatları
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -69,64 +55,6 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             return View(routes);
         }
 
-        // ADD / EDIT
-        [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            SaveFlightRouteDto? dto;
-
-            if (id.HasValue)
-            {
-                dto = await _flightService.GetRouteForEditAsync(id.Value);
-
-                if (dto is null)
-                    return NotFound();
-            }
-            else
-            {
-                dto = new SaveFlightRouteDto();
-            }
-
-            ViewBag.Cities = AirportCities();
-
-            return View(dto);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(SaveFlightRouteDto dto)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await _flightService.SaveRouteAsync(dto);
-
-                if (result.Success)
-                {
-                    TempData["SuccessMessage"] = result.Message;
-                    return RedirectToAction(nameof(Index));
-                }
-
-                ModelState.AddModelError(string.Empty, result.Message);
-            }
-
-            ViewBag.Cities = AirportCities();
-
-            return View(dto);
-        }
-
-        // ACTIVE / INACTIVE
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Toggle(int id, string? city)
-        {
-            var ok = await _flightService.ToggleRouteAsync(id);
-
-            TempData[ok ? "SuccessMessage" : "ErrorMessage"] =
-                ok ? "Flight updated." : "Flight was not found.";
-
-            return RedirectToAction(nameof(Index), new { city });
-        }
-
         // BOOKING: COMPLETE / CANCEL
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -142,6 +70,7 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index), new { status = filter });
         }
+
 
         private static List<string> AirportCities()
             => TaxiRules.Airports.Select(a => a.City).OrderBy(c => c).ToList();

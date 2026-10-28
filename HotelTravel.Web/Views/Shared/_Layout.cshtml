@@ -77,6 +77,9 @@
 
         var isAdmin = User.IsInRole("Admin");
 
+        // Admin / otel işçisi rezervasiya etmir: qonaq menyusu (🔔, Saxlananlar, Səfərlər) göstərilmir
+        var isStaff = HotelTravel.Web.Filters.GuestOnlyAttribute.IsStaff(User);
+
         // Ad varsa adı, yoxdursa email göstərilir (profil yenilənəndə dərhal dəyişir)
         var firstName = User.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value;
 
@@ -203,7 +206,9 @@
                             </a>
                         }
 
-                        <!-- BİLDİRİŞLƏR 🔔: təsdiq, rədd, ləğv, xatırlatmalar (bazada saxlanılır) -->
+                        @if (!isStaff)
+                        {
+                        @* BİLDİRİŞLƏR 🔔: təsdiq, rədd, ləğv, xatırlatmalar (bazada saxlanılır) *@
                         <div class="hh-notif-menu" id="notifMenu">
                             <button type="button" class="hh-btn hh-btn-ghost hh-notif-btn" id="notifBtn" title="@T["Notifications"]" aria-haspopup="true">
                                 <i class="bi bi-bell"></i>
@@ -237,6 +242,7 @@
                             <i class="bi bi-briefcase"></i>
                             <span class="d-none d-xl-inline">@T["Trips"]</span>
                         </a>
+                        }
 
                         <a asp-area=""
                            asp-controller="Profile"
@@ -380,6 +386,39 @@
                     <p class="hh-footer-text">
                         @T["Search hotels, compare rooms and book your stay in a few clicks. Manage or cancel your reservations any time before check-in."]
                     </p>
+
+                    @* Əlaqə və sosial şəbəkələr: appsettings.json -> "Brand" *@
+                    <ul class="hh-footer-contact">
+                        @if (!string.IsNullOrWhiteSpace(Config["Brand:Phone"]))
+                        {
+                            <li><i class="bi bi-telephone"></i> <a href="tel:@(new string(Config["Brand:Phone"]!.Where(ch => char.IsDigit(ch) || ch == '+').ToArray()))">@Config["Brand:Phone"]</a></li>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Config["Brand:Email"]))
+                        {
+                            <li><i class="bi bi-envelope"></i> <a href="mailto:@Config["Brand:Email"]">@Config["Brand:Email"]</a></li>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Config["Brand:Address"]))
+                        {
+                            <li><i class="bi bi-geo-alt"></i> @Config["Brand:Address"]</li>
+                        }
+                    </ul>
+
+                    <div class="hh-socials">
+                        @foreach (var (key, icon, label) in new[]
+                        {
+                            ("Instagram", "bi-instagram", "Instagram"),
+                            ("Facebook", "bi-facebook", "Facebook"),
+                            ("Telegram", "bi-telegram", "Telegram"),
+                            ("WhatsApp", "bi-whatsapp", "WhatsApp")
+                        })
+                        {
+                            var url = Config["Brand:" + key];
+                            if (!string.IsNullOrWhiteSpace(url))
+                            {
+                                <a href="@url" target="_blank" rel="noopener" aria-label="@label" title="@label"><i class="bi @icon"></i></a>
+                            }
+                        }
+                    </div>
                 </div>
 
                 <div class="col-lg-2 col-md-6 col-6">
@@ -398,11 +437,15 @@
                     <ul class="hh-footer-links">
                         <li><a asp-area="" asp-controller="Bookings" asp-action="Find">@T["Find my booking"]</a></li>
 
-                        @if (isAuthenticated)
+                        @if (isAuthenticated && !isStaff)
                         {
                             <li><a asp-area="" asp-controller="Bookings" asp-action="MyBookings">@T["My bookings"]</a></li>
                             <li><a asp-area="" asp-controller="Profile" asp-action="Index">@T["My profile"]</a></li>
                             <li><a asp-area="" asp-controller="Wishlist" asp-action="Index">@T["Saved rooms"]</a></li>
+                        }
+                        else if (isAuthenticated)
+                        {
+                            <li><a asp-area="" asp-controller="Profile" asp-action="Index">@T["My profile"]</a></li>
                         }
                         else
                         {
@@ -415,7 +458,7 @@
                 <div class="col-lg-3 col-md-6">
                     <h4 class="hh-footer-title">@T["Good to know"]</h4>
                     <ul class="hh-footer-links hh-footer-facts">
-                        <li><i class="bi bi-check2-circle"></i> @T["Instant confirmation code"]</li>
+                        <li><i class="bi bi-check2-circle"></i> @T["Request code right away, hotel confirms within 24 h"]</li>
                         <li><i class="bi bi-check2-circle"></i> @T["Free cancellation up to {0} days before check-in.", HotelTravel.Application.Services.CancellationPolicy.FreeHours / 24]</li>
                         <li><i class="bi bi-check2-circle"></i> @T["Reviews from real guests"]</li>
                     </ul>
@@ -449,6 +492,13 @@
         .la-close { border: none; background: none; font-size: 20px; color: #9ca3af; line-height: 1; }
 
         /* Qonağın öz bildirişi: rezervasiya təsdiqi, xatırlatma (sağ altda, özü bağlanmır) */
+        .hh-footer-contact { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 6px; font-size: 14px; }
+        .hh-footer-contact i { margin-right: 6px; opacity: .8; }
+        .hh-footer-contact a { color: inherit; text-decoration: none; }
+        .hh-footer-contact a:hover { text-decoration: underline; }
+        .hh-socials { display: flex; gap: 10px; margin-top: 14px; }
+        .hh-socials a { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.1); color: #fff; font-size: 17px; text-decoration: none; transition: background .2s, transform .2s; }
+        .hh-socials a:hover { background: #c9a24a; transform: translateY(-2px); }
         .guest-toast { position: fixed; right: 20px; bottom: 20px; z-index: 1600; display: flex; gap: 12px; align-items: flex-start; max-width: 380px; background: #fff; color: #1F2421; border-radius: 16px; padding: 14px 16px; box-shadow: 0 18px 40px rgba(31,36,33,.22); border-left: 4px solid #16834b; opacity: 0; transform: translateY(20px); pointer-events: none; transition: opacity .4s, transform .4s; }
         .guest-toast.show { opacity: 1; transform: none; pointer-events: auto; }
         .guest-toast.bad { border-left-color: #c33434; }
@@ -590,6 +640,7 @@
         })();
     </script>
 
+    <script src="~/js/date-limits.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
     @if (uiLang != "en")

@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Bookings;
+﻿using HotelTravel.Application.DTOs.Bookings;
 using HotelTravel.Application.DTOs.Flights;
 using HotelTravel.Application.DTOs.Rooms;
 using HotelTravel.Application.DTOs.Taxis;
@@ -81,6 +81,13 @@ public class TripPackageService : ITripPackageService
         var to = search.ToCity!.Trim();
         var depart = search.DepartDate!.Value.Date;
         var back = search.ReturnDate!.Value.Date;
+
+        // Yaxın şəhərlər arasında (Bakı–Qəbələ) reys yoxdur
+        if (FlightNetworkPlanner.IsTooShortForFlight(from, to))
+        {
+            plan.Error = $"{from} and {to} are too close for a flight. Book the hotel and rent a car instead.";
+            return plan;
+        }
 
         plan.Nights = TripPackageRules.GetNights(depart, back);
 

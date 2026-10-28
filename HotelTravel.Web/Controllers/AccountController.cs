@@ -153,10 +153,19 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto)
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto dto, [FromServices] BotGuard botGuard)
     {
         if (!ModelState.IsValid)
             return View(dto);
+
+        // Bot (gizli sahəni doldurub və ya formu 3 saniyədən tez göndərib): məktub getmir,
+        // amma cavab eynidir - bot yoxlandığını bilməsin
+        if (!botGuard.IsHuman(Request.Form))
+        {
+            TempData["ResetSent"] = "If an account exists for this email, a reset link has been sent.";
+            TempData["ResetEmail"] = HotelTravel.Application.Services.BotGuardRules.MaskEmail(dto.Email);
+            return RedirectToAction(nameof(ForgotPassword));
+        }
 
         var result = await _authApi.ForgotPasswordAsync(dto.Email);
 
@@ -168,6 +177,7 @@ public class AccountController : Controller
 
         // Email mövcud olsa da, olmasa da eyni mesaj (kimin qeydiyyatda olduğu bilinməsin)
         TempData["ResetSent"] = result.Message;
+        TempData["ResetEmail"] = HotelTravel.Application.Services.BotGuardRules.MaskEmail(dto.Email);
 
         return RedirectToAction(nameof(ForgotPassword));
     }

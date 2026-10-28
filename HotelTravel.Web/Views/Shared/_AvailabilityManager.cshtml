@@ -1,40 +1,52 @@
-﻿@model HotelTravel.Application.DTOs.Availability.HotelAvailabilityDto
+@model HotelTravel.Application.DTOs.Availability.HotelAvailabilityDto
 @using HotelTravel.Application.Services
 @{
-    // Partnyor (Partner) və admin (Admin) eyni paneli istifadə edir
+    // Partnyor (Partner) və admin (Admin) eyni paneli istifadə edir.
+    // Stillər bu faylın içindədir ki, hər iki layout-da eyni görünsün.
     var area = ViewData["AvArea"] as string ?? "Partner";
     var isAdmin = area == "Admin";
     var today = DateTime.Today;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+
+    // Eyni anda "bütün otaqlar" üçün bağlanan tarixlər bir sətirdə göstərilir
+    var blockGroups = Model.Blocks
+        .GroupBy(b => new { b.StartDate, b.EndDate, Reason = b.Reason ?? "" })
+        .OrderBy(g => g.Key.StartDate)
+        .ToList();
 }
 
 <div class="pv">
 
-    <!-- TƏZƏLİK: otel boş yerləri nə vaxt yoxlayıb -->
-    <section class="pv-card pv-fresh-card">
-        <div>
+    <!-- TƏZƏLİK -->
+    <section class="pv-card pv-hero">
+        <div class="pv-hero-icon"><i class="bi bi-shield-check"></i></div>
+        <div class="pv-hero-text">
             <h3>@T["Is our availability up to date?"]</h3>
-            <p>
-                @T["We do not see bookings you take on other sites or at the reception. Close those dates below and confirm here after each check."]
-            </p>
+            <p>@T["We do not see bookings you take on other sites or at the reception. Close those dates below and confirm here after each check."]</p>
             <partial name="_FreshnessBadge" model="Model.AvailabilityUpdatedAt" />
         </div>
-        <form asp-area="@area" asp-controller="Availability" asp-action="MarkUpToDate" method="post">
+        <form asp-area="@area" asp-controller="Availability" asp-action="MarkUpToDate" method="post" class="pv-hero-action">
             @if (isAdmin)
             {
                 <input type="hidden" name="hotelId" value="@Model.HotelId" />
             }
-            <button type="submit" class="hh-btn hh-btn-primary">
+            <button type="submit" class="pv-btn pv-btn-green">
                 <i class="bi bi-check2-circle"></i> @T["I checked — availability is correct"]
             </button>
         </form>
     </section>
 
-    <!-- TARİXLƏRİ BAĞLA -->
+    <!-- BOŞ OLMAYAN TARİXLƏR -->
     <section class="pv-card">
-        <h3><i class="bi bi-calendar-x"></i> @T["Close dates"]</h3>
-        <p class="pv-muted">@T["Rooms sold elsewhere, under renovation or kept for the hotel. Closed rooms are hidden from search for these dates."]</p>
+        <div class="pv-head">
+            <div class="pv-head-icon red"><i class="bi bi-calendar-x"></i></div>
+            <div>
+                <h3>@T["Unavailable dates"]</h3>
+                <p>@T["Rooms sold elsewhere, under renovation or kept for the hotel. Closed rooms are hidden from search for these dates."]</p>
+            </div>
+        </div>
 
-        <form asp-area="@area" asp-controller="Availability" asp-action="AddBlock" method="post" class="pv-block-form">
+        <form asp-area="@area" asp-controller="Availability" asp-action="AddBlock" method="post" class="pv-form">
             @if (isAdmin)
             {
                 <input type="hidden" name="hotelId" value="@Model.HotelId" />
@@ -61,121 +73,176 @@
                 <span>@T["Reason (optional)"]</span>
                 <input type="text" name="Reason" maxlength="200" placeholder="@T["e.g. Sold on Booking.com"]" />
             </label>
-            <button type="submit" class="hh-btn hh-btn-primary"><i class="bi bi-lock"></i> @T["Close"]</button>
+            <button type="submit" class="pv-btn pv-btn-dark">
+                <i class="bi bi-slash-circle"></i> @T["Mark as unavailable"]
+            </button>
         </form>
 
-        @if (Model.Blocks.Any())
+        @if (blockGroups.Any())
         {
-            <div class="table-responsive mt-3">
-                <table class="table pv-table align-middle">
-                    <thead>
-                        <tr>
-                            <th>@T["Room"]</th>
-                            <th>@T["Dates"]</th>
-                            <th>@T["Number of nights"]</th>
-                            <th>@T["Reason"]</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var block in Model.Blocks)
-                        {
-                            <tr>
-                                <td><b>@block.RoomNumber</b> · @block.RoomName</td>
-                                <td>@block.StartDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture) → @block.EndDate.ToString("dd MMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)</td>
-                                <td>@((block.EndDate.Date - block.StartDate.Date).Days)</td>
-                                <td>@(string.IsNullOrWhiteSpace(block.Reason) ? "—" : block.Reason)</td>
-                                <td class="text-end">
-                                    <form asp-area="@area" asp-controller="Availability" asp-action="RemoveBlock" method="post" class="m-0">
-                                        @if (isAdmin)
-                                        {
-                                            <input type="hidden" name="hotelId" value="@Model.HotelId" />
-                                        }
-                                        <input type="hidden" name="id" value="@block.Id" />
-                                        <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-unlock"></i> @T["Open again"]</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <div class="pv-blocks">
+                @foreach (var g in blockGroups)
+                {
+                    var first = g.First();
+                    var nights = (g.Key.EndDate.Date - g.Key.StartDate.Date).Days;
+                    var allRooms = g.Count() > 1 && g.Count() >= Model.Rooms.Count;
+
+                    <div class="pv-block">
+                        <div class="pv-block-date">
+                            <b>@g.Key.StartDate.ToString("dd MMM", culture)</b>
+                            <i class="bi bi-arrow-right"></i>
+                            <b>@g.Key.EndDate.ToString("dd MMM yyyy", culture)</b>
+                            <small>@T.Plural(nights, "night", "nights")</small>
+                        </div>
+                        <div class="pv-block-rooms">
+                            @if (allRooms)
+                            {
+                                <span class="pv-chip pv-chip-all"><i class="bi bi-building"></i> @T["All rooms ({0})", g.Count()]</span>
+                            }
+                            else
+                            {
+                                foreach (var b in g)
+                                {
+                                    <span class="pv-chip">@b.RoomNumber · @b.RoomName</span>
+                                }
+                            }
+                            @if (!string.IsNullOrWhiteSpace(g.Key.Reason))
+                            {
+                                <span class="pv-reason"><i class="bi bi-chat-left-text"></i> @g.Key.Reason</span>
+                            }
+                        </div>
+                        <form asp-area="@area" asp-controller="Availability" asp-action="RemoveBlock" method="post" class="pv-block-action">
+                            @if (isAdmin)
+                            {
+                                <input type="hidden" name="hotelId" value="@Model.HotelId" />
+                            }
+                            @foreach (var b in g)
+                            {
+                                <input type="hidden" name="ids" value="@b.Id" />
+                            }
+                            <button type="submit" class="pv-btn pv-btn-outline">
+                                <i class="bi bi-arrow-counterclockwise"></i> @T["Make available again"]
+                            </button>
+                        </form>
+                    </div>
+                }
             </div>
         }
         else
         {
-            <div class="pv-empty">@T["No closed dates. All rooms are open for booking."]</div>
+            <div class="pv-empty"><i class="bi bi-check2-all"></i> @T["No closed dates. All rooms are open for booking."]</div>
         }
     </section>
 
     <!-- OTAQLAR VƏ QİYMƏTLƏR -->
     <section class="pv-card">
-        <h3><i class="bi bi-door-open"></i> @T["Rooms and prices"]</h3>
-        <div class="table-responsive">
-            <table class="table pv-table align-middle">
-                <thead>
-                    <tr>
-                        <th>@T["Room"]</th>
-                        <th>@T["Type"]</th>
-                        <th>@T["Guests"]</th>
-                        <th>@T["Upcoming bookings"]</th>
-                        <th>@T["Today"]</th>
-                        <th>@T["Price per night (AZN)"]</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var room in Model.Rooms)
-                    {
-                        <tr>
-                            <td><b>@room.RoomNumber</b> · @room.Name</td>
-                            <td>@T.Enum(room.RoomType)</td>
-                            <td>@room.Capacity</td>
-                            <td>@room.UpcomingBookings</td>
-                            <td>
-                                @if (room.ClosedToday)
-                                {
-                                    <span class="pv-pill pv-pill-closed">@T["Closed"]</span>
-                                }
-                                else
-                                {
-                                    <span class="pv-pill pv-pill-open">@T["Open"]</span>
-                                }
-                            </td>
-                            <td>
-                                <form asp-area="@area" asp-controller="Availability" asp-action="UpdatePrice" method="post" class="pv-price-form">
-                                    @if (isAdmin)
-                                    {
-                                        <input type="hidden" name="hotelId" value="@Model.HotelId" />
-                                    }
-                                    <input type="hidden" name="roomId" value="@room.Id" />
-                                    <input type="number" name="pricePerNight" min="1" max="100000" step="0.01"
-                                           value="@room.PricePerNight.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
-                                    <button type="submit" class="btn btn-sm btn-outline-dark">@T["Save"]</button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="pv-head">
+            <div class="pv-head-icon gold"><i class="bi bi-door-open"></i></div>
+            <div>
+                <h3>@T["Rooms and prices"]</h3>
+                <p>@T["New bookings use the new price. Existing bookings keep their price."]</p>
+            </div>
+        </div>
+
+        <div class="pv-rooms">
+            @foreach (var room in Model.Rooms)
+            {
+                <div class="pv-room">
+                    <div class="pv-room-num">@room.RoomNumber</div>
+                    <div class="pv-room-info">
+                        <b>@room.Name</b>
+                        <small>@T.Enum(room.RoomType) · @T["Up to {0}", room.Capacity] · @T["Upcoming bookings"]: @room.UpcomingBookings</small>
+                    </div>
+                    <div>
+                        @if (room.ClosedToday)
+                        {
+                            <span class="pv-pill pv-pill-closed">@T["Unavailable today"]</span>
+                        }
+                        else
+                        {
+                            <span class="pv-pill pv-pill-open">@T["Available today"]</span>
+                        }
+                    </div>
+                    <form asp-area="@area" asp-controller="Availability" asp-action="UpdatePrice" method="post" class="pv-price">
+                        @if (isAdmin)
+                        {
+                            <input type="hidden" name="hotelId" value="@Model.HotelId" />
+                        }
+                        <input type="hidden" name="roomId" value="@room.Id" />
+                        <div class="pv-price-input">
+                            <input type="number" name="pricePerNight" min="1" max="100000" step="0.01"
+                                   value="@room.PricePerNight.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)"
+                                   aria-label="@T["Price per night (AZN)"]" />
+                            <span>AZN</span>
+                        </div>
+                        <button type="submit" class="pv-btn pv-btn-outline pv-btn-sm">@T["Save"]</button>
+                    </form>
+                </div>
+            }
         </div>
     </section>
 </div>
 
 <style>
-    .pv { display: grid; gap: 18px; }
-    .pv-card { background: #fff; border: 1px solid #e7e0d4; border-radius: 18px; padding: 20px 22px; }
-    .pv-card h3 { font-size: 18px; font-weight: 700; margin: 0 0 6px; }
-    .pv-muted, .pv-card p { color: #6b7280; font-size: 14px; }
-    .pv-fresh-card { display: flex; gap: 16px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-    .pv-fresh-card > div { max-width: 640px; }
-    .pv-block-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
-    .pv-block-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
-    .pv-block-form input, .pv-block-form select, .pv-price-form input { border: 1px solid #e7e0d4; border-radius: 10px; padding: 8px 10px; font-size: 14px; }
+    .pv { display: grid; gap: 18px; font-size: 15px; color: #1F2421; }
+    .pv-card { background: #fff; border: 1px solid #ebe5da; border-radius: 20px; padding: 22px 24px; box-shadow: 0 6px 18px rgba(31,36,33,.04); }
+    .pv h3 { font-size: 19px; font-weight: 700; margin: 0 0 4px; }
+    .pv p { color: #6b7280; font-size: 14px; margin: 0 0 10px; }
+
+    .pv-hero { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; background: linear-gradient(135deg, #f6faf4, #fff); }
+    .pv-hero-icon { width: 54px; height: 54px; border-radius: 16px; background: #e3f1dd; color: #2f6b3a; display: grid; place-items: center; font-size: 26px; flex-shrink: 0; }
+    .pv-hero-text { flex: 1; min-width: 260px; }
+    .pv-hero-action { margin: 0; }
+
+    .pv-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+    .pv-head-icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; flex-shrink: 0; }
+    .pv-head-icon.red { background: #fde8e8; color: #b42318; }
+    .pv-head-icon.gold { background: #f7efd9; color: #8a6d2b; }
+
+    .pv-btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid transparent; border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; transition: background .15s, transform .1s; white-space: nowrap; line-height: 1.2; }
+    .pv-btn:active { transform: translateY(1px); }
+    .pv-btn-dark { background: #1F2421; color: #fff; }
+    .pv-btn-dark:hover { background: #374038; }
+    .pv-btn-green { background: #2f7d46; color: #fff; }
+    .pv-btn-green:hover { background: #276a3b; }
+    .pv-btn-outline { background: #fff; color: #1F2421; border-color: #d9d2c5; }
+    .pv-btn-outline:hover { background: #f7f4ee; }
+    .pv-btn-sm { padding: 7px 14px; font-size: 13px; }
+
+    .pv-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; background: #faf8f4; border-radius: 14px; padding: 14px; }
+    .pv-form label { display: grid; gap: 5px; font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .03em; }
+    .pv-form input, .pv-form select { border: 1px solid #e2dbcf; border-radius: 12px; padding: 9px 12px; font-size: 14px; background: #fff; color: #1F2421; min-height: 40px; }
     .pv-grow { flex: 1; min-width: 200px; }
-    .pv-table th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; }
-    .pv-price-form { display: flex; gap: 6px; align-items: center; margin: 0; }
-    .pv-price-form input { width: 110px; padding: 5px 8px; }
-    .pv-pill { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+
+    .pv-blocks { display: grid; gap: 10px; margin-top: 16px; }
+    .pv-block { display: grid; grid-template-columns: 230px 1fr auto; gap: 14px; align-items: center; border: 1px solid #f2d6d3; background: #fffafa; border-left: 4px solid #d1504a; border-radius: 14px; padding: 12px 16px; }
+    .pv-block-date { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .pv-block-date small { width: 100%; color: #9ca3af; font-size: 12px; }
+    .pv-block-rooms { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .pv-chip { background: #f3f0ea; border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 600; }
+    .pv-chip-all { background: #1F2421; color: #fff; }
+    .pv-reason { color: #6b7280; font-size: 13px; margin-left: 4px; }
+    .pv-block-action { margin: 0; }
+
+    .pv-rooms { display: grid; gap: 8px; }
+    .pv-room { display: grid; grid-template-columns: 64px 1fr auto auto; gap: 14px; align-items: center; padding: 10px 12px; border-radius: 14px; border: 1px solid #f0ebe2; }
+    .pv-room:hover { background: #fcfbf8; }
+    .pv-room-num { font-weight: 800; font-size: 16px; background: #f3f0ea; border-radius: 10px; text-align: center; padding: 8px 4px; }
+    .pv-room-info { display: grid; gap: 2px; min-width: 0; }
+    .pv-room-info small { color: #6b7280; font-size: 13px; }
+    .pv-price { display: flex; gap: 8px; align-items: center; margin: 0; }
+    .pv-price-input { display: flex; align-items: center; border: 1px solid #e2dbcf; border-radius: 12px; overflow: hidden; background: #fff; }
+    .pv-price-input input { border: 0; width: 100px; padding: 7px 10px; font-size: 14px; font-weight: 700; outline: none; }
+    .pv-price-input span { padding: 0 10px; color: #6b7280; font-size: 12px; font-weight: 700; background: #faf8f4; align-self: stretch; display: grid; place-items: center; }
+
+    .pv-pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
     .pv-pill-open { background: #dcfce7; color: #166534; }
     .pv-pill-closed { background: #fee2e2; color: #b91c1c; }
-    .pv-empty { padding: 18px; text-align: center; color: #9ca3af; font-size: 14px; }
+    .pv-empty { margin-top: 14px; padding: 16px; text-align: center; color: #2f6b3a; background: #f3f8f1; border-radius: 14px; font-weight: 600; }
+
+    @@media (max-width: 860px) {
+        .pv-block { grid-template-columns: 1fr; }
+        .pv-room { grid-template-columns: 56px 1fr; }
+        .pv-room > div:nth-child(3), .pv-price { grid-column: 2; }
+    }
 </style>

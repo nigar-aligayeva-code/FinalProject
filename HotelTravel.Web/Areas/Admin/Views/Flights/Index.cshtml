@@ -27,19 +27,14 @@
         <h1>@T["Flights"]</h1>
         <p>@T["Daily flight schedule between hotel cities and guests' flight bookings."]</p>
         <p style="font-size:13px;color:#64748b;margin-top:4px">
-            @T["Routes between hotel cities are created automatically when the API starts. You only edit prices or switch flights off."]
+            @T["As on real booking sites, flights come from the airlines, not from the admin: they appear automatically when the API starts and when a hotel opens in a new city. Here you see the schedule and manage guests' flight bookings."]
         </p>
     </div>
 
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <partial name="_ExportButtons" model="@("flights")" />
 
-        <!-- Reyslər əllə yaradılmır: şəbəkə avtomatik qurulur -->
-        <form asp-area="Admin" asp-controller="Flights" asp-action="Generate" method="post" style="margin:0">
-            <button type="submit" class="cg-btn" style="background:#52614e" title="@T["Create daily flights for every pair of hotel cities that has none yet."]">
-                ✈ @T["Auto-generate missing routes"]
-            </button>
-        </form>
+        @* Reyslər əllə yaradılmır: API açılanda və yeni şəhərdə otel əlavə olunanda avtomatik yaranır *@
 
         @if (ViewBag.RealDataEnabled is true)
         {
@@ -49,13 +44,6 @@
                 </button>
             </form>
         }
-
-        <a asp-area="Admin"
-           asp-controller="Flights"
-           asp-action="Edit"
-           class="cg-btn">
-            @T["+ Add flight"]
-        </a>
     </div>
 </div>
 
@@ -91,7 +79,7 @@
 </div>
 
 <div class="cg-card" style="margin-bottom:24px">
-    <h2 style="font-size:18px;margin:0 0 16px;color:#0f172a">Schedule (@Model.Count)</h2>
+    <h2 style="font-size:18px;margin:0 0 16px;color:#0f172a">@T["Schedule"] (@Model.Count)</h2>
 
     <div class="cg-table-wrap">
         <table class="cg-table">
@@ -103,7 +91,6 @@
                     <th>@T["Economy"]</th>
                     <th>@T["Business"]</th>
                     <th>@T["Status"]</th>
-                    <th>@T["Action"]</th>
                 </tr>
             </thead>
             <tbody>
@@ -123,13 +110,13 @@
                         </td>
                         <td style="white-space:nowrap">
                             @route.EconomyPrice.ToString("0") AZN
-                            <div class="cg-desc">@route.EconomySeats seats</div>
+                            <div class="cg-desc">@route.EconomySeats @T["seats"]</div>
                         </td>
                         <td style="white-space:nowrap">
                             @if (route.BusinessSeats > 0)
                             {
                                 <span>@route.BusinessPrice.ToString("0") AZN</span>
-                                <div class="cg-desc">@route.BusinessSeats seats</div>
+                                <div class="cg-desc">@route.BusinessSeats @T["seats"]</div>
                             }
                             else
                             {
@@ -140,28 +127,6 @@
                             <span class="cg-badge @(route.IsActive ? "cg-Food" : "cg-Shopping")">
                                 @(route.IsActive ? T["Active"] : T["Inactive"])
                             </span>
-                        </td>
-                        <td>
-                            <div class="cg-actions">
-                                <a asp-area="Admin"
-                                   asp-controller="Flights"
-                                   asp-action="Edit"
-                                   asp-route-id="@route.Id"
-                                   class="cg-edit">
-                                    @T["Edit"]
-                                </a>
-
-                                <form asp-area="Admin"
-                                      asp-controller="Flights"
-                                      asp-action="Toggle"
-                                      asp-route-id="@route.Id"
-                                      asp-route-city="@selectedCity"
-                                      method="post">
-                                    <button type="submit" class="cg-edit">
-                                        @(route.IsActive ? T["Deactivate"] : T["Activate"])
-                                    </button>
-                                </form>
-                            </div>
                         </td>
                     </tr>
                 }

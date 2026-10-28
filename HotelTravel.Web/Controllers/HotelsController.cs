@@ -32,10 +32,24 @@ public class HotelsController : Controller
     // PUBLIC - HOTEL LIST
     // =========================
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? city)
     {
         var hotels =
             await _hotelService.GetAllAsync();
+
+        // Ana səhifədəki şəhər kartından: yalnız həmin şəhərin otelləri
+        if (!string.IsNullOrWhiteSpace(city))
+        {
+            var filtered = hotels
+                .Where(h => string.Equals(h.City, city.Trim(), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (filtered.Count > 0)
+            {
+                ViewBag.City = filtered[0].City;
+                hotels = filtered;
+            }
+        }
 
         return View(hotels);
     }

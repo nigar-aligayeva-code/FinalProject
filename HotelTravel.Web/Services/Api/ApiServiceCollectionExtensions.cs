@@ -62,6 +62,7 @@ public static class ApiServiceCollectionExtensions
         // Otel partnyoru: bağlı tarixlər, qiymətlər, sorğular
         services.AddScoped<IHotelAvailabilityService, HotelAvailabilityApiService>();
         services.AddScoped<IPartnerApiClient, PartnerApiClient>();
+        services.AddScoped<IHotelCallApiClient, HotelCallApiClient>();
         services.AddScoped<ITripPackageService, TripApiService>();
         services.AddScoped<IWeatherService, WeatherApiService>();
         services.AddScoped<IExportApiClient, ExportApiClient>();

@@ -147,7 +147,22 @@
                 </div>
             </div>
 
-            @if (!Model.Any())
+            @if (!Model.Any() && !string.IsNullOrWhiteSpace(from) && !string.IsNullOrWhiteSpace(to)
+                 && HotelTravel.Application.Services.FlightNetworkPlanner.IsTooShortForFlight(from, to))
+            {
+                @* Bakı–Qəbələ kimi yaxın şəhərlər: reys yoxdur, maşın təklif edirik *@
+                <div class="hh-empty">
+                    <i class="bi bi-car-front fs-3 d-block mb-2"></i>
+                    @T["{0} and {1} are only about {2} km apart, so there are no flights. It is easier to go by car.", from, to, HotelTravel.Application.Services.FlightNetworkPlanner.DistanceKm(from, to)!]
+                    <div class="mt-2">
+                        <a class="btn btn-sm btn-outline-secondary" asp-controller="Cars" asp-action="Index" asp-route-city="@from"
+                           asp-route-pickupDate="@date.ToString("yyyy-MM-dd")" asp-route-returnDate="@date.AddDays(3).ToString("yyyy-MM-dd")">
+                            <i class="bi bi-key me-1"></i> @T["Rent a car in {0}", from]
+                        </a>
+                    </div>
+                </div>
+            }
+            else if (!Model.Any())
             {
                 <div class="hh-empty">
                     @T["No direct {0} flights on this route.", T.Enum(cabin).ToLower()]

@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using HotelTravel.Application.DTOs.Taxis;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
@@ -77,6 +77,7 @@ public class TaxisController : Controller
     // BOOK
     // =========================
     [HttpGet]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> Book(
         int hotelId,
         TaxiDirection direction,
@@ -117,6 +118,7 @@ public class TaxisController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> Book(CreateTaxiBookingDto dto)
     {
         if (ModelState.IsValid)

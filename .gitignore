@@ -1,6 +1,14 @@
 .vs/
 bin/
 obj/
+
 # Tripio: test məktubları
-**/App_Data/Emails/ 
+**/App_Data/Emails/
 .env
+
+# Şəxsi Visual Studio ayarları (hər kompüterdə fərqlidir)
+*.user
+*.slnLaunch.user
+
+# İstifadəçilərin yüklədiyi profil şəkilləri (repoda olmamalıdır)
+**/wwwroot/uploads/avatars/

@@ -217,7 +217,32 @@
 
             const money = (value) => Number(value).toFixed(2) + " AZN";
 
+            // Promo mesajları seçilmiş dildə
+            const promoText = {
+                empty: @Json.Serialize(T["Please enter a promo code."].Value),
+                applied: @Json.Serialize(T["Code {0} applied: {1}% off."].Value),
+                kept: @Json.Serialize(T["Your Explorer reward is bigger, so we kept that discount."].Value),
+                failed: @Json.Serialize(T["The code could not be checked right now. Please try again."].Value),
+                checking: @Json.Serialize(T["Checking the code…"].Value),
+                explorer: @Json.Serialize(T["Explorer reward: you stayed with us in {0}, so you get 10% off this trip."].Value)
+            };
+
+            function showPromo(kind, text) {
+                promoMessage.className = "hh-promo-msg " + kind;
+                promoMessage.textContent = text;
+            }
+
             async function refreshPrice(showPromoResult) {
+                // Boş kodla "Tətbiq et" -> izah et
+                if (showPromoResult && !promoInput.value.trim()) {
+                    showPromo("error", promoText.empty);
+                    promoInput.focus();
+                    return;
+                }
+
+                if (showPromoResult)
+                    showPromo("info", promoText.checking);
+
                 const params = new URLSearchParams({
                     roomId: form.querySelector('[name="RoomId"]').value,
                     checkInDate: form.querySelector('[name="CheckInDate"]').value,
@@ -228,10 +253,18 @@
 
                 try {
                     const response = await fetch(previewUrl + "?" + params.toString());
-                    if (!response.ok) return;
+
+                    if (!response.ok) {
+                        if (showPromoResult) showPromo("error", promoText.failed);
+                        return;
+                    }
 
                     const q = await response.json();
-                    if (!q.success) return;
+
+                    if (!q.success) {
+                        if (showPromoResult) showPromo("error", q.error || promoText.failed);
+                        return;
+                    }
 
                     document.getElementById("sumBase").textContent = money(q.baseTotal);
                     document.getElementById("sumTotal").textContent = money(q.total);
@@ -248,9 +281,7 @@
 
                     // Explorer reward
                     if (q.loyaltyEligible) {
-                        loyaltyText.textContent =
-                            "Explorer reward: you stayed with us in " + q.loyaltyCity +
-                            ", so you get 10% off this trip.";
+                        loyaltyText.textContent = promoText.explorer.replace("{0}", q.loyaltyCity);
                         loyaltyBox.classList.remove("d-none");
                     } else {
                         loyaltyBox.classList.add("d-none");
@@ -267,16 +298,17 @@
                             promoMessage.textContent = q.promoError;
                         } else if (q.appliedPromoCode) {
                             promoMessage.classList.add("success");
-                            promoMessage.textContent =
-                                "Code " + q.appliedPromoCode + " applied: " + q.discountPercent + "% off.";
+                            promoMessage.textContent = promoText.applied
+                                .replace("{0}", q.appliedPromoCode)
+                                .replace("{1}", q.discountPercent);
                         } else {
                             promoMessage.classList.add("info");
-                            promoMessage.textContent =
-                                "Your Explorer reward is bigger, so we kept that discount.";
+                            promoMessage.textContent = promoText.kept;
                         }
                     }
                 } catch (e) {
                     // Önizləmə alınmasa da forma işləyir, qiymət serverdə hesablanır
+                    if (showPromoResult) showPromo("error", promoText.failed);
                 }
             }
 

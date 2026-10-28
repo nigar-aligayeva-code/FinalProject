@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Common;
+﻿using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Application.DTOs.Home;
 using HotelTravel.Application.DTOs.Hotels;
 using HotelTravel.Application.Interfaces;
@@ -46,9 +46,15 @@ public class HotelsController : ApiControllerBase
     /// <summary>Create a hotel (admin).</summary>
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create([FromBody] CreateHotelDto dto)
+    public async Task<IActionResult> Create(
+        [FromBody] CreateHotelDto dto,
+        [FromServices] IFlightNetworkService flightNetwork)
     {
         await _hotelService.CreateAsync(dto);
+
+        // Yeni şəhərdə otel: reyslər avtomatik yaranır (admin reys yaratmır)
+        await flightNetwork.GenerateMissingAsync(HttpContext.RequestAborted);
+
         return Ok(ApiResultDto.Ok("Hotel created."));
     }
 
@@ -56,8 +62,19 @@ public class HotelsController : ApiControllerBase
     /// <summary>Update a hotel (admin).</summary>
     [HttpPut("{id:int}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateHotelDto dto)
-        => FromBool(await _hotelService.UpdateAsync(id, dto), "Hotel updated.", "Hotel not found.");
+    public async Task<IActionResult> Update(
+        int id,
+        [FromBody] UpdateHotelDto dto,
+        [FromServices] IFlightNetworkService flightNetwork)
+    {
+        var updated = await _hotelService.UpdateAsync(id, dto);
+
+        // Şəhər dəyişibsə, yeni şəhərin reysləri də avtomatik yaransın
+        if (updated)
+            await flightNetwork.GenerateMissingAsync(HttpContext.RequestAborted);
+
+        return FromBool(updated, "Hotel updated.", "Hotel not found.");
+    }
 
     // DELETE: api/hotels/5
     /// <summary>Delete a hotel (soft delete). Not allowed while it has upcoming bookings (admin).</summary>

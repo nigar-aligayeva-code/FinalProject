@@ -1,3 +1,4 @@
+﻿using HotelTravel.Application.Validation;
 using System.ComponentModel.DataAnnotations;
 
 namespace HotelTravel.Application.DTOs.Cars;
@@ -28,6 +29,6 @@ public class CreateCarRentalDto
     public string Phone { get; set; } = string.Empty;
 
     // Sürücünün yaşı və vəsiqəsi təsdiqi
-    [Range(typeof(bool), "true", "true", ErrorMessage = "Please confirm you have a valid driving licence.")]
+    [MustBeTrue(ErrorMessage = "Please confirm you have a valid driving licence.")]
     public bool HasLicence { get; set; }
 }

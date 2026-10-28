@@ -13,12 +13,15 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
         private readonly IBookingService _bookingService;
         private readonly IRoomService _roomService;
         private readonly IHotelAvailabilityService _availability;
+        private readonly HotelTravel.Web.Services.Api.IHotelCallApiClient _calls;
 
         public BookingsController(
             IBookingService bookingService,
             IRoomService roomService,
-            IHotelAvailabilityService availability)
+            IHotelAvailabilityService availability,
+            HotelTravel.Web.Services.Api.IHotelCallApiClient calls)
         {
+            _calls = calls;
             _bookingService = bookingService;
             _roomService = roomService;
             _availability = availability;
@@ -145,6 +148,18 @@ namespace HotelTravel.Web.Areas.Admin.Controllers
             TempData[result.Success ? "Success" : "Error"] = result.Message;
 
             return BackTo(returnUrl, id);
+        }
+
+        // OTELƏ ƏSL ZƏNG (Twilio): telefon çalır, sorğunun məlumatı səslə oxunur
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CallHotel(int id)
+        {
+            var result = await _calls.CallHotelAsync(id);
+
+            TempData[result.Success ? "Success" : "Error"] = result.Message;
+
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         private IActionResult BackTo(string? returnUrl, int id)

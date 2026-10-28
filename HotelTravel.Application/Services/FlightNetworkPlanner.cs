@@ -1,4 +1,4 @@
-namespace HotelTravel.Application.Services;
+﻿namespace HotelTravel.Application.Services;
 
 /// <summary>Planlaşdırılmış gündəlik reys (bazaya FlightRoute kimi yazılır).</summary>
 public record PlannedRoute(
@@ -17,6 +17,7 @@ public record PlannedRoute(
 ///   • aviaşirkət ölkəyə görə (AZ → AZAL, TR → Turkish/Pegasus, GE → Georgian, AE → flydubai/Emirates);
 ///   • reys nömrəsi və saatı deterministikdir: hər dəfə eyni nəticə (testlər üçün vacib).
 /// Kiçik hava limanları (Qəbələ) yalnız böyük mərkəzlərə (Bakı, İstanbul) uçur.
+/// 250 km-dən qısa məsafəyə reys açılmır (Bakı–Qəbələ ~200 km): orada taksi / maşın təklif olunur.
 /// </summary>
 public static class FlightNetworkPlanner
 {
@@ -46,6 +47,13 @@ public static class FlightNetworkPlanner
 
     public const double CruiseSpeedKmh = 720;
     public const int GroundMinutes = 40;
+
+    // Bundan yaxın şəhərlər arasında reys olmur (Bakı–Qəbələ ~200 km, Tbilisi–Batumi ~280 km qalır)
+    public const int MinFlightKm = 250;
+
+    /// <summary>Məsafə reys üçün çox qısadırmı? (Dəstəklənməyən şəhərlər üçün false.)</summary>
+    public static bool IsTooShortForFlight(string fromCity, string toCity) =>
+        DistanceKm(fromCity, toCity) is int km && km < MinFlightKm;
 
     public static bool IsSupported(string city) => Find(city) is not null;
 
@@ -93,6 +101,11 @@ public static class FlightNetworkPlanner
                     continue;
 
                 var distance = (int)Math.Round(Haversine(from, to));
+
+                // Çox yaxındır - avtomobillə getmək daha məntiqlidir
+                if (distance < MinFlightKm)
+                    continue;
+
                 var duration = DurationFor(distance);
                 var economy = EconomyFareFor(distance);
                 var business = BusinessFareFor(distance);

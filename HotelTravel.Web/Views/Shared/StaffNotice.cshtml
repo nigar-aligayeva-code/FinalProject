@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = T["Staff account"].Value;
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<section style="background:#F8F5F0;padding:70px 0 90px">
+    <div class="container" style="max-width:640px">
+        <div style="background:#fff;border:1px solid #E8E0D5;border-radius:20px;padding:36px 32px;text-align:center">
+            <div style="width:64px;height:64px;border-radius:50%;background:#eef2ea;color:#52614e;display:grid;place-items:center;margin:0 auto 16px;font-size:28px">
+                <i class="bi bi-person-badge"></i>
+            </div>
+
+            <h1 style="font-family:Georgia,serif;font-size:28px;color:#1F1F1F">
+                @(isAdmin ? T["You are signed in as administrator"] : T["You are signed in as hotel staff"])
+            </h1>
+
+            <p style="color:#5b6170;margin:12px 0 24px">
+                @T["Staff accounts manage bookings but do not make them. To book a room, a flight or a car, or to see your own trips, sign in with a guest account."]
+            </p>
+
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                @if (isAdmin)
+                {
+                    <a asp-area="Admin" asp-controller="Bookings" asp-action="Index" class="btn btn-dark rounded-pill px-4">
+                        <i class="bi bi-speedometer2 me-1"></i> @T["Guests' bookings"]
+                    </a>
+                }
+                else
+                {
+                    <a asp-area="Partner" asp-controller="Dashboard" asp-action="Index" class="btn btn-dark rounded-pill px-4">
+                        <i class="bi bi-building-check me-1"></i> @T["Hotel panel"]
+                    </a>
+                }
+
+                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-box-arrow-right me-1"></i> @T["Sign out and use a guest account"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

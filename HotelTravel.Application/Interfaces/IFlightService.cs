@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Flights;
+﻿using HotelTravel.Application.DTOs.Flights;
 using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Application.Interfaces;
@@ -36,11 +36,8 @@ public interface IFlightService
 
     Task<(bool Success, string Message)> CancelByUserAsync(int flightBookingId, string appUserId);
 
-    // Admin
+    // Admin: cədvələ yalnız baxır (reysləri aviaşirkət şəbəkəsi - FlightNetworkService - qurur)
     Task<List<FlightRouteDto>> GetRoutesAsync(string? city);
-    Task<SaveFlightRouteDto?> GetRouteForEditAsync(int id);
-    Task<(bool Success, string Message)> SaveRouteAsync(SaveFlightRouteDto dto);
-    Task<bool> ToggleRouteAsync(int id);
     Task<List<FlightBookingDto>> GetBookingsAsync(FlightBookingStatus? status);
     Task<bool> SetBookingStatusAsync(int id, FlightBookingStatus status);
 }

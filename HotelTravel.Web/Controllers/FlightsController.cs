@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Flights;
+﻿using HotelTravel.Application.DTOs.Flights;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
@@ -82,6 +82,7 @@ public class FlightsController : Controller
     // BOOK
     // =========================
     [HttpGet]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> Book(
         int routeId,
         DateTime date,
@@ -124,6 +125,7 @@ public class FlightsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> Book(CreateFlightBookingDto dto)
     {
         dto.Passengers = Math.Clamp(dto.Passengers, 1, FlightRules.MaxPassengers);

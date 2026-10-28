@@ -1,4 +1,4 @@
-namespace HotelTravel.Application.Services;
+﻿namespace HotelTravel.Application.Services;
 
 /// <summary>
 /// Real boş yerlər üçün qaydalar (təmiz, test olunur).
@@ -11,6 +11,9 @@ public static class AvailabilityRules
 {
     // Bir dəfəyə ən çox 1 il bağlamaq olar
     public const int MaxBlockDays = 365;
+
+    // Bağlanan tarix ən çox neçə il irəlidə ola bilər
+    public const int MaxYearsAhead = 2;
 
     // Otel boş yerləri son 24 saatda yoxlayıbsa məlumat "təzədir"
     public const int FreshHours = 24;
@@ -27,6 +30,10 @@ public static class AvailabilityRules
 
         if (end.Date <= start.Date)
             return "The end date must be after the start date.";
+
+        // Məs. səhvən yazılmış "275750-ci il"
+        if (start.Date > today.Date.AddYears(MaxYearsAhead))
+            return $"Dates can be closed at most {MaxYearsAhead} years ahead.";
 
         if ((end.Date - start.Date).Days > MaxBlockDays)
             return $"You can close at most {MaxBlockDays} days at once.";

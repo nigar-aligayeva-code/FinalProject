@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Availability;
+﻿using HotelTravel.Application.DTOs.Availability;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Web.Services.Api;
 using Microsoft.AspNetCore.Authorization;
@@ -43,8 +43,17 @@ public class AvailabilityController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> RemoveBlock(int id)
-        => await RunAsync(hotelId => _availability.RemoveBlockAsync(hotelId, id));
+    public async Task<IActionResult> RemoveBlock(int[] ids)
+        => await RunAsync(async hotelId =>
+        {
+            // "Bütün otaqlar" bir sətirdə göstərilir -> bir neçə bağlama birlikdə açılır
+            (bool Success, string Message) last = (false, "Closed dates were not found.");
+
+            foreach (var id in ids.Distinct())
+                last = await _availability.RemoveBlockAsync(hotelId, id);
+
+            return last;
+        });
 
     [HttpPost]
     [ValidateAntiForgeryToken]

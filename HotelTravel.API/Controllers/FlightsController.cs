@@ -159,34 +159,6 @@ public class FlightsController : ApiControllerBase
     public async Task<IActionResult> Routes([FromQuery] string? city)
         => Ok(await _flightService.GetRoutesAsync(city));
 
-    // GET: api/flights/routes/5/edit
-    /// <summary>A route for the edit form (admin).</summary>
-    [HttpGet("routes/{id:int}/edit")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(typeof(SaveFlightRouteDto), 200)]
-    public async Task<IActionResult> GetRouteForEdit(int id)
-        => OkOrNotFound(await _flightService.GetRouteForEditAsync(id), "Flight not found.");
-
-    // POST: api/flights/routes  (Id varsa yeniləyir)
-    /// <summary>Create a route, or update it if Id is set (admin).</summary>
-    [HttpPost("routes")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> SaveRoute([FromBody] SaveFlightRouteDto dto)
-    {
-        var result = await _flightService.SaveRouteAsync(dto);
-
-        return FromResult(result.Success
-            ? ApiResultDto.Ok(result.Message)
-            : ApiResultDto.Fail(result.Message));
-    }
-
-    // POST: api/flights/routes/5/toggle
-    /// <summary>Activate or deactivate a route (admin).</summary>
-    [HttpPost("routes/{id:int}/toggle")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> ToggleRoute(int id)
-        => FromBool(await _flightService.ToggleRouteAsync(id), "Flight updated.", "Flight not found.");
-
     // GET: api/flights/bookings?status=Confirmed
     /// <summary>All flight bookings, optionally filtered by status (admin).</summary>
     [HttpGet("bookings")]

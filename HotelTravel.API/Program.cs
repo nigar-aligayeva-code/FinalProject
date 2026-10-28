@@ -69,6 +69,12 @@ namespace HotelTravel.API
             builder.Services.AddHttpClient<IRealFlightScheduleProvider, AviationStackScheduleProvider>(client =>
                 client.Timeout = TimeSpan.FromSeconds(15));
 
+            // TELEFON ZƏNGİ: "Twilio" bölməsi User Secrets-dədirsə admin otelə avtomatik zəng edə bilir
+            builder.Services.AddSingleton(
+                builder.Configuration.GetSection("Twilio").Get<TwilioOptions>() ?? new TwilioOptions());
+            builder.Services.AddHttpClient<IPhoneCallService, TwilioPhoneCallService>(client =>
+                client.Timeout = TimeSpan.FromSeconds(15));
+
             // ÖDƏNİŞ: "Stripe:SecretKey" (sk_test_...) User Secrets-dədirsə onlayn ödəniş aktivdir
             builder.Services.AddSingleton(
                 builder.Configuration.GetSection("Stripe").Get<StripeOptions>() ?? new StripeOptions());
@@ -419,11 +425,14 @@ namespace HotelTravel.API
 
             await HotelDataSeeder.SeedAsync(context);
 
-            // Otel partnyoru rolu (+ lokal işdə demo hesab: partner@tripio.az, Caspian Grand Hotel)
+            // Otel partnyoru rolu (+ lokal işdə demo hesablar; Bakı otelləri qəsdən partnyorsuzdur)
             await PartnerSeeder.SeedAsync(roleManager, userManager, context, configuration, app.Environment.IsDevelopment());
 
             // Hər otelin öz otaq dəsti (King, Penthouse, Villa...); baza otaqların bəziləri gizlədilir
             await RoomVarietySeeder.SeedAsync(context);
+
+            // Yoxlama zamanı yaradılmış "Test Room" kimi otaqlar saytda görünməsin
+            await TestDataCleanupSeeder.SeedAsync(context);
 
             // Şəkillər MVC-nin wwwroot qovluğundadır
             var webRoot = configuration["Media:WebRootPath"];

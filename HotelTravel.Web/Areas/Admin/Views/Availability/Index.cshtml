@@ -5,37 +5,52 @@
     ViewData["AvArea"] = "Admin";
 }
 
-<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-    <div>
-        <h1 style="font-size:28px;margin:0">@Model.HotelName</h1>
-        <p class="text-muted m-0">@Model.City · @T["Availability and prices"]</p>
-    </div>
-    <a asp-area="Admin" asp-controller="Hotels" asp-action="Index" class="btn btn-outline-secondary">← @T["Hotels"]</a>
+<div class="av-top">
+    <a asp-area="Admin" asp-controller="Hotels" asp-action="Index" class="av-back"><i class="bi bi-arrow-left"></i> @T["Hotels"]</a>
+    <h1>@Model.HotelName</h1>
+    <p>@Model.City · @T["Availability and prices"]</p>
 </div>
 
 @if (Model.PartnerCount > 0)
 {
-    <div class="alert alert-info">
+    <div class="av-note info">
         <i class="bi bi-building-check"></i>
-        @T["This hotel has its own partner account ({0}). The hotel keeps this data up to date itself.", Model.PartnerCount]
+        <span>@T["This hotel has its own partner account ({0}). The hotel keeps this data up to date itself.", Model.PartnerCount]</span>
     </div>
 }
 else
 {
-    <div class="alert alert-warning">
+    <div class="av-note warn">
         <i class="bi bi-telephone"></i>
-        @T["This hotel has no partner account. Call the hotel, then close sold dates here."]
-        <a asp-area="Admin" asp-controller="Partners" asp-action="Index">@T["Create a partner account"]</a>
+        <span>
+            @T["This hotel has no partner account. Call the hotel, then close sold dates here."]
+            <a asp-area="Admin" asp-controller="Partners" asp-action="Index">@T["Create a partner account"]</a>
+        </span>
     </div>
 }
 
 @if (TempData["SuccessMessage"] is string ok)
 {
-    <div class="alert alert-success">@ok</div>
+    <div class="av-note success"><i class="bi bi-check-circle"></i> <span>@ok</span></div>
 }
 @if (TempData["ErrorMessage"] is string err)
 {
-    <div class="alert alert-danger">@err</div>
+    <div class="av-note error"><i class="bi bi-exclamation-triangle"></i> <span>@err</span></div>
 }
 
 <partial name="_AvailabilityManager" model="Model" view-data="ViewData" />
+
+<style>
+    .av-top { margin-bottom: 16px; }
+    .av-top h1 { font-size: 30px; font-weight: 800; margin: 6px 0 2px; color: #0f172a; }
+    .av-top p { color: #64748b; margin: 0; }
+    .av-back { display: inline-flex; gap: 6px; align-items: center; color: #475569; font-weight: 600; text-decoration: none; font-size: 14px; }
+    .av-back:hover { color: #0f172a; }
+    .av-note { display: flex; gap: 10px; align-items: flex-start; border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; font-size: 14px; border: 1px solid transparent; }
+    .av-note i { font-size: 18px; line-height: 1.2; }
+    .av-note a { font-weight: 700; margin-left: 4px; }
+    .av-note.info { background: #eef4ff; border-color: #cfdcfb; color: #1e3a8a; }
+    .av-note.warn { background: #fff7ea; border-color: #f5d6a3; color: #7a4b08; }
+    .av-note.success { background: #ecfdf3; border-color: #bbe5c8; color: #166534; }
+    .av-note.error { background: #fef2f2; border-color: #f5c2c2; color: #991b1b; }
+</style>
