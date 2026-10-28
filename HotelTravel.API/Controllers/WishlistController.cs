@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Common;
+﻿using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Application.DTOs.Home;
 using HotelTravel.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -36,6 +36,7 @@ public class WishlistController : ApiControllerBase
     // POST: api/wishlist/toggle/5   -> Flag = indi saved-dir?
     /// <summary>Save or unsave a room. Flag in the response is true when the room is now saved.</summary>
     [HttpPost("toggle/{roomId:int}")]
+    [HotelTravel.API.Filters.GuestOnly]
     public async Task<IActionResult> Toggle(int roomId)
     {
         var result = await _wishlistService.ToggleAsync(CurrentUserId!, roomId);

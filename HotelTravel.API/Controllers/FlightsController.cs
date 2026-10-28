@@ -76,6 +76,7 @@ public class FlightsController : ApiControllerBase
     // POST: api/flights/bookings
     /// <summary>Book a flight.</summary>
     [HttpPost("bookings")]
+    [HotelTravel.API.Filters.GuestOnly]
     [AllowAnonymous]
     public async Task<IActionResult> Book([FromBody] CreateFlightBookingDto dto)
     {
@@ -125,8 +126,6 @@ public class FlightsController : ApiControllerBase
     // ADMIN
     // =========================
 
-    // GET: api/flights/routes?city=Baku
-    /// <summary>All routes, optionally filtered by city (admin).</summary>
     // GET: api/flights/network
     /// <summary>Is real flight data (AviationStack) configured? (admin)</summary>
     [HttpGet("network")]
@@ -134,7 +133,7 @@ public class FlightsController : ApiControllerBase
     public async Task<IActionResult> NetworkStatus() => Ok(new { realDataEnabled = await _network.IsRealDataEnabledAsync() });
 
     // POST: api/flights/routes/generate
-    /// <summary>Create daily flights automatically for every hotel-city pair that has no flight yet (admin).</summary>
+    /// <summary>Airline network sync: create daily flights for hotel-city pairs that have none yet. Runs automatically when the API starts and when a hotel opens in a new city (admin).</summary>
     [HttpPost("routes/generate")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(FlightNetworkResultDto), 200)]
@@ -153,6 +152,8 @@ public class FlightsController : ApiControllerBase
         return result.Success ? Ok(result) : BadRequest(result);
     }
 
+    // GET: api/flights/routes?city=Baku
+    /// <summary>Flight schedule, optionally filtered by city (admin, read-only: flights come from the airline network).</summary>
     [HttpGet("routes")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(List<FlightRouteDto>), 200)]
