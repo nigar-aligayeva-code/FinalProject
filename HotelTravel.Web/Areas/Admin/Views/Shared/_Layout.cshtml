@@ -28,6 +28,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@(T[ViewData["Title"]?.ToString() ?? ""]) - @brand Admin</title>
+    <!-- İkonlar (bi bi-...) admin səhifələrində də işləsin -->
+    <link rel="stylesheet" href="~/assets/css/bootstrap-icons.css" />
 
     <style>
             * {
@@ -518,6 +520,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="~/js/live-admin.js" asp-append-version="true"></script>
 
+    <script src="~/js/date-limits.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

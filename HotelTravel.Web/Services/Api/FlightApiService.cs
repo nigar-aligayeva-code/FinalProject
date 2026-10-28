@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Common;
+﻿using HotelTravel.Application.DTOs.Common;
 using HotelTravel.Application.DTOs.Flights;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Enums;
@@ -95,18 +95,6 @@ public class FlightApiService : IFlightService
     // ADMIN
     public Task<List<FlightRouteDto>> GetRoutesAsync(string? city)
         => _api.GetAsync<List<FlightRouteDto>>(ApiUrl.For("api/flights/routes").Add("city", city));
-
-    public Task<SaveFlightRouteDto?> GetRouteForEditAsync(int id)
-        => _api.GetOrNullAsync<SaveFlightRouteDto>($"api/flights/routes/{id}/edit");
-
-    public async Task<(bool Success, string Message)> SaveRouteAsync(SaveFlightRouteDto dto)
-    {
-        var result = await _api.PostAsync("api/flights/routes", dto);
-        return (result.Success, result.Message);
-    }
-
-    public async Task<bool> ToggleRouteAsync(int id)
-        => (await _api.PostAsync($"api/flights/routes/{id}/toggle")).Success;
 
     public Task<List<FlightBookingDto>> GetBookingsAsync(FlightBookingStatus? status)
         => _api.GetAsync<List<FlightBookingDto>>(ApiUrl.For("api/flights/bookings").Add("status", status));

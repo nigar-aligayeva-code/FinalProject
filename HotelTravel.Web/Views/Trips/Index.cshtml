@@ -173,6 +173,12 @@
                                             <small><i class="bi bi-star-fill text-warning"></i> @r.AverageRating.ToString("0.0") (@r.ReviewCount)</small>
                                         }
                                         <div class="tp-price">@Money(option.StayPrice)<small>@r.PricePerNight.ToString("N0", inv) AZN / night</small></div>
+                                        @* Otağın öz səhifəsi yeni tabda açılır - seçim itmir *@
+                                        <a class="tp-room-link" target="_blank" rel="noopener"
+                                           href="@Url.Action("Details", "Rooms", new { id = r.Id, checkInDate = s.DepartDate?.ToString("yyyy-MM-dd"), checkOutDate = s.ReturnDate?.ToString("yyyy-MM-dd"), adultCount = s.Adults, childrenCount = s.Children })"
+                                           onclick="event.stopPropagation()">
+                                            <i class="bi bi-box-arrow-up-right"></i> @T["View room"]
+                                        </a>
                                     </div>
                                 </div>
                             </label>
@@ -330,6 +336,8 @@
         .tp-room-body { padding: 12px 14px; display: grid; gap: 2px; }
         .tp-room-body small { color: #6b7280; font-size: 12px; }
         .tp-room-body .tp-price { text-align: left; margin-top: 6px; }
+        .tp-room-link { margin-top: 8px; font-size: 13px; font-weight: 600; color: #52614e; text-decoration: none; display: inline-flex; gap: 6px; align-items: center; }
+        .tp-room-link:hover { text-decoration: underline; }
         .tp-signin { display: flex; align-items: center; gap: 14px; background: #F3EEE5; border-radius: 14px; padding: 16px; }
         .tp-signin i { font-size: 26px; color: #52614e; }
         .tp-signin div { flex: 1; } .tp-signin b, .tp-signin small { display: block; } .tp-signin small { color: #6b7280; }

@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Cars;
+﻿using HotelTravel.Application.DTOs.Cars;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
@@ -62,6 +62,7 @@ public class CarsController : Controller
     // BOOK
     // =========================
     [HttpGet]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> Book(
         int carId,
         DateTime pickupDate,
@@ -96,6 +97,7 @@ public class CarsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> Book(CreateCarRentalDto dto)
     {
         if (ModelState.IsValid)

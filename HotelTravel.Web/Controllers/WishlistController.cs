@@ -1,4 +1,4 @@
-using HotelTravel.Application.Interfaces;
+﻿using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using HotelTravel.Web.Services;
@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelTravel.Web.Controllers;
 
 [Authorize]
+[HotelTravel.Web.Filters.GuestOnly]
 public class WishlistController : Controller
 {
     private readonly IWishlistService _wishlistService;

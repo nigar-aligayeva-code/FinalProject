@@ -126,6 +126,18 @@
             color: #4b5563;
         }
 
+    .bd-call { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 12px; margin: 10px 0; }
+    .bd-call.urgent { border-color: #f5c27a; background: #fff7ea; }
+    .bd-call-hotel { font-weight: 700; font-size: 14px; color: #101c34; }
+    .bd-call-actions { display: grid; gap: 6px; justify-items: end; }
+    .bd-call-actions form { margin: 0; }
+    .bd-call-auto { border: 0; cursor: pointer; font: inherit; }
+    .bd-call-link { font-size: 13px; color: #4b5563; text-decoration: none; }
+    .bd-call-link:hover { text-decoration: underline; }
+    .bd-call-text { font-size: 13px; color: #6b7280; max-width: 420px; }
+    .bd-call-btn { background: #16834b; color: #fff; font-weight: 700; padding: 8px 14px; border-radius: 999px; text-decoration: none; white-space: nowrap; }
+    .bd-call-btn:hover { color: #fff; background: #12703f; }
+
     .bd-checks { list-style: none; padding: 0; margin: 10px 0 12px; display: grid; gap: 6px; font-size: 13px; }
     .bd-checks li::before { margin-right: 6px; font-weight: 700; }
     .bd-checks li.ok { color: #166534; } .bd-checks li.ok::before { content: "✓"; }
@@ -470,6 +482,34 @@
                 {
                     <div class="bd-request @(isOverdue ? "overdue" : "")">
                         <strong>@T["Booking request from the guest"]</strong>
+
+                        @* Partnyoru olmayan otel: admin otelə zəng edib soruşur *@
+                        @if (!string.IsNullOrWhiteSpace(Model.HotelPhone))
+                        {
+                            var noPartner = ViewBag.Check is HotelTravel.Application.DTOs.Availability.AvailabilityCheckDto c0 && !c0.HasPartner;
+
+                            <div class="bd-call @(noPartner ? "urgent" : "")">
+                                <div>
+                                    <div class="bd-call-hotel">@Model.HotelName</div>
+                                    <div class="bd-call-text">
+                                        @(noPartner
+                                            ? T["No partner account — call the hotel and ask if room {0} is free on these dates.", Model.RoomNumber]
+                                            : T["The hotel answers itself, but you can call if needed."])
+                                    </div>
+                                </div>
+                                <div class="bd-call-actions">
+                                    @* Twilio: telefon həqiqətən zəng çalır (internet üzərindən) *@
+                                    <form asp-area="Admin" asp-controller="Bookings" asp-action="CallHotel" asp-route-id="@Model.Id" method="post">
+                                        <button type="submit" class="bd-call-btn bd-call-auto">
+                                            <i class="bi bi-telephone-outbound"></i> @T["Call automatically"]
+                                        </button>
+                                    </form>
+                                    <a class="bd-call-link" href="tel:@(new string(Model.HotelPhone.Where(ch => char.IsDigit(ch) || ch == '+').ToArray()))">
+                                        📞 @Model.HotelPhone
+                                    </a>
+                                </div>
+                            </div>
+                        }
 
                         @if (ViewBag.Check is HotelTravel.Application.DTOs.Availability.AvailabilityCheckDto check)
                         {

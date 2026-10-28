@@ -48,12 +48,23 @@
                     @T["CURATED STAYS"]
                 </span>
 
-                <h1>@T["Discover Exceptional Stays"]</h1>
+                @if (ViewBag.City is string cityName)
+                {
+                    <h1>@T["Hotels in {0}", cityName]</h1>
+                    <p>
+                        <a asp-controller="Hotels" asp-action="Index" style="color:inherit;font-weight:700">
+                            <i class="bi bi-x-circle"></i> @T["Show all hotels"]
+                        </a>
+                    </p>
+                }
+                else
+                {
+                    <h1>@T["Discover Exceptional Stays"]</h1>
 
-                <p>
-                    Handpicked hotels designed for memorable journeys,
-                    exceptional comfort and unforgettable experiences.
-                </p>
+                    <p>
+                        @T["Handpicked hotels designed for memorable journeys, exceptional comfort and unforgettable experiences."]
+                    </p>
+                }
             </div>
 
             @if (User.IsInRole("Admin"))

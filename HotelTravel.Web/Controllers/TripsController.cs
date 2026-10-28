@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Trips;
+﻿using HotelTravel.Application.DTOs.Trips;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Web.Services;
 using HotelTravel.Web.ViewModels;
@@ -67,6 +67,7 @@ public class TripsController : Controller
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> Book(CreateTripPackageDto dto)
     {
         var search = new

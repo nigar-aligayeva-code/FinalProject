@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HotelTravel.API.Controllers;
@@ -205,9 +206,19 @@ public class AuthController : ApiControllerBase
     [HttpPost("forgot-password")]
     [EnableRateLimiting(RateLimitPolicies.Auth)]
     [ProducesResponseType(typeof(ApiResultDto), 200)]
-    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordDto dto,
+        [FromServices] IMemoryCache cache)
     {
         const string message = "If an account exists for this email, a reset link has been sent.";
+
+        // Eyni ünvana 2 dəqiqədə bir məktub (kimsə başqasının poçtunu məktubla doldurmasın)
+        var cooldownKey = "pwreset:" + dto.Email.Trim().ToLowerInvariant();
+
+        if (cache.TryGetValue(cooldownKey, out _))
+            return Ok(ApiResultDto.Ok(message));
+
+        cache.Set(cooldownKey, true, BotGuardRules.ResetEmailCooldown);
 
         var user = await _userManager.FindByEmailAsync(dto.Email.Trim());
 

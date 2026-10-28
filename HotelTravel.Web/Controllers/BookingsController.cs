@@ -240,6 +240,7 @@ public class BookingsController : Controller
     // PUBLIC - CREATE BOOKING
     // =========================
     [HttpGet]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> Create(
         int? roomId,
         DateTime? checkInDate,
@@ -296,6 +297,7 @@ public class BookingsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> Create(
         CreateBookingDto dto)
     {
@@ -341,6 +343,7 @@ public class BookingsController : Controller
     // =========================
     [Authorize]
     [HttpGet]
+    [HotelTravel.Web.Filters.GuestOnly]
     public async Task<IActionResult> MyBookings()
     {
         var userId = _currentUser.GetUserId(User);
@@ -555,7 +558,8 @@ public class BookingsController : Controller
         DateTime checkInDate,
         DateTime checkOutDate,
         string? email,
-        string? promoCode)
+        string? promoCode,
+        [FromServices] Microsoft.Extensions.Localization.IStringLocalizer<SharedResource> localizer)
     {
         var quote =
             await _bookingService.GetPriceQuoteAsync(
@@ -569,7 +573,7 @@ public class BookingsController : Controller
         return Json(new
         {
             success = quote.Success,
-            error = quote.Error,
+            error = string.IsNullOrWhiteSpace(quote.Error) ? null : localizer[quote.Error].Value,
             nights = quote.Nights,
             pricePerNight = quote.PricePerNight,
             baseTotal = quote.BaseTotal,
@@ -577,7 +581,8 @@ public class BookingsController : Controller
             discountAmount = quote.DiscountAmount,
             total = quote.Total,
             discountNote = quote.DiscountNote,
-            promoError = quote.PromoError,
+            // Promo xətası seçilmiş dildə ("Promo kod tapılmadı")
+            promoError = string.IsNullOrWhiteSpace(quote.PromoError) ? null : localizer[quote.PromoError].Value,
             appliedPromoCode = quote.AppliedPromoCode,
             loyaltyEligible = quote.LoyaltyEligible,
             loyaltyCity = quote.LoyaltyCity

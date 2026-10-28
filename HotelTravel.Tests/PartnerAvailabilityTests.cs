@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Availability;
+﻿using HotelTravel.Application.DTOs.Availability;
 using HotelTravel.Application.DTOs.Email;
 using HotelTravel.Application.DTOs.Notifications;
 using HotelTravel.Application.DTOs.Rooms;
@@ -36,6 +36,9 @@ public class PartnerAvailabilityTests
         Assert.NotNull(AvailabilityRules.ValidateBlock(Today.AddDays(-1), Today.AddDays(3), Today));
         Assert.NotNull(AvailabilityRules.ValidateBlock(Today.AddDays(3), Today.AddDays(3), Today));
         Assert.NotNull(AvailabilityRules.ValidateBlock(Today, Today.AddDays(AvailabilityRules.MaxBlockDays + 1), Today));
+
+        // Səhvən yazılmış uzaq il (məs. 2750)
+        Assert.NotNull(AvailabilityRules.ValidateBlock(new DateTime(2750, 10, 28), new DateTime(2750, 10, 29), Today));
     }
 
     [Fact]

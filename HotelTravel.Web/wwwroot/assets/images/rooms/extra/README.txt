@@ -17,3 +17,8 @@ OTAQ FOTOLARI ƏLAVƏ ETMƏK (kod yazmadan)
 
 Admin paneldən yüklənmiş şəkillərə (/uploads/...) heç vaxt toxunulmur.
 Konkret bir otağa konkret şəkil lazımdırsa: Admin → Hotels → 🛏 → Edit → Main image.
+
+QEYD (yeni qayda):
+- Bir oteldə iki otaq heç vaxt eyni şəkli göstərmir (güzgü əksi şəkillər də artıq istifadə olunmur).
+- Foto çatmayan otaqda kamera işarəli boz şəkil (no-photo.svg) görünür:
+  ya bu qovluğa foto at, ya da Admin → Hotels → 🛏 → Edit → Main image ilə özün yüklə.

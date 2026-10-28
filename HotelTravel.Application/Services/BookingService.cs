@@ -55,6 +55,12 @@ public class BookingService : IBookingService
                 RoomName = b.Room.Name,
                 RoomNumber = b.Room.RoomNumber,
 
+                // Admin: hansı otel + otelə zəng üçün telefon
+                HotelId = b.Room.HotelId,
+                HotelName = b.Room.Hotel.Name,
+                HotelCity = b.Room.Hotel.City,
+                HotelPhone = b.Room.Hotel.Phone,
+
                 GuestId = b.GuestId,
                 GuestName = b.Guest.FirstName + " " + b.Guest.LastName,
                 GuestEmail = b.Guest.Email
@@ -95,6 +101,12 @@ public class BookingService : IBookingService
                 RoomId = b.RoomId,
                 RoomName = b.Room.Name,
                 RoomNumber = b.Room.RoomNumber,
+
+                // Admin: hansı otel + otelə zəng üçün telefon
+                HotelId = b.Room.HotelId,
+                HotelName = b.Room.Hotel.Name,
+                HotelCity = b.Room.Hotel.City,
+                HotelPhone = b.Room.Hotel.Phone,
 
                 GuestId = b.GuestId,
                 GuestName = b.Guest.FirstName + " " + b.Guest.LastName,
@@ -189,6 +201,7 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
                 HotelId = b.Room.HotelId,
                 HotelName = b.Room.Hotel.Name,
                 HotelCity = b.Room.Hotel.City,
+                HotelPhone = b.Room.Hotel.Phone,
 
                 GuestId = b.GuestId,
                 GuestName = b.Guest.FirstName + " " + b.Guest.LastName,
@@ -385,6 +398,8 @@ public async Task<(bool Success, string Message, string? ConfirmationCode)>
                 RoomName = b.Room.Name,
 
                 RoomNumber = b.Room.RoomNumber,
+
+                HotelId = b.Room.HotelId,
 
                 GuestId = b.GuestId,
 

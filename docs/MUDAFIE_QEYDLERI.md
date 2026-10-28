@@ -1,4 +1,4 @@
-# Müdafiə qeydləri — Tripio
+﻿# Müdafiə qeydləri — Tripio
 
 Təqdimatda istifadə etmək üçün qısa plan və müəllimin verə biləcəyi suallara cavablar.
 
@@ -15,10 +15,20 @@ Təqdimatda istifadə etmək üçün qısa plan və müəllimin verə biləcəyi
    **Profile** (statistika, səviyyə, avatar seçimi) → Flights / Car rental / Airport taxis / Attractions.
    Admin panel: **Analytics** (gəlir, doluluq proqnozu, top şəhərlər), otaq redaktəsi + şəkil yükləmə,
    statuslar, occupancy calendar, promo kodlar.
-3. **GitHub repo** — branch-lar (`feature/...`), pull request-lər, commit tarixçəsi,
+3. **Real boş yerlər (müəllimin qeydi)** — ~3 dəq
+   Qonaq kimi **İstanbul**dakı Bosphorus Palace-da otaq sorğusu göndər ("Sorğu otelə göndərildi") →
+   ikinci brauzerdə **`partner@tripio.az`** / `Partner123` ilə daxil ol → 🔔-də yeni sorğu → **Otel paneli**-ndə yoxlamalar (✓ üst-üstə düşmə yoxdur,
+   ✓ tarix bağlı deyil, "2 saat əvvəl yoxlanılıb") → **Təsdiqlə** → qonaqda ✅ bildiriş və **Pay now**.
+   Sonra **Boş yerlər və qiymətlər** → bir otağı 2 günlük bağla → həmin tarixlərlə axtar: otaq görünmür.
+   Ləğv et → cərimə əvvəlcədən göstərilir (3 gündən az qalıbsa 30%).
+   İkinci hal: **Bakı**dakı Caspian Grand-da sorğu göndər → bu otelin partnyoru yoxdur → admin kimi
+   Booking Details-də 📞 "Otelə zəng et" düyməsi və eyni yoxlamalar görünür → admin təsdiqləyir.
+   Demo hesablar: `partner@` (İstanbul), `partner.gabala@`, `partner.antalya@`, `partner.tbilisi@`,
+   `partner.batumi@`, `partner.dubai@` (hamısı `@tripio.az`, parol `Partner123`). Bakı otelləri qəsdən partnyorsuzdur.
+4. **GitHub repo** — branch-lar (`feature/...`), pull request-lər, commit tarixçəsi,
    **Actions** tab-ı (hər push-da avtomatik build + testlər) və README-dəki yaşıl CI nişanı.
-4. **Swagger** — login → Authorize → qorunan endpoint (`/api/bookings/mine`) → admin endpoint.
-5. **Code base / sistem dizaynı** — aşağıdakı 2-ci bölmə.
+5. **Swagger** — login → Authorize → qorunan endpoint (`/api/bookings/mine`) → admin endpoint.
+6. **Code base / sistem dizaynı** — aşağıdakı 2-ci bölmə.
 
 > Təqdimatdan əvvəl: **F5** bas və Swagger tam açılana qədər gözlə, sonra sayta keç.
 
@@ -193,6 +203,40 @@ seed zamanı şəhər mərkəzi verilir.
 (`AvatarCatalog.IsValid`), yoxsa 400 qaytarır. Profil yenilənəndə MVC cookie-ni yeni məlumatla
 yenidən yaradır, ona görə header-dəki ad və avatar dərhal dəyişir.
 
+**Saytda otağın boş olduğunu haradan bilirsiniz? Otel başqa yerdə də satır.**
+Bilmirik və buna görə "boşdur" demirik. Rezervasiya əvvəl **sorğudur** (`Pending`), son qərarı otel verir.
+Üç yol var idi: (1) otelə partnyor hesabı, (2) admin hamısını idarə edir, (3) otelin API-si.
+Biz 1 və 2-ni etdik:
+* Otel işçisinin **partnyor paneli** var — yalnız öz otelini görür, sorğunu təsdiqləyir / rədd edir,
+  başqa yerdə satdığı günləri **bağlayır** (bağlı otaq axtarışda görünmür), qiyməti dəyişir və
+  "yoxladım" qeyd edir.
+* Partnyoru olmayan oteli **admin** idarə edir: sorğuda otelin telefonu görünür, zəng edir, satılmış
+  günləri eyni paneldən bağlayır.
+* Hər sorğuda yoxlama göstərilir: bizdə üst-üstə düşən rezervasiya, otelin bağladığı günlər və otelin
+  məlumatı nə qədər təzədir. Cavabsız sorğu **24 saatdan sonra avtomatik bağlanır**, qonaq gözləmədə qalmır.
+* Pul yalnız otel təsdiqləyəndən sonra alınır.
+* 3-cü yol (channel manager API ilə avtomatik sinxronizasiya) — gələcək inkişaf; real otel API-si lazımdır.
+
+**Partnyor başqa otelin sorğusunu təsdiqləyə bilərmi?**
+Xeyr. API hər sorğuda yoxlayır (`PartnerScope`): istifadəçinin `PartnerHotelId`-si bazadan oxunur və
+rezervasiyanın otelinə bərabər olmalıdır. Admin bütün otellərə baxa bilir. Bu yoxlama MVC-də yox,
+API-dədir, ona görə Swagger-dən də keçmək olmur.
+
+**Ləğv qaydası necədir? Qonaq istədiyi an ləğv edə bilərmi?**
+`CancellationPolicy`: 3 gün və çox qalıbsa pulsuz, 1–3 gün 30%, son 24 saat 50%, giriş günü ləğv olmur
+(uçuşda son 3 saat). Otel təsdiqləməmiş sorğu həmişə pulsuz. Cərimə ləğvdən əvvəl göstərilir, bazada
+saxlanılır. Onlayn ödənilibsə qalan məbləğ **Stripe refund** ilə avtomatik qaytarılır. Otel/admin
+ləğv edəndə qonaqdan cərimə tutulmur.
+
+**Bildirişlər necə işləyir?**
+Hər bildiriş `UserNotifications` cədvəlinə yazılır (qonaq saytda olmasa da itmir) və **SignalR** ilə
+yalnız həmin istifadəçinin qrupuna (`user:{id}`) göndərilir. Saytdakı 🔔 açılanda bazadan yüklənir.
+
+**Xatırlatmalar necə göndərilir?**
+API-də `BackgroundService` hər 10 dəqiqədən bir işləyir: girişə 3 gün / 1 gün, uçuşa 24 saat / 3 saat
+qalanları tapır, e-poçt + 🔔 göndərir. Eyni xatırlatmanın iki dəfə getməməsi üçün `EmailLog`-a
+(tip + rezervasiya kodu) baxılır. Həmin xidmət cavabsız sorğuları da bağlayır.
+
 **Git ilə necə işlədiniz?**
 Hər feature ayrıca branch-da (`feature/flights`, `feature/api-mvc`…), sonra pull request və
 `master`-ə merge. `master` həmişə işlək qalır.
@@ -216,3 +260,12 @@ Hər feature ayrıca branch-da (`feature/flights`, `feature/api-mvc`…), sonra 
 | Məktublar (şablon + jurnal) | `HotelTravel.Application/Services/BookingEmailService.cs`, `BookingEmailTemplates.cs` |
 | Analitika | `HotelTravel.Application/Services/AnalyticsService.cs` |
 | CI (GitHub Actions) | `.github/workflows/ci.yml` |
+| Sorğu → təsdiq / rədd, 24 saat qaydası | `HotelTravel.Application/Services/BookingRules.cs`, `RequestExpiryService.cs` |
+| Partnyor yalnız öz oteli | `HotelTravel.API/Services/PartnerScope.cs`, `HotelAvailabilityController.cs` |
+| Bağlı tarixlər, yoxlama, təzəlik | `HotelTravel.Application/Services/HotelAvailabilityService.cs`, `AvailabilityRules.cs` |
+| Axtarışda bağlı otaqların gizlənməsi | `HotelTravel.Application/Services/RoomService.cs` (`SearchAvailableRoomsAsync`) |
+| Ləğv cəriməsi | `HotelTravel.Application/Services/CancellationPolicy.cs` |
+| Stripe ödəniş və refund | `HotelTravel.Application/Services/PaymentService.cs`, `HotelTravel.Infrastructure/Services/StripePaymentGateway.cs` |
+| Bildirişlər (🔔) | `HotelTravel.Application/Services/UserNotificationService.cs`, `HotelTravel.API/Hubs/NotificationHub.cs` |
+| Xatırlatmalar (fon xidməti) | `HotelTravel.API/Services/ReminderBackgroundService.cs`, `HotelTravel.Application/Services/ReminderService.cs` |
+| Partnyor paneli (MVC) | `HotelTravel.Web/Areas/Partner/` |

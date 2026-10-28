@@ -6,127 +6,156 @@
     var partners = ViewBag.Partners as List<HotelTravel.Application.DTOs.Availability.PartnerAccountDto> ?? new();
     var hotels = ViewBag.Hotels as List<HotelTravel.Application.DTOs.Hotels.GetHotelDto> ?? new();
     var withPartner = partners.Select(p => p.HotelId).ToHashSet();
+    var without = hotels.Where(h => !withPartner.Contains(h.Id)).ToList();
 }
 
-<div class="mb-3">
-    <h1 style="font-size:28px;margin:0">@T["Hotel partners"]</h1>
-    <p class="text-muted">@T["Hotel staff accounts. A partner sees only their own hotel: confirms or rejects requests, closes sold dates and updates prices."]</p>
+<div class="pa-top">
+    <h1>@T["Hotel partners"]</h1>
+    <p>@T["Hotel staff accounts. A partner sees only their own hotel: confirms or rejects requests, closes sold dates and updates prices."]</p>
 </div>
 
 @if (TempData["SuccessMessage"] is string ok)
 {
-    <div class="alert alert-success">@ok</div>
+    <div class="pa-note success"><i class="bi bi-check-circle"></i> @ok</div>
 }
 @if (TempData["ErrorMessage"] is string err)
 {
-    <div class="alert alert-danger">@err</div>
+    <div class="pa-note error"><i class="bi bi-exclamation-triangle"></i> @err</div>
 }
 
-<div class="row g-4">
-    <div class="col-lg-7">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h5>@T["Partner accounts"]</h5>
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>@T["Hotel"]</th>
-                                <th>@T["Name"]</th>
-                                <th>@T["Email"]</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var p in partners)
-                            {
-                                <tr>
-                                    <td>
-                                        <a asp-area="Admin" asp-controller="Availability" asp-action="Index" asp-route-hotelId="@p.HotelId">@p.HotelName</a>
-                                    </td>
-                                    <td>@p.FullName</td>
-                                    <td>@p.Email</td>
-                                    <td class="text-end">
-                                        <form asp-area="Admin" asp-controller="Partners" asp-action="Remove" method="post" class="m-0"
-                                              onsubmit='return confirm(@Json.Serialize(T["Remove partner access for this account?"].Value));'>
-                                            <input type="hidden" name="userId" value="@p.UserId" />
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">@T["Remove access"]</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            }
-                            @if (!partners.Any())
-                            {
-                                <tr><td colspan="4" class="text-muted text-center py-4">@T["No partner accounts yet."]</td></tr>
-                            }
-                        </tbody>
-                    </table>
+<div class="pa-grid">
+    <div class="pa-col">
+        <!-- PARTNYOR HESABLARI -->
+        <section class="pa-card">
+            <h2><i class="bi bi-building-check"></i> @T["Partner accounts"] <span class="pa-count">@partners.Count</span></h2>
+
+            @if (!partners.Any())
+            {
+                <div class="pa-empty">@T["No partner accounts yet."]</div>
+            }
+
+            @foreach (var p in partners)
+            {
+                <div class="pa-row">
+                    <div class="pa-avatar">@(string.IsNullOrWhiteSpace(p.FullName) ? "?" : p.FullName[..1])</div>
+                    <div class="pa-info">
+                        <b>@p.HotelName</b>
+                        <small>@p.FullName · @p.Email</small>
+                    </div>
+                    <a asp-area="Admin" asp-controller="Availability" asp-action="Index" asp-route-hotelId="@p.HotelId" class="pa-btn pa-btn-outline">
+                        <i class="bi bi-calendar-week"></i> @T["Availability"]
+                    </a>
+                    <form asp-area="Admin" asp-controller="Partners" asp-action="Remove" method="post"
+                          onsubmit='return confirm(@Json.Serialize(T["Remove partner access for this account?"].Value));'>
+                        <input type="hidden" name="userId" value="@p.UserId" />
+                        <button type="submit" class="pa-btn pa-btn-danger" title="@T["Remove access"]"><i class="bi bi-person-x"></i></button>
+                    </form>
                 </div>
-            </div>
-        </div>
+            }
+        </section>
 
-        <div class="card border-0 shadow-sm mt-4">
-            <div class="card-body">
-                <h5>@T["Hotels without a partner"]</h5>
-                <p class="text-muted small">@T["For these hotels the admin confirms requests after calling the hotel."]</p>
-                <ul class="mb-0">
-                    @foreach (var h in hotels.Where(h => !withPartner.Contains(h.Id)))
+        <!-- PARTNYORU OLMAYAN OTELLƏR -->
+        <section class="pa-card">
+            <h2><i class="bi bi-telephone"></i> @T["Hotels without a partner"] <span class="pa-count warn">@without.Count</span></h2>
+            <p class="pa-muted">@T["For these hotels the admin confirms requests after calling the hotel."]</p>
+
+            @foreach (var h in without)
+            {
+                <div class="pa-row">
+                    <div class="pa-avatar warn"><i class="bi bi-building"></i></div>
+                    <div class="pa-info">
+                        <b>@h.Name</b>
+                        <small>@h.City · 📞 @h.Phone</small>
+                    </div>
+                    <a asp-area="Admin" asp-controller="Availability" asp-action="Index" asp-route-hotelId="@h.Id" class="pa-btn pa-btn-outline">
+                        <i class="bi bi-calendar-week"></i> @T["Availability"]
+                    </a>
+                </div>
+            }
+        </section>
+    </div>
+
+    <!-- YENİ HESAB -->
+    <section class="pa-card pa-form-card">
+        <h2><i class="bi bi-person-plus"></i> @T["New partner account"]</h2>
+
+        <form asp-area="Admin" asp-controller="Partners" asp-action="Create" method="post" class="pa-form">
+            <div asp-validation-summary="ModelOnly" class="pa-error"></div>
+
+            <label>
+                <span>@T["Hotel"]</span>
+                <select asp-for="HotelId">
+                    <option value="0">@T["Choose a hotel"]</option>
+                    @foreach (var h in hotels)
                     {
-                        <li>
-                            @h.Name ·
-                            <a asp-area="Admin" asp-controller="Availability" asp-action="Index" asp-route-hotelId="@h.Id">@T["Availability and prices"]</a>
-                        </li>
+                        <option value="@h.Id">@h.Name (@h.City)@(withPartner.Contains(h.Id) ? " ✓" : "")</option>
                     }
-                </ul>
+                </select>
+                <span asp-validation-for="HotelId" class="pa-error"></span>
+            </label>
+            <div class="pa-two">
+                <label>
+                    <span>@T["First name"]</span>
+                    <input asp-for="FirstName" />
+                    <span asp-validation-for="FirstName" class="pa-error"></span>
+                </label>
+                <label>
+                    <span>@T["Last name"]</span>
+                    <input asp-for="LastName" />
+                    <span asp-validation-for="LastName" class="pa-error"></span>
+                </label>
             </div>
-        </div>
-    </div>
-
-    <div class="col-lg-5">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h5>@T["New partner account"]</h5>
-
-                <form asp-area="Admin" asp-controller="Partners" asp-action="Create" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
-
-                    <div class="mb-2">
-                        <label asp-for="HotelId" class="form-label">@T["Hotel"]</label>
-                        <select asp-for="HotelId" class="form-select">
-                            <option value="0">@T["Choose a hotel"]</option>
-                            @foreach (var h in hotels)
-                            {
-                                <option value="@h.Id">@h.Name (@h.City)</option>
-                            }
-                        </select>
-                        <span asp-validation-for="HotelId" class="text-danger small"></span>
-                    </div>
-                    <div class="row g-2 mb-2">
-                        <div class="col">
-                            <label asp-for="FirstName" class="form-label">@T["First name"]</label>
-                            <input asp-for="FirstName" class="form-control" />
-                            <span asp-validation-for="FirstName" class="text-danger small"></span>
-                        </div>
-                        <div class="col">
-                            <label asp-for="LastName" class="form-label">@T["Last name"]</label>
-                            <input asp-for="LastName" class="form-control" />
-                            <span asp-validation-for="LastName" class="text-danger small"></span>
-                        </div>
-                    </div>
-                    <div class="mb-2">
-                        <label asp-for="Email" class="form-label">@T["Email"]</label>
-                        <input asp-for="Email" class="form-control" placeholder="reception@hotel.com" />
-                        <span asp-validation-for="Email" class="text-danger small"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label">@T["Password"]</label>
-                        <input asp-for="Password" class="form-control" autocomplete="new-password" />
-                        <div class="form-text">@T["At least 6 characters with an uppercase letter, a lowercase letter and a digit. Give it to the hotel privately."]</div>
-                        <span asp-validation-for="Password" class="text-danger small"></span>
-                    </div>
-                    <button type="submit" class="btn btn-dark w-100">@T["Create partner account"]</button>
-                </form>
-            </div>
-        </div>
-    </div>
+            <label>
+                <span>@T["Email"]</span>
+                <input asp-for="Email" placeholder="reception@hotel.com" />
+                <span asp-validation-for="Email" class="pa-error"></span>
+            </label>
+            <label>
+                <span>@T["Password"]</span>
+                <input asp-for="Password" autocomplete="new-password" />
+                <small class="pa-muted">@T["At least 6 characters with an uppercase letter, a lowercase letter and a digit. Give it to the hotel privately."]</small>
+                <span asp-validation-for="Password" class="pa-error"></span>
+            </label>
+            <button type="submit" class="pa-btn pa-btn-dark pa-wide"><i class="bi bi-person-plus"></i> @T["Create partner account"]</button>
+        </form>
+    </section>
 </div>
+
+<style>
+    .pa-top h1 { font-size: 30px; font-weight: 800; margin: 0 0 4px; color: #0f172a; }
+    .pa-top p { color: #64748b; margin: 0 0 18px; max-width: 760px; }
+    .pa-note { border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; font-size: 14px; border: 1px solid transparent; }
+    .pa-note.success { background: #ecfdf3; border-color: #bbe5c8; color: #166534; }
+    .pa-note.error { background: #fef2f2; border-color: #f5c2c2; color: #991b1b; }
+    .pa-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); gap: 18px; align-items: start; }
+    .pa-col { display: grid; gap: 18px; }
+    .pa-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px 22px; box-shadow: 0 6px 18px rgba(15,23,42,.04); }
+    .pa-card h2 { font-size: 18px; font-weight: 800; margin: 0 0 12px; color: #0f172a; display: flex; gap: 8px; align-items: center; }
+    .pa-count { background: #e0ecff; color: #1d4ed8; font-size: 12px; padding: 2px 9px; border-radius: 999px; }
+    .pa-count.warn { background: #fff1d6; color: #92400e; }
+    .pa-muted { color: #64748b; font-size: 13px; margin: -4px 0 10px; display: block; }
+    .pa-empty { color: #94a3b8; text-align: center; padding: 16px; }
+    .pa-row { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+    .pa-row:last-child { border-bottom: 0; }
+    .pa-row form { margin: 0; }
+    .pa-avatar { width: 40px; height: 40px; border-radius: 12px; background: #e0ecff; color: #1d4ed8; display: grid; place-items: center; font-weight: 800; flex-shrink: 0; }
+    .pa-avatar.warn { background: #fff1d6; color: #92400e; }
+    .pa-info { flex: 1; min-width: 0; display: grid; }
+    .pa-info b { color: #0f172a; }
+    .pa-info small { color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pa-btn { display: inline-flex; gap: 6px; align-items: center; border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 700; border: 1px solid transparent; cursor: pointer; text-decoration: none; white-space: nowrap; }
+    .pa-btn-outline { background: #fff; border-color: #cbd5e1; color: #0f172a; }
+    .pa-btn-outline:hover { background: #f8fafc; color: #0f172a; }
+    .pa-btn-danger { background: #fff; border-color: #f5c2c2; color: #b91c1c; padding: 8px 11px; }
+    .pa-btn-danger:hover { background: #fef2f2; }
+    .pa-btn-dark { background: #0f172a; color: #fff; justify-content: center; padding: 11px 16px; font-size: 14px; }
+    .pa-btn-dark:hover { background: #1e293b; }
+    .pa-wide { width: 100%; }
+    .pa-form { display: grid; gap: 12px; }
+    .pa-form label { display: grid; gap: 5px; font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .03em; }
+    .pa-form input, .pa-form select { border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 12px; font-size: 14px; color: #0f172a; text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .pa-form small { text-transform: none; letter-spacing: 0; font-weight: 500; margin: 0; }
+    .pa-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pa-error { color: #b91c1c; font-size: 12px; text-transform: none; letter-spacing: 0; }
+    @@media (max-width: 980px) { .pa-grid { grid-template-columns: 1fr; } }
+</style>

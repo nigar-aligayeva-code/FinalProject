@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520">
+  <rect width="800" height="520" fill="#efe9df"/>
+  <rect x="24" y="24" width="752" height="472" rx="18" fill="none" stroke="#d9cfbf" stroke-width="3" stroke-dasharray="14 10"/>
+  <g transform="translate(400 230)" fill="none" stroke="#a89a84" stroke-width="12" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M-95 -45 h45 l18 -28 h64 l18 28 h45 a14 14 0 0 1 14 14 v110 a14 14 0 0 1 -14 14 h-176 a14 14 0 0 1 -14 -14 v-110 a14 14 0 0 1 14 -14 z"/>
+    <circle cx="0" cy="22" r="40"/>
+  </g>
+  <text x="400" y="380" text-anchor="middle" font-family="Georgia, serif" font-size="30" fill="#8a7c66">Tripio</text>
+</svg>

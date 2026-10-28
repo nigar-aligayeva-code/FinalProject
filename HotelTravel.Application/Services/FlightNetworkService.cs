@@ -30,6 +30,10 @@ public class FlightNetworkService : IFlightNetworkService
     {
         var cities = await HotelCitiesAsync(cancellationToken);
 
+        // Əvvəl yaradılmış çox qısa reysləri (məs. Bakı–Qəbələ) dayandırırıq.
+        // Silmirik: köhnə biletlərin tarixçəsi qalsın.
+        var disabled = await DisableShortRoutesAsync(cancellationToken);
+
         var existingPairs = (await _context.FlightRoutes
                 .Where(r => !r.IsDeleted)
                 .Select(r => new { r.FromCity, r.ToCity })
@@ -55,7 +59,9 @@ public class FlightNetworkService : IFlightNetworkService
         {
             Success = true,
             Added = toAdd.Count,
-            Message = toAdd.Count == 0
+            Message = toAdd.Count == 0 && disabled > 0
+                ? $"{disabled} short flights were turned off (travel by car or taxi instead)."
+                : toAdd.Count == 0
                 ? "All hotel cities are already connected."
                 : $"{toAdd.Count} new daily flights were created automatically."
         };
@@ -98,6 +104,9 @@ public class FlightNetworkService : IFlightNetworkService
             foreach (var flight in result.Flights)
             {
                 if (!codeToCity.TryGetValue(flight.ToCode, out var toCity) || toCity == fromCity)
+                    continue;
+
+                if (FlightNetworkPlanner.IsTooShortForFlight(fromCity, toCity))
                     continue;
 
                 if (!existingNumbers.Add(flight.FlightNumber))
@@ -162,6 +171,29 @@ public class FlightNetworkService : IFlightNetworkService
         return minutes is >= 20 and <= 900
             ? minutes
             : FlightNetworkPlanner.DurationFor(distanceKm);
+    }
+
+    /// <summary>Aktiv qısa reysləri passiv edir, neçəsinin dəyişdiyini qaytarır.</summary>
+    private async Task<int> DisableShortRoutesAsync(CancellationToken cancellationToken)
+    {
+        var active = await _context.FlightRoutes
+            .Where(r => !r.IsDeleted && r.IsActive)
+            .ToListAsync(cancellationToken);
+
+        var shortRoutes = active
+            .Where(r => FlightNetworkPlanner.IsTooShortForFlight(r.FromCity, r.ToCity))
+            .ToList();
+
+        foreach (var route in shortRoutes)
+        {
+            route.IsActive = false;
+            route.UpdatedAt = DateTime.UtcNow;
+        }
+
+        if (shortRoutes.Count > 0)
+            await _context.SaveChangesAsync(cancellationToken);
+
+        return shortRoutes.Count;
     }
 
     private async Task<List<string>> HotelCitiesAsync(CancellationToken cancellationToken) =>

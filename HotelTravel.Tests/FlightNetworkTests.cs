@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using HotelTravel.Application.DTOs.Flights;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Application.Services;
@@ -67,7 +67,39 @@ public class FlightNetworkTests
         var gabala = FlightNetworkPlanner.Plan(Cities).Where(r => r.FromCity == "Gabala").ToList();
 
         Assert.NotEmpty(gabala);
-        Assert.All(gabala, r => Assert.Contains(r.ToCity, new[] { "Baku", "Istanbul" }));
+        Assert.All(gabala, r => Assert.Equal("Istanbul", r.ToCity)); // Bakı çox yaxındır
+    }
+
+    [Fact]
+    public void Plan_ShouldNotCreateFlights_BetweenNearbyCities()
+    {
+        var routes = FlightNetworkPlanner.Plan(Cities);
+
+        Assert.True(FlightNetworkPlanner.IsTooShortForFlight("Baku", "Gabala"));
+        Assert.DoesNotContain(routes, r => r.FromCity == "Baku" && r.ToCity == "Gabala");
+        Assert.DoesNotContain(routes, r => r.FromCity == "Gabala" && r.ToCity == "Baku");
+
+        // Tbilisi–Batumi (~280 km) reys olaraq qalır
+        Assert.False(FlightNetworkPlanner.IsTooShortForFlight("Tbilisi", "Batumi"));
+        Assert.Contains(routes, r => r.FromCity == "Tbilisi" && r.ToCity == "Batumi");
+    }
+
+    [Fact]
+    public async Task GenerateMissing_ShouldTurnOff_ExistingShortRoutes()
+    {
+        using var context = CreateContext();
+        context.FlightRoutes.Add(new FlightRoute
+        {
+            FlightNumber = "J2 8061", Airline = "Azerbaijan Airlines",
+            FromCity = "Baku", FromCode = "GYD", ToCity = "Gabala", ToCode = "GBB",
+            DepartureTime = new TimeSpan(8, 40, 0), DurationMinutes = 45,
+            EconomyPrice = 90, EconomySeats = 70, IsActive = true
+        });
+        await context.SaveChangesAsync();
+
+        await new FlightNetworkService(context, new FakeProvider()).GenerateMissingAsync();
+
+        Assert.False((await context.FlightRoutes.SingleAsync(r => r.FlightNumber == "J2 8061")).IsActive);
     }
 
     [Fact]

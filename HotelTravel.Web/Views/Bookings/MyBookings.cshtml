@@ -2,6 +2,7 @@
 @using HotelTravel.Domain.Enums
 @inject HotelTravel.Application.Interfaces.ITaxiService TaxiService
 @inject HotelTravel.Application.Interfaces.IFlightService FlightService
+@inject HotelTravel.Application.Interfaces.ITripPackageService TripService
 @inject HotelTravel.Web.Services.CurrentUserAccessor CurrentUser
 
 @{
@@ -18,6 +19,9 @@
 
     // Aviabiletlər
     var flights = await FlightService.GetByUserAsync(CurrentUser.GetUserId(User) ?? string.Empty);
+
+    // Paketlər (uçuş + otel + taksi bir sifarişdə)
+    var packages = await TripService.GetByUserAsync(CurrentUser.GetUserId(User) ?? string.Empty);
 
     var now = DateTime.Now;
 
@@ -49,6 +53,11 @@
         all.Add((f.DepartureTime, "flight", f, active));
     }
 
+    foreach (var p in packages)
+    {
+        all.Add((p.DepartDate, "package", p, p.ReturnDate.Date >= today));
+    }
+
     var upcoming = all.Where(x => x.IsActive).OrderBy(x => x.Date).ToList();
     var past = all.Where(x => !x.IsActive).OrderByDescending(x => x.Date).ToList();
 }
@@ -64,6 +73,11 @@
         font-size: 34px;
         color: #1F1F1F !important;
     }
+
+    .my-package-media { flex-direction: column; gap: 6px; color: #fff; background: linear-gradient(135deg, #52614e, #c9a24a) !important; }
+    .my-package-media i { font-size: 34px; }
+    .my-package-media span { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .my-package-card { border-color: #c9a24a !important; }
 
     .my-booking-card {
         background: #FFFFFF;
@@ -235,6 +249,7 @@
             "car" => Html.PartialAsync("_MyCarCard", item),
             "taxi" => Html.PartialAsync("_MyTaxiCard", item),
             "flight" => Html.PartialAsync("_MyFlightCard", item),
+            "package" => Html.PartialAsync("_MyPackageCard", item),
             _ => Html.PartialAsync("_MyBookingCard", item)
         };
 }

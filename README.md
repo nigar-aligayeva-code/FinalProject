@@ -1,8 +1,8 @@
-# Tripio — Hotel & Travel Reservation System
+﻿# Tripio — Hotel & Travel Reservation System
 
 [![CI](https://github.com/nigar-aligayeva-code/FinalProject/actions/workflows/ci.yml/badge.svg)](https://github.com/nigar-aligayeva-code/FinalProject/actions/workflows/ci.yml)
 ![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4)
-![Tests](https://img.shields.io/badge/tests-140%2B-2ea44f)
+![Tests](https://img.shields.io/badge/tests-230%2B-2ea44f)
 
 A full-stack booking platform built with **ASP.NET Core 8**: guests search and book hotel rooms,
 rent cars, book airport taxis and flights — or all of them together as a **trip package** — find
@@ -50,9 +50,9 @@ flowchart LR
 | **HotelTravel.Domain** | Entities (`Hotel`, `Room`, `Booking`, `FlightRoute`, `TripPackage`, `EmailLog`, …) and enums. No dependencies. |
 | **HotelTravel.Application** | Business logic: services (`BookingService`, `FlightService`, `TripPackageService`, `AnalyticsService`, …), interfaces, DTOs and pure rule classes (`BookingRules`, `PricingCalculator`, `FlightRules`, `TaxiRules`, `TripPackageRules`, `AnalyticsCalculator`). |
 | **HotelTravel.Infrastructure** | EF Core `AppDbContext`, migrations, ASP.NET Identity, transactional booking creation, seeders, PDF vouchers (QuestPDF + QR) and email delivery. `AddHotelTravelInfrastructure()` registers everything. |
-| **HotelTravel.API** | REST endpoints (~110), JWT authentication, role-based authorization, global exception middleware, Swagger. **Owns the database.** |
+| **HotelTravel.API** | REST endpoints (~145), JWT authentication, role-based authorization, global exception middleware, Swagger. **Owns the database.** |
 | **HotelTravel.Web** | MVC frontend + admin area. **Has no database access**: every service interface is implemented by an HTTP client that calls the API. |
-| **HotelTravel.Tests** | 140+ xUnit tests (rules + services with the EF Core InMemory provider), run on every push by GitHub Actions. |
+| **HotelTravel.Tests** | 230+ xUnit tests (rules + services with the EF Core InMemory provider), run on every push by GitHub Actions. |
 
 ### How a request flows (example: search rooms)
 
@@ -109,7 +109,7 @@ sequenceDiagram
 
 1. Hotel & room catalogue with photos, amenities and 360° panorama
 2. Availability search by city, dates and guests (fully booked dates are disabled in the calendar)
-3. Booking with an instant confirmation code
+3. Booking **requests** with an instant code — the hotel confirms within 24 h (see *Real availability* below)
 4. Find / modify / cancel a booking by code + email
 5. Accounts (register / login) and **My Bookings**
 6. Admin panel: hotels, chains, rooms (image upload), amenities, bookings
@@ -146,6 +146,68 @@ sequenceDiagram
 * **Account security** — "Forgot password" with an emailed one-time link (24 h), account lockout
   after 5 failed logins, and rate limiting (10 auth requests per minute per IP).
 
+**Real availability — how do we know a room is really free?**
+
+A hotel also sells rooms at its reception and on other sites, so our database alone cannot know the
+real availability. Tripio therefore never promises "available" — a booking is a **request** that the
+hotel confirms:
+
+* **Booking request → hotel confirms.** New bookings are `Pending` (they already hold the dates, so no
+  second guest can request the same room). The hotel answers within **24 hours**; unanswered requests
+  are closed automatically by a background service and the guest is told (nothing is charged).
+* **Hotel partner panel** (`/Partner`, role `HotelPartner`). Hotel staff get their own account and see
+  **only their hotel**: confirm / reject requests, **close dates** sold elsewhere (closed rooms disappear
+  from search), change prices and press *"I checked — availability is correct"*. The API checks the
+  hotel on every call (`PartnerScope`), so a partner can never touch another hotel.
+* **Checks before confirming.** For every pending request both the partner and the admin see:
+  overlapping Tripio bookings, dates closed by the hotel and how fresh the hotel's data is
+  ("checked 2 h ago"). Hotels without a partner are handled by the admin, who calls the hotel
+  (phone shown on the request) and closes sold dates in the same panel.
+* **Payment only after confirmation** (Stripe test mode), voucher only after confirmation.
+
+```mermaid
+sequenceDiagram
+    actor Guest
+    participant Web as MVC
+    participant API
+    actor Hotel as Hotel partner / admin
+
+    Guest->>Web: Request to book (room + dates)
+    Web->>API: POST api/bookings
+    API->>API: dates free? not closed by the hotel? -> save as Pending
+    API-->>Guest: "Request sent" page + email + 🔔
+    API-->>Hotel: 🔔 new request
+    Hotel->>API: checks (overlaps, closed dates, freshness)
+    alt room is free
+        Hotel->>API: POST api/bookings/{id}/confirm
+        API-->>Guest: email with PDF voucher + 🔔 "confirmed — you can pay now"
+    else no free room
+        Hotel->>API: POST api/bookings/{id}/reject
+        API-->>Guest: email + 🔔 "declined", dates are free again
+    else no answer in 24 h
+        API->>API: background service closes the request
+        API-->>Guest: email + 🔔 "expired", nothing charged
+    end
+```
+
+**More features**
+
+* **Guest notifications 🔔** — booking requested / confirmed / rejected / cancelled, stored in the
+  database (shown later if the guest was offline) and pushed live with SignalR to that user only.
+* **Reminders** — email + 🔔 three days and one day before check-in, 24 h and 3 h before a flight
+  (background service; each reminder is sent once).
+* **Cancellation policy** — free until 3 days before check-in, then 30 %, last 24 h 50 %, no cancellation
+  on the check-in day (flights: closed 3 h before departure). The fee is shown before cancelling;
+  paid bookings are **refunded automatically** through Stripe minus the fee. Hotel-side cancellations are free.
+* **Online payments** — Stripe Checkout in test mode (`sk_test_` keys only).
+* **Email verification** — confirmation link, plus a check that the address can receive mail (format,
+  disposable domains, MX record).
+* **City guide map** — click any attraction for a pop-up with photo, description, address, a map and
+  the distance / walking time from your hotel.
+* **Room comparison**, **EN / AZ / RU** interface, **dark mode**, **Docker** (one command),
+  hotel reviews next to room reviews, photo avatars, country-specific car fleets and room types,
+  flights generated automatically between all hotel cities (optional real schedules from AviationStack).
+
 ### Trip package flow
 
 ```mermaid
@@ -179,7 +241,7 @@ sequenceDiagram
 ## Tech stack
 
 ASP.NET Core 8 (Web API + MVC) · Entity Framework Core 8 · SQL Server · ASP.NET Core Identity ·
-JWT Bearer · Swagger (Swashbuckle) · QuestPDF · QRCoder · System.Net.Mail · Chart.js ·
+JWT Bearer · Swagger (Swashbuckle) · SignalR · Stripe.net · QuestPDF · QRCoder · System.Net.Mail · Chart.js ·
 Leaflet + OpenStreetMap · xUnit · GitHub Actions · Bootstrap 5 · jQuery · flatpickr
 
 ---
@@ -219,6 +281,19 @@ Leaflet + OpenStreetMap · xUnit · GitHub Actions · Bootstrap 5 · jQuery · f
    *Multiple startup projects* → `HotelTravel.API` and `HotelTravel.Web` = **Start** (API first).
 5. Wait until Swagger opens (the API seeds hotels, rooms, flights, cars and the city guide on first run),
    then use the website.
+6. *Hotel partner demo* (Development only) — password **`Partner123`** for all:
+
+   | Account | Hotel |
+   |---|---|
+   | `partner@tripio.az` | Bosphorus Palace Hotel (Istanbul) |
+   | `partner.gabala@tripio.az` | Gabala Mountain Resort |
+   | `partner.antalya@tripio.az` | Antalya Blue Resort |
+   | `partner.tbilisi@tripio.az` | Tbilisi Heritage Hotel |
+   | `partner.batumi@tripio.az` | Batumi Sea View Hotel |
+   | `partner.dubai@tripio.az` | Dubai Marina Luxury Hotel |
+
+   The two **Baku** hotels (Caspian Grand, HotelHub Baku) intentionally have **no partner**: their
+   requests are handled by the admin, who calls the hotel. Admins manage accounts in **Admin → Hotel partners**.
 
 | App | URL |
 |---|---|
@@ -280,9 +355,11 @@ a search box to filter endpoints.
 dotnet test
 ```
 
-140+ tests cover booking rules, pricing and discounts, wishlist, reviews, city guide, car rental,
+230+ tests cover booking rules, pricing and discounts, wishlist, reviews, city guide, car rental,
 airport taxis, flights (time zones, dynamic fares, seat limits, cancellation rules), analytics,
-profile levels, avatars, email templates (including HTML encoding) and trip package rules.
+profile levels, avatars, email templates (including HTML encoding), trip package rules, payments and
+refunds, the booking-request flow (status transitions, expiry), cancellation fees, reminders,
+notifications, hotel partner availability (closed dates hide rooms from search) and city guide locations.
 
 **GitHub Actions** (`.github/workflows/ci.yml`) restores, builds the whole solution and runs the
 tests on every push and pull request; the badge at the top shows the current status.

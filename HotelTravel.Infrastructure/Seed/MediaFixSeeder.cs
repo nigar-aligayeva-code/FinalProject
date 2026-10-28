@@ -7,7 +7,7 @@ namespace HotelTravel.Infrastructure.Seed;
 
 // Otel və otaq şəkillərini qaydaya salır (hər açılışda işləyir):
 //  1) Olmayan köhnə şəkil yollarını real fotolarla əvəz edir.
-//  2) Eyni şəkli bir neçə otaq paylaşırsa, hər otağa fərqli şəkil verir.
+//  2) Bir oteldə iki otaq eyni şəkli göstərmir; foto çatmasa "şəkil tezliklə" qoyulur.
 //  3) wwwroot/assets/images/rooms/extra qovluğuna atılan fotoları
 //     avtomatik götürür, yəni yeni foto əlavə etmək üçün kod lazım deyil.
 // Admin paneldən yüklənmiş şəkillərə (/uploads/...) toxunmur.
@@ -17,6 +17,9 @@ public static class MediaFixSeeder
     private const string Variants = "/assets/images/rooms/variants/";
     private const string Extra = "/assets/images/rooms/extra/";
     private const string Hotels = "/assets/images/hotels/";
+
+    // Foto çatmayanda: "şəkil tezliklə" - admin özü yükləyir (Admin → Rooms → Edit)
+    public const string NoPhoto = "/assets/images/rooms/no-photo.svg";
 
     // Şəkli olan şəhərlər (hotels qovluğunda {city}-exterior.jpg və s.)
     private static readonly HashSet<string> CitiesWithPhotos = new(StringComparer.OrdinalIgnoreCase)
@@ -143,75 +146,133 @@ public static class MediaFixSeeder
             .OrderBy(r => r.Id)
             .ToListAsync();
 
-        var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var toAssign = new List<Room>();
-
-        // 1) Hansı otaqlar şəklini saxlayır?
-        //    - admin yükləməsi (/uploads/...) həmişə qalır
-        //    - real şəkil ilk sahibində qalır, təkrarlananlar yenisini alır
-        foreach (var room in rooms)
+        foreach (var (room, image) in PlanRoomImages(
+                     rooms.Select(r => new RoomPhotoSlot(r.Id, r.HotelId, (r.Hotel?.City ?? string.Empty).Trim().ToLower(), r.RoomType, r.MainImage)).ToList(),
+                     extraPhotos))
         {
-            var image = room.MainImage;
+            var entity = rooms.First(r => r.Id == room.RoomId);
+
+            entity.MainImage = image;
+            entity.UpdatedAt = DateTime.UtcNow;
+
+            if (image != NoPhoto)
+                AddGalleryIfEmpty(context, entity, room.City, image);
+        }
+    }
+
+    /// <summary>Otaq haqqında şəkil seçmək üçün lazım olanlar (bazasız test oluna bilsin).</summary>
+    public record RoomPhotoSlot(int RoomId, int HotelId, string City, RoomType Type, string? Image);
+
+    /// <summary>
+    /// Hansı otağa hansı şəkil? Qaydalar:
+    ///   • eyni oteldə iki otaq eyni fotonu (və ya onun güzgü əksini) göstərmir;
+    ///   • güzgü əksi (variants) şəkillər artıq istifadə olunmur;
+    ///   • admin yükləməsi (/uploads/...) heç vaxt dəyişmir;
+    ///   • foto çatmırsa otaq "Şəkil tezliklə" (NoPhoto) alır - admin özü yükləyə bilər;
+    ///   • extra qovluğuna yeni foto atılanda əvvəl NoPhoto otaqlar, sonra başqa otellərdə də
+    ///     görünən (təkrarlanan) şəkilli otaqlar onu alır.
+    /// Yalnız dəyişməli olan otaqlar qaytarılır.
+    /// </summary>
+    public static List<(RoomPhotoSlot Room, string Image)> PlanRoomImages(List<RoomPhotoSlot> rooms, List<string> extraPhotos)
+    {
+        var usedInHotel = new Dictionary<int, HashSet<string>>();
+        var globalUse = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var toAssign = new List<RoomPhotoSlot>();
+        var kept = new List<RoomPhotoSlot>();
+
+        HashSet<string> HotelSet(int hotelId) =>
+            usedInHotel.TryGetValue(hotelId, out var set)
+                ? set
+                : usedInHotel[hotelId] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        // 1) Saxlanılanlar: admin yükləməsi həmişə; layihənin real fotosu - oteldə ilk dəfədirsə
+        foreach (var room in rooms.OrderBy(r => r.HotelId).ThenBy(r => TypeRank(r.Type)).ThenBy(r => r.RoomId))
+        {
+            var image = room.Image;
+
+            if (!string.IsNullOrWhiteSpace(image) && !IsBuiltIn(image))
+            {
+                HotelSet(room.HotelId).Add(image);
+                continue;
+            }
 
             var keep =
                 !string.IsNullOrWhiteSpace(image) &&
+                image != NoPhoto &&
                 !MissingRoomImages.Contains(image) &&
-                (!IsBuiltIn(image) || used.Add(image));
+                !IsVariant(image) &&
+                HotelSet(room.HotelId).Add(BaseOf(image));
 
             if (keep)
-                used.Add(image!);
+            {
+                globalUse[BaseOf(image!)] = globalUse.GetValueOrDefault(BaseOf(image!)) + 1;
+                kept.Add(room);
+            }
             else
+            {
                 toAssign.Add(room);
+            }
         }
 
-        // 1b) extra qovluğuna YENİ foto atılıbsa, variant (güzgü/kəsilmiş) şəkli olan otaqlar
-        //     onları alsın — beləliklə əlavə etdiyin hər foto dərhal saytda görünür.
-        var freeExtras = extraPhotos.Count(p => !used.Contains(p));
+        // 2) extra qovluğunda hələ işlənməyən fotolar varsa, NoPhoto-dan sonra
+        //    başqa otellərdə də görünən şəkilli otaqlara verilir
+        var freeExtras = extraPhotos.Count(p => !globalUse.ContainsKey(p)) -
+                         toAssign.Count(r => string.IsNullOrWhiteSpace(r.Image) || r.Image == NoPhoto);
 
-        foreach (var room in rooms.Where(r => IsVariant(r.MainImage)).Take(freeExtras).ToList())
+        if (freeExtras > 0)
         {
-            used.Remove(room.MainImage!);
-            toAssign.Add(room);
+            foreach (var room in kept
+                         .Where(r => globalUse.GetValueOrDefault(BaseOf(r.Image!)) > 1 && r.Image != CityRoomPhoto(r.City))
+                         .OrderByDescending(r => globalUse[BaseOf(r.Image!)])
+                         .ThenByDescending(r => r.RoomId)
+                         .Take(freeExtras)
+                         .ToList())
+            {
+                globalUse[BaseOf(room.Image!)]--;
+                usedInHotel[room.HotelId].Remove(BaseOf(room.Image!));
+                toAssign.Add(room);
+            }
         }
 
-        if (toAssign.Count == 0)
-            return;
+        // 3) Yeni şəkil: oteldə olmayan, ümumilikdə ən az işlənən uyğun foto
+        var result = new List<(RoomPhotoSlot, string)>();
 
-        // 2) Təkrarlanan otaqlara fərqli şəkil ver.
-        //    Otel-otel gedirik ki, real fotolar bütün tiplərə bərabər paylansın.
-        var ordered = toAssign
-            .OrderBy(r => r.HotelId)
-            .ThenBy(r => TypeRank(r.RoomType))
-            .ToList();
-
-        // Şəhərin öz otaq fotosu həmin şəhərin Deluxe otağı üçün saxlanılır
-        var reserved = new HashSet<string>(
-            ordered
-                .Where(r => r.RoomType == RoomType.Deluxe)
-                .Select(r => CityRoomPhoto(r))
-                .Where(p => p != null)
-                .Select(p => p!),
-            StringComparer.OrdinalIgnoreCase);
-
-        foreach (var room in ordered)
+        foreach (var room in toAssign.OrderBy(r => r.HotelId).ThenBy(r => TypeRank(r.Type)).ThenBy(r => r.RoomId))
         {
-            var city = (room.Hotel?.City ?? string.Empty).Trim().ToLower();
-            var own = room.RoomType == RoomType.Deluxe ? CityRoomPhoto(room) : null;
+            var hotelSet = HotelSet(room.HotelId);
 
-            var candidates = BuildCandidates(room.RoomType, city, extraPhotos);
+            var image = BuildCandidates(room.Type, room.City, extraPhotos)
+                .Select((path, index) => (path, index))
+                .Where(c => !hotelSet.Contains(c.path))
+                .OrderBy(c => globalUse.GetValueOrDefault(c.path))
+                .ThenBy(c => c.index)
+                .Select(c => c.path)
+                .FirstOrDefault() ?? NoPhoto;
 
-            var image = candidates.FirstOrDefault(c =>
-                    !used.Contains(c) &&
-                    (!reserved.Contains(c) || string.Equals(c, own, StringComparison.OrdinalIgnoreCase)))
-                ?? candidates.First();
+            if (image != NoPhoto)
+            {
+                hotelSet.Add(image);
+                globalUse[image] = globalUse.GetValueOrDefault(image) + 1;
+            }
 
-            used.Add(image);
-
-            room.MainImage = image;
-            room.UpdatedAt = DateTime.UtcNow;
-
-            AddGalleryIfEmpty(context, room, city, image);
+            if (!string.Equals(room.Image, image, StringComparison.OrdinalIgnoreCase))
+                result.Add((room, image));
         }
+
+        return result;
+    }
+
+    // Güzgü əksi -> əsl foto (eyni şəkil sayılır)
+    private static string BaseOf(string path)
+    {
+        if (!IsVariant(path))
+            return path;
+
+        var name = Path.GetFileNameWithoutExtension(path);
+        if (name.EndsWith("-a") || name.EndsWith("-b"))
+            name = name[..^2];
+
+        return BasePhotos.TryGetValue(name, out var real) ? real : path;
     }
 
     // Bu otaq üçün uyğun şəkillər, ən yaxşısı birinci
@@ -227,16 +288,13 @@ public static class MediaFixSeeder
         if (type == RoomType.Deluxe && CitiesWithPhotos.Contains(city))
             list.Add($"{Hotels}{city}-room.jpg");
 
-        // Əvvəl real fotolar (uyğun olanlar, sonra extra, sonra qalanları),
-        // yalnız onlar bitəndə variantlar
+        // Əvvəl uyğun real fotolar, sonra extra, sonra qalanları
         list.AddRange(preferred.Select(n => BasePhotos[n]));
         list.AddRange(extraPhotos.Where(p => MatchesType(p, type)));
         list.AddRange(extraPhotos);
         list.AddRange(BasePhotos.Values);
-        list.AddRange(preferred.Select(n => $"{Variants}{n}-a.jpg"));
-        list.AddRange(preferred.Select(n => $"{Variants}{n}-b.jpg"));
-        list.AddRange(BasePhotos.Keys.Select(n => $"{Variants}{n}-a.jpg"));
-        list.AddRange(BasePhotos.Keys.Select(n => $"{Variants}{n}-b.jpg"));
+
+        // Güzgü əksi variantlar istifadə olunmur: eyni otaq iki dəfə görünürdü
 
         return list.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
@@ -366,12 +424,8 @@ public static class MediaFixSeeder
         return slug.Trim('-');
     }
 
-    private static string? CityRoomPhoto(Room room)
-    {
-        var city = (room.Hotel?.City ?? string.Empty).Trim().ToLower();
-
-        return CitiesWithPhotos.Contains(city) ? $"{Hotels}{city}-room.jpg" : null;
-    }
+    private static string? CityRoomPhoto(string city)
+        => CitiesWithPhotos.Contains(city) ? $"{Hotels}{city}-room.jpg" : null;
 
     private static int TypeRank(RoomType type)
     {

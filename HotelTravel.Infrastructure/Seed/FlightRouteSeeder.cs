@@ -1,4 +1,4 @@
-using HotelTravel.Application.Services;
+﻿using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -49,9 +49,7 @@ public static class FlightRouteSeeder
         new("J2 8051", Azal, "Baku", "Antalya", 10, 0, 240, 330, 900, 150, 12),
         new("J2 8052", Azal, "Antalya", "Baku", 15, 20, 230, 330, 900, 150, 12),
 
-        // Baku <-> Gabala
-        new("J2 8061", Azal, "Baku", "Gabala", 8, 40, 45, 90, 0, 70, 0),
-        new("J2 8062", Azal, "Gabala", "Baku", 10, 20, 45, 90, 0, 70, 0),
+        // Baku <-> Gabala: reys yoxdur (~200 km) - taksi / maşın icarəsi təklif olunur
 
         // Istanbul <-> Antalya
         new("TK 2410", Turkish, "Istanbul", "Antalya", 9, 30, 80, 120, 360, 160, 16),

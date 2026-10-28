@@ -1,0 +1,56 @@
+@model HotelTravel.Application.DTOs.Trips.TripPackageDto
+@{
+    var p = Model;
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+}
+
+@* Paket: uçuş + otel (+ taksi). Hissələr aşağıda ayrıca kart kimi də görünür. *@
+<div class="my-booking-card my-package-card">
+    <div class="my-booking-image hh-car-media my-package-media">
+        <i class="fa-solid fa-suitcase-rolling"></i>
+        <span>@T["Package"]</span>
+    </div>
+
+    <div class="my-booking-body">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+                <div class="my-booking-room">@p.FromCity → @p.ToCity</div>
+                <div class="my-booking-meta">
+                    @T["Flight + hotel package"]
+                    @if (!string.IsNullOrWhiteSpace(p.HotelName))
+                    {
+                        <span class="mx-1">•</span> @p.HotelName
+                    }
+                    <span class="mx-1">•</span>
+                    <strong>@p.Code</strong>
+                </div>
+            </div>
+
+            @if (p.DiscountPercent > 0)
+            {
+                <span class="my-booking-status status-confirmed">-@p.DiscountPercent%</span>
+            }
+        </div>
+
+        <div class="row mt-3 my-booking-meta">
+            <div class="col-sm-8 mb-2">
+                <i class="bi bi-calendar-event me-1"></i>
+                @p.DepartDate.ToString("dd MMM yyyy", culture) – @p.ReturnDate.ToString("dd MMM yyyy", culture)
+                <span class="mx-1">•</span>
+                @T.Plural(p.Nights, "night", "nights")
+                <span class="mx-1">•</span>
+                <i class="bi bi-people me-1"></i>
+                @p.Travelers
+            </div>
+            <div class="col-sm-4 mb-2 text-sm-end">
+                <strong class="text-dark fs-5">@p.Total.ToString("0.00") AZN</strong>
+            </div>
+        </div>
+
+        <div class="my-booking-actions d-flex flex-wrap gap-2 mt-2">
+            <a asp-controller="Trips" asp-action="Details" asp-route-code="@p.Code" class="btn btn-sm btn-outline-secondary">
+                @T["Package details"]
+            </a>
+        </div>
+    </div>
+</div>

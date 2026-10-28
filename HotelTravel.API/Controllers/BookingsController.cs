@@ -19,6 +19,7 @@ public class BookingsController : ApiControllerBase
     private readonly IPaymentService _payments;
     private readonly IHotelAvailabilityService _availability;
     private readonly PartnerScope _scope;
+    private readonly IPhoneCallService _phoneCalls;
 
     public BookingsController(
         IBookingService bookingService,
@@ -27,8 +28,10 @@ public class BookingsController : ApiControllerBase
         IActivityNotifier notifier,
         IPaymentService payments,
         IHotelAvailabilityService availability,
-        PartnerScope scope)
+        PartnerScope scope,
+        IPhoneCallService phoneCalls)
     {
+        _phoneCalls = phoneCalls;
         _availability = availability;
         _scope = scope;
         _bookingService = bookingService;
@@ -286,6 +289,28 @@ public class BookingsController : ApiControllerBase
         return FromResult(result.Success
             ? ApiResultDto.Ok(result.Message)
             : ApiResultDto.Fail(result.Message));
+    }
+
+    // POST: api/bookings/5/call-hotel
+    /// <summary>Admin: start a real phone call to the hotel (Twilio). When the phone is answered, the request details are read out. Needs the "Twilio" settings in User Secrets.</summary>
+    [HttpPost("{id:int}/call-hotel")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResultDto), 200)]
+    [ProducesResponseType(typeof(ApiResultDto), 400)]
+    public async Task<IActionResult> CallHotel(int id, CancellationToken cancellationToken)
+    {
+        var booking = await _bookingService.GetByIdAsync(id);
+
+        if (booking == null)
+            return NotFound(ApiResultDto.Fail("Booking not found."));
+
+        if (string.IsNullOrWhiteSpace(booking.HotelPhone))
+            return BadRequest(ApiResultDto.Fail("The hotel has no phone number."));
+
+        var (success, message) = await _phoneCalls.CallAsync(
+            booking.HotelPhone, HotelTravel.Application.Services.HotelCallScript.For(booking), cancellationToken);
+
+        return FromResult(success ? ApiResultDto.Ok(message) : ApiResultDto.Fail(message));
     }
 
     // POST: api/bookings/5/reject
