@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Cars;
+﻿using HotelTravel.Application.DTOs.Cars;
 using HotelTravel.Application.Services;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
@@ -21,7 +21,7 @@ public class CarRentalTests
         return new AppDbContext(options);
     }
 
-    private static async Task<RentalCar> SeedCarAsync(AppDbContext context)
+    private static async Task<RentalCar> SeedCarAsync(AppDbContext context, int quantity = 1)
     {
         var car = new RentalCar
         {
@@ -30,7 +30,8 @@ public class CarRentalTests
             Category = CarCategory.Sedan,
             Seats = 5,
             PricePerDay = 75,
-            IsActive = true
+            IsActive = true,
+            Quantity = quantity
         };
 
         context.RentalCars.Add(car);
@@ -152,5 +153,55 @@ public class CarRentalTests
         Assert.False(other.Success);
         Assert.True(mine.Success);
         Assert.Equal(CarRentalStatus.Cancelled, (await context.CarRentals.SingleAsync()).Status);
+    }
+
+    // =========================
+    // PARKDA BİR NEÇƏ MAŞIN
+    // =========================
+
+    [Fact]
+    public async Task Book_ShouldAllowAsManyRentalsAsCarsInFleet()
+    {
+        using var context = CreateContext();
+        var car = await SeedCarAsync(context, quantity: 2);
+        var service = new CarRentalService(context);
+
+        var first = await service.BookAsync(Request(car.Id, 1, 4), null);
+        var second = await service.BookAsync(Request(car.Id, 2, 5), null);
+        var third = await service.BookAsync(Request(car.Id, 3, 4), null);   // 2 maşın da icarədədir
+
+        Assert.True(first.Success);
+        Assert.True(second.Success);
+        Assert.False(third.Success);
+    }
+
+    [Fact]
+    public async Task Search_ShouldShowHowManyCarsAreLeft()
+    {
+        using var context = CreateContext();
+        var car = await SeedCarAsync(context, quantity: 3);
+        var service = new CarRentalService(context);
+
+        await service.BookAsync(Request(car.Id, 2, 5), null);
+
+        var cars = await service.SearchAsync("baku", Today.AddDays(3), Today.AddDays(4));
+
+        Assert.True(cars[0].IsAvailable);
+        Assert.Equal(2, cars[0].AvailableCount);
+    }
+
+    [Fact]
+    public void PeakInUse_ShouldCountCarsUsedOnTheSameDay()
+    {
+        var d = Today;
+
+        // 1-3 və 3-5: biri qaytarılan gün digəri götürür -> eyni maşın, pik = 1
+        Assert.Equal(1, CarRentalRules.PeakInUse(new[] { (d.AddDays(1), d.AddDays(3)), (d.AddDays(3), d.AddDays(5)) }, d.AddDays(1), d.AddDays(5)));
+
+        // 1-4 və 2-5 üst-üstə düşür -> pik = 2
+        Assert.Equal(2, CarRentalRules.PeakInUse(new[] { (d.AddDays(1), d.AddDays(4)), (d.AddDays(2), d.AddDays(5)) }, d.AddDays(1), d.AddDays(5)));
+
+        Assert.Equal(0, CarRentalRules.FreeCount(2, 3));
+        Assert.Equal(1, CarRentalRules.FreeCount(3, 2));
     }
 }

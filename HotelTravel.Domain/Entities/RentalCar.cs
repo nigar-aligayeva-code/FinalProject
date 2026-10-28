@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Domain.Entities;
 
@@ -22,6 +22,10 @@ public class RentalCar : BaseEntity
     public decimal PricePerDay { get; set; }
 
     public string? ImageUrl { get; set; }
+
+    // Parkda bu modeldən neçə maşın var (məs. 3 Renault Clio).
+    // Hamısı eyni günlərə icarədə olanda model "tutulub" görünür.
+    public int Quantity { get; set; } = 1;
 
     // Admin müvəqqəti olaraq parkdan çıxara bilər
     public bool IsActive { get; set; } = true;

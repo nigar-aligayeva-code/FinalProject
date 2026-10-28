@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Application.Services;
 
@@ -38,6 +38,30 @@ public static class CarRentalRules
         DateTime pickupA, DateTime returnA,
         DateTime pickupB, DateTime returnB)
         => pickupA.Date < returnB.Date && returnA.Date > pickupB.Date;
+
+    /// <summary>
+    /// Seçilən günlərdə eyni anda neçə maşın icarədədir (ən çox olan gün).
+    /// Məs. 1-3 və 3-5 icarələri eyni maşınla ola bilər (biri qaytarılan gün digəri götürür) - 1 sayılır.
+    /// </summary>
+    public static int PeakInUse(
+        IEnumerable<(DateTime Pickup, DateTime Return)> rentals,
+        DateTime pickup,
+        DateTime dropoff)
+    {
+        var list = rentals.ToList();
+        var peak = 0;
+
+        for (var day = pickup.Date; day < dropoff.Date; day = day.AddDays(1))
+        {
+            var inUse = list.Count(r => r.Pickup.Date <= day && day < r.Return.Date);
+            peak = Math.Max(peak, inUse);
+        }
+
+        return peak;
+    }
+
+    /// <summary>Seçilən tarixlərdə boş qalan maşın sayı.</summary>
+    public static int FreeCount(int quantity, int peakInUse) => Math.Max(0, quantity - peakInUse);
 
     // Qonaq götürmə günündən əvvəl ləğv edə bilər
     public static bool CanCancel(

@@ -10,6 +10,7 @@
   <data name="+ Add hotel" xml:space="preserve"><value>+ Добавить отель</value></data>
   <data name="+ Add place" xml:space="preserve"><value>+ Добавить место</value></data>
   <data name="+ Add room" xml:space="preserve"><value>+ Добавить номер</value></data>
+  <data name="/ day" xml:space="preserve"><value>/ день</value></data>
   <data name="0 Children" xml:space="preserve"><value>0 детей</value></data>
   <data name="1 Adult" xml:space="preserve"><value>1 взрослый</value></data>
   <data name="1 Child" xml:space="preserve"><value>1 ребёнок</value></data>
@@ -75,6 +76,7 @@
   <data name="Airport → Hotel" xml:space="preserve"><value>Аэропорт → Отель</value></data>
   <data name="All" xml:space="preserve"><value>Все</value></data>
   <data name="All bookings" xml:space="preserve"><value>Все брони</value></data>
+  <data name="All cars of this model are rented for some of these days. Try other dates." xml:space="preserve"><value>Все машины этой модели заняты на часть этих дней. Выберите другие даты.</value></data>
   <data name="All cities" xml:space="preserve"><value>Все города</value></data>
   <data name="All destinations" xml:space="preserve"><value>Все направления</value></data>
   <data name="All hotel cities are already connected." xml:space="preserve"><value>Все города отелей уже соединены.</value></data>
@@ -231,6 +233,8 @@
   <data name="Car updated." xml:space="preserve"><value>Машина обновлена.</value></data>
   <data name="Cars / Taxis / Flights" xml:space="preserve"><value>Авто / Такси / Рейсы</value></data>
   <data name="Cars appear on the Car rental page for the selected city." xml:space="preserve"><value>Машины показываются на странице аренды для выбранного города.</value></data>
+  <data name="Cars in {0}" xml:space="preserve"><value>Машины: {0}</value></data>
+  <data name="Cars of this model in the fleet" xml:space="preserve"><value>Сколько машин этой модели в парке</value></data>
   <data name="Category" xml:space="preserve"><value>Категория</value></data>
   <data name="Change avatar" xml:space="preserve"><value>Сменить аватар</value></data>
   <data name="Change currency" xml:space="preserve"><value>Сменить валюту</value></data>
@@ -530,6 +534,7 @@
   <data name="Full city guide" xml:space="preserve"><value>Весь путеводитель</value></data>
   <data name="Full name" xml:space="preserve"><value>Имя и фамилия</value></data>
   <data name="Fully booked" xml:space="preserve"><value>Всё занято</value></data>
+  <data name="Fully booked on these dates" xml:space="preserve"><value>На эти даты всё занято</value></data>
   <data name="Get your booking code right away. No waiting, no phone calls." xml:space="preserve"><value>Код брони сразу. Без ожидания и звонков.</value></data>
   <data name="Glasses" xml:space="preserve"><value>Очки</value></data>
   <data name="Globetrotter" xml:space="preserve"><value>Глобтроттер</value></data>
@@ -601,6 +606,7 @@
   <data name="Image deleted." xml:space="preserve"><value>Фото удалено.</value></data>
   <data name="Image not found." xml:space="preserve"><value>Фото не найдено.</value></data>
   <data name="Import real schedules" xml:space="preserve"><value>Импортировать реальное расписание</value></data>
+  <data name="In fleet" xml:space="preserve"><value>В парке</value></data>
   <data name="In Google Maps right-click the place and copy the numbers. Used for the map pop-up." xml:space="preserve"><value>В Google Maps нажмите правой кнопкой на место и скопируйте числа. Используется для карты во всплывающем окне.</value></data>
   <data name="Inactive" xml:space="preserve"><value>Неактивен</value></data>
   <data name="Independent" xml:space="preserve"><value>Независимый</value></data>
@@ -778,6 +784,7 @@
   <data name="Nothing to refund." xml:space="preserve"><value>Нечего возвращать.</value></data>
   <data name="Notifications" xml:space="preserve"><value>Уведомления</value></data>
   <data name="Notifications marked as read." xml:space="preserve"><value>Уведомления отмечены как прочитанные.</value></data>
+  <data name="Number of cars must be between 1 and 50." xml:space="preserve"><value>Количество машин должно быть от 1 до 50.</value></data>
   <data name="Number of nights" xml:space="preserve"><value>Кол-во ночей</value></data>
   <data name="Occupancy Calendar" xml:space="preserve"><value>Календарь загрузки</value></data>
   <data name="Occupancy forecast" xml:space="preserve"><value>Прогноз загрузки</value></data>
@@ -786,10 +793,11 @@
   <data name="On the map" xml:space="preserve"><value>На карте</value></data>
   <data name="One booking, one discount." xml:space="preserve"><value>Одна бронь, одна скидка.</value></data>
   <data name="Online payment is not available. You can pay at the hotel." xml:space="preserve"><value>Онлайн-оплата недоступна. Можно оплатить в отеле.</value></data>
+  <data name="Only 1 left" xml:space="preserve"><value>Осталась 1 машина</value></data>
   <data name="Only guests who completed their stay can leave a review." xml:space="preserve"><value>Оставить отзыв могут только гости, завершившие проживание.</value></data>
   <data name="Only JPG, PNG or WEBP photos are allowed." xml:space="preserve"><value>Разрешены только JPG, PNG или WEBP.</value></data>
   <data name="Only rooms free for your dates." xml:space="preserve"><value>Только свободные на ваши даты номера.</value></data>
-  <data name="Only {0} left" xml:space="preserve"><value>Осталось {0}</value></data>
+  <data name="Only {0} left" xml:space="preserve"><value>Осталось {0} машины</value></data>
   <data name="Only {0} left at this price." xml:space="preserve"><value>По этой цене осталось {0}.</value></data>
   <data name="Open" xml:space="preserve"><value>Открыть</value></data>
   <data name="Open again" xml:space="preserve"><value>Открыть снова</value></data>
@@ -946,6 +954,7 @@
   <data name="Rent a car" xml:space="preserve"><value>Аренда авто</value></data>
   <data name="Rent a car in {0}" xml:space="preserve"><value>Аренда авто: {0}</value></data>
   <data name="Rental updated." xml:space="preserve"><value>Аренда обновлена.</value></data>
+  <data name="Rented on these dates" xml:space="preserve"><value>Занята на эти даты</value></data>
   <data name="Replace Main Image" xml:space="preserve"><value>Заменить главное фото</value></data>
   <data name="Request a new link" xml:space="preserve"><value>Запросить новую ссылку</value></data>
   <data name="Request code right away" xml:space="preserve"><value>Код запроса сразу</value></data>
@@ -1164,6 +1173,7 @@
   <data name="This booking is not waiting for confirmation." xml:space="preserve"><value>Эта бронь не ожидает подтверждения.</value></data>
   <data name="This car is already booked for the selected dates." xml:space="preserve"><value>Эта машина уже забронирована на эти даты.</value></data>
   <data name="This car is already booked for these dates." xml:space="preserve"><value>Эта машина уже забронирована на эти даты.</value></data>
+  <data name="This car is already rented for some of these days. Try other dates." xml:space="preserve"><value>Эта машина уже арендована на часть этих дней. Выберите другие даты.</value></data>
   <data name="This car is no longer available." xml:space="preserve"><value>Эта машина больше недоступна.</value></data>
   <data name="This car rental can no longer be cancelled." xml:space="preserve"><value>Эту аренду уже нельзя отменить.</value></data>
   <data name="This confirmation link is invalid or has expired. Please request a new one from your profile." xml:space="preserve"><value>Ссылка недействительна или устарела. Запросите новую в профиле.</value></data>

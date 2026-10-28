@@ -68,6 +68,12 @@
         </div>
 
         <div class="cg-field">
+            <label asp-for="Quantity">@T["Cars of this model in the fleet"]</label>
+            <input asp-for="Quantity" type="number" min="1" max="50" />
+            <span asp-validation-for="Quantity" class="text-danger"></span>
+        </div>
+
+        <div class="cg-field">
             <label asp-for="PricePerDay">Price per day (AZN)</label>
             <input asp-for="PricePerDay" type="number" min="1" step="1" />
             <span asp-validation-for="PricePerDay" class="text-danger"></span>

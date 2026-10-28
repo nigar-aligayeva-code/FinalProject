@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 
 namespace HotelTravel.Application.DTOs.Cars;
 
@@ -21,6 +21,10 @@ public class CarDto
 
     // Axtarışda seçilmiş tarixlər üçün
     public bool IsAvailable { get; set; } = true;
+
+    // Parkdakı say və seçilən tarixlərdə boş qalanlar
+    public int Quantity { get; set; } = 1;
+    public int AvailableCount { get; set; }
     public int Days { get; set; }
     public decimal TotalPrice { get; set; }
 }

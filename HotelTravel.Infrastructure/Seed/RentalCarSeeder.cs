@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Entities;
+﻿using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
 using HotelTravel.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -96,6 +96,18 @@ public static class RentalCarSeeder
         new CarSpec("Mercedes-Benz V-Class", CarCategory.Van, 7, true, 170m)
     };
 
+    /// <summary>Parkda bu kateqoriyadan neçə maşın olur: ucuz maşın çox, bahalı az.</summary>
+    public static int QuantityFor(CarCategory category) => category switch
+    {
+        CarCategory.Economy => 5,
+        CarCategory.Compact => 4,
+        CarCategory.Sedan => 3,
+        CarCategory.SUV => 3,
+        CarCategory.Van => 2,
+        CarCategory.Premium => 2,
+        _ => 3
+    };
+
     /// <summary>Şəhər üçün park (testlər və seeder istifadə edir).</summary>
     public static IReadOnlyList<(string Model, CarCategory Category)> FleetFor(string city) =>
         (FleetByCity.TryGetValue(city, out var fleet) ? fleet : DefaultFleet)
@@ -113,6 +125,19 @@ public static class RentalCarSeeder
         var existing = await context.RentalCars
             .Where(c => !c.IsDeleted)
             .ToListAsync();
+
+        // Say sütunu sonradan əlavə olundu (migration köhnə maşınlara 0 yazır):
+        // onlara kateqoriyaya görə say verilir. Admin həmişə 1-50 arası seçir, ona toxunulmur.
+        var withoutQuantity = existing.Where(c => c.Quantity <= 0).ToList();
+
+        foreach (var car in withoutQuantity)
+        {
+            car.Quantity = QuantityFor(car.Category);
+            car.UpdatedAt = DateTime.UtcNow;
+        }
+
+        if (withoutQuantity.Count > 0)
+            await context.SaveChangesAsync();
 
         var cars = new List<RentalCar>();
 
@@ -153,6 +178,7 @@ public static class RentalCarSeeder
                 IsAutomatic = item.Automatic,
                 HasAirConditioning = true,
                 PricePerDay = item.Price,
+                Quantity = QuantityFor(item.Category),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,

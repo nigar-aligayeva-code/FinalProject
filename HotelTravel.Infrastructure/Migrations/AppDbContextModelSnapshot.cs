@@ -926,6 +926,9 @@ namespace HotelTravel.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<int>("Seats")
                         .HasColumnType("int");
 
