@@ -86,7 +86,7 @@
     <section class="hh-section">
         <div class="hh-section-head">
             <div>
-                <h2 class="hh-section-title">Cars in @selected</h2>
+                <h2 class="hh-section-title">@T["Cars in {0}", selected]</h2>
                 <p class="hh-section-sub">
                     @pickup.ToString("ddd, MMM d", System.Globalization.CultureInfo.CurrentUICulture) — @dropoff.ToString("ddd, MMM d", System.Globalization.CultureInfo.CurrentUICulture)
                     · @T.Plural(days, "day", "days")
@@ -121,7 +121,7 @@
                             <small class="text-muted">@T["or similar"]</small>
 
                             <ul class="hh-car-specs">
-                                <li><i class="bi bi-people"></i> @car.Seats seats</li>
+                                <li><i class="bi bi-people"></i> @T.Plural(car.Seats, "seat", "seats")</li>
                                 <li><i class="bi bi-gear"></i> @(car.IsAutomatic ? T["Automatic"] : T["Manual"])</li>
                                 @if (car.HasAirConditioning)
                                 {
@@ -132,13 +132,18 @@
 
                             <div class="hh-car-foot">
                                 <div class="hh-room-price text-start">
-                                    <small>@car.PricePerDay.ToString("0") AZN / day</small>
+                                    <small>@car.PricePerDay.ToString("0") AZN @T["/ day"]</small>
                                     <strong>@car.TotalPrice.ToString("0.00") AZN</strong>
                                     <small>@T["total for {0}", T.Plural(car.Days, "day", "days")]</small>
                                 </div>
 
                                 @if (car.IsAvailable)
                                 {
+                                    <div class="hh-car-cta">
+                                    @if (car.Days > 0 && car.AvailableCount <= 2)
+                                    {
+                                        <small class="hh-car-left">@(car.AvailableCount == 1 ? T["Only 1 left"] : T["Only {0} left", car.AvailableCount])</small>
+                                    }
                                     <a asp-controller="Cars"
                                        asp-action="Book"
                                        asp-route-carId="@car.Id"
@@ -147,10 +152,14 @@
                                        class="hh-btn hh-btn-primary">
                                         @T["Rent"]
                                     </a>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <span class="hh-car-busy">@T["Not available"]</span>
+                                    @* Bu modelin bütün maşınları həmin günlərdə icarədədir *@
+                                    <span class="hh-car-busy" title="@T["All cars of this model are rented for some of these days. Try other dates."]">
+                                        <i class="bi bi-calendar-x"></i> @T["Fully booked on these dates"]
+                                    </span>
                                 }
                             </div>
                         </div>

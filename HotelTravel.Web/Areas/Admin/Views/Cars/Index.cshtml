@@ -74,6 +74,7 @@
                     <th>@T["Car"]</th>
                     <th>@T["Category"]</th>
                     <th>@T["Details"]</th>
+                    <th>@T["In fleet"]</th>
                     <th>@T["Price / day"]</th>
                     <th>@T["Status"]</th>
                     <th>@T["Action"]</th>
@@ -90,6 +91,7 @@
                             @T.Plural(car.Seats, "seat", "seats") · @(car.IsAutomatic ? T["Automatic"] : T["Manual"])
                             @(car.HasAirConditioning ? " · A/C" : "")
                         </td>
+                        <td style="white-space:nowrap">@car.Quantity</td>
                         <td style="white-space:nowrap">@car.PricePerDay.ToString("0.00") AZN</td>
                         <td>
                             <span class="cg-badge @(car.IsActive ? "cg-Food" : "cg-Shopping")">

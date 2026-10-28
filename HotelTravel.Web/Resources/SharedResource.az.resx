@@ -10,6 +10,7 @@
   <data name="+ Add hotel" xml:space="preserve"><value>+ Otel əlavə et</value></data>
   <data name="+ Add place" xml:space="preserve"><value>+ Yer əlavə et</value></data>
   <data name="+ Add room" xml:space="preserve"><value>+ Otaq əlavə et</value></data>
+  <data name="/ day" xml:space="preserve"><value>/ gün</value></data>
   <data name="0 Children" xml:space="preserve"><value>0 uşaq</value></data>
   <data name="1 Adult" xml:space="preserve"><value>1 böyük</value></data>
   <data name="1 Child" xml:space="preserve"><value>1 uşaq</value></data>
@@ -75,6 +76,7 @@
   <data name="Airport → Hotel" xml:space="preserve"><value>Hava limanı → Otel</value></data>
   <data name="All" xml:space="preserve"><value>Hamısı</value></data>
   <data name="All bookings" xml:space="preserve"><value>Bütün rezervasiyalar</value></data>
+  <data name="All cars of this model are rented for some of these days. Try other dates." xml:space="preserve"><value>Bu modelin bütün maşınları seçdiyiniz günlərin bəzisində icarədədir. Başqa tarix seçin.</value></data>
   <data name="All cities" xml:space="preserve"><value>Bütün şəhərlər</value></data>
   <data name="All destinations" xml:space="preserve"><value>Bütün istiqamətlər</value></data>
   <data name="All hotel cities are already connected." xml:space="preserve"><value>Bütün otel şəhərləri artıq birləşdirilib.</value></data>
@@ -231,6 +233,8 @@
   <data name="Car updated." xml:space="preserve"><value>Maşın yeniləndi.</value></data>
   <data name="Cars / Taxis / Flights" xml:space="preserve"><value>Maşın / Taksi / Uçuş</value></data>
   <data name="Cars appear on the Car rental page for the selected city." xml:space="preserve"><value>Maşınlar seçilmiş şəhər üçün Avtomobil icarəsi səhifəsində görünür.</value></data>
+  <data name="Cars in {0}" xml:space="preserve"><value>{0} şəhərində maşınlar</value></data>
+  <data name="Cars of this model in the fleet" xml:space="preserve"><value>Parkda bu modeldən neçə maşın var</value></data>
   <data name="Category" xml:space="preserve"><value>Kateqoriya</value></data>
   <data name="Change avatar" xml:space="preserve"><value>Avatarı dəyiş</value></data>
   <data name="Change currency" xml:space="preserve"><value>Valyutanı dəyiş</value></data>
@@ -530,6 +534,7 @@
   <data name="Full city guide" xml:space="preserve"><value>Tam şəhər bələdçisi</value></data>
   <data name="Full name" xml:space="preserve"><value>Ad və soyad</value></data>
   <data name="Fully booked" xml:space="preserve"><value>Tam doludur</value></data>
+  <data name="Fully booked on these dates" xml:space="preserve"><value>Bu tarixlərdə hamısı tutulub</value></data>
   <data name="Get your booking code right away. No waiting, no phone calls." xml:space="preserve"><value>Rezervasiya kodunu dərhal alın. Gözləmə yoxdur, zəng lazım deyil.</value></data>
   <data name="Glasses" xml:space="preserve"><value>Eynək</value></data>
   <data name="Globetrotter" xml:space="preserve"><value>Dünya səyyahı</value></data>
@@ -601,6 +606,7 @@
   <data name="Image deleted." xml:space="preserve"><value>Şəkil silindi.</value></data>
   <data name="Image not found." xml:space="preserve"><value>Şəkil tapılmadı.</value></data>
   <data name="Import real schedules" xml:space="preserve"><value>Real cədvəli idxal et</value></data>
+  <data name="In fleet" xml:space="preserve"><value>Parkda</value></data>
   <data name="In Google Maps right-click the place and copy the numbers. Used for the map pop-up." xml:space="preserve"><value>Google Maps-də yerə sağ klikləyin və rəqəmləri kopyalayın. Xəritə pəncərəsi üçün istifadə olunur.</value></data>
   <data name="Inactive" xml:space="preserve"><value>Deaktiv</value></data>
   <data name="Independent" xml:space="preserve"><value>Müstəqil</value></data>
@@ -778,6 +784,7 @@
   <data name="Nothing to refund." xml:space="preserve"><value>Qaytarılacaq məbləğ yoxdur.</value></data>
   <data name="Notifications" xml:space="preserve"><value>Bildirişlər</value></data>
   <data name="Notifications marked as read." xml:space="preserve"><value>Bildirişlər oxundu kimi qeyd edildi.</value></data>
+  <data name="Number of cars must be between 1 and 50." xml:space="preserve"><value>Maşın sayı 1 ilə 50 arasında olmalıdır.</value></data>
   <data name="Number of nights" xml:space="preserve"><value>Gecə sayı</value></data>
   <data name="Occupancy Calendar" xml:space="preserve"><value>Doluluq təqvimi</value></data>
   <data name="Occupancy forecast" xml:space="preserve"><value>Doluluq proqnozu</value></data>
@@ -786,10 +793,11 @@
   <data name="On the map" xml:space="preserve"><value>Xəritədə</value></data>
   <data name="One booking, one discount." xml:space="preserve"><value>Bir rezervasiya, bir endirim.</value></data>
   <data name="Online payment is not available. You can pay at the hotel." xml:space="preserve"><value>Onlayn ödəniş mövcud deyil. Oteldə ödəyə bilərsiniz.</value></data>
+  <data name="Only 1 left" xml:space="preserve"><value>Cəmi 1 maşın qalıb</value></data>
   <data name="Only guests who completed their stay can leave a review." xml:space="preserve"><value>Yalnız qalmasını başa vurmuş qonaqlar rəy yaza bilər.</value></data>
   <data name="Only JPG, PNG or WEBP photos are allowed." xml:space="preserve"><value>Yalnız JPG, PNG və ya WEBP şəkillər qəbul olunur.</value></data>
   <data name="Only rooms free for your dates." xml:space="preserve"><value>Yalnız tarixləriniz üçün boş otaqlar.</value></data>
-  <data name="Only {0} left" xml:space="preserve"><value>Cəmi {0} qalıb</value></data>
+  <data name="Only {0} left" xml:space="preserve"><value>Cəmi {0} maşın qalıb</value></data>
   <data name="Only {0} left at this price." xml:space="preserve"><value>Bu qiymətə cəmi {0} qalıb.</value></data>
   <data name="Open" xml:space="preserve"><value>Aç</value></data>
   <data name="Open again" xml:space="preserve"><value>Yenidən aç</value></data>
@@ -946,6 +954,7 @@
   <data name="Rent a car" xml:space="preserve"><value>Avtomobil icarəsi</value></data>
   <data name="Rent a car in {0}" xml:space="preserve"><value>{0} şəhərində maşın icarəsi</value></data>
   <data name="Rental updated." xml:space="preserve"><value>İcarə yeniləndi.</value></data>
+  <data name="Rented on these dates" xml:space="preserve"><value>Bu tarixlərdə icarədədir</value></data>
   <data name="Replace Main Image" xml:space="preserve"><value>Əsas şəkli dəyiş</value></data>
   <data name="Request a new link" xml:space="preserve"><value>Yeni link istə</value></data>
   <data name="Request code right away" xml:space="preserve"><value>Sorğu kodu dərhal verilir</value></data>
@@ -1164,6 +1173,7 @@
   <data name="This booking is not waiting for confirmation." xml:space="preserve"><value>Bu rezervasiya təsdiq gözləmir.</value></data>
   <data name="This car is already booked for the selected dates." xml:space="preserve"><value>Bu maşın seçilmiş tarixlər üçün artıq bron olunub.</value></data>
   <data name="This car is already booked for these dates." xml:space="preserve"><value>Bu maşın həmin tarixlər üçün artıq bron olunub.</value></data>
+  <data name="This car is already rented for some of these days. Try other dates." xml:space="preserve"><value>Bu maşın seçdiyiniz günlərin bəzisində artıq icarədədir. Başqa tarix seçin.</value></data>
   <data name="This car is no longer available." xml:space="preserve"><value>Bu maşın artıq mövcud deyil.</value></data>
   <data name="This car rental can no longer be cancelled." xml:space="preserve"><value>Bu icarəni artıq ləğv etmək olmaz.</value></data>
   <data name="This confirmation link is invalid or has expired. Please request a new one from your profile." xml:space="preserve"><value>Bu təsdiq linki etibarsızdır və ya müddəti bitib. Profilinizdən yenisini istəyin.</value></data>

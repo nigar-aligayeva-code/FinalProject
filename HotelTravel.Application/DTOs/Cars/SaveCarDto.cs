@@ -1,4 +1,4 @@
-using HotelTravel.Domain.Enums;
+﻿using HotelTravel.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace HotelTravel.Application.DTOs.Cars;
@@ -32,4 +32,8 @@ public class SaveCarDto
     public string? ImageUrl { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    // Bu modeldən parkda neçə maşın var
+    [Range(1, 50, ErrorMessage = "Number of cars must be between 1 and 50.")]
+    public int Quantity { get; set; } = 3;
 }

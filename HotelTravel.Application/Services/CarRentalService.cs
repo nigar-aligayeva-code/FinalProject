@@ -1,4 +1,4 @@
-using HotelTravel.Application.DTOs.Cars;
+﻿using HotelTravel.Application.DTOs.Cars;
 using HotelTravel.Application.Interfaces;
 using HotelTravel.Domain.Entities;
 using HotelTravel.Domain.Enums;
@@ -103,16 +103,20 @@ public class CarRentalService : ICarRentalService
         var pickup = dto.PickupDate.Date;
         var dropoff = dto.ReturnDate.Date;
 
-        // Eyni maşın eyni tarixlərdə iki dəfə icarəyə verilməsin
-        var isBooked = await _context.CarRentals
-            .AnyAsync(r =>
+        // Bu modelin bütün maşınları həmin günlərdə icarədədirsə - olmaz
+        var overlapping = await _context.CarRentals
+            .Where(r =>
                 r.RentalCarId == car.Id &&
                 !r.IsDeleted &&
                 r.Status != CarRentalStatus.Cancelled &&
                 pickup < r.ReturnDate &&
-                dropoff > r.PickupDate);
+                dropoff > r.PickupDate)
+            .Select(r => new { r.PickupDate, r.ReturnDate })
+            .ToListAsync();
 
-        if (isBooked)
+        var inUse = CarRentalRules.PeakInUse(overlapping.Select(r => (r.PickupDate, r.ReturnDate)), pickup, dropoff);
+
+        if (CarRentalRules.FreeCount(car.Quantity, inUse) == 0)
             return (false, "This car is already booked for the selected dates.", null);
 
         var days = CarRentalRules.CountDays(pickup, dropoff);
@@ -239,7 +243,8 @@ public class CarRentalService : ICarRentalService
                 HasAirConditioning = c.HasAirConditioning,
                 PricePerDay = c.PricePerDay,
                 ImageUrl = c.ImageUrl,
-                IsActive = c.IsActive
+                IsActive = c.IsActive,
+                Quantity = c.Quantity
             })
             .FirstOrDefaultAsync();
     }
@@ -274,6 +279,7 @@ public class CarRentalService : ICarRentalService
         car.PricePerDay = dto.PricePerDay;
         car.ImageUrl = string.IsNullOrWhiteSpace(dto.ImageUrl) ? null : dto.ImageUrl.Trim();
         car.IsActive = dto.IsActive;
+        car.Quantity = Math.Clamp(dto.Quantity, 1, 50);
         car.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
@@ -351,22 +357,27 @@ public class CarRentalService : ICarRentalService
 
         var carIds = cars.Select(c => c.Id).ToList();
 
-        var bookedIds = await _context.CarRentals
+        var rentals = await _context.CarRentals
             .Where(r =>
                 carIds.Contains(r.RentalCarId) &&
                 !r.IsDeleted &&
                 r.Status != CarRentalStatus.Cancelled &&
                 pickup < r.ReturnDate &&
                 dropoff > r.PickupDate)
-            .Select(r => r.RentalCarId)
-            .Distinct()
+            .Select(r => new { r.RentalCarId, r.PickupDate, r.ReturnDate })
             .ToListAsync();
 
         foreach (var car in cars)
         {
+            var inUse = CarRentalRules.PeakInUse(
+                rentals.Where(r => r.RentalCarId == car.Id).Select(r => (r.PickupDate, r.ReturnDate)),
+                pickup,
+                dropoff);
+
             car.Days = days;
             car.TotalPrice = CarRentalRules.CalculateTotal(car.PricePerDay, days);
-            car.IsAvailable = !bookedIds.Contains(car.Id);
+            car.AvailableCount = CarRentalRules.FreeCount(car.Quantity, inUse);
+            car.IsAvailable = car.AvailableCount > 0;
         }
     }
 
@@ -396,7 +407,9 @@ public class CarRentalService : ICarRentalService
             HasAirConditioning = c.HasAirConditioning,
             PricePerDay = c.PricePerDay,
             ImageUrl = c.ImageUrl,
-            IsActive = c.IsActive
+            IsActive = c.IsActive,
+            Quantity = c.Quantity,
+            AvailableCount = c.Quantity
         });
     }
 
